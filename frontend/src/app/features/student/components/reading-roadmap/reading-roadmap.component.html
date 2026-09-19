@@ -34,28 +34,6 @@
         <span class="legend-dot dot-locked"></span>
         <span>Bloqueado</span>
       </div>
-      <div class="legend-item" *ngIf="isAdmin">
-        <span class="legend-dot dot-admin"></span>
-        <span>Superacceso Admin (100%)</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Admin Superaccess Banner -->
-  <div *ngIf="isAdmin" class="admin-superaccess-banner">
-    <div class="admin-banner-icon">
-      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/>
-      </svg>
-    </div>
-    <div class="admin-banner-info">
-      <div class="admin-banner-title">
-        <strong>Modo Administrador · Progreso al 100% y Desbloqueo Total</strong>
-        <span class="admin-pill-badge">38/38 Niveles Habilitados</span>
-      </div>
-      <p class="admin-banner-text">
-        Tienes asignadas 99,999 monedas, todas las 5 etapas superadas y acceso inmediato a probar cualquiera de las 38 lecturas pedagógicas en tiempo real con micrófono.
-      </p>
     </div>
   </div>
 
@@ -215,27 +193,21 @@
 
         <!-- Action Button -->
         <div class="node-action">
-          <!-- Admin Mode: Immediate Test -->
-          <button *ngIf="isAdmin" (click)="onNodeClick(reading)" class="btn-start btn-admin-test">
-            <span>Probar Reto en Vivo (Admin)</span>
-            <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
-          </button>
-
-          <!-- Student Current Level -->
-          <button *ngIf="!isAdmin && isCurrent(reading)" (click)="onNodeClick(reading)" class="btn-start">
+          <!-- Current Level (Active Blue CTA) -->
+          <button *ngIf="isCurrent(reading)" (click)="onNodeClick(reading)" class="btn-start">
             <span>Comenzar Reto en Vivo</span>
             <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
           </button>
 
-          <!-- Student Completed Replay -->
-          <button *ngIf="!isAdmin && isCompleted(reading)" (click)="onNodeClick(reading)" class="btn-replay">
+          <!-- Completed Level (Replay Gold Button) -->
+          <button *ngIf="isCompleted(reading)" (click)="onNodeClick(reading)" class="btn-replay">
             <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
             <span>Releer y Mejorar</span>
           </button>
 
-          <!-- Student Locked Level -->
-          <div *ngIf="!isAdmin && isLocked(reading)" class="locked-notice">
-            <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+          <!-- Locked Level (Locked Notice - clickable for Admin testing) -->
+          <div *ngIf="isLocked(reading)" (click)="onNodeClick(reading)" class="locked-notice" [class.admin-test-allowed]="isAdmin" [attr.title]="isAdmin ? 'Clic para probar este nivel (Admin)' : null">
+            <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
             <span>Requiere superar Nivel {{ reading.level - 1 }}</span>
           </div>
         </div>

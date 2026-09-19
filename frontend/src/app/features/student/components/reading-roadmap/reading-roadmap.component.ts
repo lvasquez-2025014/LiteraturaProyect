@@ -36,9 +36,6 @@ export class ReadingRoadmapComponent implements OnInit, OnChanges {
   }
 
   private updateActiveStageFromCurrentLevel(): void {
-    if (this.isAdmin) {
-      return;
-    }
     const currentStage = this.stages.find(
       (s) => this.currentLevel >= s.startLevel && this.currentLevel <= s.endLevel
     );
@@ -73,16 +70,6 @@ export class ReadingRoadmapComponent implements OnInit, OnChanges {
 
   getStageProgress(stage: RoadmapStage): { completed: number; total: number; percentage: number; isUnlocked: boolean; isCompleted: boolean } {
     const total = stage.totalLevels;
-    if (this.isAdmin) {
-      return {
-        completed: total,
-        total,
-        percentage: 100,
-        isUnlocked: true,
-        isCompleted: true,
-      };
-    }
-
     const stageReadings = this.sortedReadings.filter(
       (r) => r.level >= stage.startLevel && r.level <= stage.endLevel
     );
@@ -101,17 +88,14 @@ export class ReadingRoadmapComponent implements OnInit, OnChanges {
   }
 
   isCompleted(reading: Reading): boolean {
-    if (this.isAdmin) return true;
     return !!reading.completed || reading.level < this.currentLevel;
   }
 
   isCurrent(reading: Reading): boolean {
-    if (this.isAdmin) return false;
     return reading.level === this.currentLevel;
   }
 
   isLocked(reading: Reading): boolean {
-    if (this.isAdmin) return false;
     return !this.isCompleted(reading) && !this.isCurrent(reading);
   }
 
