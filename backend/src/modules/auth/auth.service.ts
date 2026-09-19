@@ -122,12 +122,16 @@ export class AuthService {
       let user = await this.usersService.findByEmail(email);
 
       // Autorización de rol Administrador estrictamente desde variable de entorno ADMIN_EMAIL
-      const adminEmailConfig = (process.env.ADMIN_EMAIL || '')
-        .toLowerCase()
-        .split(',')
-        .map((e) => e.trim());
+      const rawAdminEmail = process.env.ADMIN_EMAIL ? process.env.ADMIN_EMAIL.trim() : '';
+      const adminEmailConfig = rawAdminEmail
+        ? rawAdminEmail
+            .toLowerCase()
+            .split(',')
+            .map((e) => e.trim())
+            .filter((e) => e.length > 0)
+        : [];
 
-      const isAdminAccount = adminEmailConfig.includes(email);
+      const isAdminAccount = adminEmailConfig.length > 0 && adminEmailConfig.includes(email);
 
       if (!user) {
         const initialRole = isAdminAccount ? 'ADMIN_ROLE' : 'STUDENT_ROLE';
