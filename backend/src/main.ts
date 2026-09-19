@@ -1,6 +1,16 @@
 import 'reflect-metadata';
+import * as dns from 'node:dns';
 import * as dotenv from 'dotenv';
 dotenv.config();
+
+// Fallback de DNS en Windows para resolución fluida de MongoDB Atlas SRV
+if (process.platform === 'win32') {
+  try {
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+  } catch (e) {
+    // Ignorar si el sistema restringe setServers
+  }
+}
 
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
