@@ -77,20 +77,7 @@
         <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Modo Enfoque</span>
       </button>
 
-      <!-- Progressive / Teleprompter Mode Toggle -->
-      <button 
-        (click)="toggleReadingMode()" 
-        class="tool-pill-btn" 
-        [class.tool-pill-active]="readingMode === 'progressive'"
-        title="El modo progresivo revela el texto a medida que lees, ideal para pantallas de teléfono">
-        <span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;">
-            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
-            <line x1="12" y1="18" x2="12.01" y2="18"/>
-          </svg> 
-          {{ readingMode === 'progressive' ? 'Modo Progresivo' : 'Texto Completo' }}
-        </span>
-      </button>
+
 
       <!-- Audio Effects Toggle -->
       <button 
@@ -140,23 +127,8 @@
     <button (click)="mode = 'assisted'; startReading()" class="btn-alert-action">Activar Modo Asistido</button>
   </div>
 
-  <!-- Reading Canvas (Word-by-word Karaoke Style with High Precision Highlighting) -->
-  <main 
-    class="reading-canvas"
-    [class.canvas-preview-compact]="readingMode === 'progressive' && !isRecording && !isPaused && secondsElapsed === 0">
-    
-    <!-- Pre-reading banner in progressive mode -->
-    <div 
-      *ngIf="readingMode === 'progressive' && !isRecording && !isPaused && secondsElapsed === 0" 
-      class="pre-reading-mobile-card">
-      <div class="pre-reading-badge">
-        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#004AAD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;">
-          <circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>
-        </svg>
-        <span>Vista previa · El texto se irá desplegando en pantalla conforme leas con tu micrófono</span>
-      </div>
-    </div>
-
+  <!-- Reading Canvas (Word-by-word Karaoke Style with Ultra-Stable Layout) -->
+  <main class="reading-canvas">
     <div 
       class="reading-text-box"
       [class.text-size-normal]="fontSize === 'normal'"
@@ -164,25 +136,16 @@
       [class.text-size-xlarge]="fontSize === 'xlarge'">
       
       <p class="reading-paragraph">
-        <ng-container *ngFor="let word of words; let i = index">
-          <span
-            *ngIf="isWordVisible(i)"
-            class="word-token"
-            [class.word-read]="i < currentWordIndex"
-            [class.word-current]="i === currentWordIndex && (isRecording || isNarrating)"
-            [class.word-pending]="i > currentWordIndex"
-            [class.word-dimmed]="focusMode && isRecording && !isWordInFocus(i)"
-            (click)="onWordClick(word, i)"
-            title="Haz clic para consultar o sincronizar"
-          >{{ word }} </span>
-        </ng-container>
-
-        <!-- Indicador de texto futuro antes de iniciar en modo progresivo -->
-        <span 
-          *ngIf="readingMode === 'progressive' && !isRecording && !isPaused && secondsElapsed === 0 && words.length > 18" 
-          class="progressive-preview-ellipsis">
-          ... [El resto de la lectura aparecerá automáticamente al comenzar]
-        </span>
+        <span
+          *ngFor="let word of words; let i = index"
+          class="word-token"
+          [class.word-read]="i < currentWordIndex"
+          [class.word-current]="i === currentWordIndex && (isRecording || isNarrating)"
+          [class.word-pending]="i > currentWordIndex"
+          [class.word-dimmed]="focusMode && isRecording && !isWordInFocus(i)"
+          (click)="onWordClick(word, i)"
+          title="Haz clic para consultar o sincronizar"
+        >{{ word }} </span>
       </p>
 
     </div>

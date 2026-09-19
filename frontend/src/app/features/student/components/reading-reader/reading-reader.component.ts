@@ -36,8 +36,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   micError: string | null = null;
   mode: 'mic' | 'assisted' = 'mic';
 
-  // Modo de visualización: Progresivo (teleprompter móvil amigable) o Texto Completo
-  readingMode: 'progressive' | 'full' = 'progressive';
+
 
   // Opciones de Accesibilidad y Pedagogía
   fontSize: 'normal' | 'large' | 'xlarge' = 'normal';
@@ -93,28 +92,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     this.speechService.stopNarrator();
   }
 
-  /**
-   * Determina si una palabra debe renderizarse según el modo de visualización.
-   * En modo progresivo:
-   * - Antes de iniciar la lectura: se muestra solo un adelanto inicial (~18 palabras)
-   *   para que el usuario no tenga que hacer scroll interminable en teléfono.
-   * - Al iniciar la lectura: se revelan las palabras leídas + un buffer de 14 palabras
-   *   a futuro que van apareciendo progresivamente a medida que el alumno lee.
-   */
-  isWordVisible(index: number): boolean {
-    if (this.readingMode === 'full') {
-      return true;
-    }
-    const hasStarted = this.isRecording || this.isPaused || this.secondsElapsed > 0;
-    if (!hasStarted) {
-      return index < 18;
-    }
-    return index <= this.currentWordIndex + 14;
-  }
 
-  toggleReadingMode(): void {
-    this.readingMode = this.readingMode === 'progressive' ? 'full' : 'progressive';
-  }
 
   /**
    * Motor de coincidencia fonética y ortográfica de ultra-alta precisión.
@@ -239,8 +217,12 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   private scrollToCurrentWord(): void {
     if (typeof document === 'undefined') return;
     setTimeout(() => {
-      const currentEl = document.querySelector('.word-current');
-      if (currentEl) {
+      const currentEl = document.querySelector('.word-current') as HTMLElement | null;
+      if (!currentEl) return;
+      const rect = currentEl.getBoundingClientRect();
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+      // Desplazamiento suave únicamente si la palabra activa se acerca al límite inferior o superior visible
+      if (rect.bottom > viewportHeight - 160 || rect.top < 120) {
         currentEl.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
       }
     }, 10);
