@@ -118,6 +118,50 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
+  canDeleteUser(targetUser: User): boolean {
+    const current = this.auth.currentUserSignal();
+    if (!current) return false;
+    const currentId = current.id || (current as any)._id;
+    const targetId = targetUser.id || (targetUser as any)._id;
+
+    // No puede eliminarse a sí mismo
+    if (currentId === targetId || current.email?.toLowerCase() === targetUser.email?.toLowerCase()) {
+      return false;
+    }
+
+    // La cuenta del Administrador Principal (.env) nunca se puede eliminar
+    if (targetUser.isSuperAdmin) {
+      return false;
+    }
+
+    // Si el usuario destino es ADMIN_ROLE, SOLO el Administrador Principal del .env puede eliminarlo
+    if (targetUser.role === 'ADMIN_ROLE') {
+      return !!current.isSuperAdmin;
+    }
+
+    // Estudiantes y docentes pueden ser eliminados por cualquier admin
+    return true;
+  }
+
+  canChangeRole(targetUser: User): boolean {
+    const current = this.auth.currentUserSignal();
+    if (!current) return false;
+    const currentId = current.id || (current as any)._id;
+
+    // No puede cambiar su propio rol
+    if (currentId === (targetUser.id || (targetUser as any)._id)) return false;
+
+    // La cuenta del Administrador Principal (.env) nunca puede ser modificada
+    if (targetUser.isSuperAdmin) return false;
+
+    // Si el usuario es ADMIN_ROLE, solo el Administrador Principal del .env puede modificar su rol
+    if (targetUser.role === 'ADMIN_ROLE' && !current.isSuperAdmin) {
+      return false;
+    }
+
+    return true;
+  }
+
   private showToast(msg: string) {
     this.successMessage = msg;
     this.cdr.markForCheck();

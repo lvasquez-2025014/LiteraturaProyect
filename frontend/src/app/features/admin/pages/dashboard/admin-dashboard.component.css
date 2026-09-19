@@ -160,6 +160,20 @@
   background: #fecaca;
 }
 
+.badge-protected {
+  display: inline-flex;
+  align-items: center;
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+  padding: 4px 9px;
+  border-radius: var(--radius-sm);
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: help;
+  user-select: none;
+}
+
 .loading-state {
   display: flex;
   align-items: center;

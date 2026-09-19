@@ -27,6 +27,7 @@ export interface User {
   claimedMissions?: string[];
   lastChestClaimDate?: string;
   status?: 'Activo' | 'Inactivo';
+  isSuperAdmin?: boolean;
 }
 
 export interface AuthResponse {

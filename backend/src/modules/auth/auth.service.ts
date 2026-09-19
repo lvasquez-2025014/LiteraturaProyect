@@ -20,11 +20,22 @@ export class AuthService {
   }
 
   private generateToken(user: UserDocument): string {
+    const rawAdminEmail = process.env.ADMIN_EMAIL ? process.env.ADMIN_EMAIL.trim() : '';
+    const adminEmailConfig = rawAdminEmail
+      ? rawAdminEmail
+          .toLowerCase()
+          .split(',')
+          .map((e) => e.trim())
+          .filter((e) => e.length > 0)
+      : [];
+    const isSuperAdmin = adminEmailConfig.includes((user.email || '').toLowerCase().trim());
+
     const payload = {
       id: user._id ? user._id.toString() : '',
       email: user.email,
       name: user.name,
       role: user.role,
+      isSuperAdmin,
       avatarUrl: user.avatarUrl,
       grade: user.grade,
       section: user.section,
@@ -36,7 +47,17 @@ export class AuthService {
   }
 
   private formatUserResponse(user: UserDocument, token: string) {
+    const rawAdminEmail = process.env.ADMIN_EMAIL ? process.env.ADMIN_EMAIL.trim() : '';
+    const adminEmailConfig = rawAdminEmail
+      ? rawAdminEmail
+          .toLowerCase()
+          .split(',')
+          .map((e) => e.trim())
+          .filter((e) => e.length > 0)
+      : [];
+    const isSuperAdmin = adminEmailConfig.includes((user.email || '').toLowerCase().trim());
     const isAdmin = user.role === 'ADMIN_ROLE';
+
     return {
       token,
       user: {
@@ -44,6 +65,7 @@ export class AuthService {
         email: user.email,
         name: user.name,
         role: user.role,
+        isSuperAdmin,
         avatarUrl: user.avatarUrl || '',
         grade: user.grade,
         section: user.section,
@@ -177,7 +199,20 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Cuenta no encontrada o no autorizada');
     }
+    const rawAdminEmail = process.env.ADMIN_EMAIL ? process.env.ADMIN_EMAIL.trim() : '';
+    const adminEmailConfig = rawAdminEmail
+      ? rawAdminEmail
+          .toLowerCase()
+          .split(',')
+          .map((e) => e.trim())
+          .filter((e) => e.length > 0)
+      : [];
+    const isSuperAdmin = adminEmailConfig.includes((user.email || '').toLowerCase().trim());
     const { password, ...safeUser } = user;
-    return safeUser;
+    return {
+      ...safeUser,
+      id: user._id ? user._id.toString() : '',
+      isSuperAdmin,
+    };
   }
 }
