@@ -156,12 +156,16 @@ export class SpeechRecognitionService {
   private synth: SpeechSynthesis | null = null;
   private currentUtterance: SpeechSynthesisUtterance | null = null;
 
+  private utteranceCounter = 0;
+  private lastResultIndex = -1;
+
   public onStateChange?: (state: SpeechRecognitionState) => void;
   public onWordsUpdated?: (
     words: string[],
     wpm: number,
-    recentPhrase?: string,
-    candidateAlts?: string[]
+    activeTokens?: string[],
+    candidateAlts?: string[],
+    utteranceId?: number
   ) => void;
 
   constructor() {
@@ -175,35 +179,47 @@ export class SpeechRecognitionService {
           this.recognition = new SpeechRecognition();
           this.recognition.continuous = true;
           this.recognition.interimResults = true;
-          this.recognition.maxAlternatives = 3;
+          this.recognition.maxAlternatives = 5;
           this.recognition.lang = 'es-GT';
 
           this.recognition.onresult = (event: any) => {
             this.ngZone.run(() => {
+              if (event.resultIndex !== this.lastResultIndex) {
+                this.lastResultIndex = event.resultIndex;
+                this.utteranceCounter++;
+              }
+
               let currentInterim = '';
-              let recentSegment = '';
+              const latestIndex = event.results.length - 1;
+              const latestResult = event.results[latestIndex];
+
+              // Tokens de la frase activa actual
+              const primaryTranscript = latestResult ? (latestResult[0]?.transcript || '') : '';
+              const activeTokens = primaryTranscript.trim().split(/\s+/).filter(Boolean);
+
+              // Alternativas del motor de reconocimiento
               const altWords: string[] = [];
-
-              for (let i = event.resultIndex; i < event.results.length; ++i) {
-                const primary = event.results[i][0]?.transcript || '';
-                recentSegment += ' ' + primary;
-
-                // Extraer alternativas para máxima respuesta ante monosílabos rápidos
-                for (let a = 0; a < event.results[i].length; ++a) {
-                  const alt = event.results[i][a]?.transcript;
+              if (latestResult) {
+                for (let a = 1; a < latestResult.length; ++a) {
+                  const alt = latestResult[a]?.transcript;
                   if (alt) {
                     altWords.push(...alt.trim().split(/\s+/).filter(Boolean));
                   }
                 }
+              }
 
+              for (let i = 0; i < event.results.length; ++i) {
                 if (event.results[i].isFinal) {
-                  this.fullTranscript += ' ' + primary;
+                  if (i >= event.resultIndex) {
+                    this.fullTranscript += ' ' + (event.results[i][0]?.transcript || '');
+                  }
                 } else {
-                  currentInterim += primary;
+                  currentInterim += ' ' + (event.results[i][0]?.transcript || '');
                 }
               }
-              this.interimTranscript = currentInterim;
-              this.emitUpdate(null, recentSegment.trim(), altWords);
+              this.interimTranscript = currentInterim.trim();
+
+              this.emitUpdate(null, activeTokens, altWords, this.utteranceCounter);
             });
           };
 
@@ -254,6 +270,8 @@ export class SpeechRecognitionService {
     this.pauseTimestamp = null;
     this.isListening = true;
     this.isPaused = false;
+    this.utteranceCounter = 0;
+    this.lastResultIndex = -1;
 
     if (this.recognition) {
       try {
@@ -526,15 +544,16 @@ export class SpeechRecognitionService {
 
   private emitUpdate(
     errorMessage: string | null = null,
-    recentPhrase?: string,
-    candidateAlts?: string[]
+    activeTokens?: string[],
+    candidateAlts?: string[],
+    utteranceId?: number
   ): void {
     const combined = (this.fullTranscript + ' ' + this.interimTranscript).trim();
     const words = combined ? combined.split(/\s+/).filter(Boolean) : [];
     const currentWpm = this.calculateWpm();
 
     if (this.onWordsUpdated) {
-      this.onWordsUpdated(words, currentWpm, recentPhrase, candidateAlts);
+      this.onWordsUpdated(words, currentWpm, activeTokens, candidateAlts, utteranceId);
     }
 
     if (this.onStateChange) {

@@ -77,12 +77,15 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       this.cdr.detectChanges();
     };
 
-    this.speechService.onWordsUpdated = (spokenWords, wpm, recentPhrase, candidateAlts) => {
+    this.speechService.onWordsUpdated = (spokenWords, wpm, activeTokens, candidateAlts, utteranceId) => {
       this.currentWpm = wpm;
-      this.processSpokenWords(spokenWords, recentPhrase, candidateAlts);
+      this.processSpokenTokens(activeTokens || [], candidateAlts || [], utteranceId ?? 0);
       this.cdr.detectChanges();
     };
   }
+
+  private currentUtteranceId = -1;
+  private consumedTokensInUtterance = 0;
 
   ngOnDestroy(): void {
     this.stopTimer();
@@ -114,74 +117,100 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Motor de coincidencia fonética secuencial de alta precisión.
-   * Procesa palabra por palabra garantizando que el avance sea fiel a la voz del lector.
-   * Soporta tildes diacríticas (é, á, í, ó, ú), sinalefas y auto-desplazamiento.
+   * Motor de coincidencia fonética y ortográfica de ultra-alta precisión.
+   * Procesa palabra por palabra en estricto orden secuencial rastreando los tokens
+   * no consumidos por enunciado.
+   * Previene saltos falsos, tolera sinalefas, palabras compuestas y tildes.
    */
-  private processSpokenWords(
-    spokenWords: string[],
-    recentPhrase?: string,
-    candidateAlts?: string[]
+  private processSpokenTokens(
+    activeTokens: string[],
+    candidateAlts: string[],
+    utteranceId: number
   ): void {
-    if (!spokenWords || spokenWords.length === 0 || this.currentWordIndex >= this.totalWords) return;
+    if (this.currentWordIndex >= this.totalWords || activeTokens.length === 0) return;
 
-    // Tokens primarios reconocidos de la frase en curso
-    const primaryTokens: string[] = recentPhrase && recentPhrase.trim().length > 0
-      ? recentPhrase.trim().split(/\s+/).filter(Boolean)
-      : spokenWords.slice(Math.max(0, spokenWords.length - 2));
+    if (utteranceId !== this.currentUtteranceId) {
+      this.currentUtteranceId = utteranceId;
+      this.consumedTokensInUtterance = 0;
+    }
 
-    if (primaryTokens.length === 0) return;
+    const unconsumed = activeTokens.slice(this.consumedTokensInUtterance);
+    if (unconsumed.length === 0) return;
 
     let advanced = false;
     const initialIndex = this.currentWordIndex;
 
-    // 1. Coincidencia secuencial estricta sobre la palabra activa
-    for (let tIdx = 0; tIdx < primaryTokens.length; tIdx++) {
+    for (let i = 0; i < unconsumed.length; i++) {
       if (this.currentWordIndex >= this.totalWords) break;
 
-      const token = primaryTokens[tIdx];
-      const currentTarget = this.words[this.currentWordIndex];
+      const token = unconsumed[i];
+      const target = this.words[this.currentWordIndex];
 
-      // Coincidencia directa fonética u ortográfica
-      if (isPhoneticMatch(token, currentTarget)) {
+      // 1. Coincidencia directa fonética y ortográfica (máxima precisión con tildes)
+      if (isPhoneticMatch(token, target)) {
         this.currentWordIndex++;
+        this.consumedTokensInUtterance++;
         advanced = true;
         continue;
       }
 
-      // Verificación de sinalefa (dos palabras unidas por el habla fluida: "a las" -> "alas", "de el" -> "del")
+      // 2. Sinalefa (dos palabras leídas juntas de corrido: "a las" -> "alas", "de el" -> "del", "de la" -> "dela")
       if (this.currentWordIndex + 1 < this.totalWords) {
-        const combinedTarget = currentTarget + this.words[this.currentWordIndex + 1];
+        const combinedTarget = target + this.words[this.currentWordIndex + 1];
         if (isPhoneticMatch(token, combinedTarget)) {
           this.currentWordIndex += 2;
+          this.consumedTokensInUtterance++;
           advanced = true;
           continue;
         }
       }
 
-      // Verificación de palabra compuesta dividida en dos tokens hablados (e.g. "tan", "bien" -> "también")
-      if (tIdx + 1 < primaryTokens.length) {
-        const combinedSpoken = token + primaryTokens[tIdx + 1];
-        if (isPhoneticMatch(combinedSpoken, currentTarget)) {
+      // 3. Palabra compuesta o tildada dividida en dos tokens por el micrófono (e.g. "tan", "bien" -> "también")
+      if (i + 1 < unconsumed.length) {
+        const combinedSpoken = token + unconsumed[i + 1];
+        if (isPhoneticMatch(combinedSpoken, target)) {
           this.currentWordIndex++;
+          this.consumedTokensInUtterance += 2;
+          i++;
           advanced = true;
-          tIdx++; // Consumir siguiente token
           continue;
         }
       }
-    }
 
-    // 2. Si no avanzó con el token principal, verificar alternativas directas del reconocedor
-    // para capturar instantáneamente palabras cortas o tildadas (e.g. "él", "sé", "té", "dé", "qué", "fértil")
-    if (!advanced && candidateAlts && candidateAlts.length > 0 && this.currentWordIndex < this.totalWords) {
-      const currentTarget = this.words[this.currentWordIndex];
-      for (const altToken of candidateAlts) {
-        if (isPhoneticMatch(altToken, currentTarget)) {
-          this.currentWordIndex++;
+      // 4. Puente para conjunciones breves de 1 o 2 letras ("y", "a", "o", "e", "de")
+      if (target.length <= 2 && this.currentWordIndex + 1 < this.totalWords) {
+        const nextTarget = this.words[this.currentWordIndex + 1];
+        if (isPhoneticMatch(token, nextTarget)) {
+          this.currentWordIndex += 2;
+          this.consumedTokensInUtterance++;
           advanced = true;
-          break;
+          continue;
         }
       }
+
+      // 5. Alternativas fonéticas del motor de voz para palabras cortas o tildadas
+      if (candidateAlts && candidateAlts.length > 0) {
+        let altMatched = false;
+        for (const alt of candidateAlts) {
+          if (isPhoneticMatch(alt, target)) {
+            this.currentWordIndex++;
+            this.consumedTokensInUtterance++;
+            advanced = true;
+            altMatched = true;
+            break;
+          }
+        }
+        if (altMatched) continue;
+      }
+
+      // 6. Si el alumno repitió la palabra anterior (relectura: "el... el"), consumimos el token sin avanzar erróneamente
+      if (this.currentWordIndex > 0 && isPhoneticMatch(token, this.words[this.currentWordIndex - 1])) {
+        this.consumedTokensInUtterance++;
+        continue;
+      }
+
+      // Si el token no coincidió con la palabra esperada, nos detenemos para esperar que el alumno pronuncie la palabra correcta
+      break;
     }
 
     if (advanced && this.currentWordIndex > initialIndex) {
@@ -202,7 +231,6 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Al completar la totalidad de las palabras, abrir el cuestionario pedagógico
     if (this.currentWordIndex >= this.totalWords && !this.showQuiz && !this.showVictory) {
       this.finishReading();
     }
@@ -224,6 +252,8 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     this.currentWordIndex = 0;
     this.secondsElapsed = 0;
     this.currentWpm = 0;
+    this.currentUtteranceId = -1;
+    this.consumedTokensInUtterance = 0;
     this.startTimer();
 
     if (this.mode === 'mic') {
@@ -269,6 +299,8 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     this.isRecording = false;
     this.isPaused = false;
     this.micError = null;
+    this.currentUtteranceId = -1;
+    this.consumedTokensInUtterance = 0;
   }
 
   finishReading(): void {
