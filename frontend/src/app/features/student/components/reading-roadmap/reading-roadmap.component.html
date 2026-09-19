@@ -136,26 +136,136 @@
     </div>
   </div>
 
-  <!-- Dynamic Node Network & Roadmap Path -->
+  <!-- Dynamic Node Network & Interconnected Roadmap Path -->
   <div class="roadmap-path">
+
+    <!-- Card Template -->
+    <ng-template #cardTemplate let-reading="reading">
+      <div class="node-card" 
+        [class.card-current]="isCurrent(reading)"
+        [class.card-completed]="isCompleted(reading)"
+        [class.card-locked]="isLocked(reading)">
+        
+        <!-- Active Badge -->
+        <div *ngIf="isCurrent(reading)" class="current-badge">
+          <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+          <span>¡Tu siguiente reto!</span>
+        </div>
+
+        <div class="node-content">
+          <!-- Header Level and Genre -->
+          <div class="node-details">
+            <div class="level-meta">
+              <span class="level-tag">NIVEL {{ reading.level }}</span>
+              <span class="meta-separator">•</span>
+              <span class="genre-pill"
+                [class.pill-current]="isCurrent(reading)"
+                [class.pill-completed]="isCompleted(reading)"
+                [class.pill-locked]="isLocked(reading)">
+                {{ reading.genre }}
+              </span>
+              <span *ngIf="reading.difficulty" class="difficulty-tag">
+                {{ reading.difficulty }}
+              </span>
+            </div>
+
+            <h3 class="reading-title">{{ reading.title }}</h3>
+
+            <!-- Fuente Acreditada de Comprensión Lectora -->
+            <div *ngIf="reading.pedagogicalSource" class="pedagogical-source-badge">
+              <span class="source-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9h1"/><path d="M9 13h1"/><path d="M9 17h1"/></svg></span>
+              <span class="source-text">{{ reading.pedagogicalSource }}</span>
+            </div>
+
+            <!-- Metas de Lectura y Recompensa -->
+            <div class="reading-meta">
+              <span class="meta-goal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 
+                Meta: <strong>{{ reading.targetWpm }} PPM</strong>
+              </span>
+              <span class="meta-separator">•</span>
+              <span class="meta-xp">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> 
+                +{{ reading.xpReward }} XP
+              </span>
+              <span class="meta-separator">•</span>
+              <span class="meta-words">
+                {{ reading.wordCount }} palabras
+              </span>
+            </div>
+
+            <!-- Competencias Pedagógicas -->
+            <div *ngIf="reading.competencies && reading.competencies.length" class="competencies-row">
+              <span *ngFor="let comp of reading.competencies" class="comp-badge">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px;"><polyline points="20 6 9 17 4 12"/></svg> 
+                {{ comp }}
+              </span>
+            </div>
+
+            <!-- Best Score if Completed -->
+            <div *ngIf="isCompleted(reading) && reading.bestWpm" class="completed-stats">
+              <span class="best-wpm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px;"><polyline points="20 6 9 17 4 12"/></svg> 
+                Récord: {{ reading.bestWpm }} PPM
+              </span>
+              <span class="best-comp">Comprensión: {{ reading.bestComprehension || 100 }}%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="node-action">
+          <!-- Admin Mode: Immediate Test -->
+          <button *ngIf="isAdmin" (click)="onNodeClick(reading)" class="btn-start btn-admin-test">
+            <span>Probar Reto en Vivo (Admin)</span>
+            <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
+          </button>
+
+          <!-- Student Current Level -->
+          <button *ngIf="!isAdmin && isCurrent(reading)" (click)="onNodeClick(reading)" class="btn-start">
+            <span>Comenzar Reto en Vivo</span>
+            <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+          </button>
+
+          <!-- Student Completed Replay -->
+          <button *ngIf="!isAdmin && isCompleted(reading)" (click)="onNodeClick(reading)" class="btn-replay">
+            <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
+            <span>Releer y Mejorar</span>
+          </button>
+
+          <!-- Student Locked Level -->
+          <div *ngIf="!isAdmin && isLocked(reading)" class="locked-notice">
+            <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+            <span>Requiere superar Nivel {{ reading.level - 1 }}</span>
+          </div>
+        </div>
+
+      </div>
+    </ng-template>
+
+    <!-- Interconnected Map Rows -->
     <div *ngFor="let reading of displayedReadings; let i = index" 
-      class="node-wrapper" 
-      [ngClass]="getAlignmentClass(i)">
-      
-      <!-- Inter-node Connector Line (Runs down from this node to the next) -->
-      <div *ngIf="i < displayedReadings.length - 1" 
-        class="connector-line"
-        [class.connector-completed]="isCompleted(reading)"
-        [class.connector-active]="isCurrent(reading)"
-        [class.connector-locked]="isLocked(reading)">
-        <span class="connector-dot-waypoint dot-1"></span>
-        <span class="connector-dot-waypoint dot-2"></span>
+      class="map-row" 
+      [class.row-even]="i % 2 === 1"
+      [class.row-odd]="i % 2 === 0">
+
+      <!-- Left Slot (Card on even rows for desktop) -->
+      <div class="map-slot slot-left">
+        <ng-container *ngIf="i % 2 === 1">
+          <ng-container *ngTemplateOutlet="cardTemplate; context: { reading: reading }"></ng-container>
+        </ng-container>
       </div>
 
-      <!-- Node Step Group (Central Waypoint Node + Card) -->
-      <div class="node-step-container">
+      <!-- Center Spine Slot (Checkpoint Node + Bridge + Interconnecting Trail) -->
+      <div class="map-slot slot-center">
+        <!-- Horizontal Bridge to Left Card (if even row) -->
+        <div *ngIf="i % 2 === 1" class="node-bridge bridge-left"
+          [class.bridge-completed]="isCompleted(reading)"
+          [class.bridge-current]="isCurrent(reading)"
+          [class.bridge-locked]="isLocked(reading)">
+        </div>
 
-        <!-- Central Waypoint Node with Level Number & Status Icon -->
+        <!-- Checkpoint Waypoint Node -->
         <div class="waypoint-node"
           (click)="onNodeClick(reading)"
           [class.waypoint-completed]="isCompleted(reading)"
@@ -186,113 +296,32 @@
           <div *ngIf="isCurrent(reading)" class="waypoint-pulse-halo"></div>
         </div>
 
-        <!-- Node Bridge (Connects the central waypoint node to the card) -->
-        <div class="node-bridge"
+        <!-- Horizontal Bridge to Right Card (if odd row) -->
+        <div *ngIf="i % 2 === 0" class="node-bridge bridge-right"
           [class.bridge-completed]="isCompleted(reading)"
           [class.bridge-current]="isCurrent(reading)"
           [class.bridge-locked]="isLocked(reading)">
         </div>
 
-        <!-- Card Node -->
-        <div class="node-card" 
-          [class.card-current]="isCurrent(reading)"
-          [class.card-completed]="isCompleted(reading)"
-          [class.card-locked]="isLocked(reading)">
-          
-          <!-- Active Badge -->
-          <div *ngIf="isCurrent(reading)" class="current-badge">
-            <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
-            <span>¡Tu siguiente reto!</span>
-          </div>
+        <!-- Continuous Trail Line connecting directly to the next node -->
+        <div *ngIf="i < displayedReadings.length - 1" 
+          class="connector-line"
+          [class.connector-completed]="isCompleted(reading)"
+          [class.connector-active]="isCurrent(reading)"
+          [class.connector-locked]="isLocked(reading)">
+          <span class="connector-dot-waypoint dot-1"></span>
+          <span class="connector-dot-waypoint dot-2"></span>
+        </div>
+      </div>
 
-          <div class="node-content">
-            <!-- Header Level and Genre -->
-            <div class="node-details">
-              <div class="level-meta">
-                <span class="level-tag">NIVEL {{ reading.level }}</span>
-                <span class="meta-separator">•</span>
-                <span class="genre-pill"
-                  [class.pill-current]="isCurrent(reading)"
-                  [class.pill-completed]="isCompleted(reading)"
-                  [class.pill-locked]="isLocked(reading)">
-                  {{ reading.genre }}
-                </span>
-                <span *ngIf="reading.difficulty" class="difficulty-tag">
-                  {{ reading.difficulty }}
-                </span>
-              </div>
-
-              <h3 class="reading-title">{{ reading.title }}</h3>
-
-              <!-- Fuente Acreditada de Comprensión Lectora -->
-              <div *ngIf="reading.pedagogicalSource" class="pedagogical-source-badge">
-                <span class="source-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9h1"/><path d="M9 13h1"/><path d="M9 17h1"/></svg></span>
-                <span class="source-text">{{ reading.pedagogicalSource }}</span>
-              </div>
-
-              <!-- Metas de Lectura y Recompensa -->
-              <div class="reading-meta">
-                <span class="meta-goal">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 
-                  Meta: <strong>{{ reading.targetWpm }} PPM</strong>
-                </span>
-                <span class="meta-separator">•</span>
-                <span class="meta-xp">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> 
-                  +{{ reading.xpReward }} XP
-                </span>
-                <span class="meta-separator">•</span>
-                <span class="meta-words">
-                  {{ reading.wordCount }} palabras
-                </span>
-              </div>
-
-              <!-- Competencias Pedagógicas -->
-              <div *ngIf="reading.competencies && reading.competencies.length" class="competencies-row">
-                <span *ngFor="let comp of reading.competencies" class="comp-badge">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px;"><polyline points="20 6 9 17 4 12"/></svg> 
-                  {{ comp }}
-                </span>
-              </div>
-
-              <!-- Best Score if Completed -->
-              <div *ngIf="isCompleted(reading) && reading.bestWpm" class="completed-stats">
-                <span class="best-wpm">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px;"><polyline points="20 6 9 17 4 12"/></svg> 
-                  Récord: {{ reading.bestWpm }} PPM
-                </span>
-                <span class="best-comp">Comprensión: {{ reading.bestComprehension || 100 }}%</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Action Button -->
-          <div class="node-action">
-            <!-- Admin Mode: Immediate Test -->
-            <button *ngIf="isAdmin" (click)="onNodeClick(reading)" class="btn-start btn-admin-test">
-              <span>Probar Reto en Vivo (Admin)</span>
-              <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
-            </button>
-
-            <!-- Student Current Level -->
-            <button *ngIf="!isAdmin && isCurrent(reading)" (click)="onNodeClick(reading)" class="btn-start">
-              <span>Comenzar Reto en Vivo</span>
-              <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-            </button>
-
-            <!-- Student Completed Replay -->
-            <button *ngIf="!isAdmin && isCompleted(reading)" (click)="onNodeClick(reading)" class="btn-replay">
-              <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
-              <span>Releer y Mejorar</span>
-            </button>
-
-            <!-- Student Locked Level -->
-            <div *ngIf="!isAdmin && isLocked(reading)" class="locked-notice">
-              <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
-              <span>Requiere superar Nivel {{ reading.level - 1 }}</span>
-            </div>
-          </div>
-
+      <!-- Right Slot (Card on odd rows on desktop, and ALL rows on mobile) -->
+      <div class="map-slot slot-right">
+        <ng-container *ngIf="i % 2 === 0">
+          <ng-container *ngTemplateOutlet="cardTemplate; context: { reading: reading }"></ng-container>
+        </ng-container>
+        <!-- Mobile view for even rows -->
+        <div class="mobile-only-card" *ngIf="i % 2 === 1">
+          <ng-container *ngTemplateOutlet="cardTemplate; context: { reading: reading }"></ng-container>
         </div>
       </div>
     </div>
