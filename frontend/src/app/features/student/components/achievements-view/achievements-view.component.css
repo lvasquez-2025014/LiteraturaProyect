@@ -88,7 +88,7 @@
 
 .meter-bar {
   height: 100%;
-  background: linear-gradient(90deg, var(--kinal-blue) 0%, #10b981 100%);
+  background: var(--kinal-blue);
   border-radius: 999px;
   transition: width 0.4s ease;
 }
@@ -154,7 +154,7 @@
 
 .card-unlocked {
   border-color: #fde68a;
-  background: linear-gradient(135deg, #ffffff 0%, #fffdf5 100%);
+  background: #fffdf5;
 }
 
 .card-locked {
@@ -181,14 +181,20 @@
 }
 
 .card-unlocked .emblem-circle {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  background: #fef3c7;
   border-color: #f59e0b;
   box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
 }
 
 .emblem-icon {
-  font-size: 1.8rem;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+}
+
+.card-unlocked .emblem-icon {
+  color: #d97706;
 }
 
 .unlocked-star {

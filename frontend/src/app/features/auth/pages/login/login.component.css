@@ -9,10 +9,6 @@
   justify-content: center;
   padding: 40px 20px;
   background-color: #f8fafc;
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(0, 74, 173, 0.10) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(243, 111, 33, 0.08) 0px, transparent 50%),
-    radial-gradient(at 50% 50%, rgba(232, 238, 255, 0.6) 0px, transparent 70%);
   position: relative;
   overflow-x: hidden;
 }
@@ -72,9 +68,6 @@
 
 .highlight-text {
   color: var(--kinal-blue);
-  background: linear-gradient(135deg, var(--kinal-blue) 0%, #1d72fe 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 
 .hero-subtext {
@@ -138,7 +131,12 @@
 }
 
 .badge-icon {
-  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
 }
 
 .badge-info {
@@ -205,7 +203,12 @@
 }
 
 .feature-emoji {
-  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
 }
 
 .feature-item div {

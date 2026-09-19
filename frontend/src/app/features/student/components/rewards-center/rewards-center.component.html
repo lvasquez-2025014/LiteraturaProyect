@@ -2,7 +2,7 @@
 
   <!-- Feedback Toast -->
   <div *ngIf="actionMessage()" class="action-toast">
-    <span>✨</span>
+    <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
     <span>{{ actionMessage() }}</span>
   </div>
 
@@ -12,10 +12,10 @@
       <div class="chest-halo"></div>
       
       <div class="chest-visual">
-        <span class="chest-icon" *ngIf="!canClaimDailyChest">📦</span>
-        <span class="chest-icon ready-pulse" *ngIf="canClaimDailyChest">🎁</span>
-        <span class="sparkle s1" *ngIf="canClaimDailyChest">✨</span>
-        <span class="sparkle s2" *ngIf="canClaimDailyChest">⭐</span>
+        <span class="chest-icon" *ngIf="!canClaimDailyChest"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></span>
+        <span class="chest-icon ready-pulse" *ngIf="canClaimDailyChest"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></span>
+        <span class="sparkle s1" *ngIf="canClaimDailyChest"></span>
+        <span class="sparkle s2" *ngIf="canClaimDailyChest"></span>
       </div>
 
       <div class="chest-info">
@@ -29,9 +29,9 @@
           (click)="openDailyChest()" 
           class="btn-claim-chest" 
           [disabled]="!canClaimDailyChest || isOpeningChest()">
-          <span *ngIf="isOpeningChest()">Abriendo cofre... ✨</span>
-          <span *ngIf="!isOpeningChest() && canClaimDailyChest">Abrir Cofre Diario 🎁</span>
-          <span *ngIf="!isOpeningChest() && !canClaimDailyChest">Reclamado por hoy ✓</span>
+          <span *ngIf="isOpeningChest()">Abriendo cofre...</span>
+          <span *ngIf="!isOpeningChest() && canClaimDailyChest">Abrir Cofre Diario</span>
+          <span *ngIf="!isOpeningChest() && !canClaimDailyChest">Reclamado por hoy</span>
         </button>
       </div>
     </div>
@@ -44,7 +44,7 @@
       </div>
 
       <div class="coins-display">
-        <div class="coin-emblem">🪙</div>
+        <div class="coin-emblem"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v12"/><path d="M15.5 9.4a4 4 0 0 0-7 0"/><path d="M8.5 14.6a4 4 0 0 0 7 0"/></svg></div>
         <div class="coin-data">
           <span class="coin-amount">{{ coins }}</span>
           <span class="coin-label">Monedas de Sabiduría</span>
@@ -53,7 +53,16 @@
 
       <div class="league-preview">
         <div class="league-row">
-          <span class="league-icon">{{ gamification.currentLeague().badge }}</span>
+          <span class="league-icon">
+            <ng-container [ngSwitch]="gamification.currentLeague().id">
+              <svg *ngSwitchCase="'league-bronce'" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+              <svg *ngSwitchCase="'league-plata'" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+              <svg *ngSwitchCase="'league-oro'" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+              <svg *ngSwitchCase="'league-diamante'" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 18 3 22 9 12 22 2 9"/></svg>
+              <svg *ngSwitchCase="'league-leyenda'" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>
+              <svg *ngSwitchDefault xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+            </ng-container>
+          </span>
           <div>
             <div class="league-name">{{ gamification.currentLeague().name }}</div>
             <div class="league-mult">Multiplicador: {{ gamification.currentLeague().multiplier }}x XP</div>
@@ -73,7 +82,7 @@
   <section class="missions-section">
     <div class="section-heading">
       <div class="heading-pill">
-        <span>📜</span>
+        <span><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
         <span>Retos de la Jornada</span>
       </div>
       <h2>Misiones Diarias de Fluidez</h2>
@@ -83,13 +92,20 @@
     <div class="missions-grid">
       <div *ngFor="let mission of missions" class="mission-card" [class.mission-completed]="mission.completed">
         <div class="mission-icon-box">
-          <span class="mission-icon">{{ mission.icon }}</span>
+          <span class="mission-icon">
+            <ng-container [ngSwitch]="mission.id">
+              <svg *ngSwitchCase="'mission-daily-read'" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              <svg *ngSwitchCase="'mission-wpm-boost'" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <svg *ngSwitchCase="'mission-comp-master'" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+              <svg *ngSwitchDefault xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </ng-container>
+          </span>
         </div>
 
         <div class="mission-details">
           <div class="mission-title-row">
             <h4 class="mission-title">{{ mission.title }}</h4>
-            <span class="reward-pill">+{{ mission.rewardXp }} XP · +{{ mission.rewardCoins }} 🪙</span>
+            <span class="reward-pill">+{{ mission.rewardXp }} XP · +{{ mission.rewardCoins }} <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px;"><circle cx="12" cy="12" r="10"/></svg></span>
           </div>
           <p class="mission-desc">{{ mission.description }}</p>
 
@@ -99,7 +115,8 @@
           <div class="mission-status-row">
             <span class="progress-text">{{ mission.current }} / {{ mission.target }}</span>
             <span class="status-badge" [class.badge-done]="mission.completed">
-              {{ mission.completed ? (mission.claimed ? 'Reclamada ✓' : '¡Completada!') : 'En progreso' }}
+              <span *ngIf="mission.completed">{{ mission.claimed ? 'Reclamada' : '¡Completada!' }}</span>
+              <span *ngIf="!mission.completed">En progreso</span>
             </span>
           </div>
         </div>
@@ -109,9 +126,9 @@
             (click)="claimMission(mission)" 
             class="btn-claim-mission" 
             [disabled]="!mission.completed || mission.claimed">
-            <span *ngIf="mission.claimed">✓ Reclamada</span>
-            <span *ngIf="!mission.claimed && mission.completed">Reclamar Premio 🎁</span>
-            <span *ngIf="!mission.completed">Bloqueado 🔒</span>
+            <span *ngIf="mission.claimed"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Reclamada</span>
+            <span *ngIf="!mission.claimed && mission.completed">Reclamar Premio</span>
+            <span *ngIf="!mission.completed"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Bloqueado</span>
           </button>
         </div>
       </div>
@@ -122,7 +139,7 @@
   <section class="boutique-section">
     <div class="section-heading">
       <div class="heading-pill">
-        <span>🛍️</span>
+        <span><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span>
         <span>Boutique de la Comunidad</span>
       </div>
       <h2>Personalización Literaria Kinal</h2>
@@ -134,13 +151,13 @@
           (click)="activeShopTab.set('frames')" 
           class="tab-btn" 
           [class.tab-active]="activeShopTab() === 'frames'">
-          <span>🖼️ Marcos de Avatar</span>
+          <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Marcos de Avatar</span>
         </button>
         <button 
           (click)="activeShopTab.set('titles')" 
           class="tab-btn" 
           [class.tab-active]="activeShopTab() === 'titles'">
-          <span>🎖️ Títulos Honoríficos</span>
+          <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg> Títulos Honoríficos</span>
         </button>
       </div>
     </div>
@@ -161,7 +178,7 @@
           
           <div class="cosmetic-price">
             <span *ngIf="item.cost === 0" class="price-free">Gratuito</span>
-            <span *ngIf="item.cost > 0" class="price-coins">🪙 {{ item.cost }} Monedas</span>
+            <span *ngIf="item.cost > 0" class="price-coins"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px;"><circle cx="12" cy="12" r="10"/></svg> {{ item.cost }} Monedas</span>
           </div>
         </div>
 
@@ -170,7 +187,7 @@
           class="btn-cosmetic"
           [class.btn-equipped]="isItemEquipped(item)"
           [disabled]="isItemEquipped(item) || (item.cost > 0 && coins < item.cost)">
-          <span *ngIf="isItemEquipped(item)">Equipado ✓</span>
+          <span *ngIf="isItemEquipped(item)">Equipado <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
           <span *ngIf="!isItemEquipped(item) && item.cost === 0">Equipar</span>
           <span *ngIf="!isItemEquipped(item) && item.cost > 0 && coins >= item.cost">Desbloquear y Equipar</span>
           <span *ngIf="!isItemEquipped(item) && item.cost > 0 && coins < item.cost">Monedas Insuficientes</span>
@@ -183,7 +200,8 @@
       <div *ngFor="let item of titleItems" class="cosmetic-card" [class.card-equipped]="isItemEquipped(item)">
         <div class="cosmetic-preview-title">
           <span class="title-preview-badge" [ngClass]="item.previewClass">
-            {{ item.icon }} {{ item.name }}
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-right: 4px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            {{ item.name }}
           </span>
         </div>
 
@@ -193,7 +211,7 @@
           
           <div class="cosmetic-price">
             <span *ngIf="item.cost === 0" class="price-free">Gratuito</span>
-            <span *ngIf="item.cost > 0" class="price-coins">🪙 {{ item.cost }} Monedas</span>
+            <span *ngIf="item.cost > 0" class="price-coins"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px;"><circle cx="12" cy="12" r="10"/></svg> {{ item.cost }} Monedas</span>
           </div>
         </div>
 
@@ -202,7 +220,7 @@
           class="btn-cosmetic"
           [class.btn-equipped]="isItemEquipped(item)"
           [disabled]="isItemEquipped(item) || (item.cost > 0 && coins < item.cost)">
-          <span *ngIf="isItemEquipped(item)">Equipado ✓</span>
+          <span *ngIf="isItemEquipped(item)">Equipado <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
           <span *ngIf="!isItemEquipped(item) && item.cost === 0">Equipar</span>
           <span *ngIf="!isItemEquipped(item) && item.cost > 0 && coins >= item.cost">Desbloquear y Equipar</span>
           <span *ngIf="!isItemEquipped(item) && item.cost > 0 && coins < item.cost">Monedas Insuficientes</span>
@@ -215,19 +233,19 @@
   <!-- Modal de Apertura de Cofre Exitoso -->
   <div *ngIf="chestRevealedReward()" class="modal-backdrop" (click)="closeChestRewardModal()">
     <div class="chest-celebration-card" (click)="$event.stopPropagation()">
-      <div class="celebration-burst">✨</div>
-      <span class="celebration-icon">🎁</span>
+      <div class="celebration-burst"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+      <span class="celebration-icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#F36F21" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></span>
       <h3 class="celebration-title">¡Recompensa Reclamada!</h3>
       <p class="celebration-sub">Tu constancia lectora enriquece tus habilidades y tu perfil escolar.</p>
 
       <div class="rewards-earned-grid">
         <div class="reward-box box-xp">
-          <span class="box-icon">⚡</span>
+          <span class="box-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
           <span class="box-val">+{{ chestRevealedReward()?.xp }} XP</span>
           <span class="box-lbl">Experiencia</span>
         </div>
         <div class="reward-box box-coins">
-          <span class="box-icon">🪙</span>
+          <span class="box-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v12"/><path d="M15.5 9.4a4 4 0 0 0-7 0"/><path d="M8.5 14.6a4 4 0 0 0 7 0"/></svg></span>
           <span class="box-val">+{{ chestRevealedReward()?.coins }}</span>
           <span class="box-lbl">Monedas Kinal</span>
         </div>

@@ -183,7 +183,7 @@
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--kinal-blue) 0%, var(--kinal-orange) 100%);
+  background: var(--kinal-blue);
   border-radius: 999px;
   transition: width 0.3s ease;
 }
@@ -1237,7 +1237,7 @@
 /* Victory Screen */
 .victory-card {
   text-align: center;
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  background: #ffffff;
   position: relative;
   overflow: hidden;
 }
@@ -1339,7 +1339,7 @@
 .btn-victory-continue {
   width: 100%;
   padding: 14px 24px;
-  background: linear-gradient(135deg, var(--kinal-blue) 0%, var(--kinal-orange) 100%);
+  background: var(--kinal-blue);
   color: #ffffff;
   border: none;
   border-radius: 14px;

@@ -4,7 +4,7 @@
   <div class="achievements-banner">
     <div class="banner-content">
       <div class="heading-pill">
-        <span>🏆</span>
+        <span><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 9 7 12 7c3 0 5-3 7.5-3a2.5 2.5 0 0 1 0 5H18"/><path d="M18 9v10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9"/><path d="M12 7v14"/></svg></span>
         <span>Salón de Trofeos Kinal</span>
       </div>
       <h2 class="banner-title">Medallas y Logros de Superación</h2>
@@ -37,25 +37,25 @@
       (click)="setCategory('fluidez')" 
       class="filter-btn" 
       [class.filter-active]="activeCategory() === 'fluidez'">
-      <span>⚡ Fluidez Verbal</span>
+      <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Fluidez Verbal</span>
     </button>
     <button 
       (click)="setCategory('comprension')" 
       class="filter-btn" 
       [class.filter-active]="activeCategory() === 'comprension'">
-      <span>🎯 Comprensión Crítica</span>
+      <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Comprensión Crítica</span>
     </button>
     <button 
       (click)="setCategory('constancia')" 
       class="filter-btn" 
       [class.filter-active]="activeCategory() === 'constancia'">
-      <span>🔥 Rachas y Constancia</span>
+      <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg> Rachas y Constancia</span>
     </button>
     <button 
       (click)="setCategory('especial')" 
       class="filter-btn" 
       [class.filter-active]="activeCategory() === 'especial'">
-      <span>⭐ Especiales Kinal</span>
+      <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Especiales Kinal</span>
     </button>
   </div>
 
@@ -70,9 +70,17 @@
       <!-- Emblem Circle -->
       <div class="emblem-wrapper">
         <div class="emblem-circle">
-          <span class="emblem-icon">{{ ach.icon }}</span>
-          <span *ngIf="ach.unlocked" class="unlocked-star">⭐</span>
-          <span *ngIf="!ach.unlocked" class="locked-icon">🔒</span>
+          <span class="emblem-icon">
+            <ng-container [ngSwitch]="ach.category">
+              <svg *ngSwitchCase="'fluidez'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <svg *ngSwitchCase="'comprension'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+              <svg *ngSwitchCase="'constancia'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z"/></svg>
+              <svg *ngSwitchCase="'maestria'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>
+              <svg *ngSwitchDefault xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </ng-container>
+          </span>
+          <span *ngIf="ach.unlocked" class="unlocked-star"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#fbbf24" stroke="#d97706" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
+          <span *ngIf="!ach.unlocked" class="locked-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
         </div>
       </div>
 
@@ -80,7 +88,7 @@
       <div class="achievement-info">
         <div class="title-row">
           <h4 class="achievement-title">{{ ach.title }}</h4>
-          <span class="reward-tag">+{{ ach.xpReward }} XP · +{{ ach.coinsReward }} 🪙</span>
+          <span class="reward-tag">+{{ ach.xpReward }} XP · +{{ ach.coinsReward }} <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px;"><circle cx="12" cy="12" r="10"/></svg></span>
         </div>
         <p class="achievement-desc">{{ ach.description }}</p>
 
@@ -97,7 +105,7 @@
 
         <!-- Unlocked Badge -->
         <div *ngIf="ach.unlocked" class="unlocked-badge-row">
-          <span class="badge-pill-unlocked">✓ Desbloqueada con Éxito</span>
+          <span class="badge-pill-unlocked"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px;"><polyline points="20 6 9 17 4 12"/></svg> Desbloqueada con Éxito</span>
         </div>
       </div>
 

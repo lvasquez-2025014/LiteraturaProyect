@@ -28,7 +28,7 @@
   width: 42px;
   height: 42px;
   border-radius: var(--radius-md);
-  background: linear-gradient(135deg, var(--kinal-blue) 0%, var(--kinal-orange) 100%);
+  background: var(--kinal-blue);
   color: white;
   display: flex;
   align-items: center;
@@ -169,7 +169,7 @@
   height: 38px;
   border-radius: var(--radius-full);
   overflow: hidden;
-  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  background: #EEF2FF;
   display: flex;
   align-items: center;
   justify-content: center;

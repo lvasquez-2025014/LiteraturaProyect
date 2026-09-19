@@ -11,7 +11,7 @@
       <div class="meta-row">
         <span class="genre-tag">{{ reading.genre }} · Nivel {{ reading.level }}</span>
         <span *ngIf="reading.pedagogicalSource" class="source-tag" [title]="reading.pedagogicalSource">
-          🏛️ {{ reading.pedagogicalSource }}
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg> {{ reading.pedagogicalSource }}
         </span>
       </div>
       <h1 class="reading-heading">{{ reading.title }}</h1>
@@ -19,11 +19,11 @@
 
     <div class="header-badges">
       <div class="badge-target" title="Meta de velocidad recomendada">
-        <span>🎯 Meta:</span>
+        <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Meta:</span>
         <strong>{{ reading.targetWpm }} PPM</strong>
       </div>
       <div class="badge-xp" title="Recompensa de experiencia al superar el reto">
-        <span>⚡</span>
+        <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
         <strong>+{{ reading.xpReward }} XP</strong>
       </div>
     </div>
@@ -38,7 +38,7 @@
         class="btn-narrator" 
         [class.btn-narrator-active]="isNarrating"
         title="Escucha una lectura modelo con entonación pedagógica antes de comenzar">
-        <span class="narrator-icon">{{ isNarrating ? '⏹️' : '🎧' }}</span>
+        <span class="narrator-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg></span>
         <span class="narrator-label">{{ isNarrating ? 'Detener Modelo' : 'Escuchar Lectura Modelo' }}</span>
       </button>
 
@@ -74,7 +74,7 @@
         class="tool-pill-btn" 
         [class.tool-pill-active]="focusMode"
         title="El Modo Enfoque resalta las frases activas y atenúa el resto para máxima concentración">
-        <span>👁️ Modo Enfoque</span>
+        <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Modo Enfoque</span>
       </button>
 
       <!-- Audio Effects Toggle -->
@@ -82,7 +82,7 @@
         (click)="toggleSoundEffects()" 
         class="tool-icon-btn" 
         [title]="soundEffects ? 'Efectos sonoros activados' : 'Efectos sonoros silenciados'">
-        <span>{{ soundEffects ? '🔊' : '🔇' }}</span>
+        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></span>
       </button>
     </div>
   </div>
@@ -91,13 +91,13 @@
   <div class="metrics-bar">
     <!-- Chronometer -->
     <div class="metric-item">
-      <span class="metric-label">⏱️ Tiempo</span>
+      <span class="metric-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Tiempo</span>
       <span class="metric-value">{{ formatTime(secondsElapsed) }}</span>
     </div>
 
     <!-- Live WPM Gauge -->
     <div class="metric-item">
-      <span class="metric-label">⚡ Velocidad en Vivo</span>
+      <span class="metric-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Velocidad en Vivo</span>
       <div class="wpm-display">
         <span class="metric-value" [class.wpm-fast]="currentWpm >= reading.targetWpm">
           {{ currentWpm }}
@@ -109,7 +109,7 @@
     <!-- Progress Indicator -->
     <div class="metric-item metric-progress">
       <div class="progress-labels">
-        <span class="metric-label">📖 Avance de Lectura</span>
+        <span class="metric-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg> Avance de Lectura</span>
         <span class="progress-percent">{{ progressPercentage }}%</span>
       </div>
       <div class="progress-track">
@@ -120,7 +120,7 @@
 
   <!-- Error Alert if Mic Issue -->
   <div *ngIf="micError" class="reader-alert">
-    <span>⚠️</span>
+    <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
     <span>{{ micError }} — Puedes usar el <strong>Modo Asistido</strong> para completar la sesión.</span>
     <button (click)="mode = 'assisted'; startReading()" class="btn-alert-action">Activar Modo Asistido</button>
   </div>
@@ -151,7 +151,7 @@
     <!-- Vocabulary & Key Terminology Tray -->
     <div *ngIf="reading.vocabulary && reading.vocabulary.length > 0" class="vocab-tray">
       <div class="vocab-tray-header">
-        <span class="vocab-tray-title">📚 Vocabulario Clave para Comprensión:</span>
+        <span class="vocab-tray-title"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg> Vocabulario Clave para Comprensión:</span>
         <span class="vocab-tray-hint">Haz clic en cualquier término para consultar su significado pedagógico</span>
       </div>
       <div class="vocab-chips-list">
@@ -160,7 +160,7 @@
           (click)="openVocab(v)" 
           class="vocab-chip">
           <span class="chip-word">{{ v.word }}</span>
-          <span class="chip-arrow">📖</span>
+          <span class="chip-arrow"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg></span>
         </button>
       </div>
     </div>
@@ -178,7 +178,7 @@
           [class.mode-active]="mode === 'mic'"
           [disabled]="isRecording"
           title="Lee en voz alta con tu micrófono">
-          🎙️ Micrófono
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Micrófono
         </button>
         <button 
           (click)="mode = 'assisted'" 
@@ -186,7 +186,7 @@
           [class.mode-active]="mode === 'assisted'"
           [disabled]="isRecording"
           title="Simulación guiada de lectura a velocidad objetivo">
-          ⚡ Asistido
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Asistido
         </button>
       </div>
 
@@ -197,7 +197,7 @@
           (click)="startReading()" 
           class="btn-mic-main btn-start-rec"
           title="Comenzar lectura en voz alta">
-          <span class="mic-icon">🎙️</span>
+          <span class="mic-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></span>
           <span class="mic-text">Comenzar a Leer</span>
         </button>
 
@@ -206,7 +206,7 @@
           (click)="pauseReading()" 
           class="btn-mic-main btn-pause-rec"
           title="Pausar lectura">
-          <span class="mic-icon">⏸️</span>
+          <span class="mic-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></span>
           <span class="mic-text">Pausar</span>
         </button>
 
@@ -215,7 +215,7 @@
           (click)="resumeReading()" 
           class="btn-mic-main btn-resume-rec"
           title="Reanudar lectura">
-          <span class="mic-icon">▶️</span>
+          <span class="mic-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
           <span class="mic-text">Continuar</span>
         </button>
       </div>
@@ -223,10 +223,10 @@
       <!-- Right: Secondary Actions -->
       <div class="dock-actions">
         <button (click)="restartReading()" class="btn-dock-action" title="Reiniciar lectura desde el principio">
-          <span>🔄 Reiniciar</span>
+          <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Reiniciar</span>
         </button>
         <button *ngIf="isRecording || isPaused" (click)="finishReading()" class="btn-finish-direct">
-          <span>Finalizar y Evaluar ➜</span>
+          <span>Finalizar y Evaluar <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
         </button>
       </div>
 
@@ -241,12 +241,12 @@
 <div class="modal-backdrop" *ngIf="activeVocabModal" (click)="closeVocab()">
   <div class="modal-card vocab-card" (click)="$event.stopPropagation()">
     <div class="vocab-header">
-      <div class="vocab-icon-wrap">📖</div>
+      <div class="vocab-icon-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg></div>
       <div>
         <span class="vocab-badge">Glosario Contextual Kinal</span>
         <h3 class="vocab-word-title">{{ activeVocabModal.word }}</h3>
       </div>
-      <button class="close-x-btn" (click)="closeVocab()">✕</button>
+      <button class="close-x-btn" (click)="closeVocab()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="vocab-body">
       <p class="vocab-meaning">{{ activeVocabModal.meaning }}</p>
@@ -265,7 +265,7 @@
     
     <div class="quiz-header">
       <div class="quiz-badge">
-        <span>🧠 Reto de Comprensión Lectora</span>
+        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="12" r="10"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Reto de Comprensión Lectora</span>
         <span>Pregunta {{ currentQuestionIndex + 1 }} de {{ reading.questions.length }}</span>
       </div>
       <h2 class="quiz-prompt">{{ reading.questions[currentQuestionIndex].prompt }}</h2>
@@ -288,7 +288,7 @@
 
     <!-- Pedagogical Explanation -->
     <div *ngIf="showExplanation" class="explanation-box">
-      <strong>💡 Retroalimentación Pedagógica:</strong>
+      <strong><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> Retroalimentación Pedagógica:</strong>
       <p>{{ reading.questions[currentQuestionIndex].explanation }}</p>
     </div>
 
@@ -298,7 +298,7 @@
         *ngIf="showExplanation" 
         (click)="nextQuestion()" 
         class="btn-next-question">
-        <span>{{ currentQuestionIndex < reading.questions.length - 1 ? 'Siguiente Pregunta ➜' : 'Ver Resultados Finales 🎉' }}</span>
+        <span>{{ currentQuestionIndex < reading.questions.length - 1 ? 'Siguiente Pregunta' : 'Ver Resultados Finales' }}</span>
       </button>
     </div>
 
@@ -311,7 +311,7 @@
 <div class="modal-backdrop" *ngIf="showVictory && finalResult">
   <div class="modal-card victory-card">
     
-    <div class="victory-trophy">🏆</div>
+    <div class="victory-trophy"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 9 7 12 7c3 0 5-3 7.5-3a2.5 2.5 0 0 1 0 5H18"/><path d="M18 9v10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9"/><path d="M12 7v14"/></svg></div>
     <span class="victory-subtitle">¡Reto Completado con Éxito!</span>
     <h2 class="victory-title">¡Gran Trabajo, Lector Kinal!</h2>
 
@@ -347,7 +347,7 @@
     </div>
 
     <button (click)="onVictoryContinue()" class="btn-victory-continue">
-      <span>Continuar mi Aventura Lectora 🚀</span>
+      <span>Continuar mi Aventura Lectora <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></svg></span>
     </button>
 
   </div>

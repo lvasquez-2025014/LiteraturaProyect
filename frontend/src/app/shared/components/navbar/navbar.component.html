@@ -17,15 +17,30 @@
     <!-- Conmutador de Portales para el Administrador (Super-Acceso) -->
     <nav class="admin-portal-switcher" *ngIf="user?.role === 'ADMIN_ROLE'">
       <a routerLink="/admin" routerLinkActive="active-portal" class="portal-link" title="Panel de Cuentas y Permisos">
-        <span class="portal-icon">🛠️</span>
+        <span class="portal-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+          </svg>
+        </span>
         <span class="portal-text">Panel Admin</span>
       </a>
       <a routerLink="/profesor" routerLinkActive="active-portal" class="portal-link" title="Monitoreo de Aulas y Gestor de Lecturas">
-        <span class="portal-icon">👨‍🏫</span>
+        <span class="portal-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+        </span>
         <span class="portal-text">Portal Docente</span>
       </a>
       <a routerLink="/estudiante" routerLinkActive="active-portal" class="portal-link" title="Mapa de Desafíos y Lecturas en Vivo">
-        <span class="portal-icon">🗺️</span>
+        <span class="portal-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+            <line x1="8" y1="2" x2="8" y2="18"></line>
+            <line x1="16" y1="6" x2="16" y2="22"></line>
+          </svg>
+        </span>
         <span class="portal-text">Aventura Estudiante</span>
       </a>
     </nav>
@@ -37,27 +52,46 @@
       <div class="gamification-pills" *ngIf="u.role === 'STUDENT_ROLE' && u.stats">
         <!-- Streak -->
         <div class="pill pill-streak" title="Racha de días leyendo">
-          <span class="pill-icon">🔥</span>
+          <span class="pill-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2.2">
+              <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
+            </svg>
+          </span>
           <span class="pill-value">{{ u.stats.streakDays }}</span>
           <span class="pill-unit">días</span>
         </div>
 
         <!-- XP -->
         <div class="pill pill-xp" title="Puntos de Experiencia (XP)">
-          <span class="pill-icon">⚡</span>
+          <span class="pill-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+          </span>
           <span class="pill-value">{{ u.stats.totalXp }}</span>
           <span class="pill-unit">XP</span>
         </div>
 
         <!-- Level -->
         <div class="pill pill-level" title="Nivel actual del lector">
-          <span class="pill-icon">⭐</span>
+          <span class="pill-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#2563eb" stroke="#2563eb" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </span>
           <span class="pill-value">Nvl. {{ u.stats.currentLevel }}</span>
         </div>
 
         <!-- Coins -->
         <div class="pill pill-coins" title="Monedas de Sabiduría Kinal">
-          <span class="pill-icon">🪙</span>
+          <span class="pill-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2.2">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M12 7v10"></path>
+              <path d="M9 9h6"></path>
+              <path d="M9 15h6"></path>
+            </svg>
+          </span>
           <span class="pill-value">{{ coins }}</span>
           <span class="pill-unit">Monedas</span>
         </div>

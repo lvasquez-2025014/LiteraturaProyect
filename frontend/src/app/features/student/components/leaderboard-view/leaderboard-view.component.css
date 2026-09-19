@@ -92,7 +92,7 @@
   justify-content: center;
   gap: 20px;
   padding: 30px 20px 0 20px;
-  background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+  background: #f8fafc;
   border-radius: 24px;
   border: 1px solid #cbd5e1;
 }
@@ -220,20 +220,20 @@
 
 .pedestal-first {
   height: 130px;
-  background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%);
+  background: #d97706;
   color: #78350f;
   box-shadow: 0 10px 25px rgba(217, 119, 6, 0.3);
 }
 
 .pedestal-second {
   height: 95px;
-  background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%);
+  background: #94a3b8;
   color: #334155;
 }
 
 .pedestal-third {
   height: 75px;
-  background: linear-gradient(180deg, #fdba74 0%, #c2410c 100%);
+  background: #c2410c;
   color: #7c2d12;
 }
 

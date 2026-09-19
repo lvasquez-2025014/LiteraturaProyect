@@ -14,7 +14,7 @@
 
 /* Welcome Banner */
 .welcome-banner {
-  background: linear-gradient(135deg, #1C2D5A 0%, #004AAD 50%, #23376D 100%);
+  background: #1C2D5A;
   color: #ffffff;
   border-radius: 1.5rem;
   padding: 2rem 2.25rem;
@@ -773,7 +773,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, #F36F21 0%, #D95A11 100%);
+  background: #F36F21;
   color: #FFFFFF;
   font-weight: 700;
   font-size: 0.95rem;
@@ -1208,7 +1208,7 @@
 }
 
 .btn-save {
-  background: linear-gradient(135deg, #004AAD 0%, #003380 100%);
+  background: #004AAD;
   color: #FFFFFF;
   border: none;
   padding: 10px 24px;

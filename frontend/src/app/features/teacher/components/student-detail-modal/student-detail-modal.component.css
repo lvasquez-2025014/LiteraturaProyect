@@ -27,7 +27,7 @@
 
 /* Header */
 .modal-header {
-  background: linear-gradient(135deg, #1C2D5A 0%, #004AAD 100%);
+  background: #1C2D5A;
   color: #ffffff;
   padding: 1.5rem 1.75rem;
   display: flex;
@@ -267,7 +267,7 @@
 
 .bar-fill {
   width: 100%;
-  background: linear-gradient(180deg, #004AAD 0%, #1C2D5A 100%);
+  background: #004AAD;
   border-radius: 0.6rem 0.6rem 0 0;
   transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }

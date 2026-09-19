@@ -17,7 +17,7 @@
   grid-template-columns: 1.2fr 1fr;
   gap: 32px;
   align-items: center;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 249, 255, 0.85) 100%);
+  background: #ffffff;
 }
 
 .welcome-badge {
@@ -173,7 +173,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--primary) 0%, #06b6d4 100%);
+  background: var(--primary);
 }
 
 .card-locked {

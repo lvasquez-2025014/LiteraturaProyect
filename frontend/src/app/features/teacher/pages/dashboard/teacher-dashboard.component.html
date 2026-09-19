@@ -46,7 +46,7 @@
           <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
           <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
         </svg>
-        <span>📊 Monitoreo de Alumnos ({{ students.length }})</span>
+        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg> Monitoreo de Alumnos ({{ students.length }})</span>
       </button>
 
       <button 
@@ -58,7 +58,7 @@
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
         </svg>
-        <span>📚 Gestor de Lecturas Kinal ({{ readings.length }})</span>
+        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg> Gestor de Lecturas Kinal ({{ readings.length }})</span>
       </button>
     </div>
 
@@ -356,7 +356,7 @@
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            <span>➕ Nueva Lectura</span>
+            <span>Nueva Lectura</span>
           </button>
         </div>
 
@@ -376,16 +376,16 @@
 
             <div class="reading-card-meta">
               <span class="meta-item">
-                <strong>⚡ Meta:</strong> {{ r.targetWpm }} PPM
+                <strong><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Meta:</strong> {{ r.targetWpm }} PPM
               </span>
               <span class="meta-item">
-                <strong>📖 Palabras:</strong> {{ r.wordCount }}
+                <strong><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg> Palabras:</strong> {{ r.wordCount }}
               </span>
               <span class="meta-item">
-                <strong>❓ Preguntas:</strong> {{ r.questions?.length || 0 }}
+                <strong><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Preguntas:</strong> {{ r.questions?.length || 0 }}
               </span>
               <span class="meta-item">
-                <strong>⭐ Recompensa:</strong> +{{ r.xpReward || 100 }} XP
+                <strong><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Recompensa:</strong> +{{ r.xpReward || 100 }} XP
               </span>
             </div>
 
@@ -417,10 +417,10 @@
     <div class="modal-dialog-large glass-card" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div>
-          <h3>{{ isEditingReading ? '✏️ Editar Lectura Pedagógica' : '➕ Nueva Lectura Pedagógica' }}</h3>
+          <h3>{{ isEditingReading ? 'Editar Lectura Pedagógica' : 'Nueva Lectura Pedagógica' }}</h3>
           <p class="modal-subtitle">Configura los parámetros de lectura, el texto base y las preguntas de comprensión evaluativa.</p>
         </div>
-        <button type="button" class="btn-modal-close" (click)="closeReadingModal()">✕</button>
+        <button type="button" class="btn-modal-close" (click)="closeReadingModal()"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
 
       <div class="modal-body">
@@ -485,9 +485,9 @@
           <!-- Questions section -->
           <div class="questions-section">
             <div class="questions-header">
-              <h4>❓ Cuestionario de Comprensión Lector ({{ readingFormData.questions.length }})</h4>
+              <h4><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Cuestionario de Comprensión Lector ({{ readingFormData.questions.length }})</h4>
               <button type="button" class="btn-add-question" (click)="addQuestionToForm()">
-                ➕ Agregar Pregunta
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Agregar Pregunta
               </button>
             </div>
 
@@ -495,7 +495,7 @@
               <div class="question-card-header">
                 <span class="q-number">Pregunta #{{ qIdx + 1 }}</span>
                 <button type="button" class="btn-remove-q" (click)="removeQuestionFromForm(qIdx)">
-                  🗑️ Eliminar
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar
                 </button>
               </div>
 
@@ -518,7 +518,7 @@
           <div class="modal-actions">
             <button type="button" class="btn-cancel" (click)="closeReadingModal()">Cancelar</button>
             <button type="submit" class="btn-save" [disabled]="readingModalLoading">
-              {{ readingModalLoading ? 'Guardando...' : (isEditingReading ? '💾 Actualizar Lectura' : '💾 Guardar Nueva Lectura') }}
+              {{ readingModalLoading ? 'Guardando...' : (isEditingReading ? 'Actualizar Lectura' : 'Guardar Nueva Lectura') }}
             </button>
           </div>
         </form>
