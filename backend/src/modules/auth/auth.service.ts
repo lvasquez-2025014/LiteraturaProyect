@@ -122,7 +122,7 @@ export class AuthService {
       let user = await this.usersService.findByEmail(email);
 
       // Autorización de rol Administrador estrictamente desde variable de entorno ADMIN_EMAIL
-      const adminEmailConfig = (process.env.ADMIN_EMAIL || 'ludwingivanvasqueznavas@gmail.com')
+      const adminEmailConfig = (process.env.ADMIN_EMAIL || '')
         .toLowerCase()
         .split(',')
         .map((e) => e.trim());
