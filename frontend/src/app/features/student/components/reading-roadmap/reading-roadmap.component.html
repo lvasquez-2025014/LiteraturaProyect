@@ -243,117 +243,130 @@
       </div>
     </ng-template>
 
-    <!-- Interconnected Map Rows -->
-    <div *ngFor="let reading of displayedReadings; let i = index" 
-      class="map-row" 
-      [class.row-even]="i % 2 === 1"
-      [class.row-odd]="i % 2 === 0">
+    <!-- Continuous Adventure Timeline & Journey Path -->
+    <div class="roadmap-timeline">
+      <div *ngFor="let reading of displayedReadings; let i = index" 
+        class="timeline-checkpoint"
+        [class.checkpoint-current]="isCurrent(reading)"
+        [class.checkpoint-completed]="isCompleted(reading)"
+        [class.checkpoint-locked]="isLocked(reading)">
 
-      <!-- Left Slot (Card on even rows for desktop) -->
-      <div class="map-slot slot-left">
-        <ng-container *ngIf="i % 2 === 1">
-          <ng-container *ngTemplateOutlet="cardTemplate; context: { reading: reading }"></ng-container>
-        </ng-container>
-      </div>
-
-      <!-- Center Spine Slot (Checkpoint Node + Bridge + Interconnecting Trail) -->
-      <div class="map-slot slot-center">
-        <!-- Horizontal Bridge to Left Card (if even row) -->
-        <div *ngIf="i % 2 === 1" class="node-bridge bridge-left"
-          [class.bridge-completed]="isCompleted(reading)"
-          [class.bridge-current]="isCurrent(reading)"
-          [class.bridge-locked]="isLocked(reading)">
-        </div>
-
-        <!-- Checkpoint Waypoint Node -->
-        <div class="waypoint-node"
-          (click)="onNodeClick(reading)"
-          [class.waypoint-completed]="isCompleted(reading)"
-          [class.waypoint-current]="isCurrent(reading)"
-          [class.waypoint-locked]="isLocked(reading)"
-          [attr.title]="'Nivel ' + reading.level + ': ' + reading.title">
-          
-          <div class="waypoint-inner">
-            <span class="waypoint-level-num">{{ reading.level }}</span>
-            <div class="waypoint-status-icon">
-              <!-- Completed Icon -->
-              <svg *ngIf="isCompleted(reading)" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-              <!-- Current Play Icon -->
-              <svg *ngIf="isCurrent(reading)" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                <polygon points="6 4 20 12 6 20 6 4"/>
-              </svg>
-              <!-- Locked Padlock Icon -->
-              <svg *ngIf="isLocked(reading)" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-              </svg>
+        <!-- Left Spine Track: Waypoint Medallion + Continuous Trail Line -->
+        <div class="spine-column">
+          <!-- Waypoint Medallion Node -->
+          <div class="waypoint-medallion"
+            (click)="onNodeClick(reading)"
+            [class.medallion-completed]="isCompleted(reading)"
+            [class.medallion-current]="isCurrent(reading)"
+            [class.medallion-locked]="isLocked(reading)"
+            [attr.title]="'Nivel ' + reading.level + ': ' + reading.title">
+            
+            <div class="medallion-inner">
+              <span class="medallion-num">{{ reading.level }}</span>
+              <div class="medallion-status-icon">
+                <!-- Completed Icon -->
+                <svg *ngIf="isCompleted(reading)" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <!-- Current Play Icon -->
+                <svg *ngIf="isCurrent(reading)" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="6 4 20 12 6 20 6 4"/>
+                </svg>
+                <!-- Locked Padlock Icon -->
+                <svg *ngIf="isLocked(reading)" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </div>
             </div>
+
+            <!-- Pulsing halo for active node -->
+            <div *ngIf="isCurrent(reading)" class="medallion-pulse-halo"></div>
           </div>
 
-          <!-- Pulsing halo for active node -->
-          <div *ngIf="isCurrent(reading)" class="waypoint-pulse-halo"></div>
+          <!-- Trail Line to Next Level -->
+          <div *ngIf="i < displayedReadings.length - 1" 
+            class="trail-line"
+            [class.trail-completed]="isCompleted(reading)"
+            [class.trail-active]="isCurrent(reading)"
+            [class.trail-locked]="isLocked(reading)">
+            <span class="trail-pip pip-1"></span>
+            <span class="trail-pip pip-2"></span>
+          </div>
+
+          <!-- Trail Line from last level to Stage Milestone -->
+          <div *ngIf="i === displayedReadings.length - 1"
+            class="trail-line trail-to-milestone"
+            [class.trail-completed]="getStageProgress(activeStage).isCompleted"
+            [class.trail-active]="!getStageProgress(activeStage).isCompleted && isCompleted(reading)"
+            [class.trail-locked]="!isCompleted(reading)">
+            <span class="trail-pip pip-1"></span>
+            <span class="trail-pip pip-2"></span>
+          </div>
         </div>
 
-        <!-- Horizontal Bridge to Right Card (if odd row) -->
-        <div *ngIf="i % 2 === 0" class="node-bridge bridge-right"
+        <!-- Horizontal Bridge Arm directly linking Medallion to Challenge Card -->
+        <div class="bridge-arm"
           [class.bridge-completed]="isCompleted(reading)"
           [class.bridge-current]="isCurrent(reading)"
           [class.bridge-locked]="isLocked(reading)">
         </div>
 
-        <!-- Continuous Trail Line connecting directly to the next node -->
-        <div *ngIf="i < displayedReadings.length - 1" 
-          class="connector-line"
-          [class.connector-completed]="isCompleted(reading)"
-          [class.connector-active]="isCurrent(reading)"
-          [class.connector-locked]="isLocked(reading)">
-          <span class="connector-dot-waypoint dot-1"></span>
-          <span class="connector-dot-waypoint dot-2"></span>
-        </div>
-      </div>
-
-      <!-- Right Slot (Card on odd rows on desktop, and ALL rows on mobile) -->
-      <div class="map-slot slot-right">
-        <ng-container *ngIf="i % 2 === 0">
-          <ng-container *ngTemplateOutlet="cardTemplate; context: { reading: reading }"></ng-container>
-        </ng-container>
-        <!-- Mobile view for even rows -->
-        <div class="mobile-only-card" *ngIf="i % 2 === 1">
+        <!-- Right Column: Challenge Card -->
+        <div class="card-column">
           <ng-container *ngTemplateOutlet="cardTemplate; context: { reading: reading }"></ng-container>
         </div>
       </div>
-    </div>
 
-    <!-- Stage Milestone Checkpoint / Chest -->
-    <div class="stage-milestone-card" [class.milestone-unlocked]="getStageProgress(activeStage).isCompleted">
-      <div class="milestone-icon-box">
-        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="20 12 20 22 4 22 4 12"/>
-          <rect x="2" y="7" width="20" height="5"/>
-          <line x1="12" y1="22" x2="12" y2="7"/>
-          <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
-          <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
-        </svg>
-      </div>
+      <!-- Stage Milestone Destination Checkpoint (Grand Chest) -->
+      <div class="timeline-checkpoint milestone-checkpoint">
+        <div class="spine-column">
+          <div class="waypoint-medallion milestone-medallion"
+            [class.medallion-completed]="getStageProgress(activeStage).isCompleted"
+            [class.medallion-locked]="!getStageProgress(activeStage).isCompleted">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 12 20 22 4 22 4 12"/>
+              <rect x="2" y="7" width="20" height="5"/>
+              <line x1="12" y1="22" x2="12" y2="7"/>
+              <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+              <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+            </svg>
+          </div>
+        </div>
 
-      <div class="milestone-info">
-        <div class="milestone-badge">HITO DE ETAPA</div>
-        <h4 class="milestone-title">{{ activeStage.milestoneTitle }}</h4>
-        <p class="milestone-desc">
-          {{ getStageProgress(activeStage).isCompleted ? '¡Has superado con éxito todos los desafíos de esta etapa pedagógica!' : 'Completa todos los retos de esta etapa para desbloquear la insignia y el gran cofre de recompensas.' }}
-        </p>
-      </div>
+        <div class="bridge-arm" [class.bridge-completed]="getStageProgress(activeStage).isCompleted"></div>
 
-      <div class="milestone-status">
-        <span *ngIf="getStageProgress(activeStage).isCompleted" class="milestone-pill-done">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          ¡Etapa Superada!
-        </span>
-        <span *ngIf="!getStageProgress(activeStage).isCompleted" class="milestone-pill-pending">
-          En Progreso ({{ getStageProgress(activeStage).completed }}/{{ activeStage.totalLevels }})
-        </span>
+        <div class="card-column">
+          <div class="stage-milestone-card" [class.milestone-unlocked]="getStageProgress(activeStage).isCompleted">
+            <div class="milestone-icon-box">
+              <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 12 20 22 4 22 4 12"/>
+                <rect x="2" y="7" width="20" height="5"/>
+                <line x1="12" y1="22" x2="12" y2="7"/>
+                <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+                <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+              </svg>
+            </div>
+
+            <div class="milestone-info">
+              <div class="milestone-badge">HITO DE ETAPA</div>
+              <h4 class="milestone-title">{{ activeStage.milestoneTitle }}</h4>
+              <p class="milestone-desc">
+                {{ getStageProgress(activeStage).isCompleted ? '¡Has superado con éxito todos los desafíos de esta etapa pedagógica!' : 'Completa todos los retos de esta etapa para desbloquear la insignia y el gran cofre de recompensas.' }}
+              </p>
+            </div>
+
+            <div class="milestone-status">
+              <span *ngIf="getStageProgress(activeStage).isCompleted" class="milestone-pill-done">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                ¡Etapa Superada!
+              </span>
+              <span *ngIf="!getStageProgress(activeStage).isCompleted" class="milestone-pill-pending">
+                En Progreso ({{ getStageProgress(activeStage).completed }}/{{ activeStage.totalLevels }})
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 

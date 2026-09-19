@@ -431,246 +431,63 @@
 }
 
 /* ==========================================================================
-   Continuous Adventure Map & Interconnected Nodes
+   Continuous Adventure Timeline & Journey Path
    ========================================================================== */
 .roadmap-path {
   padding: 36px 0 30px 0;
-  max-width: 960px;
+  max-width: 840px;
   margin: 0 auto;
+  position: relative;
+}
+
+.roadmap-timeline {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.timeline-checkpoint {
+  display: grid;
+  grid-template-columns: 60px 24px 1fr;
+  align-items: flex-start;
+  position: relative;
+  margin-bottom: 28px;
+}
+
+/* Spine Column (Node + Vertical Continuous Trail) */
+.spine-column {
   position: relative;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  width: 60px;
+  height: 100%;
+  padding-top: 24px;
+  z-index: 2;
 }
 
-.map-row {
-  position: relative;
-  width: 100%;
-}
-
-@media (min-width: 768px) {
-  .map-row {
-    display: grid;
-    grid-template-columns: 1fr 90px 1fr;
-    align-items: center;
-    position: relative;
-    margin-bottom: 32px;
-  }
-
-  .slot-left {
-    display: flex;
-    justify-content: flex-end;
-    padding-right: 14px;
-  }
-
-  .slot-right {
-    display: flex;
-    justify-content: flex-start;
-    padding-left: 14px;
-  }
-
-  .mobile-only-card {
-    display: none !important;
-  }
-
-  .slot-center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    height: 100%;
-    min-height: 80px;
-  }
-
-  /* Horizontal Bridge Connecting Center Node to Card */
-  .node-bridge {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    height: 3px;
-    z-index: 2;
-    transition: all 0.3s ease;
-  }
-
-  .bridge-left {
-    right: calc(50% + 28px);
-    width: 22px;
-  }
-
-  .bridge-right {
-    left: calc(50% + 28px);
-    width: 22px;
-  }
-
-  .bridge-completed {
-    background: #f59e0b;
-    box-shadow: 0 0 6px rgba(245, 158, 11, 0.45);
-  }
-
-  .bridge-current {
-    background: var(--kinal-blue);
-    box-shadow: 0 0 8px rgba(0, 74, 173, 0.5);
-  }
-
-  .bridge-locked {
-    background: #cbd5e1;
-    border-top: 2px dashed #cbd5e1;
-    height: 0;
-  }
-
-  /* Continuous Spine Connector Trail */
-  .connector-line {
-    position: absolute;
-    top: calc(50% + 28px);
-    bottom: calc(-50% - 32px);
-    left: 50%;
-    transform: translateX(-50%);
-    width: 6px;
-    border-radius: 999px;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    align-items: center;
-    transition: background 0.3s ease;
-  }
-
-  .connector-completed {
-    background: #f59e0b;
-    box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
-  }
-
-  .connector-active {
-    background: var(--kinal-blue);
-    box-shadow: 0 0 12px rgba(0, 74, 173, 0.45);
-  }
-
-  .connector-locked {
-    background: #e2e8f0;
-    border-left: 2.5px dashed #cbd5e1;
-    width: 0;
-  }
-
-  .connector-dot-waypoint {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #ffffff;
-    border: 2.5px solid #cbd5e1;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  .connector-completed .connector-dot-waypoint {
-    border-color: #d97706;
-    background: #fef3c7;
-    box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
-  }
-
-  .connector-active .connector-dot-waypoint {
-    border-color: var(--kinal-blue);
-    background: var(--kinal-light-blue);
-    box-shadow: 0 0 8px rgba(0, 74, 173, 0.6);
-  }
-}
-
-/* Mobile Responsive (< 768px) */
-@media (max-width: 767px) {
-  .map-row {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    position: relative;
-    padding-left: 72px;
-    margin-bottom: 24px;
-  }
-
-  .slot-left {
-    display: none !important;
-  }
-
-  .slot-center {
-    position: absolute;
-    left: 0;
-    top: 16px;
-    width: 56px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .slot-right {
-    width: 100%;
-  }
-
-  .mobile-only-card {
-    display: block !important;
-  }
-
-  .bridge-left {
-    display: none !important;
-  }
-
-  .bridge-right {
-    position: absolute;
-    left: 56px;
-    top: 28px;
-    width: 16px;
-    height: 3px;
-    z-index: 2;
-  }
-
-  .connector-line {
-    position: absolute;
-    top: 56px;
-    bottom: -32px;
-    left: 28px;
-    transform: translateX(-50%);
-    width: 6px;
-    border-radius: 999px;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    align-items: center;
-  }
-
-  .connector-completed { background: #f59e0b; }
-  .connector-active { background: var(--kinal-blue); }
-  .connector-locked { background: #e2e8f0; border-left: 2.5px dashed #cbd5e1; width: 0; }
-
-  .connector-dot-waypoint {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #ffffff;
-    border: 2px solid #cbd5e1;
-  }
-
-  .connector-completed .connector-dot-waypoint { border-color: #d97706; background: #fef3c7; }
-  .connector-active .connector-dot-waypoint { border-color: var(--kinal-blue); background: var(--kinal-light-blue); }
-}
-
-/* Central Waypoint Node */
-.waypoint-node {
-  width: 56px;
-  height: 56px;
-  border-radius: 18px;
+/* Waypoint Medallion Node */
+.waypoint-medallion {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
   background: #ffffff;
   border: 2.5px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
   position: relative;
   cursor: pointer;
   transition: all 0.25s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  z-index: 3;
 }
 
-.waypoint-node:hover {
+.waypoint-medallion:hover {
   transform: scale(1.08);
 }
 
-.waypoint-inner {
+.medallion-inner {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -678,76 +495,238 @@
   gap: 1px;
 }
 
-.waypoint-level-num {
-  font-size: 0.88rem;
+.medallion-num {
+  font-size: 0.95rem;
   font-weight: 800;
-  color: #64748b;
+  color: #334155;
   line-height: 1;
 }
 
-.waypoint-status-icon {
+.medallion-status-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #94a3b8;
 }
 
-/* Waypoint States */
-.waypoint-completed {
+/* Medallion States */
+.medallion-completed {
   border-color: #f59e0b;
-  background: #fffdf5;
+  background: #fffbeb;
   box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
 }
 
-.waypoint-completed .waypoint-level-num {
+.medallion-completed .medallion-num {
   color: #b45309;
 }
 
-.waypoint-completed .waypoint-status-icon {
-  color: #d97706;
+.medallion-completed .medallion-status-icon {
+  color: #10b981;
 }
 
-.waypoint-current {
+.medallion-current {
   border-color: var(--kinal-blue);
   background: var(--kinal-blue);
-  box-shadow: 0 6px 20px rgba(0, 74, 173, 0.35);
-  transform: scale(1.05);
+  box-shadow: 0 4px 18px rgba(0, 74, 173, 0.4);
 }
 
-.waypoint-current .waypoint-level-num {
+.medallion-current .medallion-num {
   color: #ffffff;
 }
 
-.waypoint-current .waypoint-status-icon {
+.medallion-current .medallion-status-icon {
   color: #ffffff;
 }
 
-.waypoint-locked {
+.medallion-locked {
+  border-color: #cbd5e1;
   background: #f8fafc;
-  border-color: #e2e8f0;
-  opacity: 0.75;
+  opacity: 0.8;
+}
+
+.medallion-locked .medallion-num {
+  color: #94a3b8;
+}
+
+.medallion-locked .medallion-status-icon {
+  color: #94a3b8;
 }
 
 /* Pulsing Halo for Active Node */
-.waypoint-pulse-halo {
+.medallion-pulse-halo {
   position: absolute;
-  top: -6px;
-  left: -6px;
-  right: -6px;
-  bottom: -6px;
-  border-radius: 22px;
+  inset: -6px;
+  border-radius: 50%;
   border: 2px solid var(--kinal-blue);
-  animation: haloPulse 2s infinite ease-in-out;
+  animation: beacon-pulse 2s infinite ease-out;
   pointer-events: none;
 }
 
-@keyframes haloPulse {
-  0% { transform: scale(1); opacity: 0.8; }
-  50% { transform: scale(1.15); opacity: 0.2; }
-  100% { transform: scale(1); opacity: 0.8; }
+@keyframes beacon-pulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.85;
+  }
+  70% {
+    transform: scale(1.22);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.22);
+    opacity: 0;
+  }
 }
 
-/* Node Bridge is declared above with map-row */
+/* Continuous Vertical Trail Line (Starts at bottom of current node, meets top of next node) */
+.trail-line {
+  position: absolute;
+  top: calc(24px + 54px);
+  bottom: -52px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  border-radius: 999px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.trail-completed {
+  background: #f59e0b;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.45);
+}
+
+.trail-active {
+  background: var(--kinal-blue);
+  box-shadow: 0 0 12px rgba(0, 74, 173, 0.5);
+}
+
+.trail-locked {
+  background: #e2e8f0;
+  border-left: 2.5px dashed #cbd5e1;
+  width: 0;
+}
+
+/* Stepping Stone Dots on Trail */
+.trail-pip {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2.5px solid #cbd5e1;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.trail-completed .trail-pip {
+  border-color: #d97706;
+  background: #fef3c7;
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+}
+
+.trail-active .trail-pip {
+  border-color: var(--kinal-blue);
+  background: var(--kinal-light-blue);
+  box-shadow: 0 0 8px rgba(0, 74, 173, 0.6);
+}
+
+/* Horizontal Bridge Arm Linking Medallion to Challenge Card */
+.bridge-arm {
+  position: relative;
+  margin-top: 50px;
+  height: 3px;
+  width: 100%;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.bridge-completed {
+  background: #f59e0b;
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.45);
+}
+
+.bridge-current {
+  background: var(--kinal-blue);
+  box-shadow: 0 0 8px rgba(0, 74, 173, 0.5);
+}
+
+.bridge-locked {
+  border-top: 2px dashed #cbd5e1;
+  height: 0;
+}
+
+/* Challenge Card Column */
+.card-column {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Stage Milestone Medallion (Chest at bottom) */
+.milestone-medallion {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.milestone-medallion.medallion-completed {
+  background: #fffbeb;
+  border-color: #f59e0b;
+  color: #d97706;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+}
+
+.milestone-medallion.medallion-locked {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #94a3b8;
+}
+
+/* Responsive (< 640px) */
+@media (max-width: 640px) {
+  .timeline-checkpoint {
+    grid-template-columns: 46px 14px 1fr;
+    margin-bottom: 22px;
+  }
+
+  .spine-column {
+    width: 46px;
+    padding-top: 18px;
+  }
+
+  .waypoint-medallion {
+    width: 44px;
+    height: 44px;
+  }
+
+  .medallion-num {
+    font-size: 0.82rem;
+  }
+
+  .trail-line {
+    top: calc(18px + 44px);
+    bottom: -40px;
+    width: 5px;
+  }
+
+  .trail-pip {
+    width: 8px;
+    height: 8px;
+  }
+
+  .bridge-arm {
+    margin-top: 39px;
+  }
+
+  .milestone-medallion {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+  }
+}
 
 /* Node Card */
 .node-card {
