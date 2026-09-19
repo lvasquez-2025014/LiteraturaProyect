@@ -1,0 +1,120 @@
+<div class="roadmap-wrapper">
+  <!-- Ambient glow -->
+  <div class="ambient-glow glow-blue"></div>
+  <div class="ambient-glow glow-orange"></div>
+
+  <!-- Header -->
+  <div class="roadmap-header">
+    <div>
+      <div class="header-pill">
+        <span>📖</span>
+        <span>Ruta Pedagógica de Fluidez</span>
+      </div>
+      <h2 class="roadmap-title">Mapa de Desafíos Literarios</h2>
+      <p class="roadmap-sub">
+        Supera cada obra literaria para desbloquear nuevos niveles, acumular XP y romper tu récord de PPM.
+      </p>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend-box">
+      <div class="legend-item">
+        <span class="legend-dot dot-completed"></span>
+        <span>Completado</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot dot-active"></span>
+        <span>Activo</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot dot-locked"></span>
+        <span>Bloqueado</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Winding Path (Zigzag) -->
+  <div class="roadmap-path">
+    <div *ngFor="let reading of sortedReadings; let i = index" class="node-wrapper" [ngClass]="getAlignmentClass(i)">
+      
+      <!-- Connector line -->
+      <div *ngIf="i < sortedReadings.length - 1" class="connector-line"
+        [class.connector-completed]="isCompleted(reading)"
+        [class.connector-active]="isCurrent(reading)"
+        [class.connector-locked]="isLocked(reading)">
+      </div>
+
+      <!-- Card Node -->
+      <div class="node-card" 
+        [class.card-current]="isCurrent(reading)"
+        [class.card-completed]="isCompleted(reading)"
+        [class.card-locked]="isLocked(reading)">
+        
+        <!-- Active Badge -->
+        <div *ngIf="isCurrent(reading)" class="current-badge">
+          <span>⚡</span>
+          <span>¡Tu siguiente reto!</span>
+        </div>
+
+        <div class="node-content">
+          <!-- Circle Icon -->
+          <div class="circle-icon"
+            [class.circle-completed]="isCompleted(reading)"
+            [class.circle-current]="isCurrent(reading)"
+            [class.circle-locked]="isLocked(reading)">
+            <span *ngIf="isCompleted(reading)">⭐</span>
+            <span *ngIf="isCurrent(reading)">▶</span>
+            <span *ngIf="isLocked(reading)">🔒</span>
+          </div>
+
+          <!-- Info Details -->
+          <div class="node-details">
+            <div class="level-meta">
+              <span class="level-tag">NIVEL {{ reading.level }}</span>
+              <span class="meta-separator">•</span>
+              <span class="genre-pill"
+                [class.pill-current]="isCurrent(reading)"
+                [class.pill-completed]="isCompleted(reading)"
+                [class.pill-locked]="isLocked(reading)">
+                {{ reading.genre }}
+              </span>
+            </div>
+
+            <h3 class="reading-title">{{ reading.title }}</h3>
+
+            <div class="reading-meta">
+              <span class="meta-goal">🎯 Meta: <strong>{{ reading.targetWpm }} PPM</strong></span>
+              <span class="meta-separator">•</span>
+              <span class="meta-xp">⚡ +{{ reading.xpReward }} XP</span>
+            </div>
+
+            <!-- Best Score if Completed -->
+            <div *ngIf="isCompleted(reading) && reading.bestWpm" class="completed-stats">
+              <span class="best-wpm">✓ Récord: {{ reading.bestWpm }} PPM</span>
+              <span class="best-comp">Comprensión: {{ reading.bestComprehension || 100 }}%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="node-action">
+          <button *ngIf="isCurrent(reading)" (click)="onNodeClick(reading)" class="btn-start">
+            <span>Comenzar Reto en Vivo</span>
+            <span>➜</span>
+          </button>
+
+          <button *ngIf="isCompleted(reading)" (click)="onNodeClick(reading)" class="btn-replay">
+            <span>🔄</span>
+            <span>Releer y Mejorar</span>
+          </button>
+
+          <div *ngIf="isLocked(reading)" class="locked-notice">
+            <span>🔒</span>
+            <span>Requiere superar Nivel {{ reading.level - 1 }}</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

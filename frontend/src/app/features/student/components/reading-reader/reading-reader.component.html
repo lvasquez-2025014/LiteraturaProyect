@@ -1,0 +1,243 @@
+<div class="reader-container">
+
+  <!-- Top Header Navigation -->
+  <header class="reader-header">
+    <button (click)="back.emit()" class="btn-back">
+      <span>←</span>
+      <span>Volver al Mapa</span>
+    </button>
+
+    <div class="header-center">
+      <span class="genre-tag">{{ reading.genre }} · Nivel {{ reading.level }}</span>
+      <h1 class="reading-heading">{{ reading.title }}</h1>
+    </div>
+
+    <div class="header-badges">
+      <div class="badge-target" title="Meta de velocidad">
+        <span>🎯 Meta:</span>
+        <strong>{{ reading.targetWpm }} PPM</strong>
+      </div>
+      <div class="badge-xp" title="Recompensa de experiencia">
+        <span>⚡</span>
+        <strong>+{{ reading.xpReward }} XP</strong>
+      </div>
+    </div>
+  </header>
+
+  <!-- Live Metrics Bar -->
+  <div class="metrics-bar">
+    <!-- Chronometer -->
+    <div class="metric-item">
+      <span class="metric-label">⏱️ Tiempo</span>
+      <span class="metric-value">{{ formatTime(secondsElapsed) }}</span>
+    </div>
+
+    <!-- Live WPM Gauge -->
+    <div class="metric-item">
+      <span class="metric-label">⚡ Velocidad en Vivo</span>
+      <div class="wpm-display">
+        <span class="metric-value" [class.wpm-fast]="currentWpm >= reading.targetWpm">
+          {{ currentWpm }}
+        </span>
+        <span class="wpm-unit">PPM</span>
+      </div>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="metric-item metric-progress">
+      <div class="progress-labels">
+        <span class="metric-label">📖 Progreso del Texto</span>
+        <span class="progress-percent">{{ progressPercentage }}%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" [style.width.%]="progressPercentage"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Alert if Mic Issue -->
+  <div *ngIf="micError" class="reader-alert">
+    <span>⚠️</span>
+    <span>{{ micError }} — Puedes usar el <strong>Modo Asistido</strong> para continuar.</span>
+    <button (click)="mode = 'assisted'; startReading()" class="btn-alert-action">Activar Modo Asistido</button>
+  </div>
+
+  <!-- Reading Canvas (Word-by-word Karaoke Style) -->
+  <main class="reading-canvas">
+    <div class="reading-text-box">
+      <p class="reading-paragraph">
+        <span
+          *ngFor="let word of words; let i = index"
+          class="word-token"
+          [class.word-read]="i < currentWordIndex"
+          [class.word-current]="i === currentWordIndex && isRecording"
+          [class.word-pending]="i > currentWordIndex"
+        >{{ word }} </span>
+      </p>
+    </div>
+  </main>
+
+  <!-- Floating Audio & Control Dock -->
+  <footer class="control-dock">
+    <div class="dock-container">
+      
+      <!-- Left: Mode Indicator -->
+      <div class="mode-selector">
+        <button 
+          (click)="mode = 'mic'" 
+          class="mode-btn" 
+          [class.mode-active]="mode === 'mic'"
+          [disabled]="isRecording"
+          title="Lee en voz alta con tu micrófono">
+          🎙️ Micrófono
+        </button>
+        <button 
+          (click)="mode = 'assisted'" 
+          class="mode-btn" 
+          [class.mode-active]="mode === 'assisted'"
+          [disabled]="isRecording"
+          title="Simulación guiada de lectura">
+          ⚡ Asistido
+        </button>
+      </div>
+
+      <!-- Center: Main Mic Button -->
+      <div class="center-controls">
+        <button 
+          *ngIf="!isRecording && !isPaused" 
+          (click)="startReading()" 
+          class="btn-mic-main btn-start-rec"
+          title="Comenzar lectura">
+          <span class="mic-icon">🎙️</span>
+          <span class="mic-text">Comenzar a Leer</span>
+        </button>
+
+        <button 
+          *ngIf="isRecording" 
+          (click)="pauseReading()" 
+          class="btn-mic-main btn-pause-rec"
+          title="Pausar lectura">
+          <span class="mic-icon">⏸️</span>
+          <span class="mic-text">Pausar</span>
+        </button>
+
+        <button 
+          *ngIf="isPaused" 
+          (click)="resumeReading()" 
+          class="btn-mic-main btn-resume-rec"
+          title="Reanudar lectura">
+          <span class="mic-icon">▶️</span>
+          <span class="mic-text">Continuar</span>
+        </button>
+      </div>
+
+      <!-- Right: Secondary Actions -->
+      <div class="dock-actions">
+        <button (click)="restartReading()" class="btn-dock-action" title="Reiniciar lectura">
+          <span>🔄 Reiniciar</span>
+        </button>
+        <button *ngIf="isRecording || isPaused" (click)="finishReading()" class="btn-finish-direct">
+          <span>Finalizar y Evaluar ➜</span>
+        </button>
+      </div>
+
+    </div>
+  </footer>
+
+</div>
+
+<!-- =========================================================================
+     Comprehension Quiz Modal
+     ========================================================================= -->
+<div class="modal-backdrop" *ngIf="showQuiz">
+  <div class="modal-card quiz-card">
+    
+    <div class="quiz-header">
+      <div class="quiz-badge">
+        <span>🧠 Reto de Comprensión</span>
+        <span>Pregunta {{ currentQuestionIndex + 1 }} de {{ reading.questions.length }}</span>
+      </div>
+      <h2 class="quiz-prompt">{{ reading.questions[currentQuestionIndex].prompt }}</h2>
+    </div>
+
+    <!-- Quiz Options -->
+    <div class="quiz-options">
+      <button
+        *ngFor="let opt of reading.questions[currentQuestionIndex].options; let optIdx = index"
+        (click)="selectQuizOption(optIdx)"
+        class="quiz-option-btn"
+        [class.option-selected]="selectedAnswers[currentQuestionIndex] === optIdx"
+        [class.option-correct]="showExplanation && optIdx === reading.questions[currentQuestionIndex].correctIndex"
+        [class.option-incorrect]="showExplanation && selectedAnswers[currentQuestionIndex] === optIdx && optIdx !== reading.questions[currentQuestionIndex].correctIndex"
+      >
+        <span class="option-letter">{{ ['A', 'B', 'C', 'D'][optIdx] }}</span>
+        <span class="option-text">{{ opt }}</span>
+      </button>
+    </div>
+
+    <!-- Pedagogical Explanation -->
+    <div *ngIf="showExplanation" class="explanation-box">
+      <strong>💡 Retroalimentación:</strong>
+      <p>{{ reading.questions[currentQuestionIndex].explanation }}</p>
+    </div>
+
+    <!-- Quiz Footer -->
+    <div class="quiz-footer">
+      <button 
+        *ngIf="showExplanation" 
+        (click)="nextQuestion()" 
+        class="btn-next-question">
+        <span>{{ currentQuestionIndex < reading.questions.length - 1 ? 'Siguiente Pregunta ➜' : 'Ver Resultados Finales 🎉' }}</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- =========================================================================
+     Victory & Rewards Modal
+     ========================================================================= -->
+<div class="modal-backdrop" *ngIf="showVictory && finalResult">
+  <div class="modal-card victory-card">
+    
+    <div class="victory-trophy">🏆</div>
+    <span class="victory-subtitle">¡Reto Completado con Éxito!</span>
+    <h2 class="victory-title">¡Gran Trabajo, Lector Kinal!</h2>
+
+    <!-- Summary Metrics -->
+    <div class="victory-stats-grid">
+      <div class="vstat-box">
+        <span class="vstat-label">Velocidad Alcanzada</span>
+        <div class="vstat-main">
+          <strong class="vstat-val" [class.vstat-pass]="finalResult.wpm >= reading.targetWpm">
+            {{ finalResult.wpm }}
+          </strong>
+          <span class="vstat-unit">PPM</span>
+        </div>
+        <small class="vstat-sub">Meta: {{ reading.targetWpm }} PPM</small>
+      </div>
+
+      <div class="vstat-box">
+        <span class="vstat-label">Comprensión</span>
+        <div class="vstat-main">
+          <strong class="vstat-val">{{ quizScore }}%</strong>
+        </div>
+        <small class="vstat-sub">Cuestionario</small>
+      </div>
+
+      <div class="vstat-box vstat-xp">
+        <span class="vstat-label">Experiencia Ganada</span>
+        <div class="vstat-main">
+          <strong class="vstat-val text-orange">+{{ finalResult.xpEarned }}</strong>
+          <span class="vstat-unit">XP</span>
+        </div>
+        <small class="vstat-sub">¡Nivel desbloqueado!</small>
+      </div>
+    </div>
+
+    <button (click)="onVictoryContinue()" class="btn-victory-continue">
+      <span>Continuar mi Aventura Lectora 🚀</span>
+    </button>
+
+  </div>
+</div>

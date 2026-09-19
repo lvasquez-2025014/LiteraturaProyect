@@ -1,0 +1,77 @@
+<app-navbar *ngIf="!activeReading"></app-navbar>
+
+<main class="student-dashboard" *ngIf="!activeReading">
+  <div class="dashboard-container">
+    
+    <!-- Hero / Welcome Banner -->
+    <section class="welcome-card glass-panel">
+      <div class="welcome-content">
+        <span class="welcome-badge">¡Bienvenido de nuevo, {{ user?.name }}! 👋</span>
+        <h1>Tu Viaje de Lectura y Comprensión</h1>
+        <p>
+          Entrena tu velocidad de lectura con el micrófono y pon a prueba tu capacidad de retención. ¡Cada palabra cuenta para tu progreso en Kinal!
+        </p>
+        <div class="welcome-actions">
+          <button (click)="onStartNextReading()" class="btn btn-primary btn-cta">
+            <span>🚀 Iniciar Próxima Lectura (Nivel {{ stats.currentLevel }})</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Summary -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-icon icon-speed">⚡</div>
+          <div class="metric-data">
+            <span class="metric-value">{{ stats.averageWpm }}</span>
+            <span class="metric-label">Palabras / Minuto</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon icon-accuracy">🎯</div>
+          <div class="metric-data">
+            <span class="metric-value">{{ stats.comprehensionRate }}%</span>
+            <span class="metric-label">Comprensión</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon icon-streak">🔥</div>
+          <div class="metric-data">
+            <span class="metric-value">{{ stats.streakDays }}</span>
+            <span class="metric-label">Días de Racha</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon icon-books">📖</div>
+          <div class="metric-data">
+            <span class="metric-value">{{ stats.completedReadings }}</span>
+            <span class="metric-label">Lecturas Superadas</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Gamified Roadmap Section (Duolingo-style 10 Levels) -->
+    <section class="roadmap-section">
+      <app-reading-roadmap 
+        [readings]="readings" 
+        [currentLevel]="stats.currentLevel" 
+        (selectReading)="onSelectReading($event)">
+      </app-reading-roadmap>
+    </section>
+
+  </div>
+</main>
+
+<!-- Active Reading Voice Module with Microphone -->
+<div *ngIf="activeReading" class="reader-view">
+  <app-reading-reader
+    [reading]="activeReading"
+    [studentId]="user?.id || ''"
+    (back)="activeReading = null"
+    (completeAttempt)="onAttemptCompleted($event)"
+  ></app-reading-reader>
+</div>
