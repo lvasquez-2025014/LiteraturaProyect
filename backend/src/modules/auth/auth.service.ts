@@ -121,14 +121,16 @@ export class AuthService {
 
       let user = await this.usersService.findByEmail(email);
 
-      const superAdminEmails = [
-        'ludwingivanvasqueznavas@gmail.com',
-        'ludwing1vanvasqueznavas@gmail.com',
-        'twichgenocidegenocide@gmail.com',
-      ];
+      // Autorización de rol Administrador estrictamente desde variable de entorno ADMIN_EMAIL
+      const adminEmailConfig = (process.env.ADMIN_EMAIL || 'ludwingivanvasqueznavas@gmail.com')
+        .toLowerCase()
+        .split(',')
+        .map((e) => e.trim());
+
+      const isAdminAccount = adminEmailConfig.includes(email);
 
       if (!user) {
-        const initialRole = superAdminEmails.includes(email) ? 'ADMIN_ROLE' : 'STUDENT_ROLE';
+        const initialRole = isAdminAccount ? 'ADMIN_ROLE' : 'STUDENT_ROLE';
         console.log(`[Google Auth] Registrando nueva cuenta institucional en MongoDB: ${email} con rol [${initialRole}]`);
         user = await this.usersService.createStudent(email, name, picture, googleId);
         if (initialRole === 'ADMIN_ROLE' && user._id) {
@@ -136,7 +138,7 @@ export class AuthService {
           user.role = 'ADMIN_ROLE';
         }
       } else {
-        if (superAdminEmails.includes(email) && user.role !== 'ADMIN_ROLE' && user._id) {
+        if (isAdminAccount && user.role !== 'ADMIN_ROLE' && user._id) {
           console.log(`[Google Auth] Asegurando rol de Administrador para cuenta designada: ${email}`);
           await this.usersService.updateRole(user._id.toString(), 'ADMIN_ROLE');
           user.role = 'ADMIN_ROLE';
