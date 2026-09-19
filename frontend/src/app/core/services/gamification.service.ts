@@ -34,19 +34,47 @@ export class GamificationService {
   readonly currentUser = computed(() => this.auth.currentUserSignal());
 
   // Monedas reactivas
-  readonly coins = computed(() => this.currentUser()?.coins || 60);
+  readonly coins = computed(() => {
+    if (this.currentUser()?.role === 'ADMIN_ROLE') {
+      return 99999;
+    }
+    return this.currentUser()?.coins ?? 60;
+  });
 
   // Título y Marco activos
-  readonly equippedTitle = computed(() => this.currentUser()?.equippedTitle || 'Cadete de las Letras');
-  readonly equippedFrame = computed(() => this.currentUser()?.equippedFrame || 'frame-default');
+  readonly equippedTitle = computed(() => {
+    if (this.currentUser()?.role === 'ADMIN_ROLE') {
+      return this.currentUser()?.equippedTitle || 'Ingeniero Humanista Kinal';
+    }
+    return this.currentUser()?.equippedTitle || 'Cadete de las Letras';
+  });
+
+  readonly equippedFrame = computed(() => {
+    if (this.currentUser()?.role === 'ADMIN_ROLE') {
+      return this.currentUser()?.equippedFrame || 'frame-kinal';
+    }
+    return this.currentUser()?.equippedFrame || 'frame-default';
+  });
 
   // Liga actual y progreso
   readonly currentLeague = computed(() => {
+    if (this.currentUser()?.role === 'ADMIN_ROLE') {
+      return this.leaguesList().find((l) => l.id === 'diamante') || this.leaguesList()[this.leaguesList().length - 1];
+    }
     const xp = this.currentUser()?.stats?.totalXp || 0;
     return this.getLeagueForXp(xp);
   });
 
   readonly leagueProgress = computed(() => {
+    if (this.currentUser()?.role === 'ADMIN_ROLE') {
+      return {
+        current: this.currentLeague(),
+        next: null,
+        percentage: 100,
+        xpToNext: 0,
+      };
+    }
+
     const xp = this.currentUser()?.stats?.totalXp || 0;
     const current = this.currentLeague();
     const allLeagues = this.leaguesList();
@@ -78,49 +106,50 @@ export class GamificationService {
   // Misiones diarias calculadas en base a la sesión de hoy
   readonly dailyMissions = computed<DailyMission[]>(() => {
     const user = this.currentUser();
+    const isAdmin = user?.role === 'ADMIN_ROLE';
     const stats = user?.stats;
     const claimed = user?.claimedMissions || [];
 
-    const completedToday = (stats?.completedReadings || 0) > 0;
-    const wpmGoal = (stats?.averageWpm || 0) >= 130;
-    const compGoal = (stats?.comprehensionRate || 0) >= 80;
+    const completedToday = isAdmin ? true : (stats?.completedReadings || 0) > 0;
+    const wpmGoal = isAdmin ? true : (stats?.averageWpm || 0) >= 130;
+    const compGoal = isAdmin ? true : (stats?.comprehensionRate || 0) >= 80;
 
     return [
       {
         id: 'mission-daily-read',
         title: 'Lectura Diaria de Entrenamiento',
         description: 'Supera al menos un desafío literario hoy con tu micrófono.',
-        icon: '📖',
+        icon: 'book',
         target: 1,
-        current: completedToday ? 1 : 0,
+        current: 1,
         rewardXp: 40,
         rewardCoins: 15,
-        completed: completedToday,
-        claimed: claimed.includes('mission-daily-read'),
+        completed: true,
+        claimed: isAdmin ? true : claimed.includes('mission-daily-read'),
       },
       {
         id: 'mission-wpm-boost',
         title: 'Impulso de Velocidad Kinal',
         description: 'Mantén un ritmo promedio superior o igual a 130 PPM.',
-        icon: '⚡',
+        icon: 'zap',
         target: 1,
-        current: wpmGoal ? 1 : 0,
+        current: 1,
         rewardXp: 50,
         rewardCoins: 20,
-        completed: wpmGoal,
-        claimed: claimed.includes('mission-wpm-boost'),
+        completed: true,
+        claimed: isAdmin ? true : claimed.includes('mission-wpm-boost'),
       },
       {
         id: 'mission-comp-master',
         title: 'Agudeza y Precisión Crítica',
         description: 'Logra al menos 80% de respuestas correctas en comprensión.',
-        icon: '🎯',
+        icon: 'target',
         target: 1,
-        current: compGoal ? 1 : 0,
+        current: 1,
         rewardXp: 60,
         rewardCoins: 25,
-        completed: compGoal,
-        claimed: claimed.includes('mission-comp-master'),
+        completed: true,
+        claimed: isAdmin ? true : claimed.includes('mission-comp-master'),
       },
     ];
   });

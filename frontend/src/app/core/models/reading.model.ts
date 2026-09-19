@@ -8,9 +8,97 @@ export interface Question {
   explanation?: string;
 }
 
+export interface RoadmapStage {
+  id: number;
+  title: string;
+  subtitle: string;
+  startLevel: number;
+  endLevel: number;
+  totalLevels: number;
+  description: string;
+  themeColor: string;
+  badge: string;
+  rewardXp: number;
+  rewardCoins: number;
+  milestoneTitle: string;
+}
+
+export const ROADMAP_STAGES: RoadmapStage[] = [
+  {
+    id: 1,
+    title: 'Etapa 1: Semillero Lector & Fábulas Ancestrales',
+    subtitle: 'Primeros 3 Niveles (1 al 3)',
+    startLevel: 1,
+    endLevel: 3,
+    totalLevels: 3,
+    description: 'Iniciación a la fluidez rítmica, dicción de fonemas y comprensión literal de tradiciones guatemaltecas.',
+    themeColor: '#004AAD',
+    badge: 'Semillero Lector',
+    rewardXp: 250,
+    rewardCoins: 100,
+    milestoneTitle: 'Gran Cofre del Semillero Lector',
+  },
+  {
+    id: 2,
+    title: 'Etapa 2: Expedición Silvestre & Tradición Oral',
+    subtitle: 'Siguientes 5 Niveles (4 al 8)',
+    startLevel: 4,
+    endLevel: 8,
+    totalLevels: 5,
+    description: 'Relatos de la selva maya, narrativa costumbrista, ética laboral y leyendas coloniales (135 - 155 PPM).',
+    themeColor: '#059669',
+    badge: 'Explorador Silvestre',
+    rewardXp: 450,
+    rewardCoins: 180,
+    milestoneTitle: 'Gran Cofre de la Expedición Maya',
+  },
+  {
+    id: 3,
+    title: 'Etapa 3: Crónicas Mayas & Desafíos Clásicos',
+    subtitle: 'Siguientes 10 Niveles (9 al 18)',
+    startLevel: 9,
+    endLevel: 18,
+    totalLevels: 10,
+    description: 'Textos sagrados del Popol Vuh, crónicas coloniales, dramaturgia prehispánica y análisis crítico (160 - 188 PPM).',
+    themeColor: '#D97706',
+    badge: 'Cronista Maya',
+    rewardXp: 800,
+    rewardCoins: 300,
+    milestoneTitle: 'Gran Relicario Prehispánico',
+  },
+  {
+    id: 4,
+    title: 'Etapa 4: Cumbres Literarias & Novela Social',
+    subtitle: 'Siguientes 10 Niveles (19 al 28)',
+    startLevel: 19,
+    endLevel: 28,
+    totalLevels: 10,
+    description: 'Obras maestras de Miguel Ángel Asturias, realismo mágico y ensayos de memoria histórica (190 - 215 PPM).',
+    themeColor: '#7C3AED',
+    badge: 'Maestro de la Prosa',
+    rewardXp: 1200,
+    rewardCoins: 450,
+    milestoneTitle: 'Bóveda del Premio Nobel',
+  },
+  {
+    id: 5,
+    title: 'Etapa 5: Cúspide Kinal & Maestría de la Palabra',
+    subtitle: 'Siguientes 10 Niveles (29 al 38)',
+    startLevel: 29,
+    endLevel: 38,
+    totalLevels: 10,
+    description: 'La máxima expresión del estudiante kinalense: elocuencia, velocidad experta (218 - 250 PPM) y liderazgo transformador.',
+    themeColor: '#DC2626',
+    badge: 'Ingeniero Humanista',
+    rewardXp: 2000,
+    rewardCoins: 800,
+    milestoneTitle: 'Cúspide Legendaria Kinal',
+  },
+];
+
 export interface Reading {
   id: string;
-  level: number;                // Nivel del 1 al 10
+  level: number;                // Nivel del 1 al 38
   title: string;
   genre: string;                // Ej: "Fábulas y Naturaleza", "Leyendas de Guatemala"
   targetWpm: number;            // Meta de palabras por minuto

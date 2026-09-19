@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, catchError, of } from 'rxjs';
+import { Observable, tap, catchError, of, map } from 'rxjs';
 import { Reading } from '../models/reading.model';
 import { KINAL_READINGS } from '../data/kinal-readings';
 import { environment } from '../../../environments/environment';
@@ -17,14 +17,19 @@ export class ReadingsService {
 
   getReadings(): Observable<Reading[]> {
     return this.http.get<Reading[]>(this.API_URL).pipe(
-      tap((list) => {
-        if (list && list.length > 0) {
-          const normalized = list.map((r: any) => ({
-            ...r,
-            id: r.id || r._id,
-          }));
-          this.readingsSignal.set(normalized);
+      map((list) => {
+        const normalized = (list && list.length > 0)
+          ? list.map((r: any) => ({ ...r, id: r.id || r._id }))
+          : [];
+        const merged = [...normalized];
+        for (const local of KINAL_READINGS) {
+          if (!merged.some((m) => m.level === local.level)) {
+            merged.push(local);
+          }
         }
+        merged.sort((a, b) => a.level - b.level);
+        this.readingsSignal.set(merged);
+        return merged;
       }),
       catchError((err) => {
         console.warn('[ReadingsService] Usando lecturas locales predeterminadas:', err);

@@ -50,12 +50,12 @@ export class StudentHomeComponent implements OnInit {
   get stats() {
     if (this.auth.isAdmin()) {
       return {
-        totalXp: 9999,
-        currentLevel: 10,
+        totalXp: 99999,
+        currentLevel: this.readings.length || 38,
         averageWpm: 250,
         comprehensionRate: 100,
         streakDays: 30,
-        completedReadings: this.readings.length || 10,
+        completedReadings: this.readings.length || 38,
       };
     }
     return this.user?.stats || {
@@ -88,11 +88,13 @@ export class StudentHomeComponent implements OnInit {
 
   private syncReadingsWithLevel(): void {
     const isAdmin = this.auth.isAdmin();
-    const userLevel = isAdmin ? 10 : (this.stats.currentLevel || 1);
+    const userLevel = isAdmin ? 38 : (this.stats.currentLevel || 1);
     this.readings = this.readings.map((r) => ({
       ...r,
       unlocked: isAdmin ? true : r.level <= userLevel,
       completed: isAdmin ? true : r.level < userLevel,
+      bestWpm: isAdmin ? Math.max(r.targetWpm + 15, 180) : r.bestWpm,
+      bestComprehension: isAdmin ? 100 : r.bestComprehension,
     }));
   }
 

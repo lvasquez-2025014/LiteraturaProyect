@@ -19,14 +19,44 @@ export class NavbarComponent {
   }
 
   get coins(): number {
-    return this.user?.coins || 60;
+    if (this.auth.isAdmin()) {
+      return 99999;
+    }
+    return this.user?.coins ?? 60;
+  }
+
+  get streakDays(): number {
+    if (this.auth.isAdmin()) {
+      return 30;
+    }
+    return this.user?.stats?.streakDays || 0;
+  }
+
+  get totalXp(): number {
+    if (this.auth.isAdmin()) {
+      return 99999;
+    }
+    return this.user?.stats?.totalXp || 0;
+  }
+
+  get currentLevel(): number {
+    if (this.auth.isAdmin()) {
+      return 38;
+    }
+    return this.user?.stats?.currentLevel || 1;
   }
 
   get equippedTitle(): string {
+    if (this.auth.isAdmin()) {
+      return this.user?.equippedTitle || 'Ingeniero Humanista Kinal';
+    }
     return this.user?.equippedTitle || 'Cadete de las Letras';
   }
 
   get equippedFrame(): string {
+    if (this.auth.isAdmin()) {
+      return this.user?.equippedFrame || 'frame-kinal';
+    }
     return this.user?.equippedFrame || 'frame-default';
   }
 
