@@ -1,0 +1,142 @@
+<div class="modal-backdrop" (click)="onBackdropClick($event)">
+  <div class="modal-card">
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="student-profile">
+        <div class="avatar-ring">
+          <div class="avatar-circle">
+            {{ performance.student.name ? performance.student.name.charAt(0).toUpperCase() : 'E' }}
+          </div>
+        </div>
+        <div class="profile-info">
+          <div class="badge-row">
+            <span class="role-tag">Ficha del Alumno</span>
+            <span class="grade-tag">
+              {{ performance.student.grade || 'Nivel Diversificado' }} • Sección {{ performance.student.section || 'A' }}
+            </span>
+          </div>
+          <h3 class="student-name">{{ performance.student.name }}</h3>
+          <p class="student-email">{{ performance.student.email }}</p>
+        </div>
+      </div>
+
+      <button class="close-btn" (click)="onClose()" title="Cerrar modal" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+      <!-- 4 Quick KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <span class="kpi-label">Velocidad</span>
+          <span class="kpi-value kpi-navy">{{ performance.averageWpm }}</span>
+          <span class="kpi-sub">PPM promedio</span>
+        </div>
+
+        <div class="kpi-card">
+          <span class="kpi-label">Comprensión</span>
+          <span class="kpi-value kpi-blue">{{ performance.comprehensionRate }}%</span>
+          <span class="kpi-sub">Precisión</span>
+        </div>
+
+        <div class="kpi-card kpi-orange-card">
+          <span class="kpi-label orange-text">Racha</span>
+          <span class="kpi-value orange-text">{{ performance.streakDays }}</span>
+          <span class="kpi-sub">Días activos</span>
+        </div>
+
+        <div class="kpi-card">
+          <span class="kpi-label">Completadas</span>
+          <span class="kpi-value kpi-navy">{{ performance.completedReadings }}</span>
+          <span class="kpi-sub">Obras superadas</span>
+        </div>
+      </div>
+
+      <!-- Weekly Evolution Graphic -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="#004AAD" stroke-width="2.2" fill="none">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+            <span>Evolución de Fluidez (Últimas 4 Semanas)</span>
+          </div>
+          <span class="trend-badge">
+            <span class="trend-arrow">▲</span> +30 PPM de incremento
+          </span>
+        </div>
+
+        <div class="bars-container">
+          <div *ngFor="let item of performance.weeklyHistory" class="bar-col">
+            <span class="bar-val">{{ item.wpm }} PPM</span>
+            <div class="bar-track">
+              <div class="bar-fill" [style.height.%]="getBarHeight(item.wpm)"></div>
+            </div>
+            <span class="bar-week">{{ item.week }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Readings List -->
+      <div class="readings-section">
+        <div class="section-title">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="#F36F21" stroke-width="2" fill="none">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+          <span>Historial Reciente de Evaluaciones</span>
+        </div>
+
+        <div class="readings-list">
+          <div *ngFor="let rec of performance.recentReadings" class="reading-row">
+            <div class="reading-left">
+              <div class="reading-check">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="#10b981" stroke-width="2.5" fill="none">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+              </div>
+              <div>
+                <span class="reading-title">{{ rec.title }}</span>
+                <span class="reading-date">{{ rec.date }}</span>
+              </div>
+            </div>
+
+            <div class="reading-metrics">
+              <span class="reading-wpm">{{ rec.wpm }} PPM</span>
+              <span class="reading-score">{{ rec.score }}% comp.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Teacher Pedagogical Note -->
+      <div class="pedagogical-note">
+        <div class="note-header">
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="#b45309" stroke-width="2" fill="none">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <span class="note-title">Recomendación Pedagógica para el Docente:</span>
+        </div>
+        <p class="note-text">
+          El estudiante demuestra entonación progresiva y respeto por las pausas de puntuación. Para afianzar la velocidad hacia la meta de 180 PPM, se sugiere asignar lecturas con vocabulario técnico contextualizado y promover el hábito continuo de lectura diaria.
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button class="btn btn-close" (click)="onClose()">
+        Cerrar Ficha
+      </button>
+    </div>
+  </div>
+</div>
