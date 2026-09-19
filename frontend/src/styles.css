@@ -1,0 +1,180 @@
+/* ==========================================================
+   FUNDACIÓN KINAL - PALETA INSTITUCIONAL Y SISTEMA DE DISEÑO
+   ========================================================== */
+
+:root {
+  /* Colores Corporativos Kinal */
+  --kinal-blue: #004aad;          /* Azul Cobalto Institucional */
+  --kinal-blue-hover: #003b8a;
+  --kinal-dark-blue: #1c2d5a;     /* Azul Marino Profundo */
+  --kinal-light-blue: #e8eeff;
+  --kinal-blue-glow: rgba(0, 74, 173, 0.25);
+
+  --kinal-orange: #f36f21;        /* Naranja Llama Kinal */
+  --kinal-orange-hover: #d8570c;
+  --kinal-orange-light: #fff4ed;
+  --kinal-orange-glow: rgba(243, 111, 33, 0.25);
+
+  --accent-green: #10b981;
+  --accent-green-light: #d1fae5;
+  --accent-red: #ef4444;
+  --accent-red-light: #fee2e2;
+
+  /* Superficies y Neutros */
+  --bg-page: #f8fafc;
+  --bg-surface: #ffffff;
+  --border-subtle: #e2e8f0;
+  --border-focus: #004aad;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+
+  /* Tipografía */
+  --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Sombras y Bordes */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 74, 173, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 25px -5px rgba(0, 74, 173, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 4px 20px rgba(15, 23, 42, 0.06);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+}
+
+/* Reset y Estilos Globales */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  background-color: var(--bg-page);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(0, 74, 173, 0.04) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(243, 111, 33, 0.03) 0px, transparent 50%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.25;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+/* Paneles y Tarjetas */
+.kinal-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+/* Insignias de Rol */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.badge-student {
+  background: var(--kinal-light-blue);
+  color: var(--kinal-blue);
+  border: 1px solid #bfdbfe;
+}
+
+.badge-teacher {
+  background: var(--kinal-orange-light);
+  color: var(--kinal-orange);
+  border: 1px solid #fed7aa;
+}
+
+.badge-admin {
+  background: #f1f5f9;
+  color: var(--kinal-dark-blue);
+  border: 1px solid #cbd5e1;
+}
+
+/* Botones con identidad Kinal */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 11px 22px;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-kinal-primary {
+  background: var(--kinal-blue);
+  color: #ffffff;
+  box-shadow: 0 4px 12px var(--kinal-blue-glow);
+}
+
+.btn-kinal-primary:hover:not(:disabled) {
+  background: var(--kinal-blue-hover);
+  box-shadow: 0 6px 16px var(--kinal-blue-glow);
+  transform: translateY(-1px);
+}
+
+.btn-kinal-orange {
+  background: var(--kinal-orange);
+  color: #ffffff;
+  box-shadow: 0 4px 12px var(--kinal-orange-glow);
+}
+
+.btn-kinal-orange:hover:not(:disabled) {
+  background: var(--kinal-orange-hover);
+  box-shadow: 0 6px 16px var(--kinal-orange-glow);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: #ffffff;
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
