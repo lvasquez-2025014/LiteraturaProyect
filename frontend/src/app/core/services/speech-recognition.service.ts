@@ -125,7 +125,12 @@ export class SpeechRecognitionService {
   private currentUtterance: SpeechSynthesisUtterance | null = null;
 
   public onStateChange?: (state: SpeechRecognitionState) => void;
-  public onWordsUpdated?: (words: string[], wpm: number, recentPhrase?: string) => void;
+  public onWordsUpdated?: (
+    words: string[],
+    wpm: number,
+    recentPhrase?: string,
+    candidateAlts?: string[]
+  ) => void;
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -138,23 +143,35 @@ export class SpeechRecognitionService {
           this.recognition = new SpeechRecognition();
           this.recognition.continuous = true;
           this.recognition.interimResults = true;
+          this.recognition.maxAlternatives = 3;
           this.recognition.lang = 'es-GT';
 
           this.recognition.onresult = (event: any) => {
             this.ngZone.run(() => {
               let currentInterim = '';
               let recentSegment = '';
+              const altWords: string[] = [];
+
               for (let i = event.resultIndex; i < event.results.length; ++i) {
-                const transcriptPiece = event.results[i][0].transcript;
-                recentSegment += ' ' + transcriptPiece;
+                const primary = event.results[i][0]?.transcript || '';
+                recentSegment += ' ' + primary;
+
+                // Extraer alternativas para máxima respuesta ante monosílabos rápidos
+                for (let a = 0; a < event.results[i].length; ++a) {
+                  const alt = event.results[i][a]?.transcript;
+                  if (alt) {
+                    altWords.push(...alt.trim().split(/\s+/).filter(Boolean));
+                  }
+                }
+
                 if (event.results[i].isFinal) {
-                  this.fullTranscript += ' ' + transcriptPiece;
+                  this.fullTranscript += ' ' + primary;
                 } else {
-                  currentInterim += transcriptPiece;
+                  currentInterim += primary;
                 }
               }
               this.interimTranscript = currentInterim;
-              this.emitUpdate(null, recentSegment.trim());
+              this.emitUpdate(null, recentSegment.trim(), altWords);
             });
           };
 
@@ -475,13 +492,17 @@ export class SpeechRecognitionService {
     return Math.round((words.length / activeSeconds) * 60);
   }
 
-  private emitUpdate(errorMessage: string | null = null, recentPhrase?: string): void {
+  private emitUpdate(
+    errorMessage: string | null = null,
+    recentPhrase?: string,
+    candidateAlts?: string[]
+  ): void {
     const combined = (this.fullTranscript + ' ' + this.interimTranscript).trim();
     const words = combined ? combined.split(/\s+/).filter(Boolean) : [];
     const currentWpm = this.calculateWpm();
 
     if (this.onWordsUpdated) {
-      this.onWordsUpdated(words, currentWpm, recentPhrase);
+      this.onWordsUpdated(words, currentWpm, recentPhrase, candidateAlts);
     }
 
     if (this.onStateChange) {

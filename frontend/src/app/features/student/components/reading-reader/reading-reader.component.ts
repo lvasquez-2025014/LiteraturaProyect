@@ -74,9 +74,9 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       this.cdr.detectChanges();
     };
 
-    this.speechService.onWordsUpdated = (spokenWords, wpm, recentPhrase) => {
+    this.speechService.onWordsUpdated = (spokenWords, wpm, recentPhrase, candidateAlts) => {
       this.currentWpm = wpm;
-      this.processSpokenWords(spokenWords, recentPhrase);
+      this.processSpokenWords(spokenWords, recentPhrase, candidateAlts);
       this.cdr.detectChanges();
     };
   }
@@ -88,48 +88,51 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Motor de coincidencia fonética y de frases de alta precisión.
-   * Tolera seseo, betacismo, omisión de artículos rápidos y variaciones de micrófono.
-   */
-  /**
    * Motor de coincidencia fonética secuencial de alta precisión.
-   * Procesa palabra por palabra garantizando que el avance sea fiel a la voz del lector,
-   * sin saltos erróneos a palabras lejanas o al texto completo.
+   * Procesa palabra por palabra garantizando que el avance sea fiel a la voz del lector.
+   * Tolerancia de salto = 0: Si el estudiante omite o se salta palabras, el resaltador
+   * NO avanza, esperando a que se pronuncie la palabra correcta en orden.
    */
-  private processSpokenWords(spokenWords: string[], recentPhrase?: string): void {
+  private processSpokenWords(
+    spokenWords: string[],
+    recentPhrase?: string,
+    candidateAlts?: string[]
+  ): void {
     if (!spokenWords || spokenWords.length === 0 || this.currentWordIndex >= this.totalWords) return;
 
-    // Tokens de voz recientes a evaluar
-    const candidateTokens: string[] = recentPhrase && recentPhrase.trim().length > 0
+    // Tokens primarios reconocidos de la frase en curso
+    const primaryTokens: string[] = recentPhrase && recentPhrase.trim().length > 0
       ? recentPhrase.trim().split(/\s+/).filter(Boolean)
       : spokenWords.slice(Math.max(0, spokenWords.length - 2));
 
-    if (candidateTokens.length === 0) return;
+    if (primaryTokens.length === 0) return;
 
     let advanced = false;
     const initialIndex = this.currentWordIndex;
 
-    for (const token of candidateTokens) {
+    // 1. Coincidencia secuencial estricta sobre la palabra activa
+    for (const token of primaryTokens) {
       if (this.currentWordIndex >= this.totalWords) break;
 
       const currentTarget = this.words[this.currentWordIndex];
 
-      // 1. Coincidencia directa con la palabra activa
       if (isPhoneticMatch(token, currentTarget)) {
         this.currentWordIndex++;
         advanced = true;
-        continue;
       }
+      // Sin tolerancia de salto: si la palabra dicha no es la que toca leer,
+      // el lector se mantiene en la palabra esperada.
+    }
 
-      // 2. Tolerancia para omisión de un artículo/conector corto (<= 3 letras: "el", "la", "de", "un", "y", "a", "en")
-      if (this.currentWordIndex + 1 < this.totalWords) {
-        const nextTarget = this.words[this.currentWordIndex + 1];
-        const isCurrentShortFiller = normalizeSpanishWord(currentTarget).length <= 3;
-
-        if (isCurrentShortFiller && isPhoneticMatch(token, nextTarget)) {
-          this.currentWordIndex += 2;
+    // 2. Si no avanzó con el token principal, verificar alternativas del motor de voz
+    // para capturar instantáneamente palabras cortas como "En", "de", "la", "el"
+    if (!advanced && candidateAlts && candidateAlts.length > 0 && this.currentWordIndex < this.totalWords) {
+      const currentTarget = this.words[this.currentWordIndex];
+      for (const altToken of candidateAlts) {
+        if (isPhoneticMatch(altToken, currentTarget)) {
+          this.currentWordIndex++;
           advanced = true;
-          continue;
+          break;
         }
       }
     }
