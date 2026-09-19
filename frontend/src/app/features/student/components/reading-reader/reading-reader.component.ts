@@ -91,53 +91,53 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
    * Motor de coincidencia fonética y de frases de alta precisión.
    * Tolera seseo, betacismo, omisión de artículos rápidos y variaciones de micrófono.
    */
+  /**
+   * Motor de coincidencia fonética secuencial de alta precisión.
+   * Procesa palabra por palabra garantizando que el avance sea fiel a la voz del lector,
+   * sin saltos erróneos a palabras lejanas o al texto completo.
+   */
   private processSpokenWords(spokenWords: string[], recentPhrase?: string): void {
-    if (!spokenWords || spokenWords.length === 0) return;
+    if (!spokenWords || spokenWords.length === 0 || this.currentWordIndex >= this.totalWords) return;
 
-    // Obtener los últimos 1 a 4 términos reconocidos por la Web Speech API
-    const recentTokens = spokenWords.slice(Math.max(0, spokenWords.length - 4));
-    const lookAheadRange = 10;
-    const maxIndex = Math.min(this.words.length, this.currentWordIndex + lookAheadRange);
+    // Tokens de voz recientes a evaluar
+    const candidateTokens: string[] = recentPhrase && recentPhrase.trim().length > 0
+      ? recentPhrase.trim().split(/\s+/).filter(Boolean)
+      : spokenWords.slice(Math.max(0, spokenWords.length - 2));
 
-    let matchedIndex = -1;
+    if (candidateTokens.length === 0) return;
 
-    // 1. Intento de coincidencia por bigrama o trigrama (secuencia de 2 o 3 palabras continuas)
-    if (recentTokens.length >= 2) {
-      for (let i = this.currentWordIndex; i < maxIndex - 1; i++) {
-        for (let s = 0; s < recentTokens.length - 1; s++) {
-          if (
-            isPhoneticMatch(recentTokens[s], this.words[i]) &&
-            isPhoneticMatch(recentTokens[s + 1], this.words[i + 1])
-          ) {
-            matchedIndex = i + 2;
-            break;
-          }
+    let advanced = false;
+    const initialIndex = this.currentWordIndex;
+
+    for (const token of candidateTokens) {
+      if (this.currentWordIndex >= this.totalWords) break;
+
+      const currentTarget = this.words[this.currentWordIndex];
+
+      // 1. Coincidencia directa con la palabra activa
+      if (isPhoneticMatch(token, currentTarget)) {
+        this.currentWordIndex++;
+        advanced = true;
+        continue;
+      }
+
+      // 2. Tolerancia para omisión de un artículo/conector corto (<= 3 letras: "el", "la", "de", "un", "y", "a", "en")
+      if (this.currentWordIndex + 1 < this.totalWords) {
+        const nextTarget = this.words[this.currentWordIndex + 1];
+        const isCurrentShortFiller = normalizeSpanishWord(currentTarget).length <= 3;
+
+        if (isCurrentShortFiller && isPhoneticMatch(token, nextTarget)) {
+          this.currentWordIndex += 2;
+          advanced = true;
+          continue;
         }
-        if (matchedIndex !== -1) break;
       }
     }
 
-    // 2. Si no hubo coincidencia de frase, evaluar palabra por palabra en orden cronológico inverso
-    if (matchedIndex === -1) {
-      for (let s = recentTokens.length - 1; s >= 0; s--) {
-        const spoken = recentTokens[s];
-        for (let i = this.currentWordIndex; i < maxIndex; i++) {
-          if (isPhoneticMatch(spoken, this.words[i])) {
-            matchedIndex = i + 1;
-            break;
-          }
-        }
-        if (matchedIndex !== -1) break;
-      }
-    }
-
-    // 3. Si hubo avance, actualizar estado y reproducir retroalimentación sonora
-    if (matchedIndex > this.currentWordIndex) {
-      const prevPercentage = Math.floor((this.currentWordIndex / this.totalWords) * 100);
-      this.currentWordIndex = matchedIndex;
+    if (advanced && this.currentWordIndex > initialIndex) {
+      const prevPercentage = Math.floor((initialIndex / this.totalWords) * 100);
       const newPercentage = Math.floor((this.currentWordIndex / this.totalWords) * 100);
 
-      // Efecto sonoro de progreso
       if (this.soundEffects) {
         this.speechService.playWordChime();
         if (
@@ -150,7 +150,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       }
     }
 
-    // 4. Si se alcanzó el final de la lectura, pasar a la evaluación
+    // Al completar la totalidad de las palabras, abrir el cuestionario pedagógico
     if (this.currentWordIndex >= this.totalWords && !this.showQuiz && !this.showVictory) {
       this.finishReading();
     }
@@ -391,9 +391,12 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   }
 
   onVictoryContinue(): void {
+    this.showVictory = false;
     if (this.finalResult) {
       this.completeAttempt.emit(this.finalResult);
     }
+    this.back.emit();
+    this.cdr.detectChanges();
   }
 
   private startTimer(): void {

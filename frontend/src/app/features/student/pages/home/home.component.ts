@@ -111,6 +111,11 @@ export class StudentHomeComponent implements OnInit {
 
   onAttemptCompleted(result: ReadingAttemptResult): void {
     const prevLevel = this.stats.currentLevel || 1;
+    const readingLevel = this.activeReading?.level || 1;
+
+    // Cierra la vista del lector y regresa inmediatamente al mapa de aventura
+    this.activeReading = null;
+    this.cdr.markForCheck();
 
     // 1. Update reading state locally
     this.readings = this.readings.map((r) => {
@@ -132,7 +137,7 @@ export class StudentHomeComponent implements OnInit {
         wpm: result.wpm,
         comprehensionScore: result.comprehensionScore,
         xpEarned: result.xpEarned,
-        readingLevel: this.activeReading?.level || 1,
+        readingLevel: readingLevel,
       }).subscribe({
         next: (updatedUser) => {
           if (updatedUser && this.auth.currentUserSignal()) {
@@ -144,6 +149,7 @@ export class StudentHomeComponent implements OnInit {
             };
             this.auth.saveSession({ token: this.auth.getToken() || '', user: updated });
             this.syncReadingsWithLevel();
+            this.cdr.markForCheck();
 
             const newLevel = updated.stats?.currentLevel || 1;
             if (newLevel > prevLevel) {

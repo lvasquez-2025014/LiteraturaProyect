@@ -68,12 +68,16 @@ export function isPhoneticMatch(spokenRaw: string, targetRaw: string): boolean {
   if (s === t) return true;
   if (!s || !t) return false;
 
-  // Palabras muy cortas (1-2 letras: "de", "la", "el", "en", "un", "y", "a")
-  if (t.length <= 2) {
-    return s === t;
+  // Palabras cortas (1 a 3 letras: "el", "la", "de", "en", "un", "los", "las", "por", "que", "con", "sin")
+  // Requieren coincidencia exacta para evitar falsos positivos
+  if (t.length <= 3 || s.length <= 3) {
+    // Normalización fonética básica (v/b, c/z/s, ll/y, hache)
+    const phoneticShort = (w: string) =>
+      w.replace(/v/g, 'b').replace(/[cz]/g, 's').replace(/ll/g, 'y').replace(/^h/, '');
+    return phoneticShort(s) === phoneticShort(t);
   }
 
-  // Normalización fonética latinoamericana
+  // Normalización fonética completa para palabras medianas y largas
   const phonetic = (w: string) =>
     w
       .replace(/v/g, 'b')
@@ -83,15 +87,16 @@ export function isPhoneticMatch(spokenRaw: string, targetRaw: string): boolean {
 
   if (phonetic(s) === phonetic(t)) return true;
 
-  // Tolerancia de prefijos/sufijos (plurales o desinencias verbales leídas)
-  if (s.startsWith(t) || t.startsWith(s)) {
-    if (Math.abs(s.length - t.length) <= 2) return true;
+  // Tolerancia estricta de plurales (palabras >= 4 letras)
+  if (s === t + 's' || s === t + 'es' || t === s + 's' || t === s + 'es') {
+    return true;
   }
 
-  // Distancia Levenshtein adaptada a la longitud
-  const dist = levenshteinDistance(s, t);
-  if (t.length >= 6 && dist <= 2) return true;
-  if (t.length >= 3 && dist <= 1) return true;
+  // Tolerancia Levenshtein únicamente para palabras de 5 o más letras con distancia máxima de 1
+  if (t.length >= 5 && s.length >= 5) {
+    const dist = levenshteinDistance(s, t);
+    if (dist <= 1) return true;
+  }
 
   return false;
 }
