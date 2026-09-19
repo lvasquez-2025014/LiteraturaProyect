@@ -646,7 +646,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Responsive
+   Responsive & Accessibility Enhancements
    -------------------------------------------------------------------------- */
 @media (max-width: 768px) {
   .metrics-bar {
@@ -662,4 +662,417 @@
   .victory-stats-grid {
     grid-template-columns: 1fr;
   }
+  .toolbox-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .accessibility-tools {
+    justify-content: space-between;
+  }
 }
+
+/* --------------------------------------------------------------------------
+   Pedagogical Source Tag & Meta Row
+   -------------------------------------------------------------------------- */
+.meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.source-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #065F46;
+  background: #D1FAE5;
+  border: 1px solid #A7F3D0;
+  padding: 2px 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   Toolbox Bar (Narrador Modelo, Tamaño y Enfoque)
+   -------------------------------------------------------------------------- */
+.toolbox-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 18px;
+  background: #ffffff;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0, 74, 173, 0.04);
+}
+
+.narrator-toolbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-narrator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: #E8EEFF;
+  color: var(--kinal-blue);
+  border: 1px solid rgba(0, 74, 173, 0.2);
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-narrator:hover {
+  background: #dbeafe;
+  transform: translateY(-1px);
+}
+
+.btn-narrator-active {
+  background: #FEF3C7 !important;
+  color: #92400E !important;
+  border-color: #FCD34D !important;
+  animation: pulse-border 1.5s infinite;
+}
+
+.narrator-speed-pills {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #F8FAFC;
+  padding: 3px 6px;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
+}
+
+.speed-label {
+  font-size: 0.7rem;
+  color: #64748B;
+  font-weight: 600;
+  margin-right: 2px;
+}
+
+.speed-btn {
+  padding: 2px 6px;
+  border: none;
+  background: transparent;
+  color: #475569;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.speed-btn:hover {
+  background: #E2E8F0;
+}
+
+.speed-active {
+  background: var(--kinal-blue) !important;
+  color: #ffffff !important;
+}
+
+/* Accessibility Tools */
+.accessibility-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.font-size-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 2px 4px;
+}
+
+.tool-btn {
+  padding: 3px 8px;
+  background: #ffffff;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--kinal-dark-blue);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tool-btn:hover:not(:disabled) {
+  background: #E8EEFF;
+  border-color: var(--kinal-blue);
+}
+
+.tool-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.font-indicator {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748B;
+  padding: 0 4px;
+}
+
+.tool-pill-btn {
+  padding: 5px 12px;
+  background: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tool-pill-btn:hover {
+  background: #E8EEFF;
+  color: var(--kinal-blue);
+}
+
+.tool-pill-active {
+  background: #1C2D5A !important;
+  color: #ffffff !important;
+  border-color: #1C2D5A !important;
+}
+
+.tool-icon-btn {
+  padding: 5px 8px;
+  background: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tool-icon-btn:hover {
+  background: #E8EEFF;
+}
+
+/* --------------------------------------------------------------------------
+   Dynamic Font Sizes
+   -------------------------------------------------------------------------- */
+.text-size-normal .reading-paragraph {
+  font-size: 1.25rem !important;
+  line-height: 2.2 !important;
+}
+
+.text-size-large .reading-paragraph {
+  font-size: 1.55rem !important;
+  line-height: 2.3 !important;
+}
+
+.text-size-xlarge .reading-paragraph {
+  font-size: 1.85rem !important;
+  line-height: 2.45 !important;
+}
+
+/* Modo Enfoque */
+.word-dimmed {
+  opacity: 0.25 !important;
+  filter: blur(0.5px);
+  transition: opacity 0.3s ease;
+}
+
+/* --------------------------------------------------------------------------
+   Vocabulary & Glossary Tray
+   -------------------------------------------------------------------------- */
+.vocab-tray {
+  margin-top: 20px;
+  padding: 16px 20px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vocab-tray-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vocab-tray-title {
+  font-family: var(--font-heading);
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--kinal-dark-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.vocab-tray-hint {
+  font-size: 0.72rem;
+  color: #64748B;
+}
+
+.vocab-chips-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vocab-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: #ffffff;
+  border: 1px solid #CBD5E1;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--kinal-blue);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+}
+
+.vocab-chip:hover {
+  background: #E8EEFF;
+  border-color: var(--kinal-blue);
+  transform: translateY(-1px);
+}
+
+.chip-word {
+  font-weight: 800;
+}
+
+.chip-arrow {
+  font-size: 0.75rem;
+}
+
+/* --------------------------------------------------------------------------
+   Vocabulary Modal Popup
+   -------------------------------------------------------------------------- */
+.vocab-card {
+  max-width: 480px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 20px 40px rgba(0, 74, 173, 0.2);
+  border: 1px solid rgba(0, 74, 173, 0.15);
+}
+
+.vocab-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  position: relative;
+}
+
+.vocab-icon-wrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #E8EEFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.vocab-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--kinal-orange);
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+
+.vocab-word-title {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--kinal-dark-blue);
+  margin: 0;
+}
+
+.close-x-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: #F1F5F9;
+  color: #64748B;
+  font-weight: 800;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.close-x-btn:hover {
+  background: #E2E8F0;
+  color: #1E293B;
+}
+
+.vocab-body {
+  background: #F8FAFC;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+}
+
+.vocab-meaning {
+  font-size: 0.95rem;
+  color: #334155;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.vocab-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-vocab-ok {
+  padding: 8px 22px;
+  background: var(--kinal-blue);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-vocab-ok:hover {
+  background: #003a8c;
+}
+

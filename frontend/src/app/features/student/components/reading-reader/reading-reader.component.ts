@@ -1,7 +1,11 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Reading, ReadingAttemptResult } from '../../../../core/models/reading.model';
-import { SpeechRecognitionService } from '../../../../core/services/speech-recognition.service';
+import {
+  SpeechRecognitionService,
+  isPhoneticMatch,
+  normalizeSpanishWord,
+} from '../../../../core/services/speech-recognition.service';
 import confetti from 'canvas-confetti';
 
 @Component({
@@ -17,11 +21,11 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   @Output() back = new EventEmitter<void>();
   @Output() completeAttempt = new EventEmitter<ReadingAttemptResult>();
 
-  private speechService = inject(SpeechRecognitionService);
+  public speechService = inject(SpeechRecognitionService);
   private cdr = inject(ChangeDetectorRef);
 
   words: string[] = [];
-  totalWords: number = 0;
+  totalWords = 0;
 
   isRecording = false;
   isPaused = false;
@@ -32,7 +36,19 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   micError: string | null = null;
   mode: 'mic' | 'assisted' = 'mic';
 
-  // Quiz & Victory state
+  // Opciones de Accesibilidad y Pedagogía
+  fontSize: 'normal' | 'large' | 'xlarge' = 'normal';
+  focusMode = false;
+  soundEffects = true;
+
+  // Narración Pedagógica ("Escuchar Lectura Modelo")
+  isNarrating = false;
+  narratorRate = 1.0;
+
+  // Glosario / Vocabulario interactivo
+  activeVocabModal: { word: string; meaning: string } | null = null;
+
+  // Quiz & Victoria
   showQuiz = false;
   currentQuestionIndex = 0;
   selectedAnswers: number[] = [];
@@ -58,26 +74,9 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       this.cdr.detectChanges();
     };
 
-    this.speechService.onWordsUpdated = (spokenWords, wpm) => {
+    this.speechService.onWordsUpdated = (spokenWords, wpm, recentPhrase) => {
       this.currentWpm = wpm;
-
-      // Smart word matching: advance highlight
-      if (spokenWords.length > 0) {
-        const lastSpoken = spokenWords[spokenWords.length - 1].toLowerCase().replace(/[.,;:?!]/g, '');
-        const lookAheadRange = 6;
-        for (let i = this.currentWordIndex; i < Math.min(this.words.length, this.currentWordIndex + lookAheadRange); i++) {
-          const targetWord = this.words[i].toLowerCase().replace(/[.,;:?!]/g, '');
-          if (targetWord.length >= 3 && lastSpoken.includes(targetWord)) {
-            this.currentWordIndex = i + 1;
-            break;
-          }
-        }
-      }
-
-      if (this.currentWordIndex >= this.totalWords && !this.showQuiz && !this.showVictory) {
-        this.finishReading();
-      }
-
+      this.processSpokenWords(spokenWords, recentPhrase);
       this.cdr.detectChanges();
     };
   }
@@ -85,9 +84,80 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.stopTimer();
     this.speechService.stop();
+    this.speechService.stopNarrator();
+  }
+
+  /**
+   * Motor de coincidencia fonética y de frases de alta precisión.
+   * Tolera seseo, betacismo, omisión de artículos rápidos y variaciones de micrófono.
+   */
+  private processSpokenWords(spokenWords: string[], recentPhrase?: string): void {
+    if (!spokenWords || spokenWords.length === 0) return;
+
+    // Obtener los últimos 1 a 4 términos reconocidos por la Web Speech API
+    const recentTokens = spokenWords.slice(Math.max(0, spokenWords.length - 4));
+    const lookAheadRange = 10;
+    const maxIndex = Math.min(this.words.length, this.currentWordIndex + lookAheadRange);
+
+    let matchedIndex = -1;
+
+    // 1. Intento de coincidencia por bigrama o trigrama (secuencia de 2 o 3 palabras continuas)
+    if (recentTokens.length >= 2) {
+      for (let i = this.currentWordIndex; i < maxIndex - 1; i++) {
+        for (let s = 0; s < recentTokens.length - 1; s++) {
+          if (
+            isPhoneticMatch(recentTokens[s], this.words[i]) &&
+            isPhoneticMatch(recentTokens[s + 1], this.words[i + 1])
+          ) {
+            matchedIndex = i + 2;
+            break;
+          }
+        }
+        if (matchedIndex !== -1) break;
+      }
+    }
+
+    // 2. Si no hubo coincidencia de frase, evaluar palabra por palabra en orden cronológico inverso
+    if (matchedIndex === -1) {
+      for (let s = recentTokens.length - 1; s >= 0; s--) {
+        const spoken = recentTokens[s];
+        for (let i = this.currentWordIndex; i < maxIndex; i++) {
+          if (isPhoneticMatch(spoken, this.words[i])) {
+            matchedIndex = i + 1;
+            break;
+          }
+        }
+        if (matchedIndex !== -1) break;
+      }
+    }
+
+    // 3. Si hubo avance, actualizar estado y reproducir retroalimentación sonora
+    if (matchedIndex > this.currentWordIndex) {
+      const prevPercentage = Math.floor((this.currentWordIndex / this.totalWords) * 100);
+      this.currentWordIndex = matchedIndex;
+      const newPercentage = Math.floor((this.currentWordIndex / this.totalWords) * 100);
+
+      // Efecto sonoro de progreso
+      if (this.soundEffects) {
+        this.speechService.playWordChime();
+        if (
+          (prevPercentage < 25 && newPercentage >= 25) ||
+          (prevPercentage < 50 && newPercentage >= 50) ||
+          (prevPercentage < 75 && newPercentage >= 75)
+        ) {
+          this.speechService.playMilestoneSound();
+        }
+      }
+    }
+
+    // 4. Si se alcanzó el final de la lectura, pasar a la evaluación
+    if (this.currentWordIndex >= this.totalWords && !this.showQuiz && !this.showVictory) {
+      this.finishReading();
+    }
   }
 
   startReading(): void {
+    this.stopNarrator();
     this.micError = null;
     this.currentWordIndex = 0;
     this.secondsElapsed = 0;
@@ -130,6 +200,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   restartReading(): void {
     this.stopTimer();
     this.speechService.stop();
+    this.stopNarrator();
     this.currentWordIndex = 0;
     this.secondsElapsed = 0;
     this.currentWpm = 0;
@@ -141,16 +212,188 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   finishReading(): void {
     this.stopTimer();
     this.speechService.stop();
-    this.isRecording = false;
+    this.stopNarrator();
+    this.currentWordIndex = this.totalWords;
 
-    // Minimum 10 seconds for meaningful WPM
-    const activeSeconds = Math.max(8, this.secondsElapsed);
-    const calculatedWpm = Math.round((this.totalWords / activeSeconds) * 60);
-    this.currentWpm = calculatedWpm;
-
-    // Open comprehension quiz
+    // Abrir inmediatamente el cuestionario de comprensión
     this.showQuiz = true;
     this.currentQuestionIndex = 0;
+    this.cdr.detectChanges();
+  }
+
+  /* =========================================================================
+   * ACCESIBILIDAD, TAMAÑO DE TEXTO Y MODO ENFOQUE
+   * ========================================================================= */
+
+  increaseFontSize(): void {
+    if (this.fontSize === 'normal') this.fontSize = 'large';
+    else if (this.fontSize === 'large') this.fontSize = 'xlarge';
+  }
+
+  decreaseFontSize(): void {
+    if (this.fontSize === 'xlarge') this.fontSize = 'large';
+    else if (this.fontSize === 'large') this.fontSize = 'normal';
+  }
+
+  toggleFocusMode(): void {
+    this.focusMode = !this.focusMode;
+  }
+
+  toggleSoundEffects(): void {
+    this.soundEffects = !this.soundEffects;
+    this.speechService.soundEffectsEnabled = this.soundEffects;
+  }
+
+  isWordInFocus(index: number): boolean {
+    if (!this.focusMode || !this.isRecording) return true;
+    // Ilumina una ventana de 6 palabras alrededor de la palabra activa
+    return Math.abs(index - this.currentWordIndex) <= 6;
+  }
+
+  /* =========================================================================
+   * LECTURA MODELO GUIADA (SpeechSynthesis)
+   * ========================================================================= */
+
+  toggleNarrator(): void {
+    if (this.isNarrating) {
+      this.stopNarrator();
+    } else {
+      this.isNarrating = true;
+      if (this.isRecording) {
+        this.pauseReading();
+      }
+
+      this.speechService.playNarrator(
+        this.reading.content,
+        this.narratorRate,
+        (charIndex) => {
+          // Aproximar avance de palabra durante la narración modelo
+          const textBefore = this.reading.content.substring(0, charIndex);
+          const wordCount = textBefore.trim().split(/\s+/).filter(Boolean).length;
+          this.currentWordIndex = Math.min(this.totalWords, wordCount);
+          this.cdr.detectChanges();
+        },
+        () => {
+          this.isNarrating = false;
+          this.cdr.detectChanges();
+        }
+      );
+    }
+  }
+
+  setNarratorRate(rate: number): void {
+    this.narratorRate = rate;
+    if (this.isNarrating) {
+      this.toggleNarrator(); // reiniciar con nueva velocidad
+      this.toggleNarrator();
+    }
+  }
+
+  stopNarrator(): void {
+    this.isNarrating = false;
+    this.speechService.stopNarrator();
+  }
+
+  /* =========================================================================
+   * GLOSARIO Y VOCABULARIO
+   * ========================================================================= */
+
+  onWordClick(rawWord: string, index: number): void {
+    // Si el estudiante hace clic en una palabra y la lectura está activa, permite saltar a ella
+    if (this.isRecording) {
+      this.currentWordIndex = index;
+      return;
+    }
+
+    // Buscar si la palabra tiene definición en el vocabulario pedagógico
+    const clean = normalizeSpanishWord(rawWord);
+    if (this.reading.vocabulary) {
+      const found = this.reading.vocabulary.find(
+        (v) => normalizeSpanishWord(v.word) === clean || clean.includes(normalizeSpanishWord(v.word))
+      );
+      if (found) {
+        this.openVocab(found);
+      }
+    }
+  }
+
+  openVocab(v: { word: string; meaning: string }): void {
+    this.activeVocabModal = v;
+  }
+
+  closeVocab(): void {
+    this.activeVocabModal = null;
+  }
+
+  /* =========================================================================
+   * CUESTIONARIO Y CELEBRACIÓN DE VICTORIA
+   * ========================================================================= */
+
+  selectQuizOption(optIdx: number): void {
+    if (this.showExplanation) return;
+    this.selectedAnswers[this.currentQuestionIndex] = optIdx;
+    this.showExplanation = true;
+  }
+
+  nextQuestion(): void {
+    this.showExplanation = false;
+    if (this.currentQuestionIndex < this.reading.questions.length - 1) {
+      this.currentQuestionIndex++;
+    } else {
+      this.calculateFinalResults();
+    }
+  }
+
+  calculateFinalResults(): void {
+    this.showQuiz = false;
+
+    // Calcular puntaje de comprensión
+    let correctCount = 0;
+    this.reading.questions.forEach((q, idx) => {
+      if (this.selectedAnswers[idx] === q.correctIndex) {
+        correctCount++;
+      }
+    });
+    this.quizScore = Math.round((correctCount / this.reading.questions.length) * 100);
+
+    const calculatedWpm =
+      this.currentWpm > 0 ? this.currentWpm : Math.round((this.totalWords / Math.max(1, this.secondsElapsed)) * 60);
+
+    this.finalResult = {
+      readingId: this.reading.id,
+      studentId: this.studentId,
+      wpm: calculatedWpm,
+      accuracy: this.quizScore,
+      timeSeconds: this.secondsElapsed,
+      comprehensionScore: this.quizScore,
+      xpEarned: this.reading.xpReward,
+      date: new Date().toISOString(),
+    };
+
+    this.showVictory = true;
+
+    // Fanfarria sonora y lluvia de confeti
+    if (this.soundEffects) {
+      this.speechService.playVictoryFanfare();
+    }
+    this.triggerVictoryConfetti();
+  }
+
+  triggerVictoryConfetti(): void {
+    try {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#004AAD', '#F36F21', '#1C2D5A', '#E8EEFF', '#10B981'],
+      });
+    } catch (e) {}
+  }
+
+  onVictoryContinue(): void {
+    if (this.finalResult) {
+      this.completeAttempt.emit(this.finalResult);
+    }
   }
 
   private startTimer(): void {
@@ -168,80 +411,14 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  formatTime(seconds: number): string {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
+  formatTime(totalSec: number): string {
+    const mins = Math.floor(totalSec / 60);
+    const secs = totalSec % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }
 
   get progressPercentage(): number {
-    if (this.totalWords === 0) return 0;
+    if (!this.totalWords) return 0;
     return Math.min(100, Math.round((this.currentWordIndex / this.totalWords) * 100));
-  }
-
-  // Quiz Handling
-  selectQuizOption(optionIndex: number): void {
-    if (this.showExplanation) return;
-    this.selectedAnswers[this.currentQuestionIndex] = optionIndex;
-    this.showExplanation = true;
-  }
-
-  nextQuestion(): void {
-    this.showExplanation = false;
-    if (this.currentQuestionIndex < this.reading.questions.length - 1) {
-      this.currentQuestionIndex++;
-    } else {
-      this.evaluateQuiz();
-    }
-  }
-
-  evaluateQuiz(): void {
-    let correctCount = 0;
-    this.reading.questions.forEach((q, idx) => {
-      if (this.selectedAnswers[idx] === q.correctIndex) {
-        correctCount++;
-      }
-    });
-
-    const scorePercentage = Math.round((correctCount / this.reading.questions.length) * 100);
-    this.quizScore = scorePercentage;
-
-    // Bonus XP based on WPM and quiz accuracy
-    const speedBonus = this.currentWpm >= this.reading.targetWpm ? 30 : 0;
-    const comprehensionBonus = Math.round((this.reading.xpReward * scorePercentage) / 100);
-    const totalXp = this.reading.xpReward + speedBonus + comprehensionBonus;
-
-    this.finalResult = {
-      readingId: this.reading.id,
-      studentId: this.studentId,
-      wpm: this.currentWpm,
-      accuracy: Math.min(100, Math.round((this.currentWordIndex / this.totalWords) * 100)),
-      timeSeconds: this.secondsElapsed,
-      comprehensionScore: scorePercentage,
-      xpEarned: totalXp,
-      date: new Date().toISOString(),
-    };
-
-    this.showQuiz = false;
-    this.showVictory = true;
-
-    // Trigger celebration confetti
-    try {
-      confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#004AAD', '#F36F21', '#FFD700', '#00C49F'],
-      });
-    } catch {
-      // Confetti fallback
-    }
-
-    // Emit result
-    this.completeAttempt.emit(this.finalResult);
-  }
-
-  onVictoryContinue(): void {
-    this.back.emit();
   }
 }

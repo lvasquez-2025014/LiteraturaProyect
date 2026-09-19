@@ -11,6 +11,13 @@ export const KINAL_READINGS: Reading[] = [
     xpReward: 120,
     difficulty: 'Básico',
     author: 'Tradición Pedagógica Kinal',
+    pedagogicalSource: 'MINEDUC Guatemala — Programa Nacional de Lectura "Leamos Juntos"',
+    competencies: ['Fluidez verbal', 'Comprensión literal', 'Educación ambiental y servicio'],
+    vocabulary: [
+      { word: 'cumbres', meaning: 'Partes más altas de una montaña o sierra donde se condensa la niebla.' },
+      { word: 'alisios', meaning: 'Vientos constantes que soplan en las regiones tropicales y regulan el clima.' },
+      { word: 'centenarios', meaning: 'Árboles u objetos que han vivido o perdurado cien años o más.' }
+    ],
     estimatedMinutes: 2,
     unlocked: true,
     completed: true,
@@ -66,6 +73,13 @@ export const KINAL_READINGS: Reading[] = [
     xpReward: 140,
     difficulty: 'Básico',
     author: 'Crónicas de Santiago',
+    pedagogicalSource: 'UNESCO / CERLALC — Fomento de la Tradición Oral Latinoamericana',
+    competencies: ['Comprensión inferencial', 'Apreciación cultural', 'Atención al detalle'],
+    vocabulary: [
+      { word: 'crines', meaning: 'Conjunto de cerdas o pelos largos que tienen los caballos en la parte superior del cuello.' },
+      { word: 'primorosa', meaning: 'Hecha con primor, esmero, delicadeza y gran destreza artística.' },
+      { word: 'balcones', meaning: 'Huecos abiertos al exterior de un edificio protegidos con barandillas talladas.' }
+    ],
     estimatedMinutes: 2,
     unlocked: true,
     completed: true,
@@ -121,6 +135,13 @@ export const KINAL_READINGS: Reading[] = [
     xpReward: 160,
     difficulty: 'Intermedio',
     author: 'Códices Mayas Adaptados',
+    pedagogicalSource: 'Academia de Geografía e Historia Maya — Códice Popol Vuh',
+    competencies: ['Cosmovisión originaria', 'Pensamiento simbólico', 'Análisis causal'],
+    vocabulary: [
+      { word: 'primordiales', meaning: 'Primitivos, originales o que existen desde el principio de los tiempos.' },
+      { word: 'penumbra', meaning: 'Sombra débil entre la luz y la oscuridad absoluta.' },
+      { word: 'sagrado', meaning: 'Digno de veneración y respeto supremo por su vínculo con el origen de la vida.' }
+    ],
     estimatedMinutes: 2,
     unlocked: true,
     completed: true,
@@ -176,6 +197,13 @@ export const KINAL_READINGS: Reading[] = [
     xpReward: 180,
     difficulty: 'Intermedio',
     author: 'Área Técnica Kinal',
+    pedagogicalSource: 'Fundación Kinal — Formación Vocacional y Pensamiento Algorítmico',
+    competencies: ['Pensamiento lógico-matemático', 'Ética profesional', 'Vocabulario tecnológico'],
+    vocabulary: [
+      { word: 'algoritmo', meaning: 'Conjunto ordenado y finito de operaciones que permite hallar la solución a un problema.' },
+      { word: 'perforadas', meaning: 'Tarjetas de cartulina con orificios que almacenaban los primeros programas binarios.' },
+      { word: 'optimizada', meaning: 'Diseñada para conseguir el máximo rendimiento con el menor gasto de recursos.' }
+    ],
     estimatedMinutes: 2,
     unlocked: true,
     completed: false,
@@ -210,7 +238,7 @@ export const KINAL_READINGS: Reading[] = [
         id: 'q4-3',
         prompt: '¿Qué valor ético del trabajo técnico se resalta en el texto?',
         options: [
-          'El respeto y empatía hacia los usuarios finales mediante la optimización',
+          'El respeto y empatía hacia las personas destinatarias mediante la optimización',
           'La rapidez sin importar los errores que puedan surgir',
           'El cobro elevado por cada línea desarrollada',
           'La sustitución del factor humano por la máquina'
@@ -229,6 +257,13 @@ export const KINAL_READINGS: Reading[] = [
     xpReward: 200,
     difficulty: 'Intermedio',
     author: 'Archivo Histórico',
+    pedagogicalSource: 'Archivo Histórico del Valle de Panchoy — Crónica Colonial de Santiago',
+    competencies: ['Sentido cívico', 'Historia nacional', 'Memoria comunitaria'],
+    vocabulary: [
+      { word: 'calicanto', meaning: 'Mampostería de piedra unida con cal y arena característica de la arquitectura colonial.' },
+      { word: 'faroleros', meaning: 'Personas encargadas de encender y cuidar los faroles del alumbrado público nocturno.' },
+      { word: 'resiliencia', meaning: 'Capacidad de sobreponerse a catástrofes y renacer con mayor fortaleza.' }
+    ],
     estimatedMinutes: 3,
     unlocked: false,
     completed: false,
@@ -282,6 +317,13 @@ export const KINAL_READINGS: Reading[] = [
     xpReward: 220,
     difficulty: 'Avanzado',
     author: 'Estudios Mesoamericanos',
+    pedagogicalSource: 'Instituto de Antropología e Historia (IDAEH) — Astronomía y Arquitectura de Tikal',
+    competencies: ['Rigor científico', 'Arqueología maya', 'Pensamiento crítico'],
+    vocabulary: [
+      { word: 'sinódico', meaning: 'Tiempo que tarda un planeta en volver a la misma posición aparente respecto al Sol y la Tierra.' },
+      { word: 'eclipses', meaning: 'Ocultación transitoria total o parcial de un astro por la interposición de otro cuerpo celeste.' },
+      { word: 'prodigiosos', meaning: 'Extraordinarios, excelentes y que causan gran admiración por su genialidad.' }
+    ],
     estimatedMinutes: 3,
     unlocked: false,
     completed: false,
@@ -334,7 +376,14 @@ export const KINAL_READINGS: Reading[] = [
     targetWpm: 180,
     xpReward: 240,
     difficulty: 'Avanzado',
-    author: 'Cuentos y Leyendas Kinal',
+    author: 'Cuentos y Leyendas de la Meseta Central',
+    pedagogicalSource: 'Centro de Estudios Folklóricos (CEFOL - USAC) — Tradición Oral de Guatemala',
+    competencies: ['Valores morales', 'Comprensión de narrativas orales', 'Fluidez expresiva'],
+    vocabulary: [
+      { word: 'asechanzas', meaning: 'Engaños o peligros urdidos para perjudicar o sorprender a alguien.' },
+      { word: 'benefactora', meaning: 'Fuerza o persona que hace el bien y ayuda desinteresadamente a otra.' },
+      { word: 'transeúnte', meaning: 'Persona que transita o camina por una calle o lugar público.' }
+    ],
     estimatedMinutes: 3,
     unlocked: false,
     completed: false,
@@ -388,6 +437,13 @@ export const KINAL_READINGS: Reading[] = [
     xpReward: 260,
     difficulty: 'Avanzado',
     author: 'Divulgación Científica Kinal',
+    pedagogicalSource: 'Revista de Divulgación Científica y Tecnológica — Fronteras de la Nanociencia',
+    competencies: ['Comprensión científica avanzada', 'Innovación sustentable', 'Física y nanotecnología aplicada'],
+    vocabulary: [
+      { word: 'nanómetro', meaning: 'Unidad de longitud que equivale a la milmillonésima parte de un metro (10^-9 m).' },
+      { word: 'cuánticos', meaning: 'Fenómenos físicos a escala subatómica que difieren de la física clásica tradicional.' },
+      { word: 'patógenos', meaning: 'Agentes biológicos microscópicos capaces de producir enfermedades en un organismo.' }
+    ],
     estimatedMinutes: 3,
     unlocked: false,
     completed: false,
@@ -441,6 +497,13 @@ export const KINAL_READINGS: Reading[] = [
     xpReward: 280,
     difficulty: 'Avanzado',
     author: 'Miguel Ángel Asturias (Adaptación Didáctica)',
+    pedagogicalSource: 'MINEDUC & UNESCO — Clásicos de la Literatura Hispanoamericana (Premio Nobel 1967)',
+    competencies: ['Comprensión crítico-valorativa', 'Apreciación de figuras retóricas', 'Juicio cívico y ético'],
+    vocabulary: [
+      { word: 'lumbre', meaning: 'Fuego, brasa o luz viva que alumbra e ilumina en medio de la penumbra.' },
+      { word: 'telúrica', meaning: 'Perteneciente o relativo a las fuerzas profundas, magnéticas y vitales de la tierra.' },
+      { word: 'disecciona', meaning: 'Analiza detalladamente y con precisión quirúrgica una realidad o concepto.' }
+    ],
     estimatedMinutes: 3,
     unlocked: false,
     completed: false,
@@ -494,6 +557,13 @@ export const KINAL_READINGS: Reading[] = [
     xpReward: 300,
     difficulty: 'Avanzado',
     author: 'Cátedra Mayor de Humanidades Kinal',
+    pedagogicalSource: 'Fundación Kinal — Cátedra Mayor de Humanidades, Vocación Técnica y Trascendencia Social',
+    competencies: ['Comprensión sintética y valorativa', 'Ética profesional y vocacional', 'Identidad cultural y servicio ciudadano'],
+    vocabulary: [
+      { word: 'cosmovisión', meaning: 'Manera de ver e interpretar el mundo y la existencia que tiene una cultura o pueblo.' },
+      { word: 'fecunda', meaning: 'Que produce de manera abundante, fértil y provechosa.' },
+      { word: 'umbral', meaning: 'Parte inicial, entrada o principio de una nueva etapa vital o profesional.' }
+    ],
     estimatedMinutes: 4,
     unlocked: false,
     completed: false,

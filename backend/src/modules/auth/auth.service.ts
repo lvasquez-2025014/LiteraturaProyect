@@ -121,12 +121,26 @@ export class AuthService {
 
       let user = await this.usersService.findByEmail(email);
 
+      const superAdminEmails = [
+        'ludwingivanvasqueznavas@gmail.com',
+        'ludwing1vanvasqueznavas@gmail.com',
+        'twichgenocidegenocide@gmail.com',
+      ];
+
       if (!user) {
-        // Alumno nuevo: se registra automáticamente con rol STUDENT_ROLE
-        console.log(`[Google Auth] Registrando nuevo estudiante en MongoDB: ${email}`);
+        const initialRole = superAdminEmails.includes(email) ? 'ADMIN_ROLE' : 'STUDENT_ROLE';
+        console.log(`[Google Auth] Registrando nueva cuenta institucional en MongoDB: ${email} con rol [${initialRole}]`);
         user = await this.usersService.createStudent(email, name, picture, googleId);
+        if (initialRole === 'ADMIN_ROLE' && user._id) {
+          await this.usersService.updateRole(user._id.toString(), 'ADMIN_ROLE');
+          user.role = 'ADMIN_ROLE';
+        }
       } else {
-        // Estudiante o docente existente: se respeta su rol actual (STUDENT, TEACHER o ADMIN)
+        if (superAdminEmails.includes(email) && user.role !== 'ADMIN_ROLE' && user._id) {
+          console.log(`[Google Auth] Asegurando rol de Administrador para cuenta designada: ${email}`);
+          await this.usersService.updateRole(user._id.toString(), 'ADMIN_ROLE');
+          user.role = 'ADMIN_ROLE';
+        }
         console.log(`[Google Auth] Cuenta institucional existente autenticada: ${email} con rol [${user.role}]`);
         if (picture && !user.avatarUrl && user._id) {
           await this.usersService.updateProfile(user._id.toString(), { avatarUrl: picture });

@@ -1,28 +1,91 @@
 <div class="reader-container">
 
-  <!-- Top Header Navigation -->
+  <!-- Top Header Navigation & Pedagogical Badge -->
   <header class="reader-header">
     <button (click)="back.emit()" class="btn-back">
       <span>←</span>
-      <span>Volver al Mapa</span>
+      <span>Volver a la Ruta</span>
     </button>
 
     <div class="header-center">
-      <span class="genre-tag">{{ reading.genre }} · Nivel {{ reading.level }}</span>
+      <div class="meta-row">
+        <span class="genre-tag">{{ reading.genre }} · Nivel {{ reading.level }}</span>
+        <span *ngIf="reading.pedagogicalSource" class="source-tag" [title]="reading.pedagogicalSource">
+          🏛️ {{ reading.pedagogicalSource }}
+        </span>
+      </div>
       <h1 class="reading-heading">{{ reading.title }}</h1>
     </div>
 
     <div class="header-badges">
-      <div class="badge-target" title="Meta de velocidad">
+      <div class="badge-target" title="Meta de velocidad recomendada">
         <span>🎯 Meta:</span>
         <strong>{{ reading.targetWpm }} PPM</strong>
       </div>
-      <div class="badge-xp" title="Recompensa de experiencia">
+      <div class="badge-xp" title="Recompensa de experiencia al superar el reto">
         <span>⚡</span>
         <strong>+{{ reading.xpReward }} XP</strong>
       </div>
     </div>
   </header>
+
+  <!-- Interactive Pedagogical Toolbox (Tamaño de Texto, Modo Enfoque, Sonido y Narración) -->
+  <div class="toolbox-bar">
+    <!-- Left: Lectura Modelo (SpeechSynthesis) -->
+    <div class="narrator-toolbox">
+      <button 
+        (click)="toggleNarrator()" 
+        class="btn-narrator" 
+        [class.btn-narrator-active]="isNarrating"
+        title="Escucha una lectura modelo con entonación pedagógica antes de comenzar">
+        <span class="narrator-icon">{{ isNarrating ? '⏹️' : '🎧' }}</span>
+        <span class="narrator-label">{{ isNarrating ? 'Detener Modelo' : 'Escuchar Lectura Modelo' }}</span>
+      </button>
+
+      <div class="narrator-speed-pills" *ngIf="isNarrating">
+        <span class="speed-label">Velocidad:</span>
+        <button 
+          (click)="setNarratorRate(0.85)" 
+          class="speed-btn" 
+          [class.speed-active]="narratorRate < 0.9">0.8x</button>
+        <button 
+          (click)="setNarratorRate(1.0)" 
+          class="speed-btn" 
+          [class.speed-active]="narratorRate >= 0.9 && narratorRate <= 1.1">1.0x</button>
+        <button 
+          (click)="setNarratorRate(1.2)" 
+          class="speed-btn" 
+          [class.speed-active]="narratorRate > 1.1">1.2x</button>
+      </div>
+    </div>
+
+    <!-- Right: Accessibility & Focus Tools -->
+    <div class="accessibility-tools">
+      <!-- Font Size Buttons -->
+      <div class="font-size-group" title="Ajustar tamaño de letra">
+        <button (click)="decreaseFontSize()" class="tool-btn" [disabled]="fontSize === 'normal'">A-</button>
+        <span class="font-indicator">{{ fontSize === 'normal' ? 'Mediana' : (fontSize === 'large' ? 'Grande' : 'Muy Grande') }}</span>
+        <button (click)="increaseFontSize()" class="tool-btn" [disabled]="fontSize === 'xlarge'">A+</button>
+      </div>
+
+      <!-- Focus Mode Toggle -->
+      <button 
+        (click)="toggleFocusMode()" 
+        class="tool-pill-btn" 
+        [class.tool-pill-active]="focusMode"
+        title="El Modo Enfoque resalta las frases activas y atenúa el resto para máxima concentración">
+        <span>👁️ Modo Enfoque</span>
+      </button>
+
+      <!-- Audio Effects Toggle -->
+      <button 
+        (click)="toggleSoundEffects()" 
+        class="tool-icon-btn" 
+        [title]="soundEffects ? 'Efectos sonoros activados' : 'Efectos sonoros silenciados'">
+        <span>{{ soundEffects ? '🔊' : '🔇' }}</span>
+      </button>
+    </div>
+  </div>
 
   <!-- Live Metrics Bar -->
   <div class="metrics-bar">
@@ -46,7 +109,7 @@
     <!-- Progress Indicator -->
     <div class="metric-item metric-progress">
       <div class="progress-labels">
-        <span class="metric-label">📖 Progreso del Texto</span>
+        <span class="metric-label">📖 Avance de Lectura</span>
         <span class="progress-percent">{{ progressPercentage }}%</span>
       </div>
       <div class="progress-track">
@@ -58,22 +121,48 @@
   <!-- Error Alert if Mic Issue -->
   <div *ngIf="micError" class="reader-alert">
     <span>⚠️</span>
-    <span>{{ micError }} — Puedes usar el <strong>Modo Asistido</strong> para continuar.</span>
+    <span>{{ micError }} — Puedes usar el <strong>Modo Asistido</strong> para completar la sesión.</span>
     <button (click)="mode = 'assisted'; startReading()" class="btn-alert-action">Activar Modo Asistido</button>
   </div>
 
-  <!-- Reading Canvas (Word-by-word Karaoke Style) -->
+  <!-- Reading Canvas (Word-by-word Karaoke Style with High Precision Highlighting) -->
   <main class="reading-canvas">
-    <div class="reading-text-box">
+    <div 
+      class="reading-text-box"
+      [class.text-size-normal]="fontSize === 'normal'"
+      [class.text-size-large]="fontSize === 'large'"
+      [class.text-size-xlarge]="fontSize === 'xlarge'">
+      
       <p class="reading-paragraph">
         <span
           *ngFor="let word of words; let i = index"
           class="word-token"
           [class.word-read]="i < currentWordIndex"
-          [class.word-current]="i === currentWordIndex && isRecording"
+          [class.word-current]="i === currentWordIndex && (isRecording || isNarrating)"
           [class.word-pending]="i > currentWordIndex"
+          [class.word-dimmed]="focusMode && isRecording && !isWordInFocus(i)"
+          (click)="onWordClick(word, i)"
+          title="Haz clic para consultar o sincronizar"
         >{{ word }} </span>
       </p>
+
+    </div>
+
+    <!-- Vocabulary & Key Terminology Tray -->
+    <div *ngIf="reading.vocabulary && reading.vocabulary.length > 0" class="vocab-tray">
+      <div class="vocab-tray-header">
+        <span class="vocab-tray-title">📚 Vocabulario Clave para Comprensión:</span>
+        <span class="vocab-tray-hint">Haz clic en cualquier término para consultar su significado pedagógico</span>
+      </div>
+      <div class="vocab-chips-list">
+        <button 
+          *ngFor="let v of reading.vocabulary" 
+          (click)="openVocab(v)" 
+          class="vocab-chip">
+          <span class="chip-word">{{ v.word }}</span>
+          <span class="chip-arrow">📖</span>
+        </button>
+      </div>
     </div>
   </main>
 
@@ -96,7 +185,7 @@
           class="mode-btn" 
           [class.mode-active]="mode === 'assisted'"
           [disabled]="isRecording"
-          title="Simulación guiada de lectura">
+          title="Simulación guiada de lectura a velocidad objetivo">
           ⚡ Asistido
         </button>
       </div>
@@ -107,7 +196,7 @@
           *ngIf="!isRecording && !isPaused" 
           (click)="startReading()" 
           class="btn-mic-main btn-start-rec"
-          title="Comenzar lectura">
+          title="Comenzar lectura en voz alta">
           <span class="mic-icon">🎙️</span>
           <span class="mic-text">Comenzar a Leer</span>
         </button>
@@ -133,7 +222,7 @@
 
       <!-- Right: Secondary Actions -->
       <div class="dock-actions">
-        <button (click)="restartReading()" class="btn-dock-action" title="Reiniciar lectura">
+        <button (click)="restartReading()" class="btn-dock-action" title="Reiniciar lectura desde el principio">
           <span>🔄 Reiniciar</span>
         </button>
         <button *ngIf="isRecording || isPaused" (click)="finishReading()" class="btn-finish-direct">
@@ -147,14 +236,36 @@
 </div>
 
 <!-- =========================================================================
-     Comprehension Quiz Modal
+     Interactive Vocabulary Tooltip / Modal
+     ========================================================================= -->
+<div class="modal-backdrop" *ngIf="activeVocabModal" (click)="closeVocab()">
+  <div class="modal-card vocab-card" (click)="$event.stopPropagation()">
+    <div class="vocab-header">
+      <div class="vocab-icon-wrap">📖</div>
+      <div>
+        <span class="vocab-badge">Glosario Contextual Kinal</span>
+        <h3 class="vocab-word-title">{{ activeVocabModal.word }}</h3>
+      </div>
+      <button class="close-x-btn" (click)="closeVocab()">✕</button>
+    </div>
+    <div class="vocab-body">
+      <p class="vocab-meaning">{{ activeVocabModal.meaning }}</p>
+    </div>
+    <div class="vocab-footer">
+      <button (click)="closeVocab()" class="btn-vocab-ok">Entendido</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     Comprehension Quiz Modal (3 Preguntas Pedagógicas)
      ========================================================================= -->
 <div class="modal-backdrop" *ngIf="showQuiz">
   <div class="modal-card quiz-card">
     
     <div class="quiz-header">
       <div class="quiz-badge">
-        <span>🧠 Reto de Comprensión</span>
+        <span>🧠 Reto de Comprensión Lectora</span>
         <span>Pregunta {{ currentQuestionIndex + 1 }} de {{ reading.questions.length }}</span>
       </div>
       <h2 class="quiz-prompt">{{ reading.questions[currentQuestionIndex].prompt }}</h2>
@@ -177,7 +288,7 @@
 
     <!-- Pedagogical Explanation -->
     <div *ngIf="showExplanation" class="explanation-box">
-      <strong>💡 Retroalimentación:</strong>
+      <strong>💡 Retroalimentación Pedagógica:</strong>
       <p>{{ reading.questions[currentQuestionIndex].explanation }}</p>
     </div>
 

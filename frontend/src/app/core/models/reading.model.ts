@@ -20,11 +20,14 @@ export interface Reading {
   questions: Question[];
   difficulty?: 'Básico' | 'Intermedio' | 'Avanzado';
   author?: string;
+  pedagogicalSource?: string;   // Fuente acreditada: MINEDUC Leamos Juntos, CERLALC/UNESCO, etc.
   estimatedMinutes?: number;
   unlocked?: boolean;
   completed?: boolean;
   bestWpm?: number;
   bestComprehension?: number;
+  vocabulary?: { word: string; meaning: string }[];
+  competencies?: string[];
 }
 
 export interface ReadingAttemptResult {

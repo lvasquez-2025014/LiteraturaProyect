@@ -1,6 +1,20 @@
 const path = require('path');
+const dns = require('node:dns');
+
+// Fallback DNS para Windows con MongoDB Atlas
+if (process.platform === 'win32') {
+  try {
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+  } catch (e) {}
+}
+
+const dotenvPath = path.resolve(__dirname, '../backend/node_modules/dotenv');
+try {
+  require(dotenvPath).config({ path: path.resolve(__dirname, '../backend/.env') });
+} catch (e) {}
+
 const mongodbPath = path.resolve(__dirname, '../backend/node_modules/mongodb');
-const { MongoClient, ObjectId } = require(mongodbPath);
+const { MongoClient } = require(mongodbPath);
 
 const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost:27017';
 const dbName = process.env.DB_NAME || 'literaturaProyect';
@@ -30,7 +44,7 @@ async function main() {
       PPM: u.stats?.averageWpm || 0,
       Comprension: (u.stats?.comprehensionRate || 0) + '%'
     })));
-    console.log('Total de estudiantes y docentes registrados:', users.length, '\n');
+    console.log('Total de registros:', users.length, '\n');
   } else if (action === 'promote') {
     if (!email || !targetRole) {
       console.error('Uso: node manage_user.cjs promote <email> <ROLE> [grade] [section]');
@@ -50,9 +64,9 @@ async function main() {
     );
 
     if (res.matchedCount === 0) {
-      console.error('ERROR: No se encontró ningún estudiante o docente con el correo: ' + email);
+      console.error('ERROR: No se encontró cuenta con el correo: ' + email);
     } else {
-      console.log(`EXITO: Registro de ${email} actualizado al rol ${targetRole} (${grade} - ${section})`);
+      console.log(`EXITO: Cuenta ${email} actualizada al rol ${targetRole}`);
     }
   }
 

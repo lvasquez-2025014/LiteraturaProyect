@@ -82,10 +82,21 @@
 
             <h3 class="reading-title">{{ reading.title }}</h3>
 
+            <!-- Fuente Acreditada de Comprensión Lectora -->
+            <div *ngIf="reading.pedagogicalSource" class="pedagogical-source-badge">
+              <span class="source-icon">🏛️</span>
+              <span class="source-text">{{ reading.pedagogicalSource }}</span>
+            </div>
+
             <div class="reading-meta">
               <span class="meta-goal">🎯 Meta: <strong>{{ reading.targetWpm }} PPM</strong></span>
               <span class="meta-separator">•</span>
               <span class="meta-xp">⚡ +{{ reading.xpReward }} XP</span>
+            </div>
+
+            <!-- Competencias Pedagógicas -->
+            <div *ngIf="reading.competencies && reading.competencies.length" class="competencies-row">
+              <span *ngFor="let comp of reading.competencies" class="comp-badge">✓ {{ comp }}</span>
             </div>
 
             <!-- Best Score if Completed -->
