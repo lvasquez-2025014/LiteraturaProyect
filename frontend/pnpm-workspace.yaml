@@ -1,6 +1,9 @@
+dangerouslyAllowAllBuilds: true
 allowBuilds:
   esbuild: true
   "@esbuild/win32-x64": true
-  '@parcel/watcher': set this to true or false
-  lmdb: set this to true or false
-  msgpackr-extract: set this to true or false
+  "@esbuild/linux-x64": true
+  "@parcel/watcher": true
+  lmdb: true
+  msgpackr-extract: true
+
