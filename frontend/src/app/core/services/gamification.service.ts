@@ -297,9 +297,11 @@ export class GamificationService {
   private updateUserSession(updatedUser: User): void {
     const currentUser = this.auth.currentUserSignal();
     if (currentUser) {
+      const isAdmin = currentUser.role === 'ADMIN_ROLE' || updatedUser.role === 'ADMIN_ROLE';
       const merged: User = {
         ...currentUser,
         ...updatedUser,
+        coins: isAdmin ? 99999 : (updatedUser.coins ?? currentUser.coins),
         stats: updatedUser.stats || currentUser.stats,
       };
       this.auth.saveSession({

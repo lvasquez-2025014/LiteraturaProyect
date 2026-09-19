@@ -36,6 +36,9 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   micError: string | null = null;
   mode: 'mic' | 'assisted' = 'mic';
 
+  // Modo de visualización: Progresivo (teleprompter móvil amigable) o Texto Completo
+  readingMode: 'progressive' | 'full' = 'progressive';
+
   // Opciones de Accesibilidad y Pedagogía
   fontSize: 'normal' | 'large' | 'xlarge' = 'normal';
   focusMode = false;
@@ -88,10 +91,32 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Determina si una palabra debe renderizarse según el modo de visualización.
+   * En modo progresivo:
+   * - Antes de iniciar la lectura: se muestra solo un adelanto inicial (~18 palabras)
+   *   para que el usuario no tenga que hacer scroll interminable en teléfono.
+   * - Al iniciar la lectura: se revelan las palabras leídas + un buffer de 14 palabras
+   *   a futuro que van apareciendo progresivamente a medida que el alumno lee.
+   */
+  isWordVisible(index: number): boolean {
+    if (this.readingMode === 'full') {
+      return true;
+    }
+    const hasStarted = this.isRecording || this.isPaused || this.secondsElapsed > 0;
+    if (!hasStarted) {
+      return index < 18;
+    }
+    return index <= this.currentWordIndex + 14;
+  }
+
+  toggleReadingMode(): void {
+    this.readingMode = this.readingMode === 'progressive' ? 'full' : 'progressive';
+  }
+
+  /**
    * Motor de coincidencia fonética secuencial de alta precisión.
    * Procesa palabra por palabra garantizando que el avance sea fiel a la voz del lector.
-   * Tolerancia de salto = 0: Si el estudiante omite o se salta palabras, el resaltador
-   * NO avanza, esperando a que se pronuncie la palabra correcta en orden.
+   * Soporta tildes diacríticas (é, á, í, ó, ú), sinalefas y auto-desplazamiento.
    */
   private processSpokenWords(
     spokenWords: string[],
@@ -111,21 +136,43 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     const initialIndex = this.currentWordIndex;
 
     // 1. Coincidencia secuencial estricta sobre la palabra activa
-    for (const token of primaryTokens) {
+    for (let tIdx = 0; tIdx < primaryTokens.length; tIdx++) {
       if (this.currentWordIndex >= this.totalWords) break;
 
+      const token = primaryTokens[tIdx];
       const currentTarget = this.words[this.currentWordIndex];
 
+      // Coincidencia directa fonética u ortográfica
       if (isPhoneticMatch(token, currentTarget)) {
         this.currentWordIndex++;
         advanced = true;
+        continue;
       }
-      // Sin tolerancia de salto: si la palabra dicha no es la que toca leer,
-      // el lector se mantiene en la palabra esperada.
+
+      // Verificación de sinalefa (dos palabras unidas por el habla fluida: "a las" -> "alas", "de el" -> "del")
+      if (this.currentWordIndex + 1 < this.totalWords) {
+        const combinedTarget = currentTarget + this.words[this.currentWordIndex + 1];
+        if (isPhoneticMatch(token, combinedTarget)) {
+          this.currentWordIndex += 2;
+          advanced = true;
+          continue;
+        }
+      }
+
+      // Verificación de palabra compuesta dividida en dos tokens hablados (e.g. "tan", "bien" -> "también")
+      if (tIdx + 1 < primaryTokens.length) {
+        const combinedSpoken = token + primaryTokens[tIdx + 1];
+        if (isPhoneticMatch(combinedSpoken, currentTarget)) {
+          this.currentWordIndex++;
+          advanced = true;
+          tIdx++; // Consumir siguiente token
+          continue;
+        }
+      }
     }
 
-    // 2. Si no avanzó con el token principal, verificar alternativas del motor de voz
-    // para capturar instantáneamente palabras cortas como "En", "de", "la", "el"
+    // 2. Si no avanzó con el token principal, verificar alternativas directas del reconocedor
+    // para capturar instantáneamente palabras cortas o tildadas (e.g. "él", "sé", "té", "dé", "qué", "fértil")
     if (!advanced && candidateAlts && candidateAlts.length > 0 && this.currentWordIndex < this.totalWords) {
       const currentTarget = this.words[this.currentWordIndex];
       for (const altToken of candidateAlts) {
@@ -140,6 +187,8 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     if (advanced && this.currentWordIndex > initialIndex) {
       const prevPercentage = Math.floor((initialIndex / this.totalWords) * 100);
       const newPercentage = Math.floor((this.currentWordIndex / this.totalWords) * 100);
+
+      this.scrollToCurrentWord();
 
       if (this.soundEffects) {
         this.speechService.playWordChime();
@@ -157,6 +206,16 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     if (this.currentWordIndex >= this.totalWords && !this.showQuiz && !this.showVictory) {
       this.finishReading();
     }
+  }
+
+  private scrollToCurrentWord(): void {
+    if (typeof document === 'undefined') return;
+    setTimeout(() => {
+      const currentEl = document.querySelector('.word-current');
+      if (currentEl) {
+        currentEl.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+      }
+    }, 10);
   }
 
   startReading(): void {

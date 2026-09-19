@@ -5,7 +5,16 @@
       <div class="student-profile">
         <div class="avatar-ring">
           <div class="avatar-circle">
-            {{ performance.student.name ? performance.student.name.charAt(0).toUpperCase() : 'E' }}
+            <img
+              *ngIf="performance.student.avatarUrl"
+              [src]="performance.student.avatarUrl"
+              [alt]="performance.student.name"
+              class="avatar-photo"
+              referrerpolicy="no-referrer"
+            />
+            <span *ngIf="!performance.student.avatarUrl">
+              {{ performance.student.name ? performance.student.name.charAt(0).toUpperCase() : 'E' }}
+            </span>
           </div>
         </div>
         <div class="profile-info">

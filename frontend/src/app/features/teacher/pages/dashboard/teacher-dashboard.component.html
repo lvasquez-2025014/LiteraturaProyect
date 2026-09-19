@@ -248,7 +248,14 @@
                 <td>
                   <div class="student-cell">
                     <div class="student-avatar">
-                      {{ item.student.name ? item.student.name.charAt(0).toUpperCase() : 'E' }}
+                      <img
+                        *ngIf="item.student.avatarUrl"
+                        [src]="item.student.avatarUrl"
+                        [alt]="item.student.name"
+                        class="avatar-photo"
+                        referrerpolicy="no-referrer"
+                      />
+                      <span *ngIf="!item.student.avatarUrl">{{ item.student.name ? item.student.name.charAt(0).toUpperCase() : 'E' }}</span>
                     </div>
                     <div class="student-info">
                       <span class="student-name">{{ item.student.name }}</span>

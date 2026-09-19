@@ -36,6 +36,7 @@ export class AuthService {
   }
 
   private formatUserResponse(user: UserDocument, token: string) {
+    const isAdmin = user.role === 'ADMIN_ROLE';
     return {
       token,
       user: {
@@ -47,6 +48,9 @@ export class AuthService {
         grade: user.grade,
         section: user.section,
         stats: user.stats,
+        coins: isAdmin ? 99999 : (user.coins ?? 60),
+        equippedTitle: user.equippedTitle || 'Cadete de las Letras',
+        equippedFrame: user.equippedFrame || 'frame-default',
       },
     };
   }
@@ -139,7 +143,9 @@ export class AuthService {
         user = await this.usersService.createStudent(email, name, picture, googleId);
         if (initialRole === 'ADMIN_ROLE' && user._id) {
           await this.usersService.updateRole(user._id.toString(), 'ADMIN_ROLE');
+          await this.usersService.updateProfile(user._id.toString(), { coins: 99999 });
           user.role = 'ADMIN_ROLE';
+          user.coins = 99999;
         }
       } else {
         if (isAdminAccount && user.role !== 'ADMIN_ROLE' && user._id) {
@@ -147,8 +153,12 @@ export class AuthService {
           await this.usersService.updateRole(user._id.toString(), 'ADMIN_ROLE');
           user.role = 'ADMIN_ROLE';
         }
+        if (user.role === 'ADMIN_ROLE' && user._id) {
+          await this.usersService.updateProfile(user._id.toString(), { coins: 99999 });
+          user.coins = 99999;
+        }
         console.log(`[Google Auth] Cuenta institucional existente autenticada: ${email} con rol [${user.role}]`);
-        if (picture && !user.avatarUrl && user._id) {
+        if (picture && user.avatarUrl !== picture && user._id) {
           await this.usersService.updateProfile(user._id.toString(), { avatarUrl: picture });
           user.avatarUrl = picture;
         }

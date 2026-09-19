@@ -222,6 +222,40 @@
   border-radius: 24px;
   padding: 44px 38px;
   box-shadow: 0 12px 35px -5px rgba(0, 74, 173, 0.08);
+  transition: all 0.3s ease;
+}
+
+.canvas-preview-compact {
+  padding: 24px 28px;
+  background: #f8fafc;
+  border: 1.5px dashed #cbd5e1;
+  box-shadow: none;
+}
+
+.pre-reading-mobile-card {
+  margin-bottom: 14px;
+}
+
+.pre-reading-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.progressive-preview-ellipsis {
+  display: inline-block;
+  margin-left: 6px;
+  color: #64748b;
+  font-style: italic;
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
 .reading-paragraph {

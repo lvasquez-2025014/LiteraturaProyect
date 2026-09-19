@@ -375,12 +375,13 @@ export class UsersService {
     const user = await this.findById(id);
     if (!user) return { success: false, message: 'Estudiante no encontrado' };
 
-    const currentCoins = user.coins || 0;
-    if (currentCoins < cost) {
+    const isAdmin = user.role === 'ADMIN_ROLE';
+    const currentCoins = isAdmin ? 99999 : (user.coins || 0);
+    if (!isAdmin && currentCoins < cost) {
       return { success: false, message: 'No dispones de suficientes Monedas Kinal' };
     }
 
-    const newCoins = currentCoins - cost;
+    const newCoins = isAdmin ? 99999 : Math.max(0, currentCoins - cost);
     const updateFields: any = { coins: newCoins, updatedAt: new Date() };
     if (itemType === 'frame') updateFields.equippedFrame = itemId;
     if (itemType === 'title') updateFields.equippedTitle = itemId;
@@ -392,6 +393,9 @@ export class UsersService {
 
     const updated = await this.findById(id);
     const { password, ...safeUser } = updated as any;
+    if (isAdmin) {
+      safeUser.coins = 99999;
+    }
     return { success: true, message: '¡Artículo adquirido y equipado!', user: safeUser };
   }
 }

@@ -13,20 +13,20 @@ export interface SpeechRecognitionState {
 
 /**
  * Normaliza palabras en español para comparación fonética y ortográfica robusta.
- * Elimina tildes, signos de puntuación de apertura/cierre y convierte a minúsculas.
+ * Elimina acentos, tildes (é, á, í, ó, ú), diéresis, signos de puntuación tipográfica y símbolos.
  */
 export function normalizeSpanishWord(word: string): string {
   if (!word) return '';
   return word
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Elimina tildes y diéresis
-    .replace(/[.,;:¿?¡!—«»"'\(\)\[\]\-–\/\\#@_~`]/g, '') // Elimina puntuación española
+    .replace(/[\u0300-\u036f]/g, '') // Remueve tildes, acentos agudos, graves y diéresis
+    .replace(/[^\p{L}\p{N}]/gu, '')  // Remueve cualquier signo de puntuación, comillas tipográficas, guiones o símbolos
     .trim();
 }
 
 /**
- * Distancia de Levenshtein para tolerancia de pronunciación y errores del micrófono.
+ * Distancia de Levenshtein para tolerancia de pronunciación y ruido de micrófono.
  */
 export function levenshteinDistance(a: string, b: string): number {
   if (a === b) return 0;
@@ -59,43 +59,75 @@ export function levenshteinDistance(a: string, b: string): number {
 
 /**
  * Coincidencia fonética avanzada adaptada al español de Guatemala y Latinoamérica.
- * Tolera seseo (c/z <-> s), betacismo (b <-> v), yeísmo (ll <-> y) y hache muda.
+ * Tolera seseo (c/z <-> s), betacismo (b <-> v), yeísmo (ll <-> y), hache muda,
+ * variantes indígenas/mayas (tz <-> ch/ts/z) y palabras con o sin tilde diacrítica.
  */
 export function isPhoneticMatch(spokenRaw: string, targetRaw: string): boolean {
   const s = normalizeSpanishWord(spokenRaw);
   const t = normalizeSpanishWord(targetRaw);
 
-  if (s === t) return true;
   if (!s || !t) return false;
+  if (s === t) return true;
 
-  // Palabras cortas (1 a 3 letras: "el", "la", "de", "en", "un", "los", "las", "por", "que", "con", "sin")
-  // Requieren coincidencia exacta para evitar falsos positivos
-  if (t.length <= 3 || s.length <= 3) {
+  // Palabras muy cortas (1 a 2 letras: "el", "la", "de", "en", "un", "al", "se", "si", "su", "tu", "ya")
+  if (t.length <= 2 || s.length <= 2) {
     // Normalización fonética básica (v/b, c/z/s, ll/y, hache)
     const phoneticShort = (w: string) =>
       w.replace(/v/g, 'b').replace(/[cz]/g, 's').replace(/ll/g, 'y').replace(/^h/, '');
     return phoneticShort(s) === phoneticShort(t);
   }
 
-  // Normalización fonética completa para palabras medianas y largas
+  // Palabras de 3 letras: "que", "del", "por", "con", "sin", "los", "las", "mas", "nos", "fue", "dio", "ver"
+  if (t.length === 3 && s.length === 3) {
+    const phonetic3 = (w: string) =>
+      w
+        .replace(/v/g, 'b')
+        .replace(/[cz]/g, 's')
+        .replace(/qu/g, 'k')
+        .replace(/^h/, '');
+    return phonetic3(s) === phonetic3(t);
+  }
+
+  // Normalización fonética completa para palabras medianas y largas (>= 4 letras)
   const phonetic = (w: string) =>
     w
       .replace(/v/g, 'b')
       .replace(/[cz]/g, 's')
       .replace(/ll/g, 'y')
+      .replace(/qu/g, 'k')
+      .replace(/c(?=[aou])/g, 'k')
+      .replace(/g(?=[ei])/g, 'j')
+      .replace(/tz/g, 'ch')
+      .replace(/x/g, 's')
       .replace(/^h/, '');
 
-  if (phonetic(s) === phonetic(t)) return true;
+  const ps = phonetic(s);
+  const pt = phonetic(t);
+  if (ps === pt) return true;
 
-  // Tolerancia estricta de plurales (palabras >= 4 letras)
+  // Tolerancia de plurales / singulares (palabras >= 4 letras: "cedros" <-> "cedro", "alas" <-> "ala")
   if (s === t + 's' || s === t + 'es' || t === s + 's' || t === s + 'es') {
     return true;
   }
+  if (ps === pt + 's' || ps === pt + 'es' || pt === ps + 's' || pt === ps + 'es') {
+    return true;
+  }
 
-  // Tolerancia Levenshtein únicamente para palabras de 5 o más letras con distancia máxima de 1
-  if (t.length >= 5 && s.length >= 5) {
+  // Tolerancia Levenshtein adaptativa:
+  // Palabras medianas (4 a 7 letras): distancia <= 1
+  if (t.length >= 4 && s.length >= 4) {
     const dist = levenshteinDistance(s, t);
     if (dist <= 1) return true;
+    const pdist = levenshteinDistance(ps, pt);
+    if (pdist <= 1) return true;
+  }
+
+  // Palabras largas (8 o más letras: "centenarios", "guardabosques", "extraviados"): distancia <= 2
+  if (t.length >= 8 && s.length >= 7) {
+    const dist = levenshteinDistance(s, t);
+    if (dist <= 2) return true;
+    const pdist = levenshteinDistance(ps, pt);
+    if (pdist <= 2) return true;
   }
 
   return false;
