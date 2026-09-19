@@ -575,16 +575,67 @@
 }
 
 @media (max-width: 480px) {
+  .auth-page {
+    padding: 20px 12px;
+  }
+
+  .auth-layout-container {
+    gap: 24px;
+    max-width: 100%;
+  }
+
+  .hero-headline {
+    font-size: 1.65rem;
+    line-height: 1.22;
+  }
+
+  .hero-subtext {
+    font-size: 0.9rem;
+  }
+
   .auth-card {
-    padding: 28px 20px;
+    padding: 24px 16px;
     border-radius: 20px;
+    width: 100%;
+    box-shadow: 0 10px 30px rgba(0, 74, 173, 0.08);
+  }
+
+  .auth-header {
+    margin-bottom: 20px;
+  }
+
+  .auth-title {
+    font-size: 1.45rem;
   }
 
   .hero-features-grid {
     grid-template-columns: 1fr;
+    gap: 10px;
   }
 
   .hero-visual-card {
-    display: none; /* Keep clean on small mobile */
+    display: none; /* Mantener interfaz limpia y enfocada en celulares */
+  }
+
+  .google-slot {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
   }
 }
+
+@media (max-width: 360px) {
+  .auth-page {
+    padding: 16px 8px;
+  }
+
+  .auth-card {
+    padding: 20px 12px;
+  }
+
+  .hero-headline {
+    font-size: 1.45rem;
+  }
+}
+

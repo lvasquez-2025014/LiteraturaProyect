@@ -597,25 +597,71 @@
 }
 
 @media (max-width: 640px) {
+  .teacher-dashboard {
+    padding: 16px 12px 48px;
+  }
+  .dashboard-container {
+    gap: 16px;
+  }
   .metrics-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .metric-card {
+    padding: 1.15rem;
+  }
+  .metric-num {
+    font-size: 1.85rem;
   }
   .welcome-banner {
     flex-direction: column;
     align-items: flex-start;
-    padding: 1.5rem;
+    padding: 1.25rem;
+    border-radius: 1.25rem;
+  }
+  .banner-title {
+    font-size: 1.5rem;
   }
   .cycle-card {
     width: 100%;
   }
+  .toolbar-card {
+    padding: 1rem;
+    border-radius: 1rem;
+  }
   .toolbar-flex {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
   }
   .search-box {
     max-width: 100%;
+    min-width: auto;
   }
   .filters-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .filter-item {
+    width: 100%;
     justify-content: space-between;
   }
+  .filter-select {
+    flex: 1;
+  }
+  .btn-refresh {
+    width: 100%;
+    justify-content: center;
+  }
+  .table-card {
+    padding: 1.25rem 0.85rem;
+    border-radius: 1rem;
+  }
+  .table-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
 }
+

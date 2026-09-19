@@ -201,3 +201,42 @@
   transform: translateY(-2px);
   box-shadow: 0 10px 30px rgba(243, 111, 33, 0.6);
 }
+
+/* ==========================================================
+ * RESPONSIVE
+ * ========================================================== */
+@media (max-width: 480px) {
+  .level-up-card {
+    padding: 26px 18px;
+    border-radius: 22px;
+    max-width: 92vw;
+  }
+
+  .levelup-emblem {
+    width: 80px;
+    height: 80px;
+    border-radius: 22px;
+  }
+
+  .emblem-num {
+    font-size: 2.4rem;
+  }
+
+  .levelup-title {
+    font-size: 1.4rem;
+  }
+
+  .levelup-desc {
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+  }
+
+  .reward-pill-box {
+    padding: 10px 8px;
+  }
+
+  .pill-val {
+    font-size: 1.15rem;
+  }
+}
+

@@ -420,6 +420,7 @@
   .leaderboard-banner {
     flex-direction: column;
     align-items: stretch;
+    gap: 16px;
   }
   .podium-section {
     gap: 10px;
@@ -441,3 +442,108 @@
   .pedestal-second { height: 70px; }
   .pedestal-third { height: 50px; }
 }
+
+@media (max-width: 540px) {
+  .leaderboard-banner {
+    padding: 18px 14px;
+    border-radius: 18px;
+  }
+
+  .banner-title {
+    font-size: 1.25rem;
+  }
+
+  .scope-selector {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .scope-btn {
+    flex: 1;
+    text-align: center;
+    padding: 7px 10px;
+    font-size: 0.78rem;
+  }
+
+  .podium-section {
+    padding: 14px 6px 0 6px;
+    gap: 6px;
+    border-radius: 18px;
+  }
+
+  .podium-col {
+    width: 92px;
+  }
+
+  .avatar-first {
+    width: 50px;
+    height: 50px;
+  }
+
+  .student-avatar-wrap {
+    width: 42px;
+    height: 42px;
+    font-size: 1rem;
+  }
+
+  .crown-badge {
+    font-size: 1.2rem;
+    top: -12px;
+  }
+
+  .podium-name {
+    font-size: 0.75rem;
+    max-width: 85px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .podium-xp {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+  }
+
+  .pedestal-first { height: 75px; }
+  .pedestal-second { height: 55px; }
+  .pedestal-third { height: 40px; }
+
+  .pedestal-num {
+    font-size: 1.4rem;
+  }
+
+  .table-card {
+    padding: 14px 10px;
+    border-radius: 18px;
+  }
+
+  .table-card-title {
+    font-size: 1.1rem;
+  }
+
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding: 10px 8px;
+    font-size: 0.8rem;
+  }
+
+  .cell-name-box {
+    gap: 6px;
+  }
+
+  .mini-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .podium-col {
+    width: 82px;
+  }
+  .podium-name {
+    max-width: 75px;
+  }
+}
+

@@ -307,8 +307,64 @@
   .achievements-banner {
     flex-direction: column;
     align-items: stretch;
+    gap: 16px;
   }
   .meter-box {
     min-width: auto;
+    width: 100%;
   }
 }
+
+@media (max-width: 640px) {
+  .achievements-banner {
+    padding: 18px 14px;
+    border-radius: 18px;
+  }
+
+  .banner-title {
+    font-size: 1.25rem;
+  }
+
+  .banner-desc {
+    font-size: 0.82rem;
+  }
+
+  .achievements-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .achievement-card {
+    padding: 14px 12px;
+    gap: 12px;
+    border-radius: 16px;
+  }
+
+  .ach-icon-circle {
+    width: 44px;
+    height: 44px;
+    font-size: 1.35rem;
+  }
+
+  .ach-name {
+    font-size: 0.95rem;
+  }
+
+  .ach-desc {
+    font-size: 0.78rem;
+  }
+
+  .filter-pills {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    gap: 6px;
+  }
+
+  .filter-btn {
+    padding: 6px 12px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+}
+

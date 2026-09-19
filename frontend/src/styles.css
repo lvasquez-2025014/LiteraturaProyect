@@ -55,6 +55,11 @@
   padding: 0;
 }
 
+html {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   font-family: var(--font-body);
   color: var(--text-primary);
@@ -65,7 +70,9 @@ body {
   background-attachment: fixed;
   min-height: 100vh;
   line-height: 1.5;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -178,3 +185,67 @@ button, input, select, textarea {
   background: #f8fafc;
   border-color: #cbd5e1;
 }
+
+/* ==========================================================
+   UTILIDADES RESPONSIVAS GLOBALES
+   ========================================================== */
+
+/* Interacción táctil en botones y enlaces */
+button, a, .btn {
+  touch-action: manipulation;
+}
+
+/* Contenedor de tablas con scroll horizontal táctil seguro */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-md);
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 999px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Modales responsivos */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.modal-dialog,
+.modal-card {
+  max-height: 90vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 640px) {
+  .btn {
+    padding: 9px 16px;
+    font-size: 0.9rem;
+  }
+}
+

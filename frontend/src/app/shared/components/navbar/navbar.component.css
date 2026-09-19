@@ -240,14 +240,106 @@
   border-color: #fca5a5;
 }
 
+/* --------------------------------------------------------------------------
+   Responsive Adaptations
+   -------------------------------------------------------------------------- */
+@media (max-width: 992px) {
+  .brand-tag {
+    display: none;
+  }
+  .navbar-container {
+    padding: 10px 20px;
+  }
+}
+
 @media (max-width: 768px) {
   .user-sub, .logout-text, .pill-unit {
     display: none;
   }
+  .user-actions {
+    gap: 10px;
+  }
   .gamification-pills {
-    gap: 6px;
+    gap: 5px;
+  }
+  .pill {
+    padding: 4px 8px;
+    font-size: 0.78rem;
   }
   .navbar-container {
-    padding: 10px 16px;
+    padding: 8px 14px;
+  }
+  .brand-title {
+    font-size: 1.1rem;
   }
 }
+
+@media (max-width: 640px) {
+  .badge {
+    display: none; /* Ahorra espacio crítico en móviles */
+  }
+  .brand-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
+  .brand-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+  .brand-title {
+    font-size: 1rem;
+  }
+  .user-name {
+    font-size: 0.82rem;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .user-title-tag {
+    display: none;
+  }
+  .avatar-circle {
+    width: 32px;
+    height: 32px;
+  }
+  .btn-logout {
+    padding: 6px 8px;
+  }
+  .btn-logout svg {
+    width: 16px;
+    height: 16px;
+  }
+  .gamification-pills {
+    gap: 4px;
+  }
+  .pill {
+    padding: 3px 6px;
+    font-size: 0.74rem;
+    gap: 3px;
+  }
+  .pill-icon {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .pill-level {
+    display: none; /* En pantallas ultra pequeñas (<420px) mostramos racha, xp y monedas */
+  }
+  .navbar-container {
+    padding: 6px 10px;
+  }
+  .brand {
+    gap: 8px;
+  }
+  .user-details {
+    display: none; /* El avatar ya representa al lector */
+  }
+  .user-profile {
+    border-left: none;
+    padding-left: 0;
+  }
+}
+
