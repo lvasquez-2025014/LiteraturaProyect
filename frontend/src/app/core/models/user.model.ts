@@ -7,6 +7,7 @@ export interface UserStats {
   comprehensionRate: number;
   streakDays: number;
   completedReadings: number;
+  lastReadingDate?: string | Date;
 }
 
 export interface User {
@@ -18,6 +19,12 @@ export interface User {
   grade?: string;
   section?: string;
   stats?: UserStats;
+  coins?: number;
+  equippedTitle?: string;
+  equippedFrame?: string;
+  unlockedAchievements?: string[];
+  claimedMissions?: string[];
+  lastChestClaimDate?: string;
   status?: 'Activo' | 'Inactivo';
 }
 

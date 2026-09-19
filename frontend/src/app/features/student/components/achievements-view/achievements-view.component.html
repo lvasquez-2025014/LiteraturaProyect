@@ -1,0 +1,107 @@
+<div class="achievements-container">
+
+  <!-- Header Summary Banner -->
+  <div class="achievements-banner">
+    <div class="banner-content">
+      <div class="heading-pill">
+        <span>🏆</span>
+        <span>Salón de Trofeos Kinal</span>
+      </div>
+      <h2 class="banner-title">Medallas y Logros de Superación</h2>
+      <p class="banner-desc">
+        Reconocimientos especiales otorgados a los estudiantes por su disciplina, rapidez verbal y comprensión analítica.
+      </p>
+    </div>
+
+    <!-- Progress Meter -->
+    <div class="meter-box">
+      <div class="meter-header">
+        <span class="meter-label">Progreso Global</span>
+        <span class="meter-val">{{ unlockedCount() }} de {{ allAchievements.length }} ({{ progressPercentage() }}%)</span>
+      </div>
+      <div class="meter-bar-wrap">
+        <div class="meter-bar" [style.width.%]="progressPercentage()"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Pills -->
+  <div class="filter-pills-row">
+    <button 
+      (click)="setCategory('all')" 
+      class="filter-btn" 
+      [class.filter-active]="activeCategory() === 'all'">
+      <span>Todas las Medallas ({{ allAchievements.length }})</span>
+    </button>
+    <button 
+      (click)="setCategory('fluidez')" 
+      class="filter-btn" 
+      [class.filter-active]="activeCategory() === 'fluidez'">
+      <span>⚡ Fluidez Verbal</span>
+    </button>
+    <button 
+      (click)="setCategory('comprension')" 
+      class="filter-btn" 
+      [class.filter-active]="activeCategory() === 'comprension'">
+      <span>🎯 Comprensión Crítica</span>
+    </button>
+    <button 
+      (click)="setCategory('constancia')" 
+      class="filter-btn" 
+      [class.filter-active]="activeCategory() === 'constancia'">
+      <span>🔥 Rachas y Constancia</span>
+    </button>
+    <button 
+      (click)="setCategory('especial')" 
+      class="filter-btn" 
+      [class.filter-active]="activeCategory() === 'especial'">
+      <span>⭐ Especiales Kinal</span>
+    </button>
+  </div>
+
+  <!-- Achievements Grid -->
+  <div class="achievements-grid">
+    <div 
+      *ngFor="let ach of filteredAchievements()" 
+      class="achievement-card" 
+      [class.card-unlocked]="ach.unlocked"
+      [class.card-locked]="!ach.unlocked">
+
+      <!-- Emblem Circle -->
+      <div class="emblem-wrapper">
+        <div class="emblem-circle">
+          <span class="emblem-icon">{{ ach.icon }}</span>
+          <span *ngIf="ach.unlocked" class="unlocked-star">⭐</span>
+          <span *ngIf="!ach.unlocked" class="locked-icon">🔒</span>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div class="achievement-info">
+        <div class="title-row">
+          <h4 class="achievement-title">{{ ach.title }}</h4>
+          <span class="reward-tag">+{{ ach.xpReward }} XP · +{{ ach.coinsReward }} 🪙</span>
+        </div>
+        <p class="achievement-desc">{{ ach.description }}</p>
+
+        <!-- Progress bar for locked achievements -->
+        <div *ngIf="!ach.unlocked" class="progress-section">
+          <div class="progress-bar-wrap">
+            <div class="progress-bar" [style.width.%]="ach.progress || 0"></div>
+          </div>
+          <div class="progress-meta">
+            <span>Progreso hacia la medalla</span>
+            <strong>{{ ach.progress || 0 }}%</strong>
+          </div>
+        </div>
+
+        <!-- Unlocked Badge -->
+        <div *ngIf="ach.unlocked" class="unlocked-badge-row">
+          <span class="badge-pill-unlocked">✓ Desbloqueada con Éxito</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

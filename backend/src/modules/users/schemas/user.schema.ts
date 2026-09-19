@@ -23,6 +23,12 @@ export interface UserDocument {
   grade?: string;      // ej. "5to Perito", "4to Bachillerato"
   section?: string;    // ej. "A", "B"
   stats: UserStats;
+  coins?: number;                    // Monedas de Sabiduría Kinal
+  equippedTitle?: string;            // Título honorífico activo (ej. 'Cadete de las Letras')
+  equippedFrame?: string;            // Marco cosmético activo (ej. 'frame-gold')
+  unlockedAchievements?: string[];   // Lista de IDs de logros desbloqueados
+  claimedMissions?: string[];        // Lista de IDs de misiones reclamadas
+  lastChestClaimDate?: string;       // Fecha ISO del último cofre reclamado
   createdAt: Date;
   updatedAt: Date;
 }

@@ -54,13 +54,64 @@
       </div>
     </section>
 
-    <!-- Gamified Roadmap Section (Duolingo-style 10 Levels) -->
-    <section class="roadmap-section">
+    <!-- Gamified Navigation Tabs -->
+    <nav class="dashboard-tabs">
+      <button 
+        (click)="setTab('roadmap')" 
+        class="dash-tab-btn" 
+        [class.tab-selected]="activeTab() === 'roadmap'">
+        <span class="tab-icon">🗺️</span>
+        <span class="tab-title">Ruta de Desafíos (10 Niveles)</span>
+      </button>
+
+      <button 
+        (click)="setTab('rewards')" 
+        class="dash-tab-btn" 
+        [class.tab-selected]="activeTab() === 'rewards'">
+        <span class="tab-icon">🎁</span>
+        <span class="tab-title">Cofres y Misiones</span>
+        <span *ngIf="gamification.canClaimDailyChest()" class="tab-alert-dot" title="¡Cofre diario listo!"></span>
+      </button>
+
+      <button 
+        (click)="setTab('achievements')" 
+        class="dash-tab-btn" 
+        [class.tab-selected]="activeTab() === 'achievements'">
+        <span class="tab-icon">🏆</span>
+        <span class="tab-title">Medallas y Logros</span>
+      </button>
+
+      <button 
+        (click)="setTab('leaderboard')" 
+        class="dash-tab-btn" 
+        [class.tab-selected]="activeTab() === 'leaderboard'">
+        <span class="tab-icon">🌟</span>
+        <span class="tab-title">Cuadro de Honor</span>
+      </button>
+    </nav>
+
+    <!-- Tab 1: Roadmap -->
+    <section class="tab-pane" *ngIf="activeTab() === 'roadmap'">
       <app-reading-roadmap 
         [readings]="readings" 
         [currentLevel]="stats.currentLevel" 
         (selectReading)="onSelectReading($event)">
       </app-reading-roadmap>
+    </section>
+
+    <!-- Tab 2: Rewards Center (Cofres, Misiones, Boutique) -->
+    <section class="tab-pane" *ngIf="activeTab() === 'rewards'">
+      <app-rewards-center></app-rewards-center>
+    </section>
+
+    <!-- Tab 3: Achievements View -->
+    <section class="tab-pane" *ngIf="activeTab() === 'achievements'">
+      <app-achievements-view></app-achievements-view>
+    </section>
+
+    <!-- Tab 4: Leaderboard View -->
+    <section class="tab-pane" *ngIf="activeTab() === 'leaderboard'">
+      <app-leaderboard-view></app-leaderboard-view>
     </section>
 
   </div>
@@ -75,3 +126,12 @@
     (completeAttempt)="onAttemptCompleted($event)"
   ></app-reading-reader>
 </div>
+
+<!-- Level Up Celebration Modal Overlay -->
+<app-level-up-modal
+  *ngIf="levelUpModalData()"
+  [newLevel]="levelUpModalData()!.level"
+  [xpGained]="levelUpModalData()!.xp"
+  [coinsGained]="levelUpModalData()!.coins"
+  (close)="levelUpModalData.set(null)">
+</app-level-up-modal>

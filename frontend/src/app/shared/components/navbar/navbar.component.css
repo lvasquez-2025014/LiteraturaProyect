@@ -108,6 +108,12 @@
   border: 1px solid #dbeafe;
 }
 
+.pill-coins {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fef3c7;
+}
+
 .pill-unit {
   font-size: 0.75rem;
   opacity: 0.85;
@@ -132,6 +138,38 @@
   justify-content: center;
   border: 2px solid #ffffff;
   box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+}
+
+/* Avatar Frames */
+.avatar-circle.frame-default {
+  border: 2px solid #e2e8f0;
+}
+
+.avatar-circle.frame-blue {
+  border: 2px solid var(--kinal-blue);
+  box-shadow: 0 0 0 2px rgba(0, 74, 173, 0.3), 0 2px 8px rgba(0, 74, 173, 0.25);
+}
+
+.avatar-circle.frame-orange {
+  border: 2px solid var(--kinal-orange);
+  box-shadow: 0 0 0 2px rgba(243, 111, 33, 0.3), 0 2px 8px rgba(243, 111, 33, 0.3);
+}
+
+.avatar-circle.frame-gold {
+  border: 2px solid #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.4), 0 0 12px rgba(245, 158, 11, 0.5);
+  animation: goldShimmer 3s infinite alternate;
+}
+
+.avatar-circle.frame-jade {
+  border: 2px solid #059669;
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.4), 0 0 10px rgba(5, 150, 105, 0.35);
+}
+
+@keyframes goldShimmer {
+  0% { filter: drop-shadow(0 0 2px #fbbf24); }
+  100% { filter: drop-shadow(0 0 6px #f59e0b); }
 }
 
 .avatar-img {
@@ -152,11 +190,28 @@
   flex-direction: column;
 }
 
+.name-with-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 .user-name {
   font-family: var(--font-heading);
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--text-primary);
+}
+
+.user-title-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--kinal-blue);
+  background: var(--kinal-light-blue);
+  padding: 1px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
 }
 
 .user-sub {

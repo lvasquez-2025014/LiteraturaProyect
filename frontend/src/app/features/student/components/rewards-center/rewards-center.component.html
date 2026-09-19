@@ -1,0 +1,242 @@
+<div class="rewards-container">
+
+  <!-- Feedback Toast -->
+  <div *ngIf="actionMessage()" class="action-toast">
+    <span>✨</span>
+    <span>{{ actionMessage() }}</span>
+  </div>
+
+  <!-- Top Hero: Cofre Diario & Saldo de Monedas -->
+  <div class="rewards-hero">
+    <div class="chest-card" [class.chest-ready]="canClaimDailyChest" [class.chest-shake]="isOpeningChest()">
+      <div class="chest-halo"></div>
+      
+      <div class="chest-visual">
+        <span class="chest-icon" *ngIf="!canClaimDailyChest">📦</span>
+        <span class="chest-icon ready-pulse" *ngIf="canClaimDailyChest">🎁</span>
+        <span class="sparkle s1" *ngIf="canClaimDailyChest">✨</span>
+        <span class="sparkle s2" *ngIf="canClaimDailyChest">⭐</span>
+      </div>
+
+      <div class="chest-info">
+        <span class="chest-badge">{{ canClaimDailyChest ? '¡COFRE LISTO!' : 'COFRE DEL DÍA' }}</span>
+        <h3 class="chest-title">Cofre de Sabiduría Diaria</h3>
+        <p class="chest-desc">
+          {{ canClaimDailyChest ? '¡Tu premio de hoy está listo para ser reclamado! Desbloquea XP y Monedas Kinal.' : 'Has abierto el cofre de hoy. Vuelve mañana para reclamar más recompensas.' }}
+        </p>
+
+        <button 
+          (click)="openDailyChest()" 
+          class="btn-claim-chest" 
+          [disabled]="!canClaimDailyChest || isOpeningChest()">
+          <span *ngIf="isOpeningChest()">Abriendo cofre... ✨</span>
+          <span *ngIf="!isOpeningChest() && canClaimDailyChest">Abrir Cofre Diario 🎁</span>
+          <span *ngIf="!isOpeningChest() && !canClaimDailyChest">Reclamado por hoy ✓</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Saldo de Monedas Kinal & Liga -->
+    <div class="wealth-card">
+      <div class="wealth-header">
+        <span class="wealth-title">Tu Bóveda Kinal</span>
+        <span class="wealth-badge">Nivel {{ user?.stats?.currentLevel || 1 }}</span>
+      </div>
+
+      <div class="coins-display">
+        <div class="coin-emblem">🪙</div>
+        <div class="coin-data">
+          <span class="coin-amount">{{ coins }}</span>
+          <span class="coin-label">Monedas de Sabiduría</span>
+        </div>
+      </div>
+
+      <div class="league-preview">
+        <div class="league-row">
+          <span class="league-icon">{{ gamification.currentLeague().badge }}</span>
+          <div>
+            <div class="league-name">{{ gamification.currentLeague().name }}</div>
+            <div class="league-mult">Multiplicador: {{ gamification.currentLeague().multiplier }}x XP</div>
+          </div>
+        </div>
+        <div class="league-bar-wrap">
+          <div class="league-bar" [style.width.%]="gamification.leagueProgress().percentage"></div>
+        </div>
+        <span class="league-next" *ngIf="gamification.leagueProgress().next">
+          Faltan {{ gamification.leagueProgress().xpToNext }} XP para {{ gamification.leagueProgress().next?.name }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seccion 2: Misiones Diarias de Lectura -->
+  <section class="missions-section">
+    <div class="section-heading">
+      <div class="heading-pill">
+        <span>📜</span>
+        <span>Retos de la Jornada</span>
+      </div>
+      <h2>Misiones Diarias de Fluidez</h2>
+      <p>Cumple los objetivos del día para ganar experiencia y enriquecer tu bóveda literaria.</p>
+    </div>
+
+    <div class="missions-grid">
+      <div *ngFor="let mission of missions" class="mission-card" [class.mission-completed]="mission.completed">
+        <div class="mission-icon-box">
+          <span class="mission-icon">{{ mission.icon }}</span>
+        </div>
+
+        <div class="mission-details">
+          <div class="mission-title-row">
+            <h4 class="mission-title">{{ mission.title }}</h4>
+            <span class="reward-pill">+{{ mission.rewardXp }} XP · +{{ mission.rewardCoins }} 🪙</span>
+          </div>
+          <p class="mission-desc">{{ mission.description }}</p>
+
+          <div class="mission-progress-bar-wrap">
+            <div class="mission-progress-bar" [style.width.%]="(mission.current / mission.target) * 100"></div>
+          </div>
+          <div class="mission-status-row">
+            <span class="progress-text">{{ mission.current }} / {{ mission.target }}</span>
+            <span class="status-badge" [class.badge-done]="mission.completed">
+              {{ mission.completed ? (mission.claimed ? 'Reclamada ✓' : '¡Completada!') : 'En progreso' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="mission-action">
+          <button 
+            (click)="claimMission(mission)" 
+            class="btn-claim-mission" 
+            [disabled]="!mission.completed || mission.claimed">
+            <span *ngIf="mission.claimed">✓ Reclamada</span>
+            <span *ngIf="!mission.claimed && mission.completed">Reclamar Premio 🎁</span>
+            <span *ngIf="!mission.completed">Bloqueado 🔒</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Seccion 3: Tienda y Boutique Kinal -->
+  <section class="boutique-section">
+    <div class="section-heading">
+      <div class="heading-pill">
+        <span>🛍️</span>
+        <span>Boutique de la Comunidad</span>
+      </div>
+      <h2>Personalización Literaria Kinal</h2>
+      <p>Equipa títulos y marcos heráldicos para destacar en el Cuadro de Honor y en tu perfil escolar.</p>
+
+      <!-- Tabs -->
+      <div class="boutique-tabs">
+        <button 
+          (click)="activeShopTab.set('frames')" 
+          class="tab-btn" 
+          [class.tab-active]="activeShopTab() === 'frames'">
+          <span>🖼️ Marcos de Avatar</span>
+        </button>
+        <button 
+          (click)="activeShopTab.set('titles')" 
+          class="tab-btn" 
+          [class.tab-active]="activeShopTab() === 'titles'">
+          <span>🎖️ Títulos Honoríficos</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Grid de Marcos -->
+    <div *ngIf="activeShopTab() === 'frames'" class="cosmetics-grid">
+      <div *ngFor="let item of frameItems" class="cosmetic-card" [class.card-equipped]="isItemEquipped(item)">
+        <div class="cosmetic-preview-frame">
+          <div class="avatar-preview-box" [ngClass]="item.id">
+            <img *ngIf="user?.avatarUrl" [src]="user?.avatarUrl" [alt]="user?.name" />
+            <span *ngIf="!user?.avatarUrl">{{ user?.name ? user?.name?.charAt(0) : 'E' }}</span>
+          </div>
+        </div>
+
+        <div class="cosmetic-details">
+          <h4 class="cosmetic-name">{{ item.name }}</h4>
+          <p class="cosmetic-desc">{{ item.description }}</p>
+          
+          <div class="cosmetic-price">
+            <span *ngIf="item.cost === 0" class="price-free">Gratuito</span>
+            <span *ngIf="item.cost > 0" class="price-coins">🪙 {{ item.cost }} Monedas</span>
+          </div>
+        </div>
+
+        <button 
+          (click)="equipOrBuy(item)" 
+          class="btn-cosmetic"
+          [class.btn-equipped]="isItemEquipped(item)"
+          [disabled]="isItemEquipped(item) || (item.cost > 0 && coins < item.cost)">
+          <span *ngIf="isItemEquipped(item)">Equipado ✓</span>
+          <span *ngIf="!isItemEquipped(item) && item.cost === 0">Equipar</span>
+          <span *ngIf="!isItemEquipped(item) && item.cost > 0 && coins >= item.cost">Desbloquear y Equipar</span>
+          <span *ngIf="!isItemEquipped(item) && item.cost > 0 && coins < item.cost">Monedas Insuficientes</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Grid de Títulos -->
+    <div *ngIf="activeShopTab() === 'titles'" class="cosmetics-grid">
+      <div *ngFor="let item of titleItems" class="cosmetic-card" [class.card-equipped]="isItemEquipped(item)">
+        <div class="cosmetic-preview-title">
+          <span class="title-preview-badge" [ngClass]="item.previewClass">
+            {{ item.icon }} {{ item.name }}
+          </span>
+        </div>
+
+        <div class="cosmetic-details">
+          <h4 class="cosmetic-name">{{ item.name }}</h4>
+          <p class="cosmetic-desc">{{ item.description }}</p>
+          
+          <div class="cosmetic-price">
+            <span *ngIf="item.cost === 0" class="price-free">Gratuito</span>
+            <span *ngIf="item.cost > 0" class="price-coins">🪙 {{ item.cost }} Monedas</span>
+          </div>
+        </div>
+
+        <button 
+          (click)="equipOrBuy(item)" 
+          class="btn-cosmetic"
+          [class.btn-equipped]="isItemEquipped(item)"
+          [disabled]="isItemEquipped(item) || (item.cost > 0 && coins < item.cost)">
+          <span *ngIf="isItemEquipped(item)">Equipado ✓</span>
+          <span *ngIf="!isItemEquipped(item) && item.cost === 0">Equipar</span>
+          <span *ngIf="!isItemEquipped(item) && item.cost > 0 && coins >= item.cost">Desbloquear y Equipar</span>
+          <span *ngIf="!isItemEquipped(item) && item.cost > 0 && coins < item.cost">Monedas Insuficientes</span>
+        </button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Modal de Apertura de Cofre Exitoso -->
+  <div *ngIf="chestRevealedReward()" class="modal-backdrop" (click)="closeChestRewardModal()">
+    <div class="chest-celebration-card" (click)="$event.stopPropagation()">
+      <div class="celebration-burst">✨</div>
+      <span class="celebration-icon">🎁</span>
+      <h3 class="celebration-title">¡Recompensa Reclamada!</h3>
+      <p class="celebration-sub">Tu constancia lectora enriquece tus habilidades y tu perfil escolar.</p>
+
+      <div class="rewards-earned-grid">
+        <div class="reward-box box-xp">
+          <span class="box-icon">⚡</span>
+          <span class="box-val">+{{ chestRevealedReward()?.xp }} XP</span>
+          <span class="box-lbl">Experiencia</span>
+        </div>
+        <div class="reward-box box-coins">
+          <span class="box-icon">🪙</span>
+          <span class="box-val">+{{ chestRevealedReward()?.coins }}</span>
+          <span class="box-lbl">Monedas Kinal</span>
+        </div>
+      </div>
+
+      <button (click)="closeChestRewardModal()" class="btn-celebration-close">
+        ¡Excelente, a seguir leyendo!
+      </button>
+    </div>
+  </div>
+
+</div>

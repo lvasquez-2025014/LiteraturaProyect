@@ -21,6 +21,17 @@ export class UsersController {
     });
   }
 
+  @Get('leaderboard')
+  @Roles('STUDENT_ROLE', 'TEACHER_ROLE', 'ADMIN_ROLE')
+  async getLeaderboard(
+    @Query('grade') grade?: string,
+    @Query('section') section?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const parsedLimit = limit ? parseInt(limit, 10) : 20;
+    return this.usersService.getLeaderboard(grade, section, parsedLimit);
+  }
+
   @Post()
   @Roles('ADMIN_ROLE')
   async createUser(
@@ -84,5 +95,61 @@ export class UsersController {
     }
     const { password, ...safeUser } = updatedUser;
     return safeUser;
+  }
+
+  @Post(':id/claim-chest')
+  @Roles('STUDENT_ROLE', 'TEACHER_ROLE', 'ADMIN_ROLE')
+  async claimChest(@Param('id') id: string) {
+    const result = await this.usersService.claimDailyChest(id);
+    if (!result.success) {
+      throw new BadRequestException(result.message);
+    }
+    return result;
+  }
+
+  @Post(':id/claim-mission')
+  @Roles('STUDENT_ROLE', 'TEACHER_ROLE', 'ADMIN_ROLE')
+  async claimMission(
+    @Param('id') id: string,
+    @Body() body: { missionId: string; rewardXp: number; rewardCoins: number },
+  ) {
+    if (!body.missionId) throw new BadRequestException('ID de misión requerido');
+    const result = await this.usersService.claimMission(
+      id,
+      body.missionId,
+      body.rewardXp || 40,
+      body.rewardCoins || 15,
+    );
+    if (!result.success) {
+      throw new BadRequestException(result.message);
+    }
+    return result;
+  }
+
+  @Patch(':id/cosmetics')
+  @Roles('STUDENT_ROLE', 'TEACHER_ROLE', 'ADMIN_ROLE')
+  async updateCosmetics(
+    @Param('id') id: string,
+    @Body() body: { equippedTitle?: string; equippedFrame?: string },
+  ) {
+    const updated = await this.usersService.updateCosmetics(id, body.equippedTitle, body.equippedFrame);
+    if (!updated) throw new BadRequestException('Estudiante no encontrado');
+    return updated;
+  }
+
+  @Post(':id/buy-cosmetic')
+  @Roles('STUDENT_ROLE', 'TEACHER_ROLE', 'ADMIN_ROLE')
+  async buyCosmetic(
+    @Param('id') id: string,
+    @Body() body: { cost: number; itemType: 'frame' | 'title'; itemId: string },
+  ) {
+    if (!body.itemId || !body.itemType || body.cost === undefined) {
+      throw new BadRequestException('Datos del artículo incompletos');
+    }
+    const result = await this.usersService.buyCosmetic(id, body.cost, body.itemType, body.itemId);
+    if (!result.success) {
+      throw new BadRequestException(result.message);
+    }
+    return result;
   }
 }

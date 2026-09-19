@@ -16,6 +16,18 @@ export class NavbarComponent {
     return this.auth.currentUserSignal();
   }
 
+  get coins(): number {
+    return this.user?.coins || 60;
+  }
+
+  get equippedTitle(): string {
+    return this.user?.equippedTitle || 'Cadete de las Letras';
+  }
+
+  get equippedFrame(): string {
+    return this.user?.equippedFrame || 'frame-default';
+  }
+
   getRoleLabel(role?: string): string {
     switch (role) {
       case 'ADMIN_ROLE': return 'Administrador';

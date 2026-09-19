@@ -1,0 +1,168 @@
+<div class="leaderboard-container">
+
+  <!-- Header Banner & Scope Selector -->
+  <div class="leaderboard-banner">
+    <div class="banner-content">
+      <div class="heading-pill">
+        <span>🌟</span>
+        <span>Emulación Académica Kinal</span>
+      </div>
+      <h2 class="banner-title">Cuadro de Honor de Fluidez y Comprensión</h2>
+      <p class="banner-desc">
+        Clasificación semanal de los estudiantes más dedicados en velocidad verbal y análisis de textos.
+      </p>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="scope-selector">
+      <button 
+        (click)="setFilter('all')" 
+        class="scope-btn" 
+        [class.scope-active]="filterScope() === 'all'">
+        <span>🏛️ Todos los Salones</span>
+      </button>
+      <button 
+        (click)="setFilter('my_grade')" 
+        class="scope-btn" 
+        [class.scope-active]="filterScope() === 'my_grade'">
+        <span>🏫 Mi Grado y Sección</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Podio de Honor (Top 3) -->
+  <div class="podium-section" *ngIf="topThree.first">
+
+    <!-- 2do Lugar (Izquierda) -->
+    <div class="podium-col col-second" *ngIf="topThree.second as p2">
+      <div class="student-avatar-wrap" [ngClass]="p2.equippedFrame || 'frame-default'">
+        <img *ngIf="p2.avatarUrl" [src]="p2.avatarUrl" [alt]="p2.name" />
+        <span *ngIf="!p2.avatarUrl">{{ p2.name.charAt(0) }}</span>
+        <span class="podium-medal">🥈</span>
+      </div>
+      <div class="podium-student-name">{{ p2.name }}</div>
+      <span class="podium-title-tag">{{ p2.equippedTitle || 'Cadete de las Letras' }}</span>
+      <div class="podium-xp">{{ p2.totalXp }} XP · {{ p2.averageWpm }} PPM</div>
+      <div class="pedestal pedestal-second">
+        <span class="pedestal-rank">2</span>
+      </div>
+    </div>
+
+    <!-- 1er Lugar (Centro - Oro) -->
+    <div class="podium-col col-first" *ngIf="topThree.first as p1">
+      <div class="podium-crown">👑</div>
+      <div class="student-avatar-wrap avatar-first" [ngClass]="p1.equippedFrame || 'frame-gold'">
+        <img *ngIf="p1.avatarUrl" [src]="p1.avatarUrl" [alt]="p1.name" />
+        <span *ngIf="!p1.avatarUrl">{{ p1.name.charAt(0) }}</span>
+        <span class="podium-medal">🥇</span>
+      </div>
+      <div class="podium-student-name name-first">{{ p1.name }}</div>
+      <span class="podium-title-tag tag-first">{{ p1.equippedTitle || 'Ingeniero Humanista Kinal' }}</span>
+      <div class="podium-xp xp-first">⚡ {{ p1.totalXp }} XP · {{ p1.averageWpm }} PPM</div>
+      <div class="pedestal pedestal-first">
+        <span class="pedestal-rank rank-first">1</span>
+      </div>
+    </div>
+
+    <!-- 3er Lugar (Derecha) -->
+    <div class="podium-col col-third" *ngIf="topThree.third as p3">
+      <div class="student-avatar-wrap" [ngClass]="p3.equippedFrame || 'frame-default'">
+        <img *ngIf="p3.avatarUrl" [src]="p3.avatarUrl" [alt]="p3.name" />
+        <span *ngIf="!p3.avatarUrl">{{ p3.name.charAt(0) }}</span>
+        <span class="podium-medal">🥉</span>
+      </div>
+      <div class="podium-student-name">{{ p3.name }}</div>
+      <span class="podium-title-tag">{{ p3.equippedTitle || 'Cadete de las Letras' }}</span>
+      <div class="podium-xp">{{ p3.totalXp }} XP · {{ p3.averageWpm }} PPM</div>
+      <div class="pedestal pedestal-third">
+        <span class="pedestal-rank">3</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Tabla Completa de Posiciones -->
+  <div class="table-card">
+    <div class="table-header">
+      <h3>Tabla General de Rendimiento</h3>
+      <span class="table-sub">{{ entries().length }} estudiantes clasificados</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th class="th-rank">Puesto</th>
+            <th>Estudiante</th>
+            <th>Grado y Sección</th>
+            <th class="th-center">Nivel</th>
+            <th class="th-center">Velocidad</th>
+            <th class="th-center">Comprensión</th>
+            <th class="th-center">Racha</th>
+            <th class="th-right">Puntos XP</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr 
+            *ngFor="let entry of entries()" 
+            [class.row-current-user]="isCurrentUser(entry)">
+            
+            <!-- Rank -->
+            <td class="td-rank">
+              <span class="rank-badge" [ngClass]="'rank-' + entry.rank">
+                {{ entry.rank <= 3 ? (entry.rank === 1 ? '🥇' : (entry.rank === 2 ? '🥈' : '🥉')) : '#' + entry.rank }}
+              </span>
+            </td>
+
+            <!-- Student Profile -->
+            <td>
+              <div class="student-profile-cell">
+                <div class="cell-avatar" [ngClass]="entry.equippedFrame || 'frame-default'">
+                  <img *ngIf="entry.avatarUrl" [src]="entry.avatarUrl" [alt]="entry.name" />
+                  <span *ngIf="!entry.avatarUrl">{{ entry.name.charAt(0) }}</span>
+                </div>
+                <div class="cell-details">
+                  <div class="cell-name">
+                    <span>{{ entry.name }}</span>
+                    <span *ngIf="isCurrentUser(entry)" class="you-badge">Tú</span>
+                  </div>
+                  <span class="cell-title">{{ entry.equippedTitle || 'Cadete de las Letras' }}</span>
+                </div>
+              </div>
+            </td>
+
+            <!-- Grade -->
+            <td class="cell-grade">{{ entry.grade }} "{{ entry.section }}"</td>
+
+            <!-- Level -->
+            <td class="td-center">
+              <span class="level-pill">Nvl. {{ entry.currentLevel }}</span>
+            </td>
+
+            <!-- WPM -->
+            <td class="td-center">
+              <span class="wpm-val">{{ entry.averageWpm }} PPM</span>
+            </td>
+
+            <!-- Comprehension -->
+            <td class="td-center">
+              <span class="comp-val">{{ entry.comprehensionRate }}%</span>
+            </td>
+
+            <!-- Streak -->
+            <td class="td-center">
+              <span class="streak-val">🔥 {{ entry.streakDays }}d</span>
+            </td>
+
+            <!-- XP -->
+            <td class="td-right">
+              <span class="xp-val">⚡ {{ entry.totalXp }} XP</span>
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

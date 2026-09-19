@@ -258,3 +258,71 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Gamified Navigation Tabs */
+.dashboard-tabs {
+  display: flex;
+  gap: 12px;
+  background: #f1f5f9;
+  padding: 6px;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  overflow-x: auto;
+}
+
+.dash-tab-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: transparent;
+  color: #64748b;
+  border: none;
+  border-radius: 14px;
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.25s ease;
+}
+
+.dash-tab-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.dash-tab-btn.tab-selected {
+  background: #ffffff;
+  color: var(--kinal-blue);
+  box-shadow: 0 4px 14px rgba(0, 74, 173, 0.12);
+}
+
+.tab-icon {
+  font-size: 1.15rem;
+}
+
+.tab-alert-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--kinal-orange);
+  box-shadow: 0 0 0 2px #ffffff;
+  animation: pulseOrange 1.5s infinite;
+}
+
+@keyframes pulseOrange {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+}
+
+.tab-pane {
+  animation: fadeInPane 0.25s ease-out;
+}
+
+@keyframes fadeInPane {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+

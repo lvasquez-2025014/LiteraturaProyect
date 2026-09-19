@@ -37,6 +37,13 @@
           <span class="pill-icon">⭐</span>
           <span class="pill-value">Nvl. {{ u.stats.currentLevel }}</span>
         </div>
+
+        <!-- Coins -->
+        <div class="pill pill-coins" title="Monedas de Sabiduría Kinal">
+          <span class="pill-icon">🪙</span>
+          <span class="pill-value">{{ coins }}</span>
+          <span class="pill-unit">Monedas</span>
+        </div>
       </div>
 
       <!-- Role Badge -->
@@ -46,12 +53,15 @@
 
       <!-- User Profile Box -->
       <div class="user-profile">
-        <div class="avatar-circle">
+        <div class="avatar-circle" [ngClass]="equippedFrame">
           <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" [alt]="u.name" class="avatar-img" />
-          <span *ngIf="!u.avatarUrl" class="avatar-initial">{{ u.name ? u.name.charAt(0).toUpperCase() : 'U' }}</span>
+          <span *ngIf="!u.avatarUrl" class="avatar-initial">{{ u.name ? u.name.charAt(0).toUpperCase() : 'E' }}</span>
         </div>
         <div class="user-details">
-          <span class="user-name">{{ u.name }}</span>
+          <div class="name-with-title">
+            <span class="user-name">{{ u.name }}</span>
+            <span *ngIf="equippedTitle" class="user-title-tag">{{ equippedTitle }}</span>
+          </div>
           <span class="user-sub">{{ u.grade ? u.grade + ' "' + (u.section || 'A') + '"' : u.email }}</span>
         </div>
       </div>

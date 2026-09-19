@@ -1,10 +1,15 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { NavbarComponent } from '../../../../shared/components/navbar/navbar.component';
 import { AuthService } from '../../../../core/services/auth.service';
+import { GamificationService } from '../../../../core/services/gamification.service';
 import { ReadingRoadmapComponent } from '../../components/reading-roadmap/reading-roadmap.component';
 import { ReadingReaderComponent } from '../../components/reading-reader/reading-reader.component';
+import { RewardsCenterComponent } from '../../components/rewards-center/rewards-center.component';
+import { AchievementsViewComponent } from '../../components/achievements-view/achievements-view.component';
+import { LeaderboardViewComponent } from '../../components/leaderboard-view/leaderboard-view.component';
+import { LevelUpModalComponent } from '../../components/level-up-modal/level-up-modal.component';
 import { KINAL_READINGS } from '../../../../core/data/kinal-readings';
 import { Reading, ReadingAttemptResult } from '../../../../core/models/reading.model';
 import { environment } from '../../../../../environments/environment';
@@ -12,16 +17,28 @@ import { environment } from '../../../../../environments/environment';
 @Component({
   selector: 'app-student-home',
   standalone: true,
-  imports: [CommonModule, NavbarComponent, ReadingRoadmapComponent, ReadingReaderComponent],
+  imports: [
+    CommonModule,
+    NavbarComponent,
+    ReadingRoadmapComponent,
+    ReadingReaderComponent,
+    RewardsCenterComponent,
+    AchievementsViewComponent,
+    LeaderboardViewComponent,
+    LevelUpModalComponent,
+  ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
 export class StudentHomeComponent implements OnInit {
   auth = inject(AuthService);
+  gamification = inject(GamificationService);
   private http = inject(HttpClient);
 
   readings: Reading[] = [...KINAL_READINGS];
   activeReading: Reading | null = null;
+  activeTab = signal<'roadmap' | 'rewards' | 'achievements' | 'leaderboard'>('roadmap');
+  levelUpModalData = signal<{ level: number; xp: number; coins: number } | null>(null);
 
   get user() {
     return this.auth.currentUserSignal();
@@ -60,7 +77,13 @@ export class StudentHomeComponent implements OnInit {
     this.activeReading = reading;
   }
 
+  setTab(tab: 'roadmap' | 'rewards' | 'achievements' | 'leaderboard'): void {
+    this.activeTab.set(tab);
+  }
+
   onAttemptCompleted(result: ReadingAttemptResult): void {
+    const prevLevel = this.stats.currentLevel || 1;
+
     // 1. Update reading state locally
     this.readings = this.readings.map((r) => {
       if (r.id === result.readingId) {
@@ -88,10 +111,21 @@ export class StudentHomeComponent implements OnInit {
             const currentUser = this.auth.currentUserSignal()!;
             const updated = {
               ...currentUser,
-              stats: updatedUser.stats,
+              ...updatedUser,
+              stats: updatedUser.stats || currentUser.stats,
             };
             this.auth.saveSession({ token: this.auth.getToken() || '', user: updated });
             this.syncReadingsWithLevel();
+
+            const newLevel = updated.stats?.currentLevel || 1;
+            if (newLevel > prevLevel) {
+              this.levelUpModalData.set({
+                level: newLevel,
+                xp: result.xpEarned,
+                coins: 35,
+              });
+              this.gamification.playChestSound();
+            }
           }
         },
         error: (err) => {

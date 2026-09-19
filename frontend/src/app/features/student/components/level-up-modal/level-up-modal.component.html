@@ -1,0 +1,43 @@
+<div class="level-up-backdrop" (click)="close.emit()">
+  <div class="level-up-card" (click)="$event.stopPropagation()">
+    
+    <!-- Light Rays / Ambient -->
+    <div class="sunburst-rays"></div>
+
+    <!-- Badge Icon -->
+    <div class="levelup-emblem-wrap">
+      <div class="levelup-emblem">
+        <span class="emblem-num">{{ newLevel }}</span>
+        <span class="emblem-label">NIVEL</span>
+      </div>
+      <div class="levelup-stars">⭐⭐⭐</div>
+    </div>
+
+    <span class="levelup-tag">¡SUBISTE DE NIVEL! 🚀</span>
+    <h2 class="levelup-title">¡Felicitaciones, Lector/a Kinal!</h2>
+    <p class="levelup-sub">
+      Has superado este desafío literario y desbloqueado nuevas lecturas de la ruta formativa nacional.
+    </p>
+
+    <!-- Rewards Grid -->
+    <div class="levelup-rewards">
+      <div class="reward-pill-box box-xp">
+        <span class="pill-icon">⚡</span>
+        <span class="pill-val">+{{ xpGained }} XP</span>
+        <span class="pill-label">Experiencia</span>
+      </div>
+      <div class="reward-pill-box box-coins">
+        <span class="pill-icon">🪙</span>
+        <span class="pill-val">+{{ coinsGained }}</span>
+        <span class="pill-label">Monedas Kinal</span>
+      </div>
+    </div>
+
+    <!-- Action Button -->
+    <button (click)="close.emit()" class="btn-levelup-continue">
+      <span>Continuar en la Ruta</span>
+      <span>➜</span>
+    </button>
+
+  </div>
+</div>

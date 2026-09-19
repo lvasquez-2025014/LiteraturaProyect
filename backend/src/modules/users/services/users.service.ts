@@ -45,6 +45,12 @@ export class UsersService {
       grade: '',
       section: '',
       stats: this.getDefaultStats(),
+      coins: 60,
+      equippedTitle: 'Cadete de las Letras',
+      equippedFrame: 'frame-default',
+      unlockedAchievements: ['ach-welcome'],
+      claimedMissions: [],
+      lastChestClaimDate: '',
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -72,6 +78,12 @@ export class UsersService {
       grade,
       section,
       stats: this.getDefaultStats(),
+      coins: 60,
+      equippedTitle: 'Cadete de las Letras',
+      equippedFrame: 'frame-default',
+      unlockedAchievements: ['ach-welcome'],
+      claimedMissions: [],
+      lastChestClaimDate: '',
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -153,6 +165,44 @@ export class UsersService {
     const newXp = (currentStats.totalXp || 0) + attempt.xpEarned;
     const newLevel = Math.max(currentStats.currentLevel || 1, attempt.readingLevel + 1);
 
+    // Cálculo dinámico de racha por fechas
+    const now = new Date();
+    let newStreak = currentStats.streakDays || 0;
+    if (currentStats.lastReadingDate) {
+      const lastDate = new Date(currentStats.lastReadingDate);
+      const diffTime = Math.abs(now.getTime() - lastDate.getTime());
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      if (diffDays === 1) {
+        newStreak += 1;
+      } else if (diffDays > 1) {
+        newStreak = 1;
+      } else if (diffDays === 0 && newStreak === 0) {
+        newStreak = 1;
+      }
+    } else {
+      newStreak = 1;
+    }
+
+    // Monedas ganadas en este intento
+    let coinsWon = 20;
+    if (attempt.comprehensionScore === 100) coinsWon += 15;
+    else if (attempt.comprehensionScore >= 80) coinsWon += 8;
+    if (attempt.wpm >= 130) coinsWon += 10;
+    const newCoins = (user.coins || 0) + coinsWon;
+
+    // Desbloqueo progresivo de logros Kinal
+    const currentAchievements = new Set(user.unlockedAchievements || ['ach-welcome']);
+    if (newCompleted >= 1) currentAchievements.add('ach-first-step');
+    if (attempt.wpm >= 140) currentAchievements.add('ach-speed-140');
+    if (attempt.wpm >= 170) currentAchievements.add('ach-speed-170');
+    if (attempt.comprehensionScore === 100) currentAchievements.add('ach-perfect-comp');
+    if (newAvgComp >= 85 && newCompleted >= 3) currentAchievements.add('ach-critical-mind');
+    if (newStreak >= 3) currentAchievements.add('ach-streak-3');
+    if (newStreak >= 7) currentAchievements.add('ach-streak-7');
+    if (newCompleted >= 5) currentAchievements.add('ach-bibliophile');
+    if (newLevel >= 10) currentAchievements.add('ach-kinal-master');
+    if (newCoins >= 200) currentAchievements.add('ach-coins-200');
+
     const updatedStats: UserStats = {
       ...currentStats,
       totalXp: newXp,
@@ -160,14 +210,179 @@ export class UsersService {
       averageWpm: newAvgWpm,
       comprehensionRate: newAvgComp,
       completedReadings: newCompleted,
-      streakDays: Math.max(currentStats.streakDays || 1, 1),
+      streakDays: newStreak,
+      lastReadingDate: now,
     };
 
     await this.collection.updateOne(
       { _id: new ObjectId(id) },
-      { $set: { stats: updatedStats, updatedAt: new Date() } },
+      {
+        $set: {
+          stats: updatedStats,
+          coins: newCoins,
+          unlockedAchievements: Array.from(currentAchievements),
+          updatedAt: now,
+        },
+      },
     );
 
     return this.findById(id);
+  }
+
+  async getLeaderboard(grade?: string, section?: string, limit = 20): Promise<any[]> {
+    const filter: any = { role: 'STUDENT_ROLE' };
+    if (grade) filter.grade = grade;
+    if (section) filter.section = section;
+
+    const students = await this.collection
+      .find(filter)
+      .sort({ 'stats.totalXp': -1, 'stats.averageWpm': -1 })
+      .limit(limit)
+      .toArray();
+
+    return students.map((s, index) => ({
+      rank: index + 1,
+      id: s._id?.toString(),
+      name: s.name,
+      avatarUrl: s.avatarUrl,
+      grade: s.grade || 'Grado General',
+      section: s.section || 'A',
+      totalXp: s.stats?.totalXp || 0,
+      currentLevel: s.stats?.currentLevel || 1,
+      averageWpm: s.stats?.averageWpm || 0,
+      comprehensionRate: s.stats?.comprehensionRate || 0,
+      streakDays: s.stats?.streakDays || 0,
+      equippedTitle: s.equippedTitle || 'Cadete de las Letras',
+      equippedFrame: s.equippedFrame || 'frame-default',
+    }));
+  }
+
+  async claimDailyChest(id: string): Promise<{ success: boolean; message: string; xpWon?: number; coinsWon?: number; user?: any }> {
+    const user = await this.findById(id);
+    if (!user) return { success: false, message: 'Estudiante no encontrado' };
+
+    const todayStr = new Date().toISOString().slice(0, 10);
+    if (user.lastChestClaimDate === todayStr) {
+      return { success: false, message: 'Ya has reclamado tu cofre del día. ¡Vuelve mañana!' };
+    }
+
+    const xpWon = 65;
+    const coinsWon = 30;
+    const currentStats = user.stats || this.getDefaultStats();
+    const newStats: UserStats = {
+      ...currentStats,
+      totalXp: (currentStats.totalXp || 0) + xpWon,
+    };
+    const newCoins = (user.coins || 0) + coinsWon;
+
+    await this.collection.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          stats: newStats,
+          coins: newCoins,
+          lastChestClaimDate: todayStr,
+          updatedAt: new Date(),
+        },
+      },
+    );
+
+    const updated = await this.findById(id);
+    const { password, ...safeUser } = updated as any;
+    return {
+      success: true,
+      message: '¡Cofre abierto con éxito!',
+      xpWon,
+      coinsWon,
+      user: safeUser,
+    };
+  }
+
+  async claimMission(
+    id: string,
+    missionId: string,
+    rewardXp: number,
+    rewardCoins: number,
+  ): Promise<{ success: boolean; message: string; user?: any }> {
+    const user = await this.findById(id);
+    if (!user) return { success: false, message: 'Estudiante no encontrado' };
+
+    const claimed = user.claimedMissions || [];
+    if (claimed.includes(missionId)) {
+      return { success: false, message: 'Esta misión ya ha sido reclamada hoy' };
+    }
+
+    const currentStats = user.stats || this.getDefaultStats();
+    const newStats: UserStats = {
+      ...currentStats,
+      totalXp: (currentStats.totalXp || 0) + rewardXp,
+    };
+    const newCoins = (user.coins || 0) + rewardCoins;
+    const newClaimed = [...claimed, missionId];
+
+    await this.collection.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          stats: newStats,
+          coins: newCoins,
+          claimedMissions: newClaimed,
+          updatedAt: new Date(),
+        },
+      },
+    );
+
+    const updated = await this.findById(id);
+    const { password, ...safeUser } = updated as any;
+    return { success: true, message: '¡Recompensa de misión reclamada!', user: safeUser };
+  }
+
+  async updateCosmetics(
+    id: string,
+    equippedTitle?: string,
+    equippedFrame?: string,
+  ): Promise<any> {
+    const updateFields: any = { updatedAt: new Date() };
+    if (equippedTitle !== undefined) updateFields.equippedTitle = equippedTitle;
+    if (equippedFrame !== undefined) updateFields.equippedFrame = equippedFrame;
+
+    await this.collection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: updateFields },
+    );
+
+    const updated = await this.findById(id);
+    if (!updated) return null;
+    const { password, ...safeUser } = updated as any;
+    return safeUser;
+  }
+
+  async buyCosmetic(
+    id: string,
+    cost: number,
+    itemType: 'frame' | 'title',
+    itemId: string,
+  ): Promise<{ success: boolean; message: string; user?: any }> {
+    const user = await this.findById(id);
+    if (!user) return { success: false, message: 'Estudiante no encontrado' };
+
+    const currentCoins = user.coins || 0;
+    if (currentCoins < cost) {
+      return { success: false, message: 'No dispones de suficientes Monedas Kinal' };
+    }
+
+    const newCoins = currentCoins - cost;
+    const updateFields: any = { coins: newCoins, updatedAt: new Date() };
+    if (itemType === 'frame') updateFields.equippedFrame = itemId;
+    if (itemType === 'title') updateFields.equippedTitle = itemId;
+
+    await this.collection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: updateFields },
+    );
+
+    const updated = await this.findById(id);
+    const { password, ...safeUser } = updated as any;
+    return { success: true, message: '¡Artículo adquirido y equipado!', user: safeUser };
   }
 }
