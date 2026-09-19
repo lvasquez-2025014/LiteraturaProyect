@@ -14,8 +14,25 @@
       </div>
     </div>
 
+    <!-- Conmutador de Portales para el Administrador (Super-Acceso) -->
+    <nav class="admin-portal-switcher" *ngIf="user?.role === 'ADMIN_ROLE'">
+      <a routerLink="/admin" routerLinkActive="active-portal" class="portal-link" title="Panel de Cuentas y Permisos">
+        <span class="portal-icon">🛠️</span>
+        <span class="portal-text">Panel Admin</span>
+      </a>
+      <a routerLink="/profesor" routerLinkActive="active-portal" class="portal-link" title="Monitoreo de Aulas y Gestor de Lecturas">
+        <span class="portal-icon">👨‍🏫</span>
+        <span class="portal-text">Portal Docente</span>
+      </a>
+      <a routerLink="/estudiante" routerLinkActive="active-portal" class="portal-link" title="Mapa de Desafíos y Lecturas en Vivo">
+        <span class="portal-icon">🗺️</span>
+        <span class="portal-text">Aventura Estudiante</span>
+      </a>
+    </nav>
+
     <!-- User Information & Stats -->
     <div class="user-actions" *ngIf="user as u">
+
       <!-- Gamification pills for students -->
       <div class="gamification-pills" *ngIf="u.role === 'STUDENT_ROLE' && u.stats">
         <!-- Streak -->

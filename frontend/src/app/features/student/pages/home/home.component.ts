@@ -1,9 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { NavbarComponent } from '../../../../shared/components/navbar/navbar.component';
 import { AuthService } from '../../../../core/services/auth.service';
 import { GamificationService } from '../../../../core/services/gamification.service';
+import { ReadingsService } from '../../../../core/services/readings.service';
 import { ReadingRoadmapComponent } from '../../components/reading-roadmap/reading-roadmap.component';
 import { ReadingReaderComponent } from '../../components/reading-reader/reading-reader.component';
 import { RewardsCenterComponent } from '../../components/rewards-center/rewards-center.component';
@@ -33,6 +34,8 @@ import { environment } from '../../../../../environments/environment';
 export class StudentHomeComponent implements OnInit {
   auth = inject(AuthService);
   gamification = inject(GamificationService);
+  private readingsService = inject(ReadingsService);
+  private cdr = inject(ChangeDetectorRef);
   private http = inject(HttpClient);
 
   readings: Reading[] = [...KINAL_READINGS];
@@ -45,6 +48,16 @@ export class StudentHomeComponent implements OnInit {
   }
 
   get stats() {
+    if (this.auth.isAdmin()) {
+      return {
+        totalXp: 9999,
+        currentLevel: 10,
+        averageWpm: 250,
+        comprehensionRate: 100,
+        streakDays: 30,
+        completedReadings: this.readings.length || 10,
+      };
+    }
     return this.user?.stats || {
       totalXp: 0,
       currentLevel: 1,
@@ -57,14 +70,29 @@ export class StudentHomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.syncReadingsWithLevel();
+    this.readingsService.getReadings().subscribe({
+      next: (dbReadings) => {
+        if (dbReadings && dbReadings.length > 0) {
+          this.readings = dbReadings;
+        }
+        this.syncReadingsWithLevel();
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.warn('Usando lecturas locales de respaldo:', err);
+        this.syncReadingsWithLevel();
+        this.cdr.markForCheck();
+      },
+    });
   }
 
   private syncReadingsWithLevel(): void {
-    const userLevel = this.stats.currentLevel || 1;
+    const isAdmin = this.auth.isAdmin();
+    const userLevel = isAdmin ? 10 : (this.stats.currentLevel || 1);
     this.readings = this.readings.map((r) => ({
       ...r,
-      unlocked: r.level <= userLevel,
-      completed: r.level < userLevel,
+      unlocked: isAdmin ? true : r.level <= userLevel,
+      completed: isAdmin ? true : r.level < userLevel,
     }));
   }
 

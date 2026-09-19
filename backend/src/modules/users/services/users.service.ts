@@ -121,8 +121,12 @@ export class UsersService {
   }
 
   async delete(id: string): Promise<boolean> {
-    const result = await this.collection.deleteOne({ _id: new ObjectId(id) });
-    return result.deletedCount > 0;
+    try {
+      const result = await this.collection.deleteOne({ _id: new ObjectId(id) });
+      return result.deletedCount > 0;
+    } catch {
+      return false;
+    }
   }
 
   async updateRole(
@@ -131,17 +135,22 @@ export class UsersService {
     grade?: string,
     section?: string,
   ): Promise<UserDocument | null> {
-    const updateFields: any = { role, updatedAt: new Date() };
-    if (grade !== undefined) updateFields.grade = grade;
-    if (section !== undefined) updateFields.section = section;
+    try {
+      const updateFields: any = { role, updatedAt: new Date() };
+      if (grade !== undefined) updateFields.grade = grade;
+      if (section !== undefined) updateFields.section = section;
 
-    await this.collection.updateOne(
-      { _id: new ObjectId(id) },
-      { $set: updateFields },
-    );
+      await this.collection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: updateFields },
+      );
 
-    return this.findById(id);
+      return this.findById(id);
+    } catch {
+      return null;
+    }
   }
+
 
   async recordReadingAttempt(
     id: string,

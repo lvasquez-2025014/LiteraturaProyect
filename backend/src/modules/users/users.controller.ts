@@ -14,10 +14,13 @@ export class UsersController {
   @Roles('ADMIN_ROLE', 'TEACHER_ROLE')
   async getUsers(@Query('role') role?: UserRole) {
     const users = await this.usersService.findAll(role);
-    // Remove hashed passwords before sending
+    // Remove hashed passwords before sending y normalizar id
     return users.map((u) => {
       const { password, ...safeUser } = u;
-      return safeUser;
+      return {
+        ...safeUser,
+        id: u._id ? u._id.toString() : (u as any).id,
+      };
     });
   }
 
@@ -56,7 +59,10 @@ export class UsersController {
     );
 
     const { password: _, ...safeUser } = user;
-    return safeUser;
+    return {
+      ...safeUser,
+      id: user._id ? user._id.toString() : (user as any).id,
+    };
   }
 
   @Patch(':id/role')
@@ -65,6 +71,9 @@ export class UsersController {
     @Param('id') id: string,
     @Body() body: { role: UserRole; grade?: string; section?: string },
   ) {
+    if (!id || id === 'undefined' || id === 'null') {
+      throw new BadRequestException('ID de estudiante o docente no válido');
+    }
     if (!body.role) {
       throw new BadRequestException('El rol es obligatorio');
     }
@@ -73,15 +82,22 @@ export class UsersController {
       throw new BadRequestException('Estudiante o docente no encontrado');
     }
     const { password, ...safeUser } = updated;
-    return safeUser;
+    return {
+      ...safeUser,
+      id: updated._id ? updated._id.toString() : (updated as any).id,
+    };
   }
 
   @Delete(':id')
   @Roles('ADMIN_ROLE')
   async deleteUser(@Param('id') id: string) {
+    if (!id || id === 'undefined' || id === 'null') {
+      throw new BadRequestException('ID no válido');
+    }
     const deleted = await this.usersService.delete(id);
     return { success: deleted };
   }
+
 
   @Post(':id/reading-attempt')
   @Roles('STUDENT_ROLE', 'TEACHER_ROLE', 'ADMIN_ROLE')

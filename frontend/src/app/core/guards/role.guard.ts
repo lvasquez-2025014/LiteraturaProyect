@@ -15,7 +15,8 @@ export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
     return false;
   }
 
-  if (expectedRoles && expectedRoles.includes(user.role)) {
+  // Administrador tiene super-acceso a todos los portales
+  if (user.role === 'ADMIN_ROLE' || (expectedRoles && expectedRoles.includes(user.role))) {
     return true;
   }
 
@@ -23,3 +24,4 @@ export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   auth.redirectByRole();
   return false;
 };
+

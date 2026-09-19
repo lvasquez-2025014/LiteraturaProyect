@@ -67,6 +67,43 @@
   gap: 18px;
 }
 
+/* Admin Portal Switcher (Super-Access) */
+.admin-portal-switcher {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.portal-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #64748b;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.portal-link:hover {
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--kinal-dark-blue);
+}
+
+.portal-link.active-portal {
+  background: #ffffff;
+  color: var(--kinal-blue);
+  box-shadow: 0 2px 8px rgba(0, 74, 173, 0.15);
+}
+
+
 .gamification-pills {
   display: flex;
   align-items: center;
@@ -256,9 +293,16 @@
   .user-sub, .logout-text, .pill-unit {
     display: none;
   }
+  .admin-portal-switcher .portal-text {
+    display: none;
+  }
+  .portal-link {
+    padding: 6px 8px;
+  }
   .user-actions {
     gap: 10px;
   }
+
   .gamification-pills {
     gap: 5px;
   }

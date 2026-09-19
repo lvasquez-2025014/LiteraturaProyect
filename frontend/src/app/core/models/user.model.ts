@@ -12,6 +12,7 @@ export interface UserStats {
 
 export interface User {
   id: string;
+  _id?: string;
   email: string;
   name: string;
   role: UserRole;

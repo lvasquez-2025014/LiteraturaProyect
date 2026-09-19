@@ -128,11 +128,20 @@ export class GamificationService {
   // Lista de logros con estado desbloqueado dinámico
   readonly computedAchievements = computed(() => {
     const user = this.currentUser();
+    const isAdmin = user?.role === 'ADMIN_ROLE';
     const unlockedIds = new Set(user?.unlockedAchievements || ['ach-welcome']);
     const stats = user?.stats;
     const coins = user?.coins || 0;
 
     return this.achievementsList().map((ach) => {
+      if (isAdmin) {
+        return {
+          ...ach,
+          unlocked: true,
+          progress: 100,
+        };
+      }
+
       let isUnlocked = unlockedIds.has(ach.id);
       let progress = isUnlocked ? 100 : 0;
 
@@ -168,6 +177,8 @@ export class GamificationService {
   // Estado del Cofre Diario
   readonly canClaimDailyChest = computed(() => {
     const user = this.currentUser();
+    if (user?.role === 'ADMIN_ROLE') return true;
+
     if (!user) return false;
     const todayStr = new Date().toISOString().slice(0, 10);
     return user.lastChestClaimDate !== todayStr;

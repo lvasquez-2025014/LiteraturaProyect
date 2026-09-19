@@ -2,6 +2,11 @@
 
 <main class="teacher-dashboard">
   <div class="dashboard-container">
+
+    <!-- Toast Notification -->
+    <div *ngIf="toastMessage" class="toast-notification" [class.toast-error]="toastType === 'error'">
+      <span>{{ toastMessage }}</span>
+    </div>
     
     <!-- Teacher Welcome Banner -->
     <div class="welcome-banner">
@@ -11,13 +16,13 @@
             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
             <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
           </svg>
-          <span>Portal Docente • Monitoreo Académico de Fluidez</span>
+          <span>Portal Docente • Monitoreo Académico y Contenido</span>
         </div>
         <h1 class="banner-title">
           Bienvenido, {{ user?.name || 'Profesor' }}
         </h1>
         <p class="banner-sub">
-          Supervisión en vivo del rendimiento lector por grado y sección. Analiza las palabras por minuto (PPM) y el índice de comprensión de tus alumnos.
+          Supervisión del rendimiento lector por grado y sección, y administración directa del catálogo pedagógico de lecturas para tus alumnos.
         </p>
       </div>
 
@@ -28,282 +33,497 @@
       </div>
     </div>
 
-    <!-- 4 Group KPI Cards -->
-    <div class="metrics-grid">
-      <!-- Metric 1: Group Average WPM -->
-      <div class="metric-card">
-        <div class="metric-info">
-          <span class="metric-title">Promedio de Salón (PPM)</span>
-          <div class="metric-value-row">
-            <span class="metric-num text-navy">{{ averageWpm }}</span>
-            <span class="metric-unit">PPM</span>
+    <!-- Navigation Tabs Switcher -->
+    <div class="tabs-header">
+      <button 
+        type="button"
+        class="tab-btn" 
+        [class.active]="activeTab === 'students'" 
+        (click)="setTab('students')">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        <span>📊 Monitoreo de Alumnos ({{ students.length }})</span>
+      </button>
+
+      <button 
+        type="button"
+        class="tab-btn" 
+        [class.active]="activeTab === 'readings'" 
+        (click)="setTab('readings')">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+        </svg>
+        <span>📚 Gestor de Lecturas Kinal ({{ readings.length }})</span>
+      </button>
+    </div>
+
+    <!-- TAB 1: MONITOREO DE ALUMNOS -->
+    <ng-container *ngIf="activeTab === 'students'">
+      <!-- 4 Group KPI Cards -->
+      <div class="metrics-grid">
+        <!-- Metric 1: Group Average WPM -->
+        <div class="metric-card">
+          <div class="metric-info">
+            <span class="metric-title">Promedio de Salón (PPM)</span>
+            <div class="metric-value-row">
+              <span class="metric-num text-navy">{{ averageWpm }}</span>
+              <span class="metric-unit">PPM</span>
+            </div>
+            <p class="metric-target target-positive">
+              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.2" fill="none">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                <polyline points="17 6 23 6 23 12"></polyline>
+              </svg>
+              <span>Meta institucional: 150 PPM</span>
+            </p>
           </div>
-          <p class="metric-target target-positive">
-            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.2" fill="none">
-              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-              <polyline points="17 6 23 6 23 12"></polyline>
+          <div class="metric-icon-wrap icon-blue">
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="#004AAD" stroke-width="2" fill="none">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M12 6v6l4 2"></path>
             </svg>
-            <span>Meta institucional: 150 PPM</span>
-          </p>
-        </div>
-        <div class="metric-icon-wrap icon-blue">
-          <svg viewBox="0 0 24 24" width="24" height="24" stroke="#004AAD" stroke-width="2" fill="none">
-            <circle cx="12" cy="12" r="10"></circle>
-            <path d="M12 6v6l4 2"></path>
-          </svg>
-        </div>
-      </div>
-
-      <!-- Metric 2: Comprehension -->
-      <div class="metric-card">
-        <div class="metric-info">
-          <span class="metric-title">Comprensión Promedio</span>
-          <div class="metric-value-row">
-            <span class="metric-num text-blue">{{ averageComprehension }}%</span>
-            <span class="metric-unit">Aciertos</span>
           </div>
-          <p class="metric-target text-slate">
-            En cuestionarios de comprensión
-          </p>
         </div>
-        <div class="metric-icon-wrap icon-emerald">
-          <svg viewBox="0 0 24 24" width="24" height="24" stroke="#10b981" stroke-width="2" fill="none">
-            <circle cx="12" cy="12" r="10"></circle>
-            <circle cx="12" cy="12" r="6"></circle>
-            <circle cx="12" cy="12" r="2"></circle>
-          </svg>
-        </div>
-      </div>
 
-      <!-- Metric 3: Total Students Filtered -->
-      <div class="metric-card">
-        <div class="metric-info">
-          <span class="metric-title">Estudiantes Asignados</span>
-          <div class="metric-value-row">
-            <span class="metric-num text-navy">{{ filteredStudents.length }}</span>
-            <span class="metric-unit">Alumnos</span>
+        <!-- Metric 2: Comprehension -->
+        <div class="metric-card">
+          <div class="metric-info">
+            <span class="metric-title">Comprensión Promedio</span>
+            <div class="metric-value-row">
+              <span class="metric-num text-blue">{{ averageComprehension }}%</span>
+              <span class="metric-unit">Aciertos</span>
+            </div>
+            <p class="metric-target text-slate">
+              En cuestionarios de comprensión
+            </p>
           </div>
-          <p class="metric-target text-slate">
-            Registrados en este filtro
-          </p>
+          <div class="metric-icon-wrap icon-emerald">
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="#10b981" stroke-width="2" fill="none">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="6"></circle>
+              <circle cx="12" cy="12" r="2"></circle>
+            </svg>
+          </div>
         </div>
-        <div class="metric-icon-wrap icon-amber">
-          <svg viewBox="0 0 24 24" width="24" height="24" stroke="#f59e0b" stroke-width="2" fill="none">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-            <circle cx="9" cy="7" r="4"></circle>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-          </svg>
-        </div>
-      </div>
 
-      <!-- Metric 4: Active Habit Streaks -->
-      <div class="metric-card">
-        <div class="metric-info">
-          <span class="metric-title">Rachas Activas (≥3d)</span>
-          <div class="metric-value-row">
-            <span class="metric-num text-orange">{{ activeStreaksCount }}</span>
-            <span class="metric-unit">Alumnos</span>
+        <!-- Metric 3: Total Students Filtered -->
+        <div class="metric-card">
+          <div class="metric-info">
+            <span class="metric-title">Estudiantes Asignados</span>
+            <div class="metric-value-row">
+              <span class="metric-num text-navy">{{ filteredStudents.length }}</span>
+              <span class="metric-unit">Alumnos</span>
+            </div>
+            <p class="metric-target text-slate">
+              Registrados en este filtro
+            </p>
           </div>
-          <p class="metric-target target-orange">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="#F36F21" stroke="#F36F21" stroke-width="2">
+          <div class="metric-icon-wrap icon-amber">
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="#f59e0b" stroke-width="2" fill="none">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Metric 4: Active Habit Streaks -->
+        <div class="metric-card">
+          <div class="metric-info">
+            <span class="metric-title">Rachas Activas (≥3d)</span>
+            <div class="metric-value-row">
+              <span class="metric-num text-orange">{{ activeStreaksCount }}</span>
+              <span class="metric-unit">Alumnos</span>
+            </div>
+            <p class="metric-target target-orange">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="#F36F21" stroke="#F36F21" stroke-width="2">
+                <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
+              </svg>
+              <span>Hábito constante</span>
+            </p>
+          </div>
+          <div class="metric-icon-wrap icon-orange">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="#F36F21" stroke="#F36F21" stroke-width="2">
               <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
             </svg>
-            <span>Hábito constante</span>
-          </p>
-        </div>
-        <div class="metric-icon-wrap icon-orange">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="#F36F21" stroke="#F36F21" stroke-width="2">
-            <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
-          </svg>
-        </div>
-      </div>
-    </div>
-
-    <!-- Filters & Search Toolbar -->
-    <div class="toolbar-card">
-      <div class="toolbar-flex">
-        <!-- Search Box -->
-        <div class="search-box">
-          <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <input
-            type="text"
-            [(ngModel)]="searchQuery"
-            placeholder="Buscar estudiante por nombre o correo..."
-            class="search-input"
-          />
-        </div>
-
-        <!-- Grade & Section Filters -->
-        <div class="filters-group">
-          <div class="filter-item">
-            <label for="grade-select" class="filter-label">Grado:</label>
-            <select id="grade-select" [(ngModel)]="selectedGrade" class="filter-select">
-              <option value="all">Todos los Grados</option>
-              <option value="Computación">5to Perito en Computación</option>
-              <option value="Electricidad">5to Perito en Electricidad</option>
-              <option value="Mecánica">5to Perito en Mecánica</option>
-              <option value="Bachillerato">4to Bachillerato</option>
-            </select>
           </div>
-
-          <div class="filter-item">
-            <label for="section-select" class="filter-label">Sección:</label>
-            <select id="section-select" [(ngModel)]="selectedSection" class="filter-select">
-              <option value="all">Todas</option>
-              <option value="A">Sección A</option>
-              <option value="B">Sección B</option>
-              <option value="C">Sección C</option>
-            </select>
-          </div>
-
-          <button (click)="loadStudents()" class="btn-refresh" [disabled]="loading" title="Actualizar Datos">
-            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.2" fill="none">
-              <polyline points="23 4 23 10 17 10"></polyline>
-              <polyline points="1 20 1 14 7 14"></polyline>
-              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-            </svg>
-            <span>Actualizar</span>
-          </button>
         </div>
       </div>
-    </div>
 
-    <!-- Table of Students -->
-    <div class="table-card">
-      <div class="table-header">
-        <div>
-          <h3 class="table-title">Tabla de Rendimiento por Estudiante</h3>
-          <p class="table-sub">Haz clic en cualquier estudiante para consultar su historial detallado y gráficas semanales.</p>
-        </div>
-        <span class="count-badge">
-          {{ filteredPerformance.length }} Alumnos Encontrados
-        </span>
-      </div>
-
-      <div *ngIf="loading" class="loading-state">
-        <div class="spinner"></div>
-        <p>Cargando información de estudiantes desde MongoDB...</p>
-      </div>
-
-      <div class="table-responsive" *ngIf="!loading">
-        <table class="data-table" *ngIf="filteredPerformance.length > 0; else noStudents">
-          <thead>
-            <tr>
-              <th>Estudiante</th>
-              <th>Grado y Sección</th>
-              <th class="text-center">Velocidad (PPM)</th>
-              <th>Comprensión</th>
-              <th class="text-center">Racha</th>
-              <th class="text-center">Estado</th>
-              <th class="text-right">Acción</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              *ngFor="let item of filteredPerformance"
-              (click)="openStudentModal(item)"
-              class="table-row-clickable"
-            >
-              <!-- Student Info -->
-              <td>
-                <div class="student-cell">
-                  <div class="student-avatar">
-                    {{ item.student.name ? item.student.name.charAt(0).toUpperCase() : 'E' }}
-                  </div>
-                  <div class="student-info">
-                    <span class="student-name">{{ item.student.name }}</span>
-                    <span class="student-email">{{ item.student.email }}</span>
-                  </div>
-                </div>
-              </td>
-
-              <!-- Grade & Section -->
-              <td>
-                <div class="grade-cell">
-                  <span class="grade-main">{{ item.student.grade || 'Nivel Diversificado' }}</span>
-                  <span class="grade-sub">Sección {{ item.student.section || 'A' }}</span>
-                </div>
-              </td>
-
-              <!-- WPM -->
-              <td class="text-center">
-                <span class="wpm-value">{{ item.averageWpm }}</span>
-                <span class="wpm-sub">PPM</span>
-              </td>
-
-              <!-- Comprehension Bar -->
-              <td>
-                <div class="comp-wrapper">
-                  <span class="comp-percent">{{ item.comprehensionRate }}%</span>
-                  <div class="comp-bar-track">
-                    <div
-                      class="comp-bar-fill"
-                      [style.width.%]="item.comprehensionRate"
-                      [class.fill-emerald]="item.comprehensionRate >= 80"
-                      [class.fill-blue]="item.comprehensionRate >= 65 && item.comprehensionRate < 80"
-                      [class.fill-amber]="item.comprehensionRate < 65"
-                    ></div>
-                  </div>
-                </div>
-              </td>
-
-              <!-- Streak -->
-              <td class="text-center">
-                <span class="streak-badge">
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="#F36F21" stroke="#F36F21">
-                    <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
-                  </svg>
-                  <span>{{ item.streakDays }}d</span>
-                </span>
-              </td>
-
-              <!-- Status -->
-              <td class="text-center">
-                <span
-                  class="status-tag"
-                  [class.status-destacado]="item.status === 'Destacado'"
-                  [class.status-progreso]="item.status === 'En Progreso'"
-                  [class.status-atencion]="item.status === 'Atención Requerida'"
-                >
-                  {{ item.status }}
-                </span>
-              </td>
-
-              <!-- Action -->
-              <td class="text-right">
-                <button
-                  type="button"
-                  class="btn-detail"
-                  (click)="openStudentModal(item); $event.stopPropagation()"
-                >
-                  <span>Ver Ficha</span>
-                  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none">
-                    <line x1="7" y1="17" x2="17" y2="7"></line>
-                    <polyline points="7 7 17 7 17 17"></polyline>
-                  </svg>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <ng-template #noStudents>
-          <div class="empty-state">
-            <svg viewBox="0 0 24 24" width="48" height="48" stroke="#94A3B8" stroke-width="1.5" fill="none">
+      <!-- Filters & Search Toolbar -->
+      <div class="toolbar-card">
+        <div class="toolbar-flex">
+          <!-- Search Box -->
+          <div class="search-box">
+            <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-            <h4>No se encontraron estudiantes</h4>
-            <p>Intenta ajustar los filtros de grado o el término de búsqueda.</p>
+            <input
+              type="text"
+              [(ngModel)]="searchQuery"
+              placeholder="Buscar estudiante por nombre o correo..."
+              class="search-input"
+            />
           </div>
-        </ng-template>
+
+          <!-- Grade & Section Filters -->
+          <div class="filters-group">
+            <div class="filter-item">
+              <label for="grade-select" class="filter-label">Grado:</label>
+              <select id="grade-select" [(ngModel)]="selectedGrade" class="filter-select">
+                <option value="all">Todos los Grados</option>
+                <option value="Computación">5to Perito en Computación</option>
+                <option value="Electricidad">5to Perito en Electricidad</option>
+                <option value="Mecánica">5to Perito en Mecánica</option>
+                <option value="Bachillerato">4to Bachillerato</option>
+              </select>
+            </div>
+
+            <div class="filter-item">
+              <label for="section-select" class="filter-label">Sección:</label>
+              <select id="section-select" [(ngModel)]="selectedSection" class="filter-select">
+                <option value="all">Todas</option>
+                <option value="A">Sección A</option>
+                <option value="B">Sección B</option>
+                <option value="C">Sección C</option>
+              </select>
+            </div>
+
+            <button (click)="loadStudents()" class="btn-refresh" [disabled]="loading" title="Actualizar Datos">
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.2" fill="none">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+              <span>Actualizar</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table of Students -->
+      <div class="table-card">
+        <div class="table-header">
+          <div>
+            <h3 class="table-title">Tabla de Rendimiento por Estudiante</h3>
+            <p class="table-sub">Haz clic en cualquier estudiante para consultar su historial detallado y métricas individuales.</p>
+          </div>
+          <span class="count-badge">
+            {{ filteredPerformance.length }} Alumnos Encontrados
+          </span>
+        </div>
+
+        <div *ngIf="loading" class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando información de estudiantes desde MongoDB...</p>
+        </div>
+
+        <div class="table-responsive" *ngIf="!loading">
+          <table class="data-table" *ngIf="filteredPerformance.length > 0; else noStudents">
+            <thead>
+              <tr>
+                <th>Estudiante</th>
+                <th>Grado y Sección</th>
+                <th class="text-center">Velocidad (PPM)</th>
+                <th>Comprensión</th>
+                <th class="text-center">Racha</th>
+                <th class="text-center">Estado</th>
+                <th class="text-right">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let item of filteredPerformance"
+                (click)="openStudentModal(item)"
+                class="table-row-clickable"
+              >
+                <!-- Student Info -->
+                <td>
+                  <div class="student-cell">
+                    <div class="student-avatar">
+                      {{ item.student.name ? item.student.name.charAt(0).toUpperCase() : 'E' }}
+                    </div>
+                    <div class="student-info">
+                      <span class="student-name">{{ item.student.name }}</span>
+                      <span class="student-email">{{ item.student.email }}</span>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Grade & Section -->
+                <td>
+                  <div class="grade-cell">
+                    <span class="grade-main">{{ item.student.grade || 'Nivel Diversificado' }}</span>
+                    <span class="grade-sub">Sección {{ item.student.section || 'A' }}</span>
+                  </div>
+                </td>
+
+                <!-- WPM -->
+                <td class="text-center">
+                  <span class="wpm-value">{{ item.averageWpm }}</span>
+                  <span class="wpm-sub">PPM</span>
+                </td>
+
+                <!-- Comprehension Bar -->
+                <td>
+                  <div class="comp-wrapper">
+                    <span class="comp-percent">{{ item.comprehensionRate }}%</span>
+                    <div class="comp-bar-track">
+                      <div
+                        class="comp-bar-fill"
+                        [style.width.%]="item.comprehensionRate"
+                        [class.fill-emerald]="item.comprehensionRate >= 80"
+                        [class.fill-blue]="item.comprehensionRate >= 65 && item.comprehensionRate < 80"
+                        [class.fill-amber]="item.comprehensionRate < 65"
+                      ></div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Streak -->
+                <td class="text-center">
+                  <span class="streak-badge">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="#F36F21" stroke="#F36F21">
+                      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
+                    </svg>
+                    <span>{{ item.streakDays }}d</span>
+                  </span>
+                </td>
+
+                <!-- Status -->
+                <td class="text-center">
+                  <span
+                    class="status-tag"
+                    [class.status-destacado]="item.status === 'Destacado'"
+                    [class.status-progreso]="item.status === 'En Progreso'"
+                    [class.status-atencion]="item.status === 'Atención Requerida'"
+                  >
+                    {{ item.status }}
+                  </span>
+                </td>
+
+                <!-- Action -->
+                <td class="text-right">
+                  <button
+                    type="button"
+                    class="btn-detail"
+                    (click)="openStudentModal(item); $event.stopPropagation()"
+                  >
+                    <span>Ver Ficha</span>
+                    <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none">
+                      <line x1="7" y1="17" x2="17" y2="7"></line>
+                      <polyline points="7 7 17 7 17 17"></polyline>
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <ng-template #noStudents>
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24" width="48" height="48" stroke="#94A3B8" stroke-width="1.5" fill="none">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <h4>No se encontraron estudiantes</h4>
+              <p>Intenta ajustar los filtros de grado o el término de búsqueda.</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- TAB 2: GESTOR DE LECTURAS KINAL -->
+    <ng-container *ngIf="activeTab === 'readings'">
+      <div class="readings-manager-card">
+        <div class="readings-manager-header">
+          <div>
+            <h2 class="readings-title">Catálogo Pedagógico de Lecturas</h2>
+            <p class="readings-subtitle">
+              Administra el contenido que leen los estudiantes en su ruta de fluidez. Cada lectura impacta en el cálculo de PPM y comprensión.
+            </p>
+          </div>
+          <button type="button" class="btn-primary-kinal" (click)="openCreateReadingModal()">
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>➕ Nueva Lectura</span>
+          </button>
+        </div>
+
+        <div class="readings-grid">
+          <div *ngFor="let r of readings" class="reading-admin-card">
+            <div class="reading-card-top">
+              <span class="reading-level-pill">Nivel {{ r.level }}</span>
+              <span class="reading-genre-pill">{{ r.genre }}</span>
+              <span class="reading-diff-pill">{{ r.difficulty || 'Intermedio' }}</span>
+            </div>
+
+            <h3 class="reading-card-title">{{ r.title }}</h3>
+            
+            <p class="reading-card-snippet">
+              {{ r.content.slice(0, 160) }}...
+            </p>
+
+            <div class="reading-card-meta">
+              <span class="meta-item">
+                <strong>⚡ Meta:</strong> {{ r.targetWpm }} PPM
+              </span>
+              <span class="meta-item">
+                <strong>📖 Palabras:</strong> {{ r.wordCount }}
+              </span>
+              <span class="meta-item">
+                <strong>❓ Preguntas:</strong> {{ r.questions?.length || 0 }}
+              </span>
+              <span class="meta-item">
+                <strong>⭐ Recompensa:</strong> +{{ r.xpReward || 100 }} XP
+              </span>
+            </div>
+
+            <div class="reading-card-actions">
+              <button type="button" class="btn-reading-edit" (click)="openEditReadingModal(r)">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                  <path d="M12 20h9"></path>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+                <span>Editar</span>
+              </button>
+              <button type="button" class="btn-reading-delete" (click)="deleteReading(r, $event)">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                <span>Eliminar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+  </div>
+
+  <!-- Modal: Crear / Editar Lectura -->
+  <div *ngIf="isReadingModalOpen" class="modal-backdrop" (click)="closeReadingModal()">
+    <div class="modal-dialog-large glass-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3>{{ isEditingReading ? '✏️ Editar Lectura Pedagógica' : '➕ Nueva Lectura Pedagógica' }}</h3>
+          <p class="modal-subtitle">Configura los parámetros de lectura, el texto base y las preguntas de comprensión evaluativa.</p>
+        </div>
+        <button type="button" class="btn-modal-close" (click)="closeReadingModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <form (ngSubmit)="saveReadingForm()" class="reading-form">
+          <div class="form-row">
+            <div class="form-group flex-2">
+              <label>Título de la Lectura *</label>
+              <input type="text" [(ngModel)]="readingFormData.title" name="title" placeholder="Ej: Leyenda de la Tatuana" required class="form-input" />
+            </div>
+
+            <div class="form-group flex-1">
+              <label>Nivel de Aventura (1 - 10) *</label>
+              <select [(ngModel)]="readingFormData.level" name="level" class="form-input">
+                <option *ngFor="let lvl of [1,2,3,4,5,6,7,8,9,10]" [value]="lvl">Nivel {{ lvl }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label>Género / Temática</label>
+              <input type="text" [(ngModel)]="readingFormData.genre" name="genre" placeholder="Ej: Fábulas, Historia de Guatemala" class="form-input" />
+            </div>
+
+            <div class="form-group flex-1">
+              <label>Meta PPM (Palabras/Minuto)</label>
+              <input type="number" [(ngModel)]="readingFormData.targetWpm" name="targetWpm" min="50" max="400" class="form-input" />
+            </div>
+
+            <div class="form-group flex-1">
+              <label>Recompensa XP</label>
+              <input type="number" [(ngModel)]="readingFormData.xpReward" name="xpReward" min="10" max="500" class="form-input" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label>Dificultad</label>
+              <select [(ngModel)]="readingFormData.difficulty" name="difficulty" class="form-input">
+                <option value="Básico">Básico</option>
+                <option value="Intermedio">Intermedio</option>
+                <option value="Avanzado">Avanzado</option>
+              </select>
+            </div>
+
+            <div class="form-group flex-1">
+              <label>Autor / Adaptador</label>
+              <input type="text" [(ngModel)]="readingFormData.author" name="author" class="form-input" />
+            </div>
+
+            <div class="form-group flex-1">
+              <label>Fuente Pedagógica</label>
+              <input type="text" [(ngModel)]="readingFormData.pedagogicalSource" name="pedagogicalSource" class="form-input" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Texto Completo para Lectura en Voz Alta *</label>
+            <textarea [(ngModel)]="readingFormData.content" name="content" rows="6" placeholder="Pega o redacta aquí la lectura que los estudiantes leerán con el micrófono..." required class="form-textarea"></textarea>
+          </div>
+
+          <!-- Questions section -->
+          <div class="questions-section">
+            <div class="questions-header">
+              <h4>❓ Cuestionario de Comprensión Lector ({{ readingFormData.questions.length }})</h4>
+              <button type="button" class="btn-add-question" (click)="addQuestionToForm()">
+                ➕ Agregar Pregunta
+              </button>
+            </div>
+
+            <div *ngFor="let q of readingFormData.questions; let qIdx = index" class="question-builder-card">
+              <div class="question-card-header">
+                <span class="q-number">Pregunta #{{ qIdx + 1 }}</span>
+                <button type="button" class="btn-remove-q" (click)="removeQuestionFromForm(qIdx)">
+                  🗑️ Eliminar
+                </button>
+              </div>
+
+              <div class="form-group">
+                <input type="text" [(ngModel)]="q.prompt" [name]="'q_prompt_' + qIdx" placeholder="¿Cuál es la idea principal del texto?" class="form-input" />
+              </div>
+
+              <div class="options-grid">
+                <div *ngFor="let opt of q.options; let optIdx = index; trackBy: trackByFn" class="option-item">
+                  <label class="option-radio-label">
+                    <input type="radio" [name]="'q_correct_' + qIdx" [value]="optIdx" [(ngModel)]="q.correctIndex" />
+                    <span>Correcta</span>
+                  </label>
+                  <input type="text" [(ngModel)]="q.options[optIdx]" [name]="'q_opt_' + qIdx + '_' + optIdx" [placeholder]="'Opción ' + (optIdx + 1)" class="form-input-opt" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-cancel" (click)="closeReadingModal()">Cancelar</button>
+            <button type="submit" class="btn-save" [disabled]="readingModalLoading">
+              {{ readingModalLoading ? 'Guardando...' : (isEditingReading ? '💾 Actualizar Lectura' : '💾 Guardar Nueva Lectura') }}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
-
   </div>
 
   <!-- Student Detail Modal -->
@@ -313,3 +533,4 @@
     (close)="closeStudentModal()"
   ></app-student-detail-modal>
 </main>
+

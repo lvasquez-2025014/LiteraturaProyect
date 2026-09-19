@@ -26,6 +26,10 @@
         </button>
       </div>
 
+      <div *ngIf="successMessage" class="alert-success-banner">
+        <span>✅ {{ successMessage }}</span>
+      </div>
+
       <div *ngIf="loading" class="loading-state">
         <span class="mini-spinner"></span>
         <p>Cargando información de estudiantes y docentes...</p>
@@ -55,7 +59,7 @@
               <td>
                 <select [value]="u.role" (change)="onRoleChange(u, $any($event.target).value)" class="role-select"
                   [class.role-student]="u.role === 'STUDENT_ROLE'" [class.role-teacher]="u.role === 'TEACHER_ROLE'"
-                  [class.role-admin]="u.role === 'ADMIN_ROLE'" [disabled]="u.id === auth.currentUserSignal()?.id">
+                  [class.role-admin]="u.role === 'ADMIN_ROLE'" [disabled]="(u.id || u._id) === auth.currentUserSignal()?.id">
                   <option value="STUDENT_ROLE">Alumno (Estudiante)</option>
                   <option value="TEACHER_ROLE">Profesor (Docente)</option>
                   <option value="ADMIN_ROLE">Administrador</option>
@@ -63,7 +67,7 @@
               </td>
               <td>{{ u.grade ? u.grade + ' "' + (u.section || 'A') + '"' : 'N/A' }}</td>
               <td>
-                <button *ngIf="u.id !== auth.currentUserSignal()?.id" (click)="onDeleteUser(u.id)" class="btn-delete"
+                <button *ngIf="(u.id || u._id) !== auth.currentUserSignal()?.id" (click)="onDeleteUser(u)" class="btn-delete"
                   title="Dar de baja esta cuenta">
                   🗑️ Eliminar
                 </button>
@@ -72,6 +76,7 @@
           </tbody>
         </table>
       </div>
+
     </div>
   </div>
 </main>
