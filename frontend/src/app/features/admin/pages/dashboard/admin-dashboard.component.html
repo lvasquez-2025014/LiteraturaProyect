@@ -1,0 +1,129 @@
+<app-navbar></app-navbar>
+
+<main class="admin-dashboard">
+  <div class="dashboard-container">
+    <div class="dashboard-header">
+      <div>
+        <span class="header-badge">Panel de Administración</span>
+        <h1>Control Global de Estudiantes y Docentes</h1>
+        <p class="header-sub">Gestión de cuentas institucionales, docentes y permisos del sistema</p>
+      </div>
+
+      <button (click)="showCreateModal = true" class="btn btn-primary">
+        <span>➕ Nuevo Estudiante / Docente</span>
+      </button>
+    </div>
+
+    <!-- Users Table Card -->
+    <div class="table-card glass-panel">
+      <div class="table-header">
+        <div>
+          <h3>Estudiantes y Docentes Registrados</h3>
+          <span class="table-sub">Directorio de cuentas activas en la plataforma escolar</span>
+        </div>
+        <button (click)="loadUsers()" class="btn btn-secondary btn-sm" [disabled]="loading">
+          <span>🔄 Recargar</span>
+        </button>
+      </div>
+
+      <div *ngIf="loading" class="loading-state">
+        <span class="mini-spinner"></span>
+        <p>Cargando información de estudiantes y docentes...</p>
+      </div>
+
+      <div class="table-responsive" *ngIf="!loading">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Estudiante / Docente</th>
+              <th>Correo Electrónico</th>
+              <th>Rol Asignado</th>
+              <th>Grado / Sección</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let u of users">
+              <td class="user-cell">
+                <div class="avatar-sm">
+                  <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" [alt]="u.name" />
+                  <span *ngIf="!u.avatarUrl">{{ u.name.charAt(0) }}</span>
+                </div>
+                <span class="user-title">{{ u.name }}</span>
+              </td>
+              <td class="email-cell">{{ u.email }}</td>
+              <td>
+                <select [value]="u.role" (change)="onRoleChange(u, $any($event.target).value)" class="role-select"
+                  [class.role-student]="u.role === 'STUDENT_ROLE'" [class.role-teacher]="u.role === 'TEACHER_ROLE'"
+                  [class.role-admin]="u.role === 'ADMIN_ROLE'" [disabled]="u.id === auth.currentUserSignal()?.id">
+                  <option value="STUDENT_ROLE">Alumno (Estudiante)</option>
+                  <option value="TEACHER_ROLE">Profesor (Docente)</option>
+                  <option value="ADMIN_ROLE">Administrador</option>
+                </select>
+              </td>
+              <td>{{ u.grade ? u.grade + ' "' + (u.section || 'A') + '"' : 'N/A' }}</td>
+              <td>
+                <button *ngIf="u.id !== auth.currentUserSignal()?.id" (click)="onDeleteUser(u.id)" class="btn-delete"
+                  title="Dar de baja esta cuenta">
+                  🗑️ Eliminar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Registrar Docente o Estudiante Modal -->
+<div class="modal-backdrop" *ngIf="showCreateModal">
+  <div class="modal-dialog glass-panel fade-in">
+    <div class="modal-header">
+      <h3>Registrar Estudiante o Docente</h3>
+      <button (click)="showCreateModal = false" class="btn-close">✕</button>
+    </div>
+
+    <form [formGroup]="userForm" (ngSubmit)="onCreateUser()" class="modal-body">
+      <div class="form-group">
+        <label>Nombre Completo</label>
+        <input type="text" formControlName="name" class="form-control" placeholder="Ej. Prof. Mario Estrada" />
+      </div>
+
+      <div class="form-group">
+        <label>Correo Institucional</label>
+        <input type="email" formControlName="email" class="form-control" placeholder="ejemplo@colegio.edu" />
+      </div>
+
+      <div class="form-group">
+        <label>Contraseña Inicial</label>
+        <input type="password" formControlName="password" class="form-control" />
+      </div>
+
+      <div class="form-group">
+        <label>Rol del Sistema</label>
+        <select formControlName="role" class="form-control">
+          <option value="TEACHER_ROLE">Profesor / Docente</option>
+          <option value="ADMIN_ROLE">Administrador</option>
+          <option value="STUDENT_ROLE">Estudiante</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Grado</label>
+          <input type="text" formControlName="grade" class="form-control" placeholder="5to Perito" />
+        </div>
+        <div class="form-group">
+          <label>Sección</label>
+          <input type="text" formControlName="section" class="form-control" placeholder="A" />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" (click)="showCreateModal = false" class="btn btn-secondary">Cancelar</button>
+        <button type="submit" [disabled]="userForm.invalid" class="btn btn-primary">Guardar Registro</button>
+      </div>
+    </form>
+  </div>
+</div>
