@@ -448,10 +448,12 @@
 
 .timeline-checkpoint {
   display: grid;
-  grid-template-columns: 60px 24px 1fr;
+  grid-template-columns: 60px 24px minmax(0, 1fr);
   align-items: flex-start;
   position: relative;
   margin-bottom: 28px;
+  width: 100%;
+  min-width: 0;
 }
 
 /* Spine Column (Node + Vertical Continuous Trail) */
@@ -685,49 +687,6 @@
   color: #94a3b8;
 }
 
-/* Responsive (< 640px) */
-@media (max-width: 640px) {
-  .timeline-checkpoint {
-    grid-template-columns: 46px 14px 1fr;
-    margin-bottom: 22px;
-  }
-
-  .spine-column {
-    width: 46px;
-    padding-top: 18px;
-  }
-
-  .waypoint-medallion {
-    width: 44px;
-    height: 44px;
-  }
-
-  .medallion-num {
-    font-size: 0.82rem;
-  }
-
-  .trail-line {
-    top: calc(18px + 44px);
-    bottom: -40px;
-    width: 5px;
-  }
-
-  .trail-pip {
-    width: 8px;
-    height: 8px;
-  }
-
-  .bridge-arm {
-    margin-top: 39px;
-  }
-
-  .milestone-medallion {
-    width: 46px;
-    height: 46px;
-    border-radius: 14px;
-  }
-}
-
 /* Node Card */
 .node-card {
   flex: 1;
@@ -738,6 +697,9 @@
   background: #ffffff;
   border: 1px solid #e2e8f0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Card States */
@@ -787,10 +749,15 @@
   display: flex;
   align-items: flex-start;
   gap: 16px;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .node-details {
   flex: 1;
+  min-width: 0;
+  width: 100%;
 }
 
 .level-meta {
@@ -854,6 +821,8 @@
   color: var(--text-primary);
   margin: 0 0 8px 0;
   line-height: 1.35;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Pedagogical Source Badge */
@@ -870,6 +839,8 @@
   color: #475569;
   font-weight: 500;
   max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .source-icon {
@@ -883,18 +854,21 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
 }
 
 /* Goals & Reading Meta */
 .reading-meta {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   font-size: 0.8rem;
   color: var(--text-secondary);
   font-weight: 500;
   margin-bottom: 8px;
   flex-wrap: wrap;
+  min-width: 0;
 }
 
 .meta-goal {
@@ -916,6 +890,7 @@
   flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 10px;
+  min-width: 0;
 }
 
 .comp-badge {
@@ -935,7 +910,7 @@
 .completed-stats {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   padding: 6px 12px;
   background: #fef3c7;
   border-radius: 8px;
@@ -943,6 +918,8 @@
   font-weight: 700;
   color: #92400e;
   margin-top: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
 .best-wpm {
@@ -961,6 +938,8 @@
   margin-top: 14px;
   display: flex;
   align-items: center;
+  width: 100%;
+  min-width: 0;
 }
 
 .btn-start {
@@ -980,6 +959,9 @@
   gap: 8px;
   box-shadow: 0 4px 14px rgba(0, 74, 173, 0.3);
   transition: all 0.2s ease;
+  min-width: 0;
+  box-sizing: border-box;
+  text-align: center;
 }
 
 .btn-start:hover {
@@ -1014,6 +996,9 @@
   justify-content: center;
   gap: 6px;
   transition: all 0.2s ease;
+  min-width: 0;
+  box-sizing: border-box;
+  text-align: center;
 }
 
 .btn-replay:hover {
@@ -1034,6 +1019,9 @@
   font-size: 0.78rem;
   font-weight: 600;
   border-radius: 10px;
+  min-width: 0;
+  box-sizing: border-box;
+  text-align: center;
 }
 
 /* ==========================================================================
@@ -1130,43 +1118,310 @@
 }
 
 /* ==========================================================================
-   Responsive Adaptations
+   Responsive Adaptations & Mobile Optimization
    ========================================================================== */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .roadmap-wrapper {
-    padding: 24px 16px;
+    padding: 20px 14px;
     border-radius: 20px;
   }
 
-  .stages-tabs-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .node-step-container {
+  .roadmap-header {
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
+    gap: 14px;
   }
 
-  .waypoint-node {
-    margin-bottom: -10px;
-    z-index: 2;
+  .roadmap-title {
+    font-size: 1.35rem;
   }
 
-  .node-card {
+  .roadmap-sub {
+    font-size: 0.84rem;
+  }
+
+  .legend-box {
     width: 100%;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 8px 12px;
+    font-size: 0.74rem;
+    box-sizing: border-box;
   }
 
-  .stage-milestone-card {
+  .admin-superaccess-banner {
+    padding: 12px 14px;
+    gap: 12px;
+    border-radius: 14px;
+  }
+
+  .admin-banner-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .admin-banner-title strong {
+    font-size: 0.85rem;
+  }
+
+  .admin-banner-text {
+    font-size: 0.78rem;
+  }
+
+  .stages-navigator {
+    padding: 14px;
+    border-radius: 16px;
+    margin-top: 20px;
+  }
+
+  .stages-header-row {
     flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .view-mode-toggle {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .toggle-btn {
+    flex: 1;
     text-align: center;
+    padding: 6px 8px;
+    font-size: 0.74rem;
+  }
+
+  .stages-tabs-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .stage-tab-card {
+    padding: 10px 12px;
+    border-radius: 12px;
+  }
+
+  .stage-tab-name {
+    font-size: 0.82rem;
+  }
+
+  .stage-overview-card {
+    padding: 14px 16px;
+    border-radius: 14px;
+    margin-top: 16px;
   }
 
   .stage-overview-header {
     flex-direction: column;
     align-items: flex-start;
+    gap: 14px;
   }
 
   .stage-reward-box {
     align-items: flex-start;
+  }
+
+  .overview-title {
+    font-size: 1.05rem;
+  }
+
+  .overview-desc {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .roadmap-wrapper {
+    padding: 14px 8px;
+    border-radius: 16px;
+  }
+
+  .roadmap-path {
+    padding: 16px 0 10px 0;
+  }
+
+  .timeline-checkpoint {
+    grid-template-columns: 42px 10px minmax(0, 1fr);
+    margin-bottom: 20px;
+  }
+
+  .spine-column {
+    width: 42px;
+    padding-top: 14px;
+  }
+
+  .waypoint-medallion {
+    width: 40px;
+    height: 40px;
+    border-width: 2px;
+  }
+
+  .medallion-num {
+    font-size: 0.8rem;
+  }
+
+  .medallion-status-icon svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  .trail-line {
+    top: calc(14px + 40px);
+    bottom: -34px;
+    width: 4.5px;
+  }
+
+  .trail-pip {
+    width: 7px;
+    height: 7px;
+    border-width: 2px;
+  }
+
+  .bridge-arm {
+    margin-top: 33px;
+    height: 2px;
+  }
+
+  .card-column {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .node-card {
+    padding: 12px 10px;
+    border-radius: 14px;
+  }
+
+  .current-badge {
+    top: -10px;
+    left: 10px;
+    font-size: 0.65rem;
+    padding: 2px 8px;
+  }
+
+  .reading-title {
+    font-size: 0.95rem;
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+
+  .level-meta {
+    font-size: 0.66rem;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+
+  .genre-pill {
+    padding: 1px 6px;
+    font-size: 0.64rem;
+  }
+
+  .difficulty-tag {
+    padding: 1px 5px;
+    font-size: 0.6rem;
+  }
+
+  .pedagogical-source-badge {
+    padding: 2px 6px;
+    font-size: 0.65rem;
+    margin-bottom: 6px;
+    max-width: 100%;
+  }
+
+  .reading-meta {
+    font-size: 0.7rem;
+    gap: 4px 6px;
+    margin-bottom: 6px;
+  }
+
+  .comp-badge {
+    font-size: 0.62rem;
+    padding: 1px 5px;
+  }
+
+  .completed-stats {
+    padding: 4px 8px;
+    font-size: 0.68rem;
+    gap: 6px;
+  }
+
+  .btn-start,
+  .btn-replay,
+  .btn-admin-test {
+    font-size: 0.78rem;
+    padding: 8px 10px;
+    border-radius: 10px;
+  }
+
+  .milestone-medallion {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+  }
+
+  .milestone-medallion svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .stage-milestone-card {
+    padding: 14px 12px;
+    border-radius: 14px;
+    gap: 12px;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .milestone-icon-box {
+    width: 44px;
+    height: 44px;
+  }
+
+  .milestone-icon-box svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .milestone-title {
+    font-size: 0.94rem;
+  }
+
+  .milestone-desc {
+    font-size: 0.74rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .stages-tabs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .timeline-checkpoint {
+    grid-template-columns: 34px 8px minmax(0, 1fr);
+  }
+
+  .spine-column {
+    width: 34px;
+    padding-top: 12px;
+  }
+
+  .waypoint-medallion {
+    width: 32px;
+    height: 32px;
+  }
+
+  .trail-line {
+    top: calc(12px + 32px);
+    bottom: -32px;
+    width: 3.5px;
+  }
+
+  .bridge-arm {
+    margin-top: 27px;
+  }
+
+  .node-card {
+    padding: 10px 8px;
   }
 }

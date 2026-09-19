@@ -271,11 +271,21 @@
 
 @media (max-width: 640px) {
   .student-dashboard {
-    padding: 16px 10px 48px;
+    padding: 14px 8px 48px;
+    overflow-x: hidden;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .dashboard-container {
-    gap: 18px;
+    gap: 16px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .tab-pane {
+    width: 100%;
+    min-width: 0;
   }
 
   .welcome-card {
