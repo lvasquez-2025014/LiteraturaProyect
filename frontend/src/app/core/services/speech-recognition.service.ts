@@ -63,16 +63,16 @@ export function levenshteinDistance(a: string, b: string): number {
  */
 export const NUMBER_WORD_MAP: Record<string, string[]> = {
   '0': ['cero'],
-  '1': ['uno', 'un', 'una', 'primero', 'primera', 'primer', 'i'],
+  '1': ['uno', 'un', 'una', 'primero', 'primera', 'primer'],
   '2': ['dos', 'segundo', 'segunda', 'ii'],
   '3': ['tres', 'tercero', 'tercera', 'tercer', 'iii'],
   '4': ['cuatro', 'cuarto', 'cuarta', 'iv'],
-  '5': ['cinco', 'quinto', 'quinta', 'v'],
+  '5': ['cinco', 'quinto', 'quinta'],
   '6': ['seis', 'sexto', 'sexta', 'vi'],
   '7': ['siete', 'septimo', 'septima', 'vii'],
   '8': ['ocho', 'octavo', 'octava', 'viii'],
   '9': ['nueve', 'noveno', 'novena', 'ix'],
-  '10': ['diez', 'decimo', 'decima', 'x'],
+  '10': ['diez', 'decimo', 'decima'],
   '11': ['once', 'xi'],
   '12': ['doce', 'xii'],
   '13': ['trece', 'xiii'],
@@ -86,10 +86,10 @@ export const NUMBER_WORD_MAP: Record<string, string[]> = {
   '21': ['veintiuno', 'veintiun', 'veintiuna', 'xxi'],
   '30': ['treinta', 'xxx'],
   '40': ['cuarenta', 'xl'],
-  '50': ['cincuenta', 'l'],
-  '100': ['cien', 'ciento', 'c'],
-  '500': ['quinientos', 'd'],
-  '1000': ['mil', 'm'],
+  '50': ['cincuenta'],
+  '100': ['cien', 'ciento'],
+  '500': ['quinientos'],
+  '1000': ['mil'],
 };
 
 /**

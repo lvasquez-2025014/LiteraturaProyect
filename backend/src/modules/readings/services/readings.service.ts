@@ -92,7 +92,26 @@ export class ReadingsService implements OnModuleInit {
 
   private async seedDefaultReadingsIfEmpty(): Promise<void> {
     const count = await this.collection.countDocuments();
-    if (count > 0) return;
+    if (count > 0) {
+      // Sanitizar lecturas existentes para eliminar términos confusos para el motor de voz (como Ixil)
+      const docsWithIxil = await this.collection.find({ content: { $regex: /Ixil/i } }).toArray();
+      for (const doc of docsWithIxil) {
+        const sanitizedContent = doc.content
+          .replace(/triángulo\s+Ixil/gi, 'triángulo de Nebaj')
+          .replace(/Ixil/gi, 'Nebaj');
+        await this.collection.updateOne(
+          { _id: doc._id },
+          {
+            $set: {
+              content: sanitizedContent,
+              author: 'Narrativa Tradicional de Nebaj',
+              wordCount: sanitizedContent.trim().split(/\s+/).length,
+            },
+          }
+        );
+      }
+      return;
+    }
 
     console.log('[ReadingsService] Sembrando las 10 lecturas pedagógicas iniciales en MongoDB...');
     const defaultReadings: Partial<ReadingDocument>[] = [
@@ -153,10 +172,10 @@ export class ReadingsService implements OnModuleInit {
         targetWpm: 130,
         xpReward: 140,
         difficulty: 'Básico',
-        author: 'Narrativa Maya Ixil',
+        author: 'Narrativa Tradicional de Nebaj',
         pedagogicalSource: 'Editorial Piedra Santa — Antología de Voces del Altiplano',
-        content: `En los valles neblinosos del triángulo Ixil, los telares de cintura entonan un murmullo rítmico desde el alba. Ana, una joven de catorce años, aprendía de su abuela el arte de entrelazar hilos de algodón teñidos con cortezas de encino y flores silvestres. Su abuela le explicaba que cada símbolo tejido en el huipil guardaba la memoria viva de sus antepasados: los rombos simbolizaban los cuatro puntos cardinales, las líneas onduladas representaban los ríos que riegan la siembra de maíz, y los pájaros bicéfalos evocaban la mirada hacia el pasado para construir con sabiduría el futuro. Ana comprendió que tejer no era solo fabricar una prenda, sino escribir un libro milenario con la paciencia y el esmero de quien honra sus raíces.`,
-        wordCount: 128,
+        content: `En los valles neblinosos del triángulo de Nebaj, los telares de cintura entonan un murmullo rítmico desde el alba. Ana, una joven de catorce años, aprendía de su abuela el arte de entrelazar hilos de algodón teñidos con cortezas de encino y flores silvestres. Su abuela le explicaba que cada símbolo tejido en el huipil guardaba la memoria viva de sus antepasados: los rombos simbolizaban los cuatro puntos cardinales, las líneas onduladas representaban los ríos que riegan la siembra de maíz, y los pájaros bicéfalos evocaban la mirada hacia el pasado para construir con sabiduría el futuro. Ana comprendió que tejer no era solo fabricar una prenda, sino escribir un libro milenario con la paciencia y el esmero de quien honra sus raíces.`,
+        wordCount: 129,
         questions: [
           {
             id: 'q2-1',
