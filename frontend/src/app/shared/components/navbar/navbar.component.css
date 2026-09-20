@@ -6,22 +6,22 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border-light, #e2e8f0);
-  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.04);
   width: 100%;
 }
 
 .navbar-container {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 10px 20px;
+  padding: 8px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -32,25 +32,25 @@
 .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   text-decoration: none;
   flex-shrink: 0;
   min-width: 0;
 }
 
 .brand-icon {
-  width: 42px;
-  height: 42px;
-  min-width: 42px;
-  min-height: 42px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
   flex-shrink: 0;
-  border-radius: 12px;
+  border-radius: 11px;
   background: var(--kinal-blue, #004aad);
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 74, 173, 0.25);
+  box-shadow: 0 3px 10px rgba(0, 74, 173, 0.22);
   transition: transform 0.2s ease;
 }
 
@@ -59,8 +59,8 @@
 }
 
 .brand-icon svg {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
 }
 
@@ -72,11 +72,11 @@
 
 .brand-title {
   font-family: var(--font-heading, inherit);
-  font-size: 1.18rem;
+  font-size: 1.12rem;
   font-weight: 800;
   color: var(--kinal-dark-blue, #0f172a);
   letter-spacing: -0.02em;
-  line-height: 1.2;
+  line-height: 1.15;
   white-space: nowrap;
 }
 
@@ -85,7 +85,7 @@
 }
 
 .brand-tag {
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-weight: 600;
   color: var(--text-muted, #64748b);
   text-transform: uppercase;
@@ -99,7 +99,7 @@
 .admin-portal-switcher {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   background: #f1f5f9;
   padding: 3px;
   border-radius: 10px;
@@ -111,8 +111,8 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 10px;
-  border-radius: 8px;
+  padding: 5px 9px;
+  border-radius: 7px;
   font-family: var(--font-heading, inherit);
   font-size: 0.78rem;
   font-weight: 700;
@@ -130,7 +130,7 @@
 .portal-link.active-portal {
   background: #ffffff;
   color: var(--kinal-blue, #004aad);
-  box-shadow: 0 2px 6px rgba(0, 74, 173, 0.14);
+  box-shadow: 0 1px 4px rgba(0, 74, 173, 0.15);
 }
 
 /* --------------------------------------------------------------------------
@@ -139,33 +139,43 @@
 .user-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
+  gap: 8px;
+  flex-shrink: 1;
+  min-width: 0;
   margin-left: auto;
 }
 
 /* --------------------------------------------------------------------------
-   Gamification Pills
+   Gamification Pills (Now visible on all screens, compact on mobile)
    -------------------------------------------------------------------------- */
 .gamification-pills {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
+  gap: 6px;
+  flex-shrink: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.gamification-pills::-webkit-scrollbar {
+  display: none;
 }
 
 .pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
-  border-radius: 999px;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 8px;
   font-family: var(--font-heading, inherit);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 700;
   white-space: nowrap;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  transition: transform 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
 }
 
 .pill:hover {
@@ -197,7 +207,7 @@
 }
 
 .pill-unit {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   opacity: 0.85;
 }
 
@@ -205,13 +215,23 @@
    Role Badges
    -------------------------------------------------------------------------- */
 .badge {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 0.74rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 7px;
+  font-size: 0.72rem;
   font-weight: 700;
   white-space: nowrap;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
+  flex-shrink: 0;
+}
+
+.badge-full {
+  display: inline;
+}
+
+.badge-short {
+  display: none;
 }
 
 .badge-admin {
@@ -239,31 +259,32 @@
   position: relative;
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .user-profile-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   background: transparent;
   border: none;
-  padding: 4px 8px;
-  border-radius: 12px;
+  padding: 3px 6px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background 0.15s ease;
 }
 
 .user-profile-btn:hover {
-  background: rgba(0, 74, 173, 0.05);
+  background: rgba(0, 74, 173, 0.06);
 }
 
 .avatar-circle {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
-  min-height: 40px;
-  max-width: 40px;
-  max-height: 40px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  max-width: 36px;
+  max-height: 36px;
   flex-shrink: 0;
   border-radius: 50%;
   overflow: hidden;
@@ -272,7 +293,7 @@
   align-items: center;
   justify-content: center;
   border: 2px solid #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 74, 173, 0.16);
+  box-shadow: 0 1px 6px rgba(0, 74, 173, 0.14);
 }
 
 .avatar-circle.frame-default {
@@ -282,17 +303,17 @@
 .avatar-circle.frame-kinal,
 .avatar-circle.frame-blue {
   border: 2px solid var(--kinal-blue, #004aad);
-  box-shadow: 0 0 0 2px rgba(0, 74, 173, 0.3), 0 2px 8px rgba(0, 74, 173, 0.2);
+  box-shadow: 0 0 0 1.5px rgba(0, 74, 173, 0.3);
 }
 
 .avatar-circle.frame-orange {
   border: 2px solid var(--kinal-orange, #f36f21);
-  box-shadow: 0 0 0 2px rgba(243, 111, 33, 0.3), 0 2px 8px rgba(243, 111, 33, 0.2);
+  box-shadow: 0 0 0 1.5px rgba(243, 111, 33, 0.3);
 }
 
 .avatar-circle.frame-gold {
   border: 2px solid #f59e0b;
-  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.4), 0 0 10px rgba(245, 158, 11, 0.4);
+  box-shadow: 0 0 0 1.5px rgba(245, 158, 11, 0.4);
 }
 
 .avatar-img {
@@ -306,7 +327,7 @@
 .avatar-initial {
   font-family: var(--font-heading, inherit);
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: var(--kinal-blue, #004aad);
 }
 
@@ -324,24 +345,24 @@
 
 .user-name {
   font-family: var(--font-heading, inherit);
-  font-size: 0.86rem;
+  font-size: 0.84rem;
   font-weight: 700;
   color: var(--kinal-dark-blue, #0f172a);
   white-space: nowrap;
 }
 
 .user-title-tag {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 700;
   color: var(--kinal-blue, #004aad);
   background: #eff6ff;
-  padding: 1px 6px;
+  padding: 1px 5px;
   border-radius: 4px;
   white-space: nowrap;
 }
 
 .user-sub {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: #64748b;
   white-space: nowrap;
 }
@@ -353,7 +374,7 @@
   position: fixed;
   inset: 0;
   z-index: 150;
-  background: rgba(15, 23, 42, 0.12);
+  background: rgba(15, 23, 42, 0.14);
   backdrop-filter: blur(2px);
 }
 
@@ -364,7 +385,7 @@
   width: 290px;
   background: #ffffff;
   border-radius: 18px;
-  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.16), 0 4px 12px rgba(0, 0, 0, 0.06);
   border: 1px solid rgba(0, 74, 173, 0.12);
   z-index: 200;
   overflow: hidden;
@@ -517,20 +538,20 @@
 
 /* --------------------------------------------------------------------------
    DEDICATED PERMANENT LOGOUT BUTTON (TOP NAVBAR)
-   CRITICAL: NEVER PUSHED OFF-SCREEN OR HIDDEN
+   CRITICAL: NEVER PUSHED OFF-SCREEN OR SQUISHED
    -------------------------------------------------------------------------- */
 .btn-logout {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 5px;
   background: #fef2f2;
   color: #dc2626;
   border: 1.5px solid #fecaca;
-  padding: 7px 14px;
-  border-radius: 10px;
+  padding: 6px 12px;
+  border-radius: 9px;
   font-family: var(--font-heading, inherit);
-  font-size: 0.84rem;
+  font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
   flex-shrink: 0 !important;
@@ -551,7 +572,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Responsive Breakpoints & Mobile Optimization
+   Responsive Adaptations
    -------------------------------------------------------------------------- */
 
 /* Laptops / Tablets Landscape (<= 1024px) */
@@ -570,7 +591,7 @@
     display: none;
   }
   .portal-link {
-    padding: 6px 8px;
+    padding: 5px 7px;
   }
   .user-sub,
   .user-title-tag {
@@ -580,37 +601,85 @@
     display: none;
   }
   .btn-logout {
-    width: 38px;
-    height: 38px;
-    min-width: 38px;
-    min-height: 38px;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
     padding: 0;
-    border-radius: 10px;
+    border-radius: 9px;
   }
   .gamification-pills .pill-unit {
     display: none;
   }
 }
 
-/* Phones & Phablets including iPhone 16 Pro Max (440px) and similar (<= 768px) */
+/* Phones & Phablets including iPhone 16 Pro Max (440px) (<= 768px) */
 @media (max-width: 768px) {
   .navbar-container {
-    padding: 8px 12px;
-    gap: 8px;
+    padding: 6px 10px;
+    gap: 6px;
   }
 
-  /* Hide raw gamification pills in top header on mobile to prevent overflow */
-  /* (The user can still view them clearly inside the user profile dropdown) */
+  /* Compact Brand */
+  .brand-icon {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    border-radius: 9px;
+  }
+
+  .brand-icon svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .brand-title {
+    font-size: 0.86rem;
+  }
+
+  /* Compact Gamification Pills (ALL VISIBLE & SCALED) */
   .gamification-pills {
+    display: flex !important;
+    gap: 3px;
+  }
+
+  .pill {
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    gap: 3px;
+    border-radius: 6px;
+  }
+
+  .pill-icon svg {
+    width: 11px;
+    height: 11px;
+  }
+
+  .pill-unit {
     display: none !important;
   }
 
-  /* Hide desktop role badge in header */
-  .badge {
+  .level-prefix {
     display: none;
   }
 
-  /* User profile in header becomes compact avatar button */
+  /* Mini Role Badge */
+  .badge {
+    padding: 2px 6px;
+    font-size: 0.68rem;
+    border-radius: 6px;
+  }
+
+  .badge-full {
+    display: none;
+  }
+
+  .badge-short {
+    display: inline;
+  }
+
+  /* User profile compact */
   .user-details {
     display: none;
   }
@@ -620,88 +689,71 @@
   }
 
   .avatar-circle {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    min-height: 36px;
-    max-width: 36px;
-    max-height: 36px;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    max-width: 32px;
+    max-height: 32px;
   }
 
-  .brand-icon {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    min-height: 36px;
-    border-radius: 10px;
-  }
-
-  .brand-icon svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  .brand-title {
-    font-size: 0.98rem;
-    max-width: 130px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  /* The logout button is ALWAYS fully visible, crisp, and high-contrast red */
-  .btn-logout {
-    width: 38px;
-    height: 38px;
-    min-width: 38px;
-    min-height: 38px;
-    display: inline-flex !important;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0 !important;
-  }
-}
-
-/* Extra Compact Phones (<= 440px - e.g., iPhone 16 Pro Max, iPhone 14/15, Galaxy) */
-@media (max-width: 440px) {
-  .navbar-container {
-    padding: 6px 10px;
-    gap: 6px;
-  }
-
-  .brand-text {
-    display: none; /* Icon only for brand on small mobile, giving maximum room to actions */
-  }
-
+  /* Switcher compact */
   .admin-portal-switcher {
-    gap: 2px;
     padding: 2px;
+    gap: 2px;
   }
 
   .portal-link {
-    padding: 5px 6px;
+    padding: 4px 6px;
   }
 
   .portal-link svg {
-    width: 14px;
-    height: 14px;
+    width: 13px;
+    height: 13px;
   }
 
-  .user-actions {
-    gap: 6px;
-  }
-
-  .avatar-circle {
+  /* Logout button */
+  .btn-logout {
     width: 34px;
     height: 34px;
     min-width: 34px;
     min-height: 34px;
+    border-radius: 8px;
+    padding: 0;
   }
 
-  .btn-logout {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    min-height: 36px;
+  .btn-logout svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* Compact phones (<= 440px - e.g. iPhone 16 Pro Max, 14/15, Galaxy) */
+@media (max-width: 440px) {
+  .brand-prefix {
+    display: none; /* Shows "Literatura" with icon instead of full "Proyecto Literatura" */
+  }
+
+  .brand-title {
+    font-size: 0.82rem;
+  }
+
+  .user-actions {
+    gap: 4px;
+  }
+
+  .pill {
+    padding: 2px 5px;
+    font-size: 0.68rem;
+  }
+}
+
+/* Ultra small phones (<= 360px) */
+@media (max-width: 360px) {
+  .brand-text {
+    display: none; /* Icon only */
+  }
+  .gamification-pills .pill-coins {
+    display: none;
   }
 }

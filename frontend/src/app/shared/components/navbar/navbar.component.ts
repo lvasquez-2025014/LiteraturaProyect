@@ -82,6 +82,15 @@ export class NavbarComponent {
     }
   }
 
+  getShortRoleLabel(role?: string): string {
+    switch (role) {
+      case 'ADMIN_ROLE': return 'Admin';
+      case 'TEACHER_ROLE': return 'Docente';
+      case 'STUDENT_ROLE': return 'Alumno';
+      default: return '';
+    }
+  }
+
   getRoleClass(role?: string): string {
     switch (role) {
       case 'ADMIN_ROLE': return 'badge-admin';
@@ -89,6 +98,13 @@ export class NavbarComponent {
       case 'STUDENT_ROLE': return 'badge-student';
       default: return '';
     }
+  }
+
+  formatStat(val: number): string {
+    if (val >= 100000) {
+      return `${Math.round(val / 1000)}k`;
+    }
+    return val.toString();
   }
 
   logout(): void {
