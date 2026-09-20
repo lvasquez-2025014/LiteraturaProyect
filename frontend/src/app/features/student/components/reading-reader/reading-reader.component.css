@@ -247,12 +247,27 @@
 .word-read {
   color: #047857;
   background: #ecfdf5;
+  border-radius: 4px;
 }
 
 .word-current {
-  background: #fde047;
-  color: #713f12;
-  box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.4);
+  background: #fef08a;
+  color: #854d0e;
+  box-shadow: 0 0 0 2px #f59e0b, 0 2px 10px rgba(245, 158, 11, 0.25);
+  font-weight: 700;
+  border-radius: 6px;
+  animation: pulseTargetWord 1.6s infinite ease-in-out;
+}
+
+@keyframes pulseTargetWord {
+  0%, 100% {
+    box-shadow: 0 0 0 2px #f59e0b, 0 2px 8px rgba(245, 158, 11, 0.2);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 3px #f59e0b, 0 4px 14px rgba(245, 158, 11, 0.35);
+    transform: scale(1.02);
+  }
 }
 
 .word-pending {

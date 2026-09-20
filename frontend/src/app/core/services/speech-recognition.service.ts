@@ -196,7 +196,12 @@ export function isPhoneticMatch(spokenRaw: string, targetRaw: string): boolean {
     if (stemDist <= 1 && stemMaxLen >= 6) return true;
   }
 
-  // 7. Tolerancia Levenshtein adaptativa:
+  // 7. Esqueleto consonántico (detecta palabras donde las vocales átonas se reducen o neutralizan en habla rápida)
+  const skelS = ps.replace(/[aeiou]/g, '');
+  const skelT = pt.replace(/[aeiou]/g, '');
+  if (skelS.length >= 4 && skelS === skelT) return true;
+
+  // 8. Tolerancia Levenshtein adaptativa:
   const maxLen = Math.max(s.length, t.length);
   const pMaxLen = Math.max(ps.length, pt.length);
 

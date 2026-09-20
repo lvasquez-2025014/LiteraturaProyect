@@ -88,7 +88,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
 
     this.speechService.onWordsUpdated = (spokenWords, wpm, activeTokens, candidateAlts, utteranceId) => {
       if (this.mode === 'mic') {
-        this.processSpokenTokens(spokenWords || []);
+        this.processSpokenTokens(spokenWords || [], candidateAlts || []);
       }
       this.updateLiveWpm();
       this.cdr.detectChanges();
@@ -110,7 +110,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
    * Garantiza que cuando el alumno dice una palabra ("en"), se verifica que coincida con la palabra
    * objetivo actual ("en") antes de avanzar a la siguiente ("los").
    */
-  private processSpokenTokens(spokenWords: string[]): void {
+  private processSpokenTokens(spokenWords: string[], candidateAlts?: string[]): void {
     if (this.currentWordIndex >= this.totalWords || !spokenWords || spokenWords.length === 0) return;
 
     if (this.matchedSpokenIndex > spokenWords.length) {
@@ -139,6 +139,21 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
         this.matchedSpokenIndex++;
         advanced = true;
         continue;
+      }
+
+      // 2b. Evaluación de hipótesis alternativas devueltas por el reconocedor de voz (maxAlternatives)
+      if (candidateAlts && candidateAlts.length > 0) {
+        let altMatched = false;
+        for (const alt of candidateAlts) {
+          if (isPhoneticMatch(alt, target)) {
+            this.currentWordIndex++;
+            this.matchedSpokenIndex++;
+            advanced = true;
+            altMatched = true;
+            break;
+          }
+        }
+        if (altMatched) continue;
       }
 
       // 3. Sinalefa (dos palabras leídas juntas de corrido: "a las" -> "alas", "de el" -> "del", "de la" -> "dela")
