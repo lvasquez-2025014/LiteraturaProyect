@@ -201,40 +201,29 @@ export function isPhoneticMatch(spokenRaw: string, targetRaw: string): boolean {
     return ps === pt;
   }
 
-  // 5. Tolerancia de plurales / singulares (e.g. "ala" <-> "alas", "cedro" <-> "cedros")
-  if (s === t + 's' || s === t + 'es' || t === s + 's' || t === s + 'es') return true;
-  if (ps === pt + 's' || ps === pt + 'es' || pt === ps + 's' || pt === ps + 'es') return true;
+  // 5. Tolerancia de plurales / singulares regulares en palabras de longitud >= 3 (e.g. "ala" <-> "alas", "cedro" <-> "cedros")
+  if (s.length >= 3 && t.length >= 3) {
+    if (s === t + 's' || s === t + 'es' || t === s + 's' || t === s + 'es') return true;
+    if (ps === pt + 's' || ps === pt + 'es' || pt === ps + 's' || pt === ps + 'es') return true;
+  }
 
   // 6. Tolerancia de raíces léxicas y número gramatical (-s / -es) para palabras >= 4 caracteres
   const stemS = ps.length >= 4 && ps.endsWith('s') ? ps.slice(0, -1) : ps;
   const stemT = pt.length >= 4 && pt.endsWith('s') ? pt.slice(0, -1) : pt;
   if (stemS === stemT) return true;
 
-  // 7. Equivalencia acústica bilabial (p <-> b / v / w) adaptada al habla continua
-  const bps = stemS.replace(/p/g, 'b');
-  const bpt = stemT.replace(/p/g, 'b');
-  if (bps === bpt) return true;
-
-  // 8. Esqueleto consonántico (detecta palabras donde las vocales átonas se reducen o neutralizan en habla rápida)
-  const skelS = ps.replace(/[aeiou]/g, '');
-  const skelT = pt.replace(/[aeiou]/g, '');
-  if (skelS.length >= 4 && skelS === skelT) return true;
-
-  // 9. Tolerancia Levenshtein adaptativa:
+  // 7. Tolerancia Levenshtein adaptativa:
   const pMaxLen = Math.max(ps.length, pt.length);
   const phoneDist = levenshteinDistance(ps, pt);
 
-  // Palabras de 3 letras: exigir misma consonante inicial o artículo/pronombre
+  // Palabras de 3 letras: exigir coincidencia estricta de primer fonema y dist <= 1
   if (pMaxLen === 3) {
-    if (ps[0] === pt[0] && phoneDist <= 1) return true;
-    const articles = new Set(['el', 'la', 'lo', 'los', 'las', 'un', 'una', 'uno', 'unos', 'unas', 'del', 'al']);
-    if (articles.has(s) && articles.has(t)) return true;
-    return false;
+    return ps[0] === pt[0] && phoneDist <= 1;
   }
 
   // Palabras de 4 a 5 letras: permitir distancia <= 1 si coinciden en fonema inicial
   if (pMaxLen >= 4 && pMaxLen <= 5) {
-    if (phoneDist <= 1 && (ps[0] === pt[0] || bps[0] === bpt[0])) return true;
+    if (phoneDist <= 1 && ps[0] === pt[0]) return true;
   }
 
   // Palabras medianas y largas (>= 6 letras): permitir distancia <= 2 o similitud >= 75%

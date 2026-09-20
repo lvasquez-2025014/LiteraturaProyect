@@ -162,13 +162,13 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       // si este token coincide con la palabra siguiente Y el token posterior coincide con la subsiguiente.
       // Jamás se salta una palabra por un solo token aislado (evita falsos saltos accidentales).
       if (
-        this.confirmedWordIndex + 2 < this.totalWords &&
+        this.confirmedWordIndex + 2 <= this.totalWords &&
         this.consumedFinalTokensIndex + 1 < finalTokens.length &&
         isPhoneticMatch(token, this.words[this.confirmedWordIndex + 1]) &&
         isPhoneticMatch(finalTokens[this.consumedFinalTokensIndex + 1], this.words[this.confirmedWordIndex + 2])
       ) {
         this.confirmedWordIndex += 2;
-        this.consumedFinalTokensIndex += 1;
+        this.consumedFinalTokensIndex += 2;
         continue;
       }
 
@@ -177,37 +177,101 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       this.consumedFinalTokensIndex++;
     }
 
-    // 2. Procesar tokens provisionales (interim) para iluminar la palabra en tiempo real (<50ms)
+    // 2. Procesar tokens provisionales (interim) usando ventana deslizante dinámica con ancla acústica
     let tentativeWordIndex = this.confirmedWordIndex;
-    if (interimTokens.length > 0) {
-      let interimPtr = 0;
-      while (interimPtr < interimTokens.length && tentativeWordIndex < this.totalWords) {
-        const match = this.matchTokenAgainstText(
-          tentativeWordIndex,
-          interimPtr,
-          interimTokens,
-          candidateAlts
-        );
 
-        if (match) {
-          tentativeWordIndex += match.textWordsAdvanced;
-          interimPtr += match.tokensConsumed;
-        } else {
-          const itoken = interimTokens[interimPtr];
-          if (
-            this.isFiller(itoken) ||
-            (tentativeWordIndex > 0 && isPhoneticMatch(itoken, this.words[tentativeWordIndex - 1]))
-          ) {
-            interimPtr++;
-          } else {
+    if (interimTokens.length > 0 && this.confirmedWordIndex < this.totalWords) {
+      let firstInterimIdx = 0;
+      while (firstInterimIdx < interimTokens.length && this.isFiller(interimTokens[firstInterimIdx])) {
+        firstInterimIdx++;
+      }
+
+      if (firstInterimIdx < interimTokens.length) {
+        // Ventana de búsqueda de ancla centrada alrededor del punto más avanzado (confirmado o actual)
+        const baseIdx = Math.max(this.confirmedWordIndex, this.currentWordIndex);
+        const searchMin = Math.max(0, baseIdx - 2);
+        const searchMax = Math.min(this.totalWords - 1, baseIdx + 3);
+
+        let bestAnchorTextIdx = -1;
+        let bestAnchorTokenIdx = -1;
+        let bestAdvance = 0;
+
+        for (let targetIdx = searchMin; targetIdx <= searchMax; targetIdx++) {
+          const match = this.matchTokenAgainstText(
+            targetIdx,
+            firstInterimIdx,
+            interimTokens,
+            candidateAlts
+          );
+
+          if (match) {
+            // Si el ancla se adelanta a la base, exigir confirmación de salto seguro
+            if (targetIdx > baseIdx) {
+              const skippedWord = normalizeSpanishWord(this.words[baseIdx]);
+              const isShortWord = skippedWord.length <= 3;
+              const hasNextInterimMatch =
+                firstInterimIdx + match.tokensConsumed < interimTokens.length &&
+                targetIdx + match.textWordsAdvanced < this.totalWords &&
+                Boolean(
+                  this.matchTokenAgainstText(
+                    targetIdx + match.textWordsAdvanced,
+                    firstInterimIdx + match.tokensConsumed,
+                    interimTokens,
+                    candidateAlts
+                  )
+                );
+
+              if (!isShortWord && !hasNextInterimMatch) {
+                continue;
+              }
+            }
+
+            bestAnchorTextIdx = targetIdx;
+            bestAnchorTokenIdx = firstInterimIdx;
+            bestAdvance = match.textWordsAdvanced;
             break;
           }
+        }
+
+        // Si encontramos un ancla acústica válida, avanzar linealmente el resto de tokens interinos
+        if (bestAnchorTextIdx !== -1) {
+          let textPtr = bestAnchorTextIdx + bestAdvance;
+          let tokenPtr = bestAnchorTokenIdx + 1;
+
+          while (tokenPtr < interimTokens.length && textPtr < this.totalWords) {
+            const match = this.matchTokenAgainstText(
+              textPtr,
+              tokenPtr,
+              interimTokens,
+              candidateAlts
+            );
+
+            if (match) {
+              textPtr += match.textWordsAdvanced;
+              tokenPtr += match.tokensConsumed;
+            } else {
+              const itoken = interimTokens[tokenPtr];
+              if (
+                this.isFiller(itoken) ||
+                (textPtr > 0 && isPhoneticMatch(itoken, this.words[textPtr - 1]))
+              ) {
+                tokenPtr++;
+              } else {
+                break;
+              }
+            }
+          }
+
+          tentativeWordIndex = Math.max(tentativeWordIndex, textPtr);
         }
       }
     }
 
-    // 3. Posición visual actual (garantiza que nunca sea menor a la confirmada)
-    this.currentWordIndex = Math.max(this.confirmedWordIndex, tentativeWordIndex);
+    // 3. Monotonicidad estricta: el cursor visual avanza fluidamente y jamás retrocede
+    this.currentWordIndex = Math.max(
+      this.currentWordIndex,
+      Math.max(this.confirmedWordIndex, tentativeWordIndex)
+    );
 
     // 4. Avance visual y efectos sonoros
     if (this.currentWordIndex > initialWordIndex) {
