@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, ChangeDetectorRef, NgZone, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Subscription } from 'rxjs';
 
@@ -16,6 +16,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
 
@@ -28,6 +29,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 
   loading = false;
   errorMessage = '';
+  sessionExpiredMessage = '';
   showPassword = false;
   googleReady = false;
 
@@ -37,7 +39,12 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   private isDestroyed = false;
 
   ngOnInit() {
-    if (this.auth.isAuthenticated()) {
+    const reason = this.route.snapshot.queryParams['reason'];
+    if (reason === 'expired') {
+      this.sessionExpiredMessage = 'Tu sesión ha expirado tras 2 horas por seguridad. Por favor, ingresa tus credenciales nuevamente.';
+    }
+
+    if (this.auth.isAuthenticated() && !this.auth.isTokenExpired()) {
       this.auth.redirectByRole();
     }
   }
@@ -190,6 +197,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 
       this.loading = true;
       this.errorMessage = '';
+      this.sessionExpiredMessage = '';
 
       this.auth.loginWithGoogle(response.credential).subscribe({
         next: (res) => {
@@ -213,6 +221,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.loading = true;
     this.errorMessage = '';
+    this.sessionExpiredMessage = '';
 
     const { email, password } = this.loginForm.value;
     this.auth.login(email!, password!).subscribe({

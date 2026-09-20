@@ -14,7 +14,7 @@ export class AuthService {
 
   constructor(@Inject(UsersService) private readonly usersService: UsersService) {
     this.jwtSecret = process.env.JWT_SECRET || '';
-    this.jwtExpiresIn = process.env.JWT_EXPIRES_IN || '1d';
+    this.jwtExpiresIn = process.env.JWT_EXPIRES_IN || '2h';
     this.googleClientId = process.env.GOOGLE_CLIENT_ID || '';
     this.googleClient = new OAuth2Client(this.googleClientId);
   }

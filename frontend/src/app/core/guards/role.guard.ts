@@ -7,6 +7,11 @@ export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
+  if (auth.isTokenExpired()) {
+    auth.handleAutoLogout('expired');
+    return false;
+  }
+
   const expectedRoles = route.data['roles'] as UserRole[];
   const user = auth.currentUserSignal();
 
@@ -24,4 +29,3 @@ export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   auth.redirectByRole();
   return false;
 };
-

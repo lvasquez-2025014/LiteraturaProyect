@@ -116,6 +116,19 @@
           <p class="auth-description">Ingrese con sus credenciales</p>
         </header>
 
+        <!-- Mensaje de Sesión Expirada (Auto-logout 2 horas) -->
+        <div class="auth-alert auth-alert-warning" *ngIf="sessionExpiredMessage">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <div class="auth-alert-content">
+            <strong>Sesión Expirada (Límite 2 horas)</strong>
+            <span>{{ sessionExpiredMessage }}</span>
+          </div>
+        </div>
+
         <!-- Mensaje de Error -->
         <div class="auth-alert" *ngIf="errorMessage">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
