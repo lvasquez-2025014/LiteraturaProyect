@@ -238,9 +238,10 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       return { targetIndex: baseIndex, matchedCount: 0 };
     }
 
-    // 2. Si el estudiante lee el título al inicio, sincronizar tras el título
+    // 2. Sincronización y descarte de prefijo histórico:
     let startTok = 0;
     if (baseIndex === 0 && this.normalizedTitleWords.length > 0) {
+      // Si el estudiante lee el título al inicio, sincronizar tras el título
       const firstTarget = this.normalizedWords[0];
       const secondTarget = this.normalizedWords[1] || '';
       for (let t = 0; t < cleanTokens.length; t++) {
@@ -251,6 +252,43 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
           startTok = t;
           break;
         }
+      }
+    } else if (baseIndex > 0 && cleanTokens.length > 2) {
+      // ANCLAJE DINÁMICO EN EL TEXTO HABLADO ACUMULADO:
+      // Chrome suele acumular las palabras de la sesión o frase en cleanTokens.
+      // Cuando baseIndex > 0, las palabras del inicio de cleanTokens ya fueron leídas.
+      // Si no descartamos ese prefijo histórico, la matriz DP acumula penalizaciones por omisión
+      // de tokens viejos y bloquea el avance cuando el texto es largo.
+      const currentTarget = this.normalizedWords[baseIndex] || '';
+      const prevTarget = baseIndex > 0 ? this.normalizedWords[baseIndex - 1] : '';
+      const nextTarget = baseIndex + 1 < this.totalWords ? this.normalizedWords[baseIndex + 1] : '';
+
+      let bestAnchor = -1;
+      let bestAnchorScore = 0;
+
+      // Buscar de atrás hacia adelante en cleanTokens para anclar en la elocución más reciente
+      for (let t = cleanTokens.length - 1; t >= 0; t--) {
+        const tok = cleanTokens[t];
+        let score = 0;
+        if (currentTarget && isPhoneticMatch(tok, currentTarget)) {
+          score = 3.0;
+        } else if (nextTarget && isPhoneticMatch(tok, nextTarget)) {
+          score = 2.5;
+        } else if (prevTarget && isPhoneticMatch(tok, prevTarget)) {
+          score = 2.0;
+        }
+
+        if (score > bestAnchorScore) {
+          bestAnchorScore = score;
+          bestAnchor = t;
+          if (score === 3.0) break;
+        }
+      }
+
+      if (bestAnchor >= 0) {
+        startTok = Math.max(0, bestAnchor - 1);
+      } else if (cleanTokens.length > 10) {
+        startTok = Math.max(0, cleanTokens.length - 8);
       }
     }
     const activeSpoken = cleanTokens.slice(startTok);
@@ -424,8 +462,8 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       );
       if (alignFinal.matchedCount > 0 && alignFinal.targetIndex > this.confirmedWordIndex) {
         this.confirmedWordIndex = alignFinal.targetIndex;
-        this.currentWordIndex = alignFinal.targetIndex;
-        this.confirmedMatchedWords += alignFinal.matchedCount;
+        this.currentWordIndex = Math.max(this.currentWordIndex, alignFinal.targetIndex);
+        this.confirmedMatchedWords = Math.max(this.confirmedMatchedWords, this.currentWordIndex);
         this.consumedFinalTokensCount = finalTokens.length;
       } else if (finalTokens.length - this.consumedFinalTokensCount > 4) {
         // Descartar tokens no emparejados si se acumula ruido para no bloquear el flujo
@@ -433,23 +471,31 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       }
     }
 
-    // 2. Nivel Reactivo: solo muestra una previsualización. Los resultados
-    // interinos cambian con frecuencia y no deben alterar PPM, avance ni cierre.
-    let tentativeWordIndex = this.confirmedWordIndex;
+    // 2. Nivel Reactivo en Tiempo Real:
+    // El estudiante lee en voz alta continuamente. Durante la elocución, Chrome emite
+    // resultados interinos sin pausas finales. Avanzamos el cursor y las palabras leídas
+    // en tiempo real para evitar que la lectura se congele.
     if (interimTokens.length > 0) {
-      this.liveSpokenText = interimTokens.join(' ');
+      this.liveSpokenText = interimTokens.slice(-14).join(' ');
       const alignInterim = this.alignBandedDP(
-        this.confirmedWordIndex,
+        this.currentWordIndex,
         interimTokens
       );
-      if (alignInterim.matchedCount > 0 && alignInterim.targetIndex > this.confirmedWordIndex) {
-        tentativeWordIndex = alignInterim.targetIndex;
+      if (alignInterim.matchedCount > 0 && alignInterim.targetIndex > this.currentWordIndex) {
+        this.currentWordIndex = alignInterim.targetIndex;
+        this.confirmedWordIndex = Math.max(this.confirmedWordIndex, alignInterim.targetIndex);
+        this.confirmedMatchedWords = Math.max(this.confirmedMatchedWords, this.currentWordIndex);
+        this.updateLiveWpm();
       }
     } else {
-      this.liveSpokenText = '';
+      if (finalTokens.length > 0) {
+        this.liveSpokenText = finalTokens.slice(-8).join(' ');
+      } else {
+        this.liveSpokenText = '';
+      }
     }
 
-    this.previewWordIndex = Math.min(this.totalWords, Math.max(this.confirmedWordIndex, tentativeWordIndex));
+    this.previewWordIndex = this.currentWordIndex;
 
     // 4. Avance visual, auto-scroll y efectos sonoros
     if (this.currentWordIndex > initialWordIndex) {

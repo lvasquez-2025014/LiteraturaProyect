@@ -107,8 +107,8 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
       expect(component.normalizedWords[0]).toBe('en');
     });
 
-    it('should preview interim words without committing academic progress', () => {
-      // El reconocedor todavía puede corregir "En las" en el siguiente evento.
+    it('should advance in real time on interim speech and commit progress', () => {
+      // El reconocedor detecta "En las" y el cursor avanza de inmediato en tiempo real
       (component as any).processSpeechTokens({
         finalTokens: [],
         interimTokens: ['en', 'las'],
@@ -117,11 +117,11 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
         currentWpm: 100,
       });
 
-      expect(component.currentWordIndex).toBe(0);
+      expect(component.currentWordIndex).toBe(2);
       expect(component.previewWordIndex).toBe(2);
-      expect((component as any).confirmedMatchedWords).toBe(0);
+      expect((component as any).confirmedMatchedWords).toBe(2);
 
-      // Solo el resultado final se convierte en avance y palabras medidas.
+      // Al confirmarse el resultado final, mantiene el avance y la consistencia
       (component as any).processSpeechTokens({
         finalTokens: ['en', 'las'],
         interimTokens: [],
@@ -146,7 +146,7 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
       });
 
       // Debe anclarse en "las" y avanzar hasta cumbres (índice 4)
-      expect(component.currentWordIndex).toBe(0);
+      expect(component.currentWordIndex).toBe(4);
       expect(component.previewWordIndex).toBe(4);
     });
 
@@ -159,7 +159,7 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
         wordsSpokenCount: 4,
         currentWpm: 120,
       });
-      expect(component.currentWordIndex).toBe(0);
+      expect(component.currentWordIndex).toBe(4);
       expect(component.previewWordIndex).toBe(4);
 
       // El estudiante sigue hablando continuamente sin pausa final: el búfer interino crece
@@ -171,8 +171,8 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
         currentWpm: 125,
       });
 
-      // Debe continuar previsualizando hasta "minas" sin registrar palabras aún no finales.
-      expect(component.currentWordIndex).toBe(0);
+      // Debe continuar avanzando hasta "minas" (índice 10) en vivo sin congelarse
+      expect(component.currentWordIndex).toBe(10);
       expect(component.previewWordIndex).toBe(10);
     });
 
@@ -186,7 +186,7 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
         currentWpm: 120,
       });
 
-      expect(component.currentWordIndex).toBe(0);
+      expect(component.currentWordIndex).toBe(4);
       expect(component.previewWordIndex).toBe(4);
     });
 
@@ -199,7 +199,7 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
         currentWpm: 120,
       });
       const advanced = component.currentWordIndex;
-      expect(advanced).toBe(3);
+      expect(advanced).toBe(4);
       expect(component.previewWordIndex).toBe(4);
 
       // Una repetición o ruido no debe hacer retroceder el cursor
@@ -247,7 +247,7 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
       });
 
       // Debe anclar en el segundo quetzal ("este quetzal observaba...") porque tiene 9 coincidencias y avanzar
-      expect(component.currentWordIndex).toBe(6);
+      expect(component.currentWordIndex).toBe(component.totalWords);
       expect(component.previewWordIndex).toBe(component.totalWords);
     });
 
@@ -264,7 +264,7 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
         currentWpm: 100,
       });
 
-      expect(component.currentWordIndex).toBe(3);
+      expect(component.currentWordIndex).toBe(4);
       expect(component.previewWordIndex).toBe(4);
     });
 

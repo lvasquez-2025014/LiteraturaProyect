@@ -129,29 +129,31 @@
 
   <!-- Live Microphone Status Banner & Live Spoken Speech Pill -->
   <div *ngIf="isRecording && mode === 'mic'" class="mic-live-banner">
-    <div class="mic-status-indicator" [class.mic-status-active]="isAudioActive">
-      <span class="mic-pulse-ring" *ngIf="!isAudioActive"></span>
-      <div class="mic-wave-bars" *ngIf="isAudioActive">
-        <span class="wave-bar bar-1"></span>
-        <span class="wave-bar bar-2"></span>
-        <span class="wave-bar bar-3"></span>
-        <span class="wave-bar bar-4"></span>
+    <div class="mic-banner-header">
+      <div class="mic-status-indicator" [class.mic-status-active]="isAudioActive">
+        <span class="mic-pulse-ring" *ngIf="!isAudioActive"></span>
+        <div class="mic-wave-bars" *ngIf="isAudioActive">
+          <span class="wave-bar bar-1"></span>
+          <span class="wave-bar bar-2"></span>
+          <span class="wave-bar bar-3"></span>
+          <span class="wave-bar bar-4"></span>
+        </div>
+        <span class="mic-status-label" *ngIf="!isMicReady">Conectando micrófono...</span>
+        <span class="mic-status-label" *ngIf="isMicReady && !isAudioActive">Micrófono activo · ¡Lee en voz alta!</span>
+        <span class="mic-status-label" *ngIf="isMicReady && isAudioActive">Escuchando lectura en tiempo real...</span>
       </div>
-      <span class="mic-status-label" *ngIf="!isMicReady">Conectando micrófono...</span>
-      <span class="mic-status-label" *ngIf="isMicReady && !isAudioActive">Micrófono activo · ¡Lee en voz alta!</span>
-      <span class="mic-status-label" *ngIf="isMicReady && isAudioActive">Escuchando lectura en tiempo real...</span>
+
+      <!-- Reanchor Toast Feedback -->
+      <div *ngIf="reanchorToastMessage" class="reanchor-toast" role="status">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>{{ reanchorToastMessage }}</span>
+      </div>
     </div>
 
-    <!-- Live Spoken Words Preview -->
-    <div *ngIf="liveSpokenText" class="live-spoken-pill" title="Últimas palabras detectadas por el micrófono">
+    <!-- Live Spoken Words Responsive Bubble -->
+    <div *ngIf="liveSpokenText" class="live-spoken-pill" title="Lo que el micrófono está capturando">
       <span class="spoken-label">Audio:</span>
       <span class="spoken-text">"{{ liveSpokenText }}"</span>
-    </div>
-
-    <!-- Reanchor Toast Feedback -->
-    <div *ngIf="reanchorToastMessage" class="reanchor-toast" role="status">
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      <span>{{ reanchorToastMessage }}</span>
     </div>
   </div>
 
