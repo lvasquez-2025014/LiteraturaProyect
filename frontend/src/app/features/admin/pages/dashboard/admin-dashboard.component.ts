@@ -4,13 +4,13 @@ import { HttpClient } from '@angular/common/http';
 import { NavbarComponent } from '../../../../shared/components/navbar/navbar.component';
 import { AuthService } from '../../../../core/services/auth.service';
 import { User, KINAL_GRADE_GROUPS, KINAL_SECTIONS } from '../../../../core/models/user.model';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NavbarComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, NavbarComponent],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.css',
 })
@@ -29,6 +29,18 @@ export class AdminDashboardComponent implements OnInit {
   showCreateModal = false;
   successMessage = '';
   errorMessage = '';
+
+  // Estado para la edición de Grado y Sección (Solo Admin)
+  showEditGradeModal = false;
+  editingStudent: User | null = null;
+  editGrade = '';
+  editSection = '';
+  savingGrade = false;
+  editGradeError = '';
+
+  get isAdmin(): boolean {
+    return this.auth.currentUserSignal()?.role === 'ADMIN_ROLE';
+  }
 
   userForm = this.fb.group({
     name: ['', Validators.required],
@@ -107,6 +119,8 @@ export class AdminDashboardComponent implements OnInit {
         if (newRole !== 'STUDENT_ROLE') {
           user.grade = '';
           user.section = '';
+        } else if (!user.grade) {
+          this.openEditGradeModal(user);
         }
         this.showToast('Rol actualizado correctamente');
         this.cdr.markForCheck();
@@ -115,6 +129,73 @@ export class AdminDashboardComponent implements OnInit {
         console.error('Error actualizando rol:', err);
         alert(err.error?.message || 'Error actualizando rol en el servidor');
         this.loadUsers();
+      },
+    });
+  }
+
+  openEditGradeModal(user: User) {
+    if (!this.isAdmin) return;
+    this.editingStudent = user;
+    this.editGrade = user.grade || '';
+    this.editSection = user.section || 'A';
+    this.editGradeError = '';
+    this.showEditGradeModal = true;
+    this.cdr.markForCheck();
+  }
+
+  closeEditGradeModal() {
+    this.showEditGradeModal = false;
+    this.editingStudent = null;
+    this.editGrade = '';
+    this.editSection = '';
+    this.editGradeError = '';
+    this.cdr.markForCheck();
+  }
+
+  onSaveGradeSection() {
+    if (!this.isAdmin) {
+      this.editGradeError = 'Acción permitida únicamente para administradores';
+      return;
+    }
+
+    if (!this.editingStudent || !this.editGrade || !this.editSection) {
+      this.editGradeError = 'Por favor selecciona el grado y la sección';
+      return;
+    }
+
+    const userId = this.editingStudent.id || (this.editingStudent as any)._id;
+    if (!userId) return;
+
+    this.savingGrade = true;
+    this.editGradeError = '';
+
+    this.http.patch<User>(`${environment.apiUrl}/users/${userId}/academic-profile`, {
+      grade: this.editGrade,
+      section: this.editSection,
+    }).subscribe({
+      next: (updated) => {
+        const studentName = this.editingStudent?.name;
+        if (this.editingStudent) {
+          this.editingStudent.grade = updated.grade || this.editGrade;
+          this.editingStudent.section = updated.section || this.editSection;
+        }
+        const found = this.users.find((u) => (u.id || (u as any)._id) === userId);
+        if (found) {
+          found.grade = updated.grade || this.editGrade;
+          found.section = updated.section || this.editSection;
+        }
+
+        this.savingGrade = false;
+        this.showEditGradeModal = false;
+        this.editingStudent = null;
+        this.showToast(`Grado y sección de "${studentName}" actualizados correctamente`);
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Error actualizando grado y sección:', err);
+        this.savingGrade = false;
+        this.editGradeError = err.error?.message || 'Error actualizando datos académicos en el servidor';
+        this.cdr.markForCheck();
       },
     });
   }

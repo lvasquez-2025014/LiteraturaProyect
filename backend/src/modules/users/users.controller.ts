@@ -275,8 +275,9 @@ export class UsersController {
     }
 
     const requesterId = requester?.id || requester?._id;
-    if (requesterId && requesterId !== id && requester.role !== 'ADMIN_ROLE' && requester.role !== 'TEACHER_ROLE') {
-      throw new ForbiddenException('No tienes permiso para actualizar este perfil');
+    const isSelf = requesterId && requesterId.toString() === id.toString();
+    if (!isSelf && requester.role !== 'ADMIN_ROLE') {
+      throw new ForbiddenException('Solo un administrador tiene permiso para modificar el grado y sección de otros usuarios');
     }
 
     await this.usersService.updateProfile(id, {
