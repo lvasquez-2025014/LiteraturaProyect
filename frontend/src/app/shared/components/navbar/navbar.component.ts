@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -10,9 +10,22 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css',
 })
-
 export class NavbarComponent {
   auth = inject(AuthService);
+  isUserMenuOpen = false;
+
+  toggleUserMenu(): void {
+    this.isUserMenuOpen = !this.isUserMenuOpen;
+  }
+
+  closeUserMenu(): void {
+    this.isUserMenuOpen = false;
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.closeUserMenu();
+  }
 
   get user() {
     return this.auth.currentUserSignal();
@@ -78,7 +91,8 @@ export class NavbarComponent {
     }
   }
 
-  logout() {
+  logout(): void {
+    this.closeUserMenu();
     this.auth.logout();
   }
 }

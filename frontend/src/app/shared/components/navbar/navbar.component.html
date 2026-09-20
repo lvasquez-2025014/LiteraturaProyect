@@ -1,9 +1,9 @@
 <header class="navbar-header">
   <div class="navbar-container">
     <!-- Brand / Logo -->
-    <div class="brand">
+    <a routerLink="/" class="brand" title="Inicio - Proyecto Literatura Kinal">
       <div class="brand-icon">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
           <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
         </svg>
@@ -12,17 +12,17 @@
         <span class="brand-title">Proyecto <span class="brand-accent">Literatura</span></span>
         <span class="brand-tag">Comprensión & Velocidad Lectora</span>
       </div>
-    </div>
+    </a>
 
     <!-- Conmutador de Portales para el Administrador (Super-Acceso) -->
-    <nav class="admin-portal-switcher" *ngIf="user?.role === 'ADMIN_ROLE'">
+    <nav class="admin-portal-switcher" *ngIf="user?.role === 'ADMIN_ROLE'" aria-label="Portales de navegación">
       <a routerLink="/admin" routerLinkActive="active-portal" class="portal-link" title="Panel de Cuentas y Permisos">
         <span class="portal-icon">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
           </svg>
         </span>
-        <span class="portal-text">Panel Admin</span>
+        <span class="portal-text">Admin</span>
       </a>
       <a routerLink="/profesor" routerLinkActive="active-portal" class="portal-link" title="Monitoreo de Aulas y Gestor de Lecturas">
         <span class="portal-icon">
@@ -31,7 +31,7 @@
             <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
           </svg>
         </span>
-        <span class="portal-text">Portal Docente</span>
+        <span class="portal-text">Docente</span>
       </a>
       <a routerLink="/estudiante" routerLinkActive="active-portal" class="portal-link" title="Mapa de Desafíos y Lecturas en Vivo">
         <span class="portal-icon">
@@ -41,14 +41,14 @@
             <line x1="16" y1="6" x2="16" y2="22"></line>
           </svg>
         </span>
-        <span class="portal-text">Aventura Estudiante</span>
+        <span class="portal-text">Aventura</span>
       </a>
     </nav>
 
     <!-- User Information & Stats -->
     <div class="user-actions" *ngIf="user as u">
 
-      <!-- Gamification pills for students and admin -->
+      <!-- Gamification pills for students and desktop admin -->
       <div class="gamification-pills" *ngIf="u.role === 'STUDENT_ROLE' || u.role === 'ADMIN_ROLE'">
         <!-- Streak -->
         <div class="pill pill-streak" title="Racha de días leyendo">
@@ -97,35 +97,105 @@
         </div>
       </div>
 
-      <!-- Role Badge -->
+      <!-- Role Badge (Desktop) -->
       <span class="badge" [ngClass]="getRoleClass(u.role)">
         {{ getRoleLabel(u.role) }}
       </span>
 
-      <!-- User Profile Box -->
-      <div class="user-profile">
-        <div class="avatar-circle" [ngClass]="equippedFrame">
-          <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" [alt]="u.name" class="avatar-img" />
-          <span *ngIf="!u.avatarUrl" class="avatar-initial">{{ u.name ? u.name.charAt(0).toUpperCase() : 'E' }}</span>
-        </div>
-        <div class="user-details">
-          <div class="name-with-title">
-            <span class="user-name">{{ u.name }}</span>
-            <span *ngIf="equippedTitle" class="user-title-tag">{{ equippedTitle }}</span>
+      <!-- User Profile Box & Dropdown Menu Trigger -->
+      <div class="user-profile-container">
+        <button type="button" class="user-profile-btn" (click)="toggleUserMenu()" [attr.aria-expanded]="isUserMenuOpen" title="Menú de usuario y perfil">
+          <div class="avatar-circle" [ngClass]="equippedFrame">
+            <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" [alt]="u.name" class="avatar-img" />
+            <span *ngIf="!u.avatarUrl" class="avatar-initial">{{ u.name ? u.name.charAt(0).toUpperCase() : 'E' }}</span>
           </div>
-          <span class="user-sub">{{ u.grade ? u.grade + ' "' + (u.section || 'A') + '"' : u.email }}</span>
+          <div class="user-details">
+            <div class="name-with-title">
+              <span class="user-name">{{ u.name }}</span>
+              <span *ngIf="equippedTitle" class="user-title-tag">{{ equippedTitle }}</span>
+            </div>
+            <span class="user-sub">{{ u.grade ? u.grade + ' "' + (u.section || 'A') + '"' : u.email }}</span>
+          </div>
+        </button>
+
+        <!-- Dropdown Menu Overlay / Backdrop -->
+        <div class="dropdown-backdrop" *ngIf="isUserMenuOpen" (click)="closeUserMenu()"></div>
+
+        <!-- Dropdown Card -->
+        <div class="dropdown-menu-card" *ngIf="isUserMenuOpen">
+          <div class="dropdown-header">
+            <div class="avatar-circle" [ngClass]="equippedFrame">
+              <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" [alt]="u.name" class="avatar-img" />
+              <span *ngIf="!u.avatarUrl" class="avatar-initial">{{ u.name ? u.name.charAt(0).toUpperCase() : 'E' }}</span>
+            </div>
+            <div class="dropdown-user-meta">
+              <span class="dropdown-user-name">{{ u.name }}</span>
+              <span class="dropdown-user-email">{{ u.email }}</span>
+              <span class="badge" [ngClass]="getRoleClass(u.role)">{{ getRoleLabel(u.role) }}</span>
+            </div>
+          </div>
+
+          <!-- Stats inside menu on mobile -->
+          <div class="dropdown-stats-grid" *ngIf="u.role === 'STUDENT_ROLE' || u.role === 'ADMIN_ROLE'">
+            <div class="dropdown-stat-card">
+              <span class="stat-num">{{ streakDays }} 🔥</span>
+              <span class="stat-lbl">Días racha</span>
+            </div>
+            <div class="dropdown-stat-card">
+              <span class="stat-num">{{ totalXp }} ⚡</span>
+              <span class="stat-lbl">Puntos XP</span>
+            </div>
+            <div class="dropdown-stat-card">
+              <span class="stat-num">{{ currentLevel }} ⭐</span>
+              <span class="stat-lbl">Nivel actual</span>
+            </div>
+            <div class="dropdown-stat-card">
+              <span class="stat-num">{{ coins }} 🪙</span>
+              <span class="stat-lbl">Monedas</span>
+            </div>
+          </div>
+
+          <!-- Portal Links for Admin inside dropdown -->
+          <div class="dropdown-portal-links" *ngIf="u.role === 'ADMIN_ROLE'">
+            <div class="dropdown-section-title">Navegar como:</div>
+            <a routerLink="/admin" (click)="closeUserMenu()" class="dropdown-nav-item" routerLinkActive="active">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+              <span>Panel de Administración</span>
+            </a>
+            <a routerLink="/profesor" (click)="closeUserMenu()" class="dropdown-nav-item" routerLinkActive="active">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+              <span>Portal de Profesores</span>
+            </a>
+            <a routerLink="/estudiante" (click)="closeUserMenu()" class="dropdown-nav-item" routerLinkActive="active">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+              <span>Aventura de Estudiantes</span>
+            </a>
+          </div>
+
+          <!-- Logout Button inside dropdown menu -->
+          <div class="dropdown-footer">
+            <button (click)="logout()" class="dropdown-logout-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+              <span>Cerrar Sesión</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- Logout Button -->
-      <button (click)="logout()" class="btn-logout" title="Cerrar sesión">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- BOTÓN PRINCIPAL DE CERRAR SESIÓN (SIEMPRE VISIBLE Y ACCESIBLE EN TELÉFONOS Y ESCRITORIO) -->
+      <button (click)="logout()" class="btn-logout" title="Cerrar sesión" aria-label="Cerrar sesión">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
           <polyline points="16 17 21 12 16 7"></polyline>
           <line x1="21" y1="12" x2="9" y2="12"></line>
         </svg>
         <span class="logout-text">Salir</span>
       </button>
+
     </div>
   </div>
 </header>
