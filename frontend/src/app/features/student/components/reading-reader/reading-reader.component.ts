@@ -461,16 +461,12 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
    * ========================================================================= */
 
   onWordClick(rawWord: string, index: number): void {
-    // Si el estudiante hace clic en una palabra y la lectura está activa, permite saltar a ella y sincronizar el motor
+    // Durante la lectura activa por voz, los clics del ratón o selecciones de texto NUNCA deben marcar palabras como leídas
     if (this.isRecording) {
-      this.currentWordIndex = index;
-      this.matchedSpokenIndex = index;
-      this.scrollToCurrentWord();
-      this.cdr.detectChanges();
       return;
     }
 
-    // Buscar si la palabra tiene definición en el vocabulario pedagógico
+    // Buscar si la palabra tiene definición en el vocabulario pedagógico (solo cuando no se está leyendo)
     const clean = normalizeSpanishWord(rawWord);
     if (this.reading.vocabulary) {
       const found = this.reading.vocabulary.find(

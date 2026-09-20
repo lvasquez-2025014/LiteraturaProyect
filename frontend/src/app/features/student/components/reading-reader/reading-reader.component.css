@@ -241,7 +241,8 @@
   font-weight: 600;
   box-sizing: border-box;
   transition: background-color 0.12s ease, color 0.12s ease;
-  cursor: pointer;
+  cursor: default;
+  user-select: text;
 }
 
 .word-read {
