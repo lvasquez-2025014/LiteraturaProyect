@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Reading, ReadingAttemptResult } from '../../../../core/models/reading.model';
 import {
   SpeechRecognitionService,
+  SpeechTokensEvent,
   isPhoneticMatch,
   normalizeSpanishWord,
 } from '../../../../core/services/speech-recognition.service';
@@ -36,6 +37,10 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   micError: string | null = null;
   mode: 'mic' | 'assisted' = 'mic';
   assistedSpeedMultiplier = 1.0;
+
+  // Punteros de alineación monótona para evitar saltos de palabras
+  private confirmedWordIndex = 0;
+  private consumedFinalTokensIndex = 0;
 
   get currentTargetWpm(): number {
     return this.mode === 'assisted'
@@ -86,16 +91,20 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       this.cdr.detectChanges();
     };
 
-    this.speechService.onWordsUpdated = (spokenWords, wpm, activeTokens, candidateAlts, utteranceId) => {
+    // Evento de alta fidelidad que procesa tokens finales e interinos por separado
+    this.speechService.onSpeechTokens = (event) => {
       if (this.mode === 'mic') {
-        this.processSpokenTokens(spokenWords || [], candidateAlts || []);
+        this.processSpeechTokens(event);
       }
       this.updateLiveWpm();
       this.cdr.detectChanges();
     };
-  }
 
-  private matchedSpokenIndex = 0;
+    this.speechService.onWordsUpdated = () => {
+      this.updateLiveWpm();
+      this.cdr.detectChanges();
+    };
+  }
 
   ngOnDestroy(): void {
     this.stopTimer();
@@ -104,170 +113,105 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Motor de coincidencia fonética y alineación monótona de ultra-alta precisión.
-   * Procesa palabra por palabra en estricto orden secuencial rastreando la posición
-   * monótona del flujo continuo de voz (`matchedSpokenIndex`) frente al texto de lectura (`currentWordIndex`).
-   * Garantiza que cuando el alumno dice una palabra ("en"), se verifica que coincida con la palabra
-   * objetivo actual ("en") antes de avanzar a la siguiente ("los").
+   * Motor de alineación fonética de ultra-alta precisión.
+   * Elimina de raíz el problema de saltarse palabras:
+   * 1. Confirma palabras finales en estricto orden monótono inmutable (nunca retrocede ni salta).
+   * 2. Evalúa tokens provisionales en tiempo real para iluminación inmediata (<50ms).
+   * 3. Soporta sinalefas ("de la" -> "dela", "de el" -> "del") y palabras divididas ("tan bien" -> "también").
+   * 4. Bloqueo de confirmación de dos palabras: NUNCA salta una palabra por un solo token aislado.
    */
-  private processSpokenTokens(spokenWords: string[], candidateAlts?: string[]): void {
-    if (this.currentWordIndex >= this.totalWords || !spokenWords || spokenWords.length === 0) return;
+  private processSpeechTokens(event: SpeechTokensEvent): void {
+    if (this.currentWordIndex >= this.totalWords) return;
 
-    if (this.matchedSpokenIndex > spokenWords.length) {
-      this.matchedSpokenIndex = spokenWords.length;
+    const initialWordIndex = this.currentWordIndex;
+    const finalTokens = event.finalTokens || [];
+    const interimTokens = event.interimTokens || [];
+    const candidateAlts = event.candidateAlts || [];
+
+    // 1. Procesar tokens finales confirmados (permanentes, inmutables)
+    while (this.consumedFinalTokensIndex < finalTokens.length && this.confirmedWordIndex < this.totalWords) {
+      const match = this.matchTokenAgainstText(
+        this.confirmedWordIndex,
+        this.consumedFinalTokensIndex,
+        finalTokens,
+        candidateAlts
+      );
+
+      if (match) {
+        this.confirmedWordIndex += match.textWordsAdvanced;
+        this.consumedFinalTokensIndex += match.tokensConsumed;
+        continue;
+      }
+
+      const token = finalTokens[this.consumedFinalTokensIndex];
+
+      // A. Muletilla o vacilación ("eh", "um", "ah", etc.)
+      if (this.isFiller(token) && normalizeSpanishWord(this.words[this.confirmedWordIndex]) !== 'este') {
+        this.consumedFinalTokensIndex++;
+        continue;
+      }
+
+      // B. Relectura o autocorrección (el alumno repite una palabra previa para corregirse)
+      if (this.confirmedWordIndex > 0 && isPhoneticMatch(token, this.words[this.confirmedWordIndex - 1])) {
+        this.consumedFinalTokensIndex++;
+        continue;
+      }
+
+      // C. Bloqueo de confirmación de dos palabras (Two-Word Confirmation Lock):
+      // Si el alumno verdaderamente se saltó 1 palabra en el texto, SOLO se permite avanzar
+      // si este token coincide con la palabra siguiente Y el token posterior coincide con la subsiguiente.
+      // Jamás se salta una palabra por un solo token aislado (evita falsos saltos accidentales).
+      if (
+        this.confirmedWordIndex + 2 < this.totalWords &&
+        this.consumedFinalTokensIndex + 1 < finalTokens.length &&
+        isPhoneticMatch(token, this.words[this.confirmedWordIndex + 1]) &&
+        isPhoneticMatch(finalTokens[this.consumedFinalTokensIndex + 1], this.words[this.confirmedWordIndex + 2])
+      ) {
+        this.confirmedWordIndex += 2;
+        this.consumedFinalTokensIndex += 1;
+        continue;
+      }
+
+      // D. Token de ruido o distorsión acústica: consumir token y esperar al audio del alumno.
+      // El cursor SE MANTIENE FIRME en la palabra actual, sin saltarse palabras.
+      this.consumedFinalTokensIndex++;
     }
 
-    let advanced = false;
-    const initialIndex = this.currentWordIndex;
-    const FILLERS = new Set(['eh', 'este', 'em', 'emm', 'ah', 'hum', 'um', 'uh', 'bueno', 'osea']);
+    // 2. Procesar tokens provisionales (interim) para iluminar la palabra en tiempo real (<50ms)
+    let tentativeWordIndex = this.confirmedWordIndex;
+    if (interimTokens.length > 0) {
+      let interimPtr = 0;
+      while (interimPtr < interimTokens.length && tentativeWordIndex < this.totalWords) {
+        const match = this.matchTokenAgainstText(
+          tentativeWordIndex,
+          interimPtr,
+          interimTokens,
+          candidateAlts
+        );
 
-    while (this.matchedSpokenIndex < spokenWords.length && this.currentWordIndex < this.totalWords) {
-      const token = spokenWords[this.matchedSpokenIndex];
-      const target = this.words[this.currentWordIndex];
-      const normToken = normalizeSpanishWord(token);
-      const normTarget = normalizeSpanishWord(target);
-
-      // 1. Filtrar muletillas, ruidos breves o titubeos iniciales ("eh", "um", "ah", "hum")
-      if (FILLERS.has(normToken) && normTarget !== 'este') {
-        this.matchedSpokenIndex++;
-        continue;
-      }
-
-      // 2. Coincidencia directa fonética y ortográfica (máxima precisión con tildes, números y pronunciación guatemalteca)
-      if (isPhoneticMatch(token, target)) {
-        this.currentWordIndex++;
-        this.matchedSpokenIndex++;
-        advanced = true;
-        continue;
-      }
-
-      // 2b. Evaluación de hipótesis alternativas devueltas por el reconocedor de voz (maxAlternatives)
-      if (candidateAlts && candidateAlts.length > 0) {
-        let altMatched = false;
-        for (const alt of candidateAlts) {
-          if (isPhoneticMatch(alt, target)) {
-            this.currentWordIndex++;
-            this.matchedSpokenIndex++;
-            advanced = true;
-            altMatched = true;
+        if (match) {
+          tentativeWordIndex += match.textWordsAdvanced;
+          interimPtr += match.tokensConsumed;
+        } else {
+          const itoken = interimTokens[interimPtr];
+          if (
+            this.isFiller(itoken) ||
+            (tentativeWordIndex > 0 && isPhoneticMatch(itoken, this.words[tentativeWordIndex - 1]))
+          ) {
+            interimPtr++;
+          } else {
             break;
           }
         }
-        if (altMatched) continue;
       }
-
-      // 3. Sinalefa (dos palabras leídas juntas de corrido: "a las" -> "alas", "de el" -> "del", "de la" -> "dela")
-      if (this.currentWordIndex + 1 < this.totalWords) {
-        const nextTarget = this.words[this.currentWordIndex + 1];
-        const combinedTarget = target + nextTarget;
-        const normNextTarget = normalizeSpanishWord(nextTarget);
-
-        if (
-          isPhoneticMatch(token, combinedTarget) ||
-          isPhoneticMatch(token, `${target} ${nextTarget}`) ||
-          (normToken === 'del' && normTarget === 'de' && normNextTarget === 'el') ||
-          (normToken === 'al' && normTarget === 'a' && normNextTarget === 'el')
-        ) {
-          this.currentWordIndex += 2;
-          this.matchedSpokenIndex++;
-          advanced = true;
-          continue;
-        }
-      }
-
-      // 4. Palabra compuesta o tildada dividida en dos tokens por el micrófono (e.g. "tan", "bien" -> "también")
-      if (this.matchedSpokenIndex + 1 < spokenWords.length) {
-        const combinedSpoken = token + spokenWords[this.matchedSpokenIndex + 1];
-        if (isPhoneticMatch(combinedSpoken, target)) {
-          this.currentWordIndex++;
-          this.matchedSpokenIndex += 2;
-          advanced = true;
-          continue;
-        }
-      }
-
-      // 5. Relectura de la palabra anterior (el alumno repite una palabra previa para autocorregirse: "el... el")
-      if (this.currentWordIndex > 0 && isPhoneticMatch(token, this.words[this.currentWordIndex - 1])) {
-        this.matchedSpokenIndex++;
-        continue;
-      }
-
-      // 6. Lookahead en tokens hablados: si este token fue un ruido o chasquido pero el siguiente coincide con la palabra actual
-      if (
-        this.matchedSpokenIndex + 1 < spokenWords.length &&
-        isPhoneticMatch(spokenWords[this.matchedSpokenIndex + 1], target)
-      ) {
-        this.currentWordIndex++;
-        this.matchedSpokenIndex += 2;
-        advanced = true;
-        continue;
-      }
-
-      // 7. Confirmación de flujo continuo por ventana multi-token (Lookahead de recuperación):
-      // Si la palabra actual tuvo una distorsión acústica que no encajó al 100%, pero el alumno
-      // continuó su lectura y el siguiente token coincide con la palabra posterior del texto (ej. "de" con "de",
-      // y preferentemente "la" con "la"):
-      if (
-        this.matchedSpokenIndex + 1 < spokenWords.length &&
-        this.currentWordIndex + 1 < this.totalWords &&
-        isPhoneticMatch(spokenWords[this.matchedSpokenIndex + 1], this.words[this.currentWordIndex + 1])
-      ) {
-        const nextTarget = this.words[this.currentWordIndex + 1];
-        const normNextTarget = normalizeSpanishWord(nextTarget);
-
-        const hasThirdTokenConfirmation =
-          this.matchedSpokenIndex + 2 < spokenWords.length &&
-          this.currentWordIndex + 2 < this.totalWords &&
-          isPhoneticMatch(spokenWords[this.matchedSpokenIndex + 2], this.words[this.currentWordIndex + 2]);
-
-        const hasPhoneticAffinity =
-          normToken.length >= 3 &&
-          (normToken[0] === normTarget[0] ||
-            normToken.endsWith(normTarget.slice(-2)) ||
-            normToken.includes(normTarget.slice(0, 3)));
-
-        // Si se confirma por 3er token consecutivo, afinidad acústica con la palabra objetivo, o la siguiente palabra es de contenido
-        if (hasThirdTokenConfirmation || hasPhoneticAffinity || normNextTarget.length >= 4) {
-          this.currentWordIndex += 2;
-          this.matchedSpokenIndex += 2;
-          advanced = true;
-          continue;
-        }
-      }
-
-      // 8. Lookahead en texto objetivo: si el alumno se saltó 1 palabra o preposición corta y dijo la siguiente
-      if (
-        this.currentWordIndex + 1 < this.totalWords &&
-        isPhoneticMatch(token, this.words[this.currentWordIndex + 1])
-      ) {
-        this.currentWordIndex += 2;
-        this.matchedSpokenIndex++;
-        advanced = true;
-        continue;
-      }
-
-      // 9. Descarte de token de ruido si un token dentro de los próximos 2 coincide con el target actual
-      if (
-        this.matchedSpokenIndex + 2 < spokenWords.length &&
-        isPhoneticMatch(spokenWords[this.matchedSpokenIndex + 2], target)
-      ) {
-        this.matchedSpokenIndex++;
-        continue;
-      }
-
-      // 10. Prevención de bloqueo por acumulación de ruido:
-      // Si hay 3 o más tokens hablados sin consumir acumulados, descartar el más antiguo para permitir que el flujo avance
-      if (spokenWords.length - this.matchedSpokenIndex >= 3) {
-        this.matchedSpokenIndex++;
-        continue;
-      }
-
-      // Detener este ciclo de procesamiento para esperar nuevo audio
-      break;
     }
 
-    if (advanced && this.currentWordIndex > initialIndex) {
-      const prevPercentage = Math.floor((initialIndex / this.totalWords) * 100);
+    // 3. Posición visual actual (garantiza que nunca sea menor a la confirmada)
+    this.currentWordIndex = Math.max(this.confirmedWordIndex, tentativeWordIndex);
+
+    // 4. Avance visual y efectos sonoros
+    if (this.currentWordIndex > initialWordIndex) {
+      const prevPercentage = Math.floor((initialWordIndex / this.totalWords) * 100);
       const newPercentage = Math.floor((this.currentWordIndex / this.totalWords) * 100);
 
       this.scrollToCurrentWord();
@@ -284,9 +228,72 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       }
     }
 
+    // 5. Finalizar lectura al completar todas las palabras
     if (this.currentWordIndex >= this.totalWords && !this.showQuiz && !this.showVictory) {
       this.finishReading();
     }
+  }
+
+  private isFiller(token: string): boolean {
+    const norm = normalizeSpanishWord(token);
+    const fillers = new Set(['eh', 'este', 'em', 'emm', 'ah', 'hum', 'um', 'uh', 'bueno', 'osea']);
+    return fillers.has(norm);
+  }
+
+  private matchTokenAgainstText(
+    targetIdx: number,
+    tokenIdx: number,
+    tokens: string[],
+    alts?: string[]
+  ): { textWordsAdvanced: number; tokensConsumed: number } | null {
+    if (targetIdx >= this.totalWords || tokenIdx >= tokens.length) return null;
+
+    const token = tokens[tokenIdx];
+    const target = this.words[targetIdx];
+
+    // 1. Coincidencia directa fonética y ortográfica
+    if (isPhoneticMatch(token, target)) {
+      return { textWordsAdvanced: 1, tokensConsumed: 1 };
+    }
+
+    // 2. Coincidencia con hipótesis alternativas devueltas por el reconocedor (maxAlternatives)
+    if (alts && alts.length > 0) {
+      for (const alt of alts) {
+        if (isPhoneticMatch(alt, target)) {
+          return { textWordsAdvanced: 1, tokensConsumed: 1 };
+        }
+      }
+    }
+
+    // 3. Sinalefa: dos palabras del texto pronunciadas en un solo golpe de voz continuo
+    // ej. "de la", "a las", "de el" (del), "a el" (al), "en el", "y el", "de una"
+    if (targetIdx + 1 < this.totalWords) {
+      const nextTarget = this.words[targetIdx + 1];
+      const combinedTarget = target + nextTarget;
+      const normToken = normalizeSpanishWord(token);
+      const normTarget = normalizeSpanishWord(target);
+      const normNext = normalizeSpanishWord(nextTarget);
+
+      if (
+        isPhoneticMatch(token, combinedTarget) ||
+        isPhoneticMatch(token, `${target} ${nextTarget}`) ||
+        (normToken === 'del' && normTarget === 'de' && normNext === 'el') ||
+        (normToken === 'al' && normTarget === 'a' && normNext === 'el')
+      ) {
+        return { textWordsAdvanced: 2, tokensConsumed: 1 };
+      }
+    }
+
+    // 4. Palabra compuesta o tildada dividida en dos tokens por el reconocedor
+    // ej. "tan" + "bien" -> "también", "a" + "donde" -> "adonde"
+    if (tokenIdx + 1 < tokens.length) {
+      const combinedSpoken = token + tokens[tokenIdx + 1];
+      if (isPhoneticMatch(combinedSpoken, target)) {
+        return { textWordsAdvanced: 1, tokensConsumed: 2 };
+      }
+    }
+
+    return null;
   }
 
   private scrollToCurrentWord(): void {
@@ -296,7 +303,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       if (!currentEl) return;
       const rect = currentEl.getBoundingClientRect();
       const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-      // Desplazamiento suave únicamente si la palabra activa se acerca al límite inferior o superior visible
+      // Desplazamiento suave únicamente si la palabra activa se acerca al límite visible
       if (rect.bottom > viewportHeight - 160 || rect.top < 120) {
         currentEl.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
       }
@@ -307,9 +314,10 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     this.stopNarrator();
     this.micError = null;
     this.currentWordIndex = 0;
+    this.confirmedWordIndex = 0;
+    this.consumedFinalTokensIndex = 0;
     this.secondsElapsed = 0;
     this.currentWpm = 0;
-    this.matchedSpokenIndex = 0;
     this.startTimer();
 
     if (this.mode === 'mic') {
@@ -319,6 +327,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
         this.speechService.setAssistedSpeedMultiplier(this.assistedSpeedMultiplier);
         this.speechService.startAssistedSimulation(this.words, this.reading.targetWpm, (idx) => {
           this.currentWordIndex = idx;
+          this.confirmedWordIndex = idx;
           this.updateLiveWpm();
           if (this.currentWordIndex >= this.totalWords) {
             this.finishReading();
@@ -330,6 +339,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       this.speechService.setAssistedSpeedMultiplier(this.assistedSpeedMultiplier);
       this.speechService.startAssistedSimulation(this.words, this.reading.targetWpm, (idx) => {
         this.currentWordIndex = idx;
+        this.confirmedWordIndex = idx;
         this.updateLiveWpm();
         if (this.currentWordIndex >= this.totalWords) {
           this.finishReading();
@@ -363,12 +373,13 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     this.speechService.stop();
     this.stopNarrator();
     this.currentWordIndex = 0;
+    this.confirmedWordIndex = 0;
+    this.consumedFinalTokensIndex = 0;
     this.secondsElapsed = 0;
     this.currentWpm = 0;
     this.isRecording = false;
     this.isPaused = false;
     this.micError = null;
-    this.matchedSpokenIndex = 0;
   }
 
   finishReading(): void {
@@ -376,6 +387,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     this.speechService.stop();
     this.stopNarrator();
     this.currentWordIndex = this.totalWords;
+    this.confirmedWordIndex = this.totalWords;
 
     // Abrir inmediatamente el cuestionario de comprensión
     this.showQuiz = true;
@@ -408,7 +420,6 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
 
   isWordInFocus(index: number): boolean {
     if (!this.focusMode || !this.isRecording) return true;
-    // Ilumina una ventana de 6 palabras alrededor de la palabra activa
     return Math.abs(index - this.currentWordIndex) <= 6;
   }
 
@@ -429,10 +440,10 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
         this.reading.content,
         this.narratorRate,
         (charIndex) => {
-          // Aproximar avance de palabra durante la narración modelo
           const textBefore = this.reading.content.substring(0, charIndex);
           const wordCount = textBefore.trim().split(/\s+/).filter(Boolean).length;
           this.currentWordIndex = Math.min(this.totalWords, wordCount);
+          this.confirmedWordIndex = this.currentWordIndex;
           this.cdr.detectChanges();
         },
         () => {
@@ -446,7 +457,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   setNarratorRate(rate: number): void {
     this.narratorRate = rate;
     if (this.isNarrating) {
-      this.toggleNarrator(); // reiniciar con nueva velocidad
+      this.toggleNarrator();
       this.toggleNarrator();
     }
   }
@@ -461,12 +472,10 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
    * ========================================================================= */
 
   onWordClick(rawWord: string, index: number): void {
-    // Durante la lectura activa por voz, los clics del ratón o selecciones de texto NUNCA deben marcar palabras como leídas
     if (this.isRecording) {
       return;
     }
 
-    // Buscar si la palabra tiene definición en el vocabulario pedagógico (solo cuando no se está leyendo)
     const clean = normalizeSpanishWord(rawWord);
     if (this.reading.vocabulary) {
       const found = this.reading.vocabulary.find(
@@ -508,7 +517,6 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   calculateFinalResults(): void {
     this.showQuiz = false;
 
-    // Calcular puntaje de comprensión
     let correctCount = 0;
     this.reading.questions.forEach((q, idx) => {
       if (this.selectedAnswers[idx] === q.correctIndex) {
@@ -535,7 +543,6 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
 
     this.showVictory = true;
 
-    // Fanfarria sonora y lluvia de confeti
     if (this.soundEffects) {
       this.speechService.playVictoryFanfare();
     }
