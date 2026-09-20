@@ -26,42 +26,126 @@ export const KINAL_READINGS: Reading[] = [
     content: `En las altas cumbres de la Sierra de las Minas, donde la niebla danza entre los helechos gigantes, vivía un joven quetzal de plumaje esmeralda. A diferencia de las demás aves que se conformaban con volar en círculos sobre el dosel arbóreo, este quetzal observaba con atención cada detalle del bosque: el sonido del rocío al tocar la tierra fértil, la fuerza de los vientos alisios y el crecimiento paciente de los cedros centenarios. Un anciano guardabosques le enseñó que la verdadera libertad no reside únicamente en la velocidad de las alas, sino en la serenidad para contemplar el camino y la disciplina para sortear las tormentas. Desde entonces, el quetzal descendía cada amanecer para guiar a los caminantes extraviados, demostrando que el talento brilla más cuando se pone al servicio de los demás.`,
     wordCount: 135,
     questions: [
-      {
-        id: 'q1-1',
-        prompt: '¿Dónde vivía el joven quetzal de plumaje esmeralda?',
-        options: [
-          'En las costas cálidas del Océano Pacífico',
-          'En las altas cumbres de la Sierra de las Minas',
-          'En las cuevas subterráneas de Alta Verapaz',
-          'En el cráter del Volcán de Fuego'
-        ],
-        correctIndex: 1,
-        explanation: 'El texto sitúa explícitamente la historia en las altas cumbres de la Sierra de las Minas entre helechos gigantes.'
-      },
-      {
-        id: 'q1-2',
-        prompt: '¿Qué lección transmitió el anciano guardabosques al quetzal?',
-        options: [
-          'Que el vuelo más veloz es siempre el más respetado',
-          'Que debía alejarse de los seres humanos para sobrevivir',
-          'Que la verdadera libertad requiere serenidad y disciplina ante las tormentas',
-          'Que los quetzales solo deben alimentarse de frutos silvestres'
-        ],
-        correctIndex: 2,
-        explanation: 'El guardabosques enseñó que la libertad reside en la serenidad para contemplar el camino y la disciplina ante las tormentas.'
-      },
-      {
-        id: 'q1-3',
-        prompt: '¿Qué valor humano se resalta al final de la lectura?',
-        options: [
-          'El espíritu de servicio y ayuda desinteresada',
-          'La competencia por ser el más fuerte',
-          'El aislamiento del resto de la comunidad',
-          'La búsqueda de riquezas materiales'
-        ],
-        correctIndex: 0,
-        explanation: 'El texto concluye destacando que el talento brilla más cuando se pone al servicio de los demás guiando a quienes lo necesitan.'
-      }
+          {
+                "id": "q1-1",
+                "prompt": "¿Dónde vivía el joven quetzal de plumaje esmeralda?",
+                "options": [
+                      "En las costas cálidas del Océano Pacífico",
+                      "En las altas cumbres de la Sierra de las Minas",
+                      "En las cuevas subterráneas de Alta Verapaz",
+                      "En el cráter del Volcán de Fuego"
+                ],
+                "correctIndex": 1,
+                "explanation": "El texto sitúa explícitamente la historia en las altas cumbres de la Sierra de las Minas entre helechos gigantes."
+          },
+          {
+                "id": "q1-2",
+                "prompt": "¿Qué lección transmitió el anciano guardabosques al quetzal?",
+                "options": [
+                      "Que el vuelo más veloz es siempre el más respetado",
+                      "Que debía alejarse de los seres humanos para sobrevivir",
+                      "Que la verdadera libertad requiere serenidad y disciplina ante las tormentas",
+                      "Que los quetzales solo deben alimentarse de frutos silvestres"
+                ],
+                "correctIndex": 2,
+                "explanation": "El guardabosques enseñó que la libertad reside en la serenidad para contemplar el camino y la disciplina ante las tormentas."
+          },
+          {
+                "id": "q1-3",
+                "prompt": "¿Qué valor humano se resalta al final de la lectura?",
+                "options": [
+                      "El espíritu de servicio y ayuda desinteresada",
+                      "La competencia por ser el más fuerte",
+                      "El aislamiento del resto de la comunidad",
+                      "La búsqueda de riquezas materiales"
+                ],
+                "correctIndex": 0,
+                "explanation": "El texto concluye enfatizando que el talento brilla más cuando se pone al servicio de los demás guiando a los caminantes."
+          },
+          {
+                "id": "q1-4",
+                "prompt": "¿Qué diferenciaba a este quetzal de las demás aves del bosque nuboso?",
+                "options": [
+                      "Que tenía las alas de color dorado",
+                      "Que observaba con atención cada detalle del bosque en vez de solo volar en círculos",
+                      "Que no podía volar en las alturas",
+                      "Que vivía en soledad dentro de un tronco hueco"
+                ],
+                "correctIndex": 1,
+                "explanation": "A diferencia de otras aves que solo volaban en círculos sobre el dosel, este quetzal observaba con paciencia cada detalle del bosque."
+          },
+          {
+                "id": "q1-5",
+                "prompt": "¿Qué tipo de vientos constantes se mencionan como parte del clima del bosque?",
+                "options": [
+                      "Los vientos alisios",
+                      "Los vientos polares",
+                      "Los vientos monzónicos",
+                      "Los huracanes del Caribe"
+                ],
+                "correctIndex": 0,
+                "explanation": "El texto menciona explícitamente la fuerza de los vientos alisios que soplan en la región."
+          },
+          {
+                "id": "q1-6",
+                "prompt": "¿Qué árboles centenarios crecían de manera paciente en la montaña?",
+                "options": [
+                      "Los cedros centenarios",
+                      "Los sauces llorones",
+                      "Los eucaliptos australianos",
+                      "Las palmeras de coco"
+                ],
+                "correctIndex": 0,
+                "explanation": "El relato destaca la observación del crecimiento paciente de los cedros centenarios."
+          },
+          {
+                "id": "q1-7",
+                "prompt": "¿Qué labor solidaria realizaba el quetzal cada amanecer?",
+                "options": [
+                      "Recolectaba semillas para su nido",
+                      "Descendía para guiar a los caminantes extraviados",
+                      "Competía en carreras aéreas con los halcones",
+                      "Cantaba para despertar al guardabosques"
+                ],
+                "correctIndex": 1,
+                "explanation": "El texto narra que descendía cada amanecer para orientar y guiar a los caminantes perdidos en la niebla."
+          },
+          {
+                "id": "q1-8",
+                "prompt": "¿Qué vegetación gigante caracteriza el paisaje donde danza la niebla?",
+                "options": [
+                      "Cactus espinosos",
+                      "Helechos gigantes",
+                      "Arbustos desérticos",
+                      "Bambúes asiáticos"
+                ],
+                "correctIndex": 1,
+                "explanation": "La historia comienza describiendo la niebla que danza entre los helechos gigantes de la Sierra de las Minas."
+          },
+          {
+                "id": "q1-9",
+                "prompt": "Según el texto, ¿por qué la velocidad de las alas no es suficiente para la libertad?",
+                "options": [
+                      "Porque las alas se cansan rápidamente",
+                      "Porque se necesita serenidad para contemplar el camino y disciplina para sortear tormentas",
+                      "Porque el viento en contra impide cualquier vuelo veloz",
+                      "Porque los depredadores vuelan más rápido"
+                ],
+                "correctIndex": 1,
+                "explanation": "El anciano guardabosques explica que la libertad no reside solo en la velocidad, sino en la serenidad y la disciplina."
+          },
+          {
+                "id": "q1-10",
+                "prompt": "¿Qué sensación natural describe el quetzal al observar el contacto del agua con el suelo?",
+                "options": [
+                      "El sonido del rocío al tocar la tierra fértil",
+                      "El estruendo de los rayos en el fango",
+                      "El calor sofocante del mediodía",
+                      "La sequía persistente en las ramas"
+                ],
+                "correctIndex": 0,
+                "explanation": "El texto resalta su atención al escuchar el sonido del rocío al tocar la tierra fértil."
+          }
     ]
   },
   {
@@ -88,42 +172,126 @@ export const KINAL_READINGS: Reading[] = [
     content: `Cuentan los abuelos que en las noches estrelladas de luna llena, por las empedradas calles de la Calle Real de Santiago, se escuchaban las notas cristalinas de una guitarra de plata. El Sombrerón, diminuto personaje de botas relucientes y cinto relampagueante, solía trenzar las crines de los caballos con primorosa paciencia. Jamás lastimaba a criatura alguna; su único anhelo era dejar una estela de música y misterio bajo los balcones coloniales de madera tallada. Los artesanos del barrio salían con lámparas de aceite para contemplar las trenzas perfectas, asombrados de cómo la precisión de unas manos invisibles podía transformar lo cotidiano en una obra de arte. La tradición nos recuerda que el respeto por las narraciones orales preserva el alma de nuestra identidad guatemalteca.`,
     wordCount: 132,
     questions: [
-      {
-        id: 'q2-1',
-        prompt: '¿Qué instrumento musical tocaba el Sombrerón según la leyenda?',
-        options: [
-          'Una chirimía de barro cocido',
-          'Una guitarra de plata de notas cristalinas',
-          'Un tamboril ceremonial de madera',
-          'Una marimba doble de hormigo'
-        ],
-        correctIndex: 1,
-        explanation: 'La leyenda relata que se escuchaban las notas cristalinas de una guitarra de plata.'
-      },
-      {
-        id: 'q2-2',
-        prompt: '¿Qué acción singular realizaba el personaje con los caballos?',
-        options: [
-          'Los asustaba para que huyeran hacia los potreros',
-          'Trenzaba sus crines con primorosa paciencia',
-          'Les cambiaba las herraduras de hierro',
-          'Los montaba en carreras nocturnas'
-        ],
-        correctIndex: 1,
-        explanation: 'El relato destaca que trenzaba las crines de los caballos con primorosa paciencia y perfección artesanal.'
-      },
-      {
-        id: 'q2-3',
-        prompt: '¿Cuál es el significado cultural que subraya el texto?',
-        options: [
-          'La necesidad de encerrarse temprano por temor a lo desconocido',
-          'El valor de la tradición oral para preservar el alma de la identidad nacional',
-          'La desconfianza hacia los relatos antiguos',
-          'El abandono de las costumbres coloniales'
-        ],
-        correctIndex: 1,
-        explanation: 'El texto concluye afirmando que el respeto por las narraciones orales preserva el alma de la identidad guatemalteca.'
-      }
+          {
+                "id": "q2-1",
+                "prompt": "¿Qué instrumento musical tocaba el Sombrerón según la leyenda?",
+                "options": [
+                      "Una chirimía de barro cocido",
+                      "Una guitarra de plata",
+                      "Un tambor de cuero de venado",
+                      "Una marimba de tecomates"
+                ],
+                "correctIndex": 1,
+                "explanation": "La leyenda narra que en las noches estrelladas se escuchaban las notas cristalinas de una guitarra de plata."
+          },
+          {
+                "id": "q2-2",
+                "prompt": "¿Qué labor minuciosa realizaba el Sombrerón con los caballos?",
+                "options": [
+                      "Cambiaba sus herraduras de hierro",
+                      "Trenzaba sus crines con primorosa paciencia",
+                      "Los alimentaba con manzanas silvestres",
+                      "Los soltaba para que corrieran por las montañas"
+                ],
+                "correctIndex": 1,
+                "explanation": "El personaje solía trenzar las crines de los corceles con esmero y paciencia artística."
+          },
+          {
+                "id": "q2-3",
+                "prompt": "¿Por qué salían los artesanos del barrio con lámparas de aceite?",
+                "options": [
+                      "Para perseguir y atrapar al personaje misterioso",
+                      "Para contemplar las trenzas perfectas convertidas en obras de arte",
+                      "Para iluminar la iglesia principal del pueblo",
+                      "Para vigilar las carretas de madera"
+                ],
+                "correctIndex": 1,
+                "explanation": "Los artesanos salían asombrados para contemplar cómo la precisión de unas manos invisibles transformaba lo cotidiano en arte."
+          },
+          {
+                "id": "q2-4",
+                "prompt": "¿Cómo describe el relato la vestimenta y apariencia del Sombrerón?",
+                "options": [
+                      "Un gigante con túnica negra y capa de terciopelo",
+                      "Un diminuto personaje de botas relucientes y cinto relampagueante",
+                      "Un jinete misterioso con armadura colonial de plata",
+                      "Un mendigo anciano con bastón de madera"
+                ],
+                "correctIndex": 1,
+                "explanation": "El texto lo retrata como un personaje diminuto que portaba botas brillantes y un cinto relampagueante."
+          },
+          {
+                "id": "q2-5",
+                "prompt": "¿En qué lugar de Santiago se desarrollaban las apariciones del Sombrerón?",
+                "options": [
+                      "En las empedradas calles de la Calle Real",
+                      "En los muelles del Lago de Atitlán",
+                      "En la cima del Cerro de la Cruz",
+                      "En los lavaderos públicos del convento"
+                ],
+                "correctIndex": 0,
+                "explanation": "El escenario colonial son las empedradas calles de la Calle Real de Santiago."
+          },
+          {
+                "id": "q2-6",
+                "prompt": "¿Cuál era el único anhelo que movía las acciones del Sombrerón?",
+                "options": [
+                      "Llevarse las joyas de los balcones",
+                      "Dejar una estela de música y misterio bajo los balcones coloniales",
+                      "Asustar a los niños desobedientes del pueblo",
+                      "Buscar oro enterrado en las plazas"
+                ],
+                "correctIndex": 1,
+                "explanation": "El relato afirma que su único anhelo era dejar una huella de música y misterio bajo los balcones tallados."
+          },
+          {
+                "id": "q2-7",
+                "prompt": "¿Qué actitud mostraba el Sombrerón hacia los animales y seres vivos?",
+                "options": [
+                      "Los espantaba con ruidos estridentes",
+                      "Jamás lastimaba a criatura alguna",
+                      "Los montaba sin permiso durante horas",
+                      "Les cortaba el pelo para hacer cuerdas"
+                ],
+                "correctIndex": 1,
+                "explanation": "El texto aclara expresamente que jamás lastimaba a criatura alguna durante sus recorridos nocturnos."
+          },
+          {
+                "id": "q2-8",
+                "prompt": "¿De qué material estaban elaborados los balcones coloniales mencionados?",
+                "options": [
+                      "De hierro fundido europeo",
+                      "De madera tallada",
+                      "De piedra volcánica negra",
+                      "De ladrillo vidriado"
+                ],
+                "correctIndex": 1,
+                "explanation": "El texto resalta los tradicionales balcones coloniales de madera tallada de Santiago."
+          },
+          {
+                "id": "q2-9",
+                "prompt": "¿Bajo qué condiciones climáticas y lunares aparecía la música en la calle?",
+                "options": [
+                      "En noches lluviosas de tormenta eléctrica",
+                      "En noches estrelladas de luna llena",
+                      "En madrugadas frías de niebla espesa",
+                      "En tardes soleadas de fiesta patronal"
+                ],
+                "correctIndex": 1,
+                "explanation": "Los abuelos cuentan que ocurría específicamente en noches estrelladas de luna llena."
+          },
+          {
+                "id": "q2-10",
+                "prompt": "¿Qué enseñanza cultural subraya la conclusión de la leyenda?",
+                "options": [
+                      "Que las leyendas coloniales deben olvidarse con el progreso",
+                      "Que el respeto por las narraciones orales preserva el alma de la identidad guatemalteca",
+                      "Que los caballos deben guardarse bajo llave por la noche",
+                      "Que la música nocturna perturba el descanso cívico"
+                ],
+                "correctIndex": 1,
+                "explanation": "La conclusión afirma que respetar la tradición oral guarda y preserva el alma de la identidad nacional."
+          }
     ]
   },
   {
@@ -150,42 +318,126 @@ export const KINAL_READINGS: Reading[] = [
     content: `En el principio reinaban la calma y el silencio sobre las aguas primordiales. Los Progenitores, Tepeu y Gucumatz, dialogaron en la penumbra sobre la necesidad de crear un ser dotado de entendimiento, capaz de agradecer la belleza del universo y venerar el curso de los astros. Tras ensayar con el lodo quebradizo y la madera sin memoria, los animales sabios trajeron las mazorcas amarillas y blancas procedentes del mítico Paxil y Cayalá. Con la masa del grano sagrado moldearon los músculos, la sangre y el aliento vital de los primeros cuatro seres humanos: Balam Quitzé, Balam Acab, Mahucutah e Iqui Balam. Al contemplar la creación con ojos claros, estos seres no solo comprendieron la ciencia de la tierra, sino también el valor de la gratitud hacia la vida.`,
     wordCount: 137,
     questions: [
-      {
-        id: 'q3-1',
-        prompt: '¿Cuáles fueron los primeros dos materiales con los que se intentó crear al ser humano?',
-        options: [
-          'Piedra volcánica y corteza de árbol',
-          'Lodo quebradizo y madera sin memoria',
-          'Huesos de jaguar y plumas de guacamaya',
-          'Ceniza sagrada y oro fundido'
-        ],
-        correctIndex: 1,
-        explanation: 'En el mito del Popol Vuh citado, los primeros ensayos fueron de lodo que se deshacía y madera sin memoria.'
-      },
-      {
-        id: 'q3-2',
-        prompt: '¿De qué lugar mítico provenían las mazorcas sagradas?',
-        options: [
-          'De las playas del Golfo de Honduras',
-          'De Paxil y Cayalá',
-          'De la cima del Volcán Tajumulco',
-          'De los cenotes sagrados de Petén'
-        ],
-        correctIndex: 1,
-        explanation: 'El texto especifica que los animales sabios trajeron las mazorcas amarillas y blancas de Paxil y Cayalá.'
-      },
-      {
-        id: 'q3-3',
-        prompt: '¿Cuál era el atributo indispensable que buscaban los Progenitores en su creación?',
-        options: [
-          'Que dominaran a todos los animales con fuerza física',
-          'Que poseyeran entendimiento, memoria y gratitud hacia la existencia',
-          'Que construyeran grandes fortalezas de piedra',
-          'Que no tuvieran necesidad de alimentarse'
-        ],
-        correctIndex: 1,
-        explanation: 'Los creadores buscaban un ser dotado de entendimiento capaz de agradecer la belleza del universo y venerar los astros.'
-      }
+          {
+                "id": "q3-1",
+                "prompt": "¿Quiénes eran los Progenitores que dialogaron para crear al ser humano?",
+                "options": [
+                      "Hunahpú e Ixbalanqué",
+                      "Tepeu y Gucumatz",
+                      "Tecún Umán y Kaibil Balam",
+                      "Quetzalcóatl y Huitzilopochtli"
+                ],
+                "correctIndex": 1,
+                "explanation": "El Popol Vuh nombra como Progenitores primordiales a Tepeu y Gucumatz."
+          },
+          {
+                "id": "q3-2",
+                "prompt": "¿De qué mítico lugar procedían las mazorcas sagradas amarillas y blancas?",
+                "options": [
+                      "Del Valle de Panchoy",
+                      "De Paxil y Cayalá",
+                      "De las cumbres del Tajumulco",
+                      "De las riberas del Río Dulce"
+                ],
+                "correctIndex": 1,
+                "explanation": "Las mazorcas fueron traídas por los animales sabios desde las tierras fértiles de Paxil y Cayalá."
+          },
+          {
+                "id": "q3-3",
+                "prompt": "¿Por qué fracasaron los primeros ensayos de creación con lodo y madera?",
+                "options": [
+                      "Porque eran demasiado pesados para caminar",
+                      "Porque el lodo era quebradizo y la madera carecía de memoria y entendimiento",
+                      "Porque consumían demasiado maíz en las cosechas",
+                      "Porque no podían comunicarse en lengua kʼicheʼ"
+                ],
+                "correctIndex": 1,
+                "explanation": "El lodo se deshacía con el agua y los seres de madera no tenían memoria ni podían dar gracias a los Creadores."
+          },
+          {
+                "id": "q3-4",
+                "prompt": "¿Cuáles eran los nombres de los primeros cuatro seres humanos formados?",
+                "options": [
+                      "Balam Quitzé, Balam Acab, Mahucutah e Iqui Balam",
+                      "Hunahpú, Vucub Caquix, Zipacná y Cabracán",
+                      "Atitlán, Petén, Izabal y Quiché",
+                      "Gucumatz, Huracán, Tohil y Jacawitz"
+                ],
+                "correctIndex": 0,
+                "explanation": "Los primeros cuatro hombres creados de maíz fueron Balam Quitzé, Balam Acab, Mahucutah e Iqui Balam."
+          },
+          {
+                "id": "q3-5",
+                "prompt": "¿Qué partes del ser humano fueron moldeadas con la masa del grano sagrado?",
+                "options": [
+                      "Únicamente los cabellos y las uñas",
+                      "Los músculos, la sangre y el aliento vital",
+                      "Los ojos y las orejas para escuchar a los dioses",
+                      "Las vestiduras y sus armas ceremoniales"
+                ],
+                "correctIndex": 1,
+                "explanation": "Con la masa de maíz blanco y amarillo se formaron los músculos, la sangre y el aliento vital de los primeros humanos."
+          },
+          {
+                "id": "q3-6",
+                "prompt": "¿Qué reinaba en el principio antes de que iniciara la creación del cosmos?",
+                "options": [
+                      "La calma y el silencio sobre las aguas primordiales",
+                      "Un gran fuego volcánico incesante",
+                      "Guerras continuas entre los dioses del inframundo",
+                      "Un viento huracanado sin fin"
+                ],
+                "correctIndex": 0,
+                "explanation": "El relato describe que al principio solo existían la calma y el silencio sobre la superficie de las aguas."
+          },
+          {
+                "id": "q3-7",
+                "prompt": "¿Qué cualidad fundamental buscaban los Creadores en el ser humano que iban a formar?",
+                "options": [
+                      "Que fuera un guerrero implacable contra otros seres",
+                      "Que estuviera dotado de entendimiento y fuera capaz de agradecer la belleza del universo",
+                      "Que acumulara oro y piedras de jade",
+                      "Que pudiera volar más alto que las aves de rapiña"
+                ],
+                "correctIndex": 1,
+                "explanation": "Los dioses deseaban un ser con entendimiento, capaz de venerar los astros y agradecer la vida."
+          },
+          {
+                "id": "q3-8",
+                "prompt": "¿Quiénes guiaron y llevaron las mazorcas nutricias hacia los Progenitores?",
+                "options": [
+                      "Los animales sabios",
+                      "Los sacerdotes de Xibalbá",
+                      "Los gigantes del bosque",
+                      "Las estrellas fugaces"
+                ],
+                "correctIndex": 0,
+                "explanation": "Fueron los animales sabios (el zorro, el coyote, el loro y el cuervo) quienes mostraron el camino al maíz."
+          },
+          {
+                "id": "q3-9",
+                "prompt": "¿Cómo contemplaron la creación los primeros cuatro seres humanos al cobrar vida?",
+                "options": [
+                      "Con temor y deseo de huir del mundo",
+                      "Con ojos claros, comprendiendo la ciencia de la tierra y sintiendo gratitud",
+                      "Con ceguera y desorientación completa",
+                      "Con soberbia frente a los animales del campo"
+                ],
+                "correctIndex": 1,
+                "explanation": "El texto señala que contemplaron el cosmos con ojos claros y gratitud hacia la creación divina."
+          },
+          {
+                "id": "q3-10",
+                "prompt": "Además del conocimiento de la tierra, ¿qué virtud esencial descubrieron los seres de maíz?",
+                "options": [
+                      "El dominio militar sobre los pueblos vecinos",
+                      "El valor de la gratitud hacia la vida",
+                      "La construcción de pirámides gigantescas",
+                      "El cultivo acelerado de plantas medicinales"
+                ],
+                "correctIndex": 1,
+                "explanation": "El Popol Vuh enfatiza que comprendieron el valor espiritual de la gratitud hacia la existencia."
+          }
     ]
   },
   {
@@ -210,42 +462,126 @@ export const KINAL_READINGS: Reading[] = [
     content: `Detrás de cada pantalla luminosa, en cada línea de código compilada en los talleres de informática, late una disciplina rigurosa fundamentada en el pensamiento lógico. Un algoritmo no es magia misteriosa; es una secuencia precisa y finita de instrucciones diseñada para resolver un desafío complejo paso a paso. Desde los pioneros que programaban con tarjetas perforadas hasta los desarrolladores modernos que implementan redes neuronales artificiales, el principio fundamental se mantiene inalterable: la claridad conceptual antecede a la excelencia técnica. Un buen programador no escribe código para que solo una máquina lo ejecute, sino para que otro ser humano lo comprenda y mejore. En la ética del trabajo técnico, cada función optimizada representa respeto hacia quien utilizará esa solución tecnológica.`,
     wordCount: 129,
     questions: [
-      {
-        id: 'q4-1',
-        prompt: '¿Cómo define la lectura el concepto de algoritmo?',
-        options: [
-          'Un lenguaje exclusivo para computadoras cuánticas',
-          'Una secuencia precisa y finita de instrucciones para resolver un problema',
-          'Un dispositivo electrónico de memoria ultra rápida',
-          'Un error imprevisto en el sistema operativo'
-        ],
-        correctIndex: 1,
-        explanation: 'El texto define al algoritmo como una secuencia precisa y finita de instrucciones orientada a resolver un desafío complejo.'
-      },
-      {
-        id: 'q4-2',
-        prompt: 'Según el texto, ¿para quién debe escribir código un buen programador?',
-        options: [
-          'Únicamente para los servidores de alta velocidad',
-          'Para que otro ser humano lo comprenda y mejore colaborativamente',
-          'Para ocultar los secretos comerciales de una empresa',
-          'Para que nadie más pueda modificar el software'
-        ],
-        correctIndex: 1,
-        explanation: 'La lectura destaca que el código se escribe para que otro ser humano lo entienda y lo perfeccione con sentido de equipo.'
-      },
-      {
-        id: 'q4-3',
-        prompt: '¿Qué valor ético del trabajo técnico se resalta en el texto?',
-        options: [
-          'El respeto y empatía hacia las personas destinatarias mediante la optimización',
-          'La rapidez sin importar los errores que puedan surgir',
-          'El cobro elevado por cada línea desarrollada',
-          'La sustitución del factor humano por la máquina'
-        ],
-        correctIndex: 0,
-        explanation: 'El texto indica que cada función optimizada representa respeto hacia quien utilizará esa solución tecnológica.'
-      }
+          {
+                "id": "q4-1",
+                "prompt": "¿Qué es exactamente un algoritmo según la definición técnica del texto?",
+                "options": [
+                      "Un truco de magia reservado para computadoras cuánticas",
+                      "Una secuencia precisa y finita de instrucciones diseñada para resolver un problema paso a paso",
+                      "Un lenguaje de programación exclusivo de redes sociales",
+                      "Un circuito electrónico que almacena contraseñas"
+                ],
+                "correctIndex": 1,
+                "explanation": "El texto define el algoritmo como una secuencia precisa, estructurada y finita de pasos lógicos."
+          },
+          {
+                "id": "q4-2",
+                "prompt": "¿Qué principio fundamental antecede a la excelencia técnica en la programación?",
+                "options": [
+                      "La velocidad de escritura en el teclado",
+                      "La claridad conceptual previa",
+                      "El costo del equipo de computación",
+                      "La cantidad de líneas de código generadas"
+                ],
+                "correctIndex": 1,
+                "explanation": "La lectura postula claramente que la claridad conceptual antecede en todo momento a la excelencia técnica."
+          },
+          {
+                "id": "q4-3",
+                "prompt": "¿Para quién debe escribir código un programador ético y profesional?",
+                "options": [
+                      "Únicamente para los procesadores de silicio",
+                      "Para que otro ser humano lo comprenda, mantenga y mejore",
+                      "Para ocultar sus secretos a sus compañeros de equipo",
+                      "Para generar virus informáticos indetectables"
+                ],
+                "correctIndex": 1,
+                "explanation": "Un buen programador escribe pensando en la legibilidad y colaboración con otros seres humanos."
+          },
+          {
+                "id": "q4-4",
+                "prompt": "¿Qué medio mecánico utilizaban los primeros pioneros para programar computadoras?",
+                "options": [
+                      "Tarjetas perforadas",
+                      "Disquetes magnéticos de tres pulgadas",
+                      "Pantallas táctiles capacitivas",
+                      "Memorias flash USB"
+                ],
+                "correctIndex": 0,
+                "explanation": "El texto menciona la evolución histórica desde los pioneros con tarjetas perforadas hasta la actualidad."
+          },
+          {
+                "id": "q4-5",
+                "prompt": "¿Qué tecnología de vanguardia implementan los desarrolladores contemporáneos?",
+                "options": [
+                      "Redes neuronales artificiales",
+                      "Telégrafos de código Morse",
+                      "Cálculos en ábaco de madera",
+                      "Válvulas de vacío al vacío"
+                ],
+                "correctIndex": 0,
+                "explanation": "Se destaca la implementación contemporánea de redes neuronales artificiales y modelos avanzados."
+          },
+          {
+                "id": "q4-6",
+                "prompt": "En la ética del trabajo técnico, ¿qué simboliza una función de software optimizada?",
+                "options": [
+                      "El orgullo personal del ingeniero",
+                      "Respeto hacia quien utilizará esa solución tecnológica",
+                      "Una justificación para cobrar honorarios más altos",
+                      "Una forma de reducir el sueldo de los diseñadores"
+                ],
+                "correctIndex": 1,
+                "explanation": "Optimizar un código representa un acto de respeto y empatía hacia los usuarios finales."
+          },
+          {
+                "id": "q4-7",
+                "prompt": "¿Qué base formativa sustenta la disciplina rigurosa de los talleres de informática?",
+                "options": [
+                      "El azar y la experimentación sin orden",
+                      "El pensamiento lógico estructurado",
+                      "La intuición sin verificación de datos",
+                      "La copia indiscriminada de foros en internet"
+                ],
+                "correctIndex": 1,
+                "explanation": "El texto subraya que el pensamiento lógico es el pilar de la disciplina en el desarrollo de software."
+          },
+          {
+                "id": "q4-8",
+                "prompt": "¿Por qué se desmiente en la lectura que programar sea un acto de magia misteriosa?",
+                "options": [
+                      "Porque depende de leyes mecánicas del vapor",
+                      "Porque se fundamenta en pasos metódicos, verificables y racionales",
+                      "Porque cualquiera puede programar sin estudiar ni practicar",
+                      "Porque las computadoras no se equivocan jamás"
+                ],
+                "correctIndex": 1,
+                "explanation": "La ingeniería de software es ciencia y método racional, no artificios inexplicables."
+          },
+          {
+                "id": "q4-9",
+                "prompt": "¿Qué lugar formativo se menciona al inicio como cuna de la compilación de código?",
+                "options": [
+                      "Los talleres de informática",
+                      "Las oficinas gubernamentales",
+                      "Las salas de cine digital",
+                      "Los cafés de videojuegos"
+                ],
+                "correctIndex": 0,
+                "explanation": "El texto alude al trabajo riguroso que se vive en los talleres y laboratorios de informática."
+          },
+          {
+                "id": "q4-10",
+                "prompt": "¿Qué cualidad de las instrucciones garantiza que un algoritmo no se ejecute infinitamente?",
+                "options": [
+                      "Que sean infinitas y complejas",
+                      "Que sean finitas y tengan un criterio claro de terminación",
+                      "Que dependan del clima del procesador",
+                      "Que contengan miles de variables aleatorias"
+                ],
+                "correctIndex": 1,
+                "explanation": "Por definición, un algoritmo debe constar de una serie finita y determinada de pasos."
+          }
     ]
   },
   {
@@ -270,42 +606,126 @@ export const KINAL_READINGS: Reading[] = [
     content: `El valle de Panchoy guarda en sus muros de calicanto el eco de cinco siglos de historia y resiliencia. Cuando el sol se oculta tras la silueta imponente del Volcán de Agua, la Antigua Guatemala se ilumina con la luz ámbar de sus faroles coloniales. Aquellos faroleros del siglo dieciocho caminaban con varas de pino encendiendo linterna por linterna, asegurando que los artesanos, tejedores y carpinteros regresaran sanos a sus hogares tras agotadoras jornadas de labor. No era un oficio menor; de su constancia dependía la seguridad de toda la comunidad. Aquel compromiso diario con el deber cívico es el mismo espíritu que hoy inspira a los jóvenes técnicos a iluminar el futuro con su profesión honesta y comprometida.`,
     wordCount: 125,
     questions: [
-      {
-        id: 'q5-1',
-        prompt: '¿En qué valle se encuentra asentada la Antigua Guatemala según la crónica?',
-        options: [
-          'En el Valle de las Vacas',
-          'En el Valle de Panchoy',
-          'En el Valle de la Ermita',
-          'En el Valle de Salamá'
-        ],
-        correctIndex: 1,
-        explanation: 'La crónica inicia indicando que el valle de Panchoy guarda el eco de cinco siglos de historia.'
-      },
-      {
-        id: 'q5-2',
-        prompt: '¿Cuál era la misión principal de los antiguos faroleros?',
-        options: [
-          'Vender velas y aceite a los comerciantes de la plaza',
-          'Encender linterna por linterna para asegurar el tránsito seguro de los artesanos',
-          'Tocar las campanas de las iglesias a medianoche',
-          'Pintar las fachadas de los conventos de amarillo'
-        ],
-        correctIndex: 1,
-        explanation: 'Los faroleros garantizaban con constancia que los trabajadores regresaran seguros a sus hogares con luz en el camino.'
-      },
-      {
-        id: 'q5-3',
-        prompt: '¿Qué analogía formativa establece el texto al concluir?',
-        options: [
-          'Compara la labor de los faroleros con el compromiso de los jóvenes técnicos de iluminar el futuro',
-          'Critica los métodos antiguos frente a la tecnología moderna',
-          'Señala que los volcanes amenazan el desarrollo industrial',
-          'Sugiere abandonar los oficios manuales'
-        ],
-        correctIndex: 0,
-        explanation: 'El texto enlaza la constancia de los faroleros con el deber de los jóvenes técnicos de iluminar el porvenir con su trabajo.'
-      }
+          {
+                "id": "q5-1",
+                "prompt": "¿Qué valle histórico alberga los muros de calicanto de la Antigua Guatemala?",
+                "options": [
+                      "El Valle de las Vacas",
+                      "El Valle de Panchoy",
+                      "El Valle del Motagua",
+                      "El Valle de la Ermita"
+                ],
+                "correctIndex": 1,
+                "explanation": "El relato histórico se sitúa en el emblemático Valle de Panchoy, asiento de Santiago de los Caballeros."
+          },
+          {
+                "id": "q5-2",
+                "prompt": "¿Qué herramienta utilizaban los faroleros coloniales para encender las luminarias?",
+                "options": [
+                      "Fósforos de azufre importados",
+                      "Varas de pino encendidas",
+                      "Mecheros de gas butano",
+                      "Pilas eléctricas primarias"
+                ],
+                "correctIndex": 1,
+                "explanation": "Los operarios caminaban con varas de ocote y pino encendiendo linterna tras linterna."
+          },
+          {
+                "id": "q5-3",
+                "prompt": "¿Qué oficios de trabajadores se beneficiaban del alumbrado para regresar seguros?",
+                "options": [
+                      "Marineros y pescadores de altamar",
+                      "Artesanos, tejedores y carpinteros",
+                      "Pilotos aviadores y maquinistas",
+                      "Mineros de carbón subterráneo"
+                ],
+                "correctIndex": 1,
+                "explanation": "El texto nombra a los artesanos, tejedores y carpinteros que volvían de sus faenas al hogar."
+          },
+          {
+                "id": "q5-4",
+                "prompt": "¿Tras qué accidente geográfico se oculta el sol al atardecer en la ciudad colonial?",
+                "options": [
+                      "El Volcán Tajumulco",
+                      "La silueta imponente del Volcán de Agua",
+                      "El Volcán Pacaya",
+                      "La Sierra de los Cuchumatanes"
+                ],
+                "correctIndex": 1,
+                "explanation": "La puesta de sol se describe recortada tras la silueta del Volcán de Agua (Hunapú)."
+          },
+          {
+                "id": "q5-5",
+                "prompt": "¿En qué siglo histórico se contextualiza la labor cotidiana de estos faroleros?",
+                "options": [
+                      "En el siglo catorce",
+                      "En el siglo dieciocho",
+                      "En el siglo veintiuno",
+                      "En el siglo diez antes de Cristo"
+                ],
+                "correctIndex": 1,
+                "explanation": "El texto especifica que se trata de los faroleros del siglo dieciocho en la capital del Reino."
+          },
+          {
+                "id": "q5-6",
+                "prompt": "¿De qué dependía la seguridad ciudadana nocturna según la crónica?",
+                "options": [
+                      "De las murallas y fosos defensivos",
+                      "De la constancia y disciplina diaria de los faroleros",
+                      "De que nadie saliera de sus casas bajo pena de multa",
+                      "De los carruajes blindados de la época"
+                ],
+                "correctIndex": 1,
+                "explanation": "La seguridad pública dependía de la puntualidad y constancia cívica de quienes iluminaban la ciudad."
+          },
+          {
+                "id": "q5-7",
+                "prompt": "¿Qué color de iluminación bañaba las empedradas calles de la ciudad colonial?",
+                "options": [
+                      "Luz blanca fluorescente",
+                      "Luz ámbar de faroles coloniales",
+                      "Luz azulada de gas xenón",
+                      "Luz roja de bengalas"
+                ],
+                "correctIndex": 1,
+                "explanation": "Los faroles coloniales emitían una cálida luz ámbar sobre las calles de calicanto."
+          },
+          {
+                "id": "q5-8",
+                "prompt": "¿Cuántos siglos de historia y resiliencia resguardan los muros de la ciudad?",
+                "options": [
+                      "Apenas cincuenta años",
+                      "Cinco siglos de historia",
+                      "Dos milenios ininterrumpidos",
+                      "Diez siglos de conquista"
+                ],
+                "correctIndex": 1,
+                "explanation": "El texto abre destacando el eco de cinco siglos de historia y resiliencia comunitaria."
+          },
+          {
+                "id": "q5-9",
+                "prompt": "¿Cómo vincula el texto el oficio del farolero con los jóvenes estudiantes técnicos?",
+                "options": [
+                      "Les aconseja cambiar de carrera hacia la herrería",
+                      "Los inspira a iluminar el futuro con una profesión honesta y comprometida",
+                      "Les exige trabajar únicamente en horarios nocturnos",
+                      "Les pide restaurar los faroles de calicanto"
+                ],
+                "correctIndex": 1,
+                "explanation": "El compromiso cívico de antaño inspira a los jóvenes técnicos a servir con ética a su sociedad."
+          },
+          {
+                "id": "q5-10",
+                "prompt": "¿Qué tipo de material constructivo tradicional forma los muros históricos de Panchoy?",
+                "options": [
+                      "Concreto armado con varillas de acero",
+                      "Calicanto (mezcla de cal, arena y canto rodado)",
+                      "Tablayeso prefabricado",
+                      "Plástico reforzado con fibra"
+                ],
+                "correctIndex": 1,
+                "explanation": "Los muros coloniales fueron levantados con la técnica ancestral de calicanto."
+          }
     ]
   },
   {
@@ -330,42 +750,126 @@ export const KINAL_READINGS: Reading[] = [
     content: `En lo profundo de la selva petenera, las crestas del Templo del Gran Jaguar se elevan como antenas astronómicas hacia el firmamento estrellado. Los sabios mayas no solo fueron constructores portentosos capaces de transportar toneladas de piedra caliza sin bestias de carga ni ruedas metálicas; fueron, ante todo, matemáticos prodigiosos que idearon el concepto del cero siglos antes de que este fuera adoptado en Europa. Con una exactitud que aún conmueve a los astrofísicos modernos, calcularon el ciclo sinódico de Venus y predijeron eclipses solares con márgenes de error mínimos. Estudiar la ingeniería maya nos enseña que el rigor científico y la observación perseverante son capaces de trascender milenios, erigiendo monumentos al conocimiento que desafían el paso del tiempo.`,
     wordCount: 128,
     questions: [
-      {
-        id: 'q6-1',
-        prompt: '¿Qué hito matemático mayance destaca el texto como adelantado a Europa?',
-        options: [
-          'La creación del ábaco de bronce',
-          'La concepción matemática del número cero',
-          'La geometría analítica tridimensional',
-          'El cálculo infinitesimal integral'
-        ],
-        correctIndex: 1,
-        explanation: 'El texto enfatiza que los mayas idearon el concepto del cero siglos antes de su adopción en Europa.'
-      },
-      {
-        id: 'q6-2',
-        prompt: '¿El ciclo de qué planeta calcularon con asombrosa exactitud los sabios de Tikal?',
-        options: [
-          'Marte',
-          'Júpiter',
-          'Venus',
-          'Saturno'
-        ],
-        correctIndex: 2,
-        explanation: 'Se menciona puntualmente el cálculo milimétrico del ciclo sinódico de Venus y la predicción de eclipses.'
-      },
-      {
-        id: 'q6-3',
-        prompt: '¿Cuál es la lección de la ingeniería maya según el autor?',
-        options: [
-          'Que el rigor científico y la observación perseverante trascienden las eras',
-          'Que las pirámides tenían propósitos estrictamente bélicos',
-          'Que sin tecnología digital no es posible hacer ciencia',
-          'Que el conocimiento debe guardarse en secreto'
-        ],
-        correctIndex: 0,
-        explanation: 'La conclusión sintetiza que el rigor científico y la observación perseverante son monumentos eternos al conocimiento.'
-      }
+          {
+                "id": "q6-1",
+                "prompt": "¿Qué templo monumental se eleva en la selva como antena astronómica maya?",
+                "options": [
+                      "El Templo de las Inscripciones",
+                      "El Templo del Gran Jaguar",
+                      "El Templo de Rosalila",
+                      "La Pirámide de Kukulcán"
+                ],
+                "correctIndex": 1,
+                "explanation": "El texto describe las crestas del Templo del Gran Jaguar (Templo I de Tikal)."
+          },
+          {
+                "id": "q6-2",
+                "prompt": "¿Qué invención matemática maya revolucionó el cálculo siglos antes que en Europa?",
+                "options": [
+                      "El álgebra de matrices",
+                      "El concepto del cero",
+                      "El cálculo diferencial e integral",
+                      "Los logaritmos neperianos"
+                ],
+                "correctIndex": 1,
+                "explanation": "Los matemáticos mayas concibieron el concepto y uso del cero mucho antes que en el continente europeo."
+          },
+          {
+                "id": "q6-3",
+                "prompt": "¿El ciclo sinódico de qué cuerpo celeste calcularon con asombrosa exactitud?",
+                "options": [
+                      "Del planeta Marte",
+                      "Del planeta Venus",
+                      "De los anillos de Saturno",
+                      "Del cometa Halley"
+                ],
+                "correctIndex": 1,
+                "explanation": "Los códices y alineaciones de Tikal registraron el ciclo sinódico de Venus con máxima precisión."
+          },
+          {
+                "id": "q6-4",
+                "prompt": "¿En qué región selvática guatemalteca se encuentran los vestigios de Tikal?",
+                "options": [
+                      "En la costa sur de Escuintla",
+                      "En la densa selva petenera",
+                      "En los bosques de Chimaltenango",
+                      "En las playas de Izabal"
+                ],
+                "correctIndex": 1,
+                "explanation": "Tikal se erige en el corazón de la Reserva de la Biosfera Maya en Petén."
+          },
+          {
+                "id": "q6-5",
+                "prompt": "¿Qué proeza de ingeniería lograron los mayas al construir sus pirámides?",
+                "options": [
+                      "Usaron grúas hidráulicas de vapor",
+                      "Transportaron toneladas de piedra caliza sin ruedas metálicas ni bestias de carga",
+                      "Importaron granito desde los Andes",
+                      "Construyeron túneles ferroviarios"
+                ],
+                "correctIndex": 1,
+                "explanation": "Movieron enormes bloques de caliza mediante organización social, cuerdas y fuerza humana coordinada."
+          },
+          {
+                "id": "q6-6",
+                "prompt": "¿Qué eventos cósmicos predijeron los astrónomos mayas con márgenes mínimos de error?",
+                "options": [
+                      "Eclipses solares y lunares",
+                      "La caída de meteoritos en el océano",
+                      "Tormentas geomagnéticas modernas",
+                      "El choque de galaxias lejanas"
+                ],
+                "correctIndex": 0,
+                "explanation": "La astronomía maya calculó fechas exactas de eclipses solares y tránsitos astrales."
+          },
+          {
+                "id": "q6-7",
+                "prompt": "¿A qué profesionales contemporáneos sigue conmoviendo el rigor de los sabios mayas?",
+                "options": [
+                      "A los astrofísicos modernos",
+                      "A los pilotos de carreras",
+                      "A los banqueros internacionales",
+                      "A los fabricantes de automóviles"
+                ],
+                "correctIndex": 0,
+                "explanation": "El texto señala que la precisión de los cálculos mayas aún conmueve a los astrofísicos de hoy."
+          },
+          {
+                "id": "q6-8",
+                "prompt": "¿Cuáles son las dos virtudes metodológicas que permitieron a los mayas trascender milenios?",
+                "options": [
+                      "El rigor científico y la observación perseverante",
+                      "La improvisación y la suerte climática",
+                      "El comercio de jade y la diplomacia",
+                      "El aislamiento del resto de Mesoamérica"
+                ],
+                "correctIndex": 0,
+                "explanation": "El texto concluye que el rigor científico y la observación tenaz desafiaron el paso del tiempo."
+          },
+          {
+                "id": "q6-9",
+                "prompt": "¿De qué material mineral están construidos los templos y calzadas de Tikal?",
+                "options": [
+                      "Piedra pómez volcánica",
+                      "Piedra caliza",
+                      "Mármol blanco pulido",
+                      "Adobe con paja seca"
+                ],
+                "correctIndex": 1,
+                "explanation": "Las canteras peteneras proporcionaron la resistente piedra caliza para las acrópolis y templos."
+          },
+          {
+                "id": "q6-10",
+                "prompt": "¿Qué lección permanente deja la ingeniería maya a los técnicos de hoy?",
+                "options": [
+                      "Que el conocimiento perseverante y la disciplina erigen obras que superan el tiempo",
+                      "Que las construcciones deben abandonarse en la selva",
+                      "Que la ciencia antigua no tiene aplicación actual",
+                      "Que solo se debe estudiar lo que genera dinero inmediato"
+                ],
+                "correctIndex": 0,
+                "explanation": "La historia demuestra que el rigor y la perseverancia erigen monumentos imperecederos al saber."
+          }
     ]
   },
   {
@@ -390,42 +894,126 @@ export const KINAL_READINGS: Reading[] = [
     content: `La noche guatemalteca tiene ojos vigilantes. Cuando la niebla desciende sobre los barrancos de la meseta central, los caminantes que regresan a altas horas de la noche tras cumplir con sus responsabilidades sienten a menudo unos pasos silenciosos a su lado. Se trata del Cadejo Blanco, un ser protector de pelaje luminoso y mirada serena que resguarda a los hombres laboriosos contra los peligros y asechanzas de la oscuridad. A diferencia de su contraparte sombría, este noble espíritu jamás ataca; camina fielmente a la diestra del transeúnte hasta dejarlo a las puertas de su hogar. La tradición popular plasma en esta figura el valor de la lealtad protectora y la convicción de que el esfuerzo honesto siempre encuentra una fuerza benefactora que lo acompaña en el camino.`,
     wordCount: 133,
     questions: [
-      {
-        id: 'q7-1',
-        prompt: '¿Cuál es la función del Cadejo Blanco en la tradición relatada?',
-        options: [
-          'Asustar a los habitantes de las aldeas',
-          'Proteger y custodiar a los caminantes laboriosos hasta su hogar',
-          'Cuidar los tesoros enterrados en los volcanes',
-          'Guíar a los rebaños de ovejas'
-        ],
-        correctIndex: 1,
-        explanation: 'El relato describe al Cadejo Blanco como un protector fiel que resguarda al transeúnte honrado hasta la puerta de su casa.'
-      },
-      {
-        id: 'q7-2',
-        prompt: '¿Cómo se describe el comportamiento del Cadejo Blanco?',
-        options: [
-          'Agresivo y ruidoso en las encrucijadas',
-          'Silencioso, de mirada serena y sin atacar jamás',
-          'Temeroso de la luz y esquivo',
-          'Invisible y burlón con los viajeros'
-        ],
-        correctIndex: 1,
-        explanation: 'El texto aclara que es un ser de pasos silenciosos, pelaje luminoso, mirada serena que jamás agrede.'
-      },
-      {
-        id: 'q7-3',
-        prompt: '¿Qué valor moral representa esta leyenda en la cultura comunitaria?',
-        options: [
-          'La desconfianza en el prójimo durante la noche',
-          'La convicción de que la lealtad y el esfuerzo honesto son protegidos',
-          'El temor paralizante ante la naturaleza',
-          'La superstición sin fundamento ético'
-        ],
-        correctIndex: 1,
-        explanation: 'La historia encarna la convicción de que el trabajo honesto y la lealtad atraen fuerzas protectoras y bienestar.'
-      }
+          {
+                "id": "q7-1",
+                "prompt": "¿A quiénes protege especialmente el Cadejo Blanco en los caminos?",
+                "options": [
+                      "A los cazadores furtivos de animales salvajes",
+                      "A los caminantes laboriosos que regresan tarde de cumplir sus responsabilidades",
+                      "A los bandidos que esperan en las curvas del barranco",
+                      "A los jinetes que compiten por apuestas"
+                ],
+                "correctIndex": 1,
+                "explanation": "La tradición resalta que el espíritu blanco cuida a los trabajadores honestos en la noche."
+          },
+          {
+                "id": "q7-2",
+                "prompt": "¿En qué se diferencia radicalmente el Cadejo Blanco de su contraparte sombría?",
+                "options": [
+                      "En que tiene alas gigantescas de lechuza",
+                      "En que jamás ataca y actúa como protector silencioso",
+                      "En que habla en idiomas extranjeros",
+                      "En que huye ante la presencia de seres humanos"
+                ],
+                "correctIndex": 1,
+                "explanation": "A diferencia del cadejo oscuro, el blanco es leal, noble y no daña a nadie."
+          },
+          {
+                "id": "q7-3",
+                "prompt": "¿De qué lado del caminante se ubica para escoltarlo fielmente?",
+                "options": [
+                      "Flotando sobre su cabeza en el aire",
+                      "Fielmente a la diestra (a su derecha)",
+                      "Tres metros detrás escondido en los arbustos",
+                      "Corriendo en círculos alrededor del transeúnte"
+                ],
+                "correctIndex": 1,
+                "explanation": "El relato describe que camina con paso sereno a la diestra del caminante."
+          },
+          {
+                "id": "q7-4",
+                "prompt": "¿Hasta qué sitio acompaña el Cadejo Blanco a la persona protegida?",
+                "options": [
+                      "Hasta la plaza mayor de la ciudad",
+                      "Hasta las mismas puertas de su hogar",
+                      "Hasta el borde del barranco más peligroso",
+                      "Hasta el amanecer en el cementerio"
+                ],
+                "correctIndex": 1,
+                "explanation": "La leyenda afirma que custodia al trabajador hasta dejarlo seguro en la puerta de su casa."
+          },
+          {
+                "id": "q7-5",
+                "prompt": "¿Qué rasgos visuales caracterizan la figura del noble animal guardián?",
+                "options": [
+                      "Pelaje luminoso y mirada serena",
+                      "Ojos de fuego ardiente y garras de hierro",
+                      "Cuerpo transparente sin sombra",
+                      "Pelaje verde oscuro con manchas doradas"
+                ],
+                "correctIndex": 0,
+                "explanation": "El texto describe su pelaje blanco reluciente y una mirada calmada y vigilante."
+          },
+          {
+                "id": "q7-6",
+                "prompt": "¿Qué tipo de pasos advierten los caminantes en la oscuridad antes de verlo?",
+                "options": [
+                      "Pasos silenciosos y rítmicos a su lado",
+                      "El trote pesado de un caballo de carga",
+                      "El chasquido de ramas rotas con violencia",
+                      "Campanillas metálicas estridentes"
+                ],
+                "correctIndex": 0,
+                "explanation": "Los caminantes perciben unos pasos sigilosos y protectores que caminan a su compás."
+          },
+          {
+                "id": "q7-7",
+                "prompt": "¿Dónde desciende la niebla en el contexto geográfico descrito en la leyenda?",
+                "options": [
+                      "Sobre los arrecifes de coral del Caribe",
+                      "Sobre los barrancos de la meseta central guatemalteca",
+                      "En las dunas del desierto de Zacapa",
+                      "En las faldas nevadas de los volcanes andinos"
+                ],
+                "correctIndex": 1,
+                "explanation": "La historia se ambienta en la meseta central y sus característicos barrancos y veredas."
+          },
+          {
+                "id": "q7-8",
+                "prompt": "¿Qué valor moral y humano personifica el Cadejo Blanco en la cultura popular?",
+                "options": [
+                      "El valor de la lealtad protectora",
+                      "La venganza contra los enemigos",
+                      "La vanidad y el deseo de aplausos",
+                      "El egoísmo frente a los necesitados"
+                ],
+                "correctIndex": 0,
+                "explanation": "La tradición ve en el Cadejo Blanco un símbolo entrañable de fidelidad y protección desinteresada."
+          },
+          {
+                "id": "q7-9",
+                "prompt": "¿Qué convicción reconfortante transmite la leyenda a los hombres trabajadores?",
+                "options": [
+                      "Que no vale la pena esforzarse en horarios nocturnos",
+                      "Que el esfuerzo honesto siempre encuentra una fuerza benefactora que lo acompaña",
+                      "Que la noche está dominada por espíritus destructivos sin esperanza",
+                      "Que los animales domésticos son peligrosos en la oscuridad"
+                ],
+                "correctIndex": 1,
+                "explanation": "El relato refuerza la creencia moral de que la rectitud del trabajo honesto atrae amparo y bien."
+          },
+          {
+                "id": "q7-10",
+                "prompt": "¿Por qué la noche guatemalteca se describe con \"ojos vigilantes\"?",
+                "options": [
+                      "Por las cámaras de seguridad electrónicas de la época",
+                      "Por la presencia tutelar de seres que cuidan la integridad de los caminantes",
+                      "Por la invasión de búhos rapaces en los techos",
+                      "Por el brillo de los faros de los automóviles"
+                ],
+                "correctIndex": 1,
+                "explanation": "La metáfora alude al misterio de los guardianes tradicionales que velan en la penumbra."
+          }
     ]
   },
   {
@@ -450,42 +1038,126 @@ export const KINAL_READINGS: Reading[] = [
     content: `En la escala del nanómetro, una milmillonésima parte de un metro, las leyes convencionales de la física dan paso a fenómenos cuánticos extraordinarios. La nanotecnología no es simplemente la miniaturización de componentes electrónicos; es la capacidad del ser humano para manipular átomos y moléculas individuales con precisión quirúrgica. En los campos de la medicina regenerativa, nanomáquinas inteligentes patrullarán el torrente sanguíneo neutralizando patógenos antes de que originen enfermedades. En la ingeniería civil y eléctrica, nanotubos de carbono cien veces más resistentes que el acero y cinco veces más ligeros revolucionarán la infraestructura energética mundial. Los estudiantes técnicos que hoy dominan los fundamentos de la química y la física aplicada serán los arquitectos de esta nueva era de prosperidad tecnológica sustentable.`,
     wordCount: 129,
     questions: [
-      {
-        id: 'q8-1',
-        prompt: '¿A cuánto equivale exactamente un nanómetro?',
-        options: [
-          'A la milésima parte de un milímetro',
-          'A una milmillonésima parte de un metro',
-          'A la millonésima parte de un centímetro',
-          'A la mitad de un micrómetro'
-        ],
-        correctIndex: 1,
-        explanation: 'El texto indica con precisión que un nanómetro corresponde a una milmillonésima parte de un metro.'
-      },
-      {
-        id: 'q8-2',
-        prompt: '¿Qué propiedad sobresaliente poseen los nanotubos de carbono mencionados?',
-        options: [
-          'Son cien veces más resistentes que el acero y cinco veces más ligeros',
-          'Son biodegradables en menos de veinticuatro horas',
-          'Emiten luz fosforescente continua sin consumir energía',
-          'Son extremadamente frágiles pero conductores térmicos'
-        ],
-        correctIndex: 0,
-        explanation: 'La lectura detalla que son 100 veces más resistentes que el acero y 5 veces más livianos.'
-      },
-      {
-        id: 'q8-3',
-        prompt: '¿Qué rol asigna el texto a los estudiantes técnicos de la actualidad?',
-        options: [
-          'Ser meros consumidores pasivos de tecnología extranjera',
-          'Ser los futuros arquitectos de una era de prosperidad tecnológica sustentable',
-          'Limitarse a la reparación de artefactos antiguos',
-          'Abandonar los estudios teóricos en favor de la improvisación'
-        ],
-        correctIndex: 1,
-        explanation: 'El texto afirma que los estudiantes técnicos serán los arquitectos de una era sustentable gracias al dominio científico.'
-      }
+          {
+                "id": "q8-1",
+                "prompt": "¿A qué fracción de un metro equivale exactamente la escala de un nanómetro?",
+                "options": [
+                      "A una milésima parte de un metro",
+                      "A una millonésima parte de un metro",
+                      "A una milmillonésima parte de un metro",
+                      "A la mitad exacta de un milímetro"
+                ],
+                "correctIndex": 2,
+                "explanation": "Un nanómetro (1 nm) es igual a 10^-9 metros, es decir, una milmillonésima parte de un metro."
+          },
+          {
+                "id": "q8-2",
+                "prompt": "¿Qué tipo de fenómenos físicos rigen la materia a escala nanométrica?",
+                "options": [
+                      "Fenómenos cuánticos extraordinarios",
+                      "Leyes gravitacionales newtonianas clásicas",
+                      "Propiedades térmicas a escala de vapor",
+                      "Efectos magnéticos de gran volumen"
+                ],
+                "correctIndex": 0,
+                "explanation": "A nivel atómico las leyes mecánicas clásicas ceden su lugar a los fenómenos de la mecánica cuántica."
+          },
+          {
+                "id": "q8-3",
+                "prompt": "¿Cuál es la definición profunda de nanotecnología según la lectura técnica?",
+                "options": [
+                      "Simplemente encoger teléfonos celulares",
+                      "La capacidad de manipular átomos y moléculas individuales con precisión",
+                      "La invención de plásticos biodegradables",
+                      "El reciclaje de pantallas viejas de televisión"
+                ],
+                "correctIndex": 1,
+                "explanation": "La nanotecnología es el diseño y control de la materia átomo por átomo."
+          },
+          {
+                "id": "q8-4",
+                "prompt": "¿Qué aplicación médica tendrán las nanomáquinas inteligentes en el futuro?",
+                "options": [
+                      "Reemplazarán los análisis de sangre en laboratorio",
+                      "Patrullarán el torrente sanguíneo neutralizando patógenos antes de causar enfermedad",
+                      "Fabricarán vendas quirúrgicas de algodón",
+                      "Medirán la estatura del paciente desde afuera"
+                ],
+                "correctIndex": 1,
+                "explanation": "La nanomedicina proyecta dispositivos capaces de neutralizar virus y bacterias directamente en la sangre."
+          },
+          {
+                "id": "q8-5",
+                "prompt": "¿Qué material revolucionario se destaca en la ingeniería civil y eléctrica?",
+                "options": [
+                      "El hormigón tradicional de cal y piedra",
+                      "Los nanotubos de carbono",
+                      "El alambre de cobre estañado",
+                      "Las varillas de hierro dulce"
+                ],
+                "correctIndex": 1,
+                "explanation": "Los nanotubos de carbono ofrecen propiedades mecánicas y eléctricas sin precedentes en la industria."
+          },
+          {
+                "id": "q8-6",
+                "prompt": "¿Qué comparación de resistencia mecánica tienen los nanotubos respecto al acero?",
+                "options": [
+                      "Son diez veces menos resistentes",
+                      "Son cien veces más resistentes que el acero",
+                      "Tienen exactamente la misma fuerza",
+                      "Solo resisten calor moderado"
+                ],
+                "correctIndex": 1,
+                "explanation": "Estructuralmente, los nanotubos de carbono son hasta 100 veces más resistentes a la tracción que el acero."
+          },
+          {
+                "id": "q8-7",
+                "prompt": "¿Qué ventaja de peso presentan estos nanotubos frente al acero convencional?",
+                "options": [
+                      "Pesan el doble por metro cuadrado",
+                      "Son cinco veces más ligeros",
+                      "Tienen un peso idéntico al plomo",
+                      "Son tan pesados que no pueden flotar"
+                ],
+                "correctIndex": 1,
+                "explanation": "Combinan una resistencia colosal con un peso cinco veces menor que el acero."
+          },
+          {
+                "id": "q8-8",
+                "prompt": "¿Qué disciplinas científicas fundamentales deben dominar los jóvenes estudiantes técnicos?",
+                "options": [
+                      "La química y la física aplicada",
+                      "La astrología y la numerología",
+                      "El mercadeo de electrodomésticos",
+                      "La contabilidad manual en libros"
+                ],
+                "correctIndex": 0,
+                "explanation": "El texto enfatiza que la química molecular y la física aplicada son los cimientos de esta tecnología."
+          },
+          {
+                "id": "q8-9",
+                "prompt": "¿Cómo describe la lectura el impacto que tendrán los técnicos en la sociedad del mañana?",
+                "options": [
+                      "Serán espectadores pasivos del desarrollo extranjero",
+                      "Serán los arquitectos de una nueva era de prosperidad tecnológica sustentable",
+                      "Deberán abandonar la tecnología para regresar al pasado",
+                      "Se limitarán a reparar cables dañados"
+                ],
+                "correctIndex": 1,
+                "explanation": "La formación técnica capacita a los jóvenes para liderar y diseñar soluciones sustentables para el país."
+          },
+          {
+                "id": "q8-10",
+                "prompt": "¿Qué rama de la medicina innovadora se transformará con estas nanomáquinas?",
+                "options": [
+                      "La odontología cosmética tradicional",
+                      "La medicina regenerativa",
+                      "La fisioterapia de masajes",
+                      "La farmacia de remedios caseros"
+                ],
+                "correctIndex": 1,
+                "explanation": "La medicina regenerativa aprovechará la nanotecnología para reconstruir tejidos y sanar células."
+          }
     ]
   },
   {
@@ -510,42 +1182,126 @@ export const KINAL_READINGS: Reading[] = [
     content: `...¡Alumbra, lumbre de alumbre, Luzbel de piedra lumbre sobre la podredumbre!... Las campanas del Portal del Señor tañían su clamor de bronce en la penumbra de la ciudad soñolienta. Miguel Ángel Asturias, Premio Nobel de Literatura de Guatemala, plasmó en esta obra maestra la fuerza deslumbrante del surrealismo y el compromiso cívico de la palabra escrita. Cada metáfora asturiana no es un adorno superfluo, sino un bisturí que disecciona la realidad social con valentía y hondura poética. El lenguaje se transforma en música telúrica que retumba en la conciencia colectiva, demostrando que la literatura es un escudo contra el olvido y una antorcha de libertad para las generaciones venideras. Quien aprende a leer críticamente esta prosa adquiere una coraza contra el engaño y una voz firme para defender la justicia.`,
     wordCount: 139,
     questions: [
-      {
-        id: 'q9-1',
-        prompt: '¿Qué prestigioso galardón universal obtuvo el autor Miguel Ángel Asturias?',
-        options: [
-          'Premio Cervantes de las Letras',
-          'Premio Nobel de Literatura',
-          'Premio Pulitzer de Crónica',
-          'Premio Príncipe de Asturias'
-        ],
-        correctIndex: 1,
-        explanation: 'Miguel Ángel Asturias fue galardonado con el Premio Nobel de Literatura en 1967 por su cumbre literaria.'
-      },
-      {
-        id: 'q9-2',
-        prompt: '¿Qué papel cumple la metáfora en la poética asturiana según el texto?',
-        options: [
-          'Un simple adorno decorativo para entretener sin contenido',
-          'Un bisturí que disecciona la realidad social con hondura poética y valentía',
-          'Un recurso cómico para desviar la atención de los problemas',
-          'Una imitación de los clásicos grecolatinos'
-        ],
-        correctIndex: 1,
-        explanation: 'El texto afirma que no es un adorno superfluo, sino un bisturí que analiza la realidad con valentía.'
-      },
-      {
-        id: 'q9-3',
-        prompt: '¿Qué beneficio formativo otorga la lectura crítica de esta obra?',
-        options: [
-          'Una coraza contra el engaño y voz firme para defender la justicia',
-          'Memorización de datos sin aplicación práctica',
-          'Distanciamiento de los problemas del país',
-          'Aprender técnicas de oratoria comercial'
-        ],
-        correctIndex: 0,
-        explanation: 'Se concluye que la lectura crítica brinda discernimiento y una voz comprometida con la verdad cívica.'
-      }
+          {
+                "id": "q9-1",
+                "prompt": "¿Con qué famosa aliteración sonora abre el fragmento de Miguel Ángel Asturias?",
+                "options": [
+                      "\"En un lugar de la Mancha de cuyo nombre no quiero acordarme...\"",
+                      "\"...¡Alumbra, lumbre de alumbre, Luzbel de piedra lumbre sobre la podredumbre!...\"",
+                      "\"Canto a la noche oscura que cubre los volcanes...\"",
+                      "\"Hombres necios que acusáis a la mujer sin razón...\""
+                ],
+                "correctIndex": 1,
+                "explanation": "Es la célebre apertura rítmica y onomatopéyica de \"El Señor Presidente\"."
+          },
+          {
+                "id": "q9-2",
+                "prompt": "¿Qué máximo galardón de las letras mundiales recibió el guatemalteco Miguel Ángel Asturias?",
+                "options": [
+                      "Premio Pulitzer de Periodismo",
+                      "Premio Nobel de Literatura",
+                      "Premio Cervantes de Poesía",
+                      "Medalla de Oro de la UNESCO"
+                ],
+                "correctIndex": 1,
+                "explanation": "Asturias fue galardonado con el Premio Nobel de Literatura en 1967 por su obra universal."
+          },
+          {
+                "id": "q9-3",
+                "prompt": "¿Dónde sonaban las campanas de bronce en la penumbra de la ciudad?",
+                "options": [
+                      "En la Catedral Metropolitana de Quetzaltenango",
+                      "En el Portal del Señor",
+                      "En la iglesia de San Francisco en la Antigua",
+                      "En el campanario del Cerrito del Carmen"
+                ],
+                "correctIndex": 1,
+                "explanation": "El texto localiza las campanas tañendo su clamor en el Portal del Señor."
+          },
+          {
+                "id": "q9-4",
+                "prompt": "¿A qué corriente literaria y vanguardista pertenece la técnica estética de la obra?",
+                "options": [
+                      "Al neoclasicismo estricto",
+                      "Al surrealismo y realismo mágico",
+                      "Al romanticismo sentimental",
+                      "Al naturalismo frío del siglo diecinueve"
+                ],
+                "correctIndex": 1,
+                "explanation": "Asturias enriqueció la narrativa hispanoamericana combinando mitología maya y técnicas surrealistas."
+          },
+          {
+                "id": "q9-5",
+                "prompt": "¿Con qué instrumento quirúrgico compara el texto a las metáforas asturianas?",
+                "options": [
+                      "Con una sierra de carpintero",
+                      "Con un bisturí que disecciona la realidad social con valentía",
+                      "Con un martillo de demolición",
+                      "Con una tijera de sastre"
+                ],
+                "correctIndex": 1,
+                "explanation": "La metáfora no es adorno, sino un bisturí afilado que revela las contradicciones y dolores sociales."
+          },
+          {
+                "id": "q9-6",
+                "prompt": "¿En qué se transforma el lenguaje literario según el análisis de la obra?",
+                "options": [
+                      "En un manual aburrido de gramática",
+                      "En música telúrica que retumba en la conciencia colectiva",
+                      "En un susurro inaudible que nadie recuerda",
+                      "En una lista de compras de la época colonial"
+                ],
+                "correctIndex": 1,
+                "explanation": "El texto señala que el lenguaje se convierte en música telúrica que despierta la conciencia."
+          },
+          {
+                "id": "q9-7",
+                "prompt": "¿Qué dos metáforas definen la función ética de la literatura frente a la injusticia?",
+                "options": [
+                      "Un escudo contra el olvido y una antorcha de libertad",
+                      "Una trampa de dinero y un juego de salón",
+                      "Una jaula de oro y una cadena de hierro",
+                      "Un espejo roto y una pared en blanco"
+                ],
+                "correctIndex": 0,
+                "explanation": "La lectura concluye que la literatura es escudo protector de la memoria y antorcha de libertad cívica."
+          },
+          {
+                "id": "q9-8",
+                "prompt": "¿Qué beneficios intelectuales adquiere quien aprende a leer críticamente esta novela?",
+                "options": [
+                      "Aprende a memorizar fechas sin entenderlas",
+                      "Adquiere una coraza contra el engaño y una voz firme para defender la justicia",
+                      "Se desinteresa de los problemas de su comunidad",
+                      "Busca únicamente ganar discusiones sin fundamento"
+                ],
+                "correctIndex": 1,
+                "explanation": "La lectura crítica dota al estudiante de criterio, discernimiento contra la mentira y valentía cívica."
+          },
+          {
+                "id": "q9-9",
+                "prompt": "¿Qué compromiso cívico demuestra el autor a través de su palabra escrita?",
+                "options": [
+                      "El halago complaciente hacia los dictadores",
+                      "La denuncia valiente y el compromiso con los derechos humanos",
+                      "La neutralidad indiferente ante el sufrimiento del pueblo",
+                      "La promoción de productos comerciales"
+                ],
+                "correctIndex": 1,
+                "explanation": "Asturias ejerció la literatura como compromiso insobornable con la libertad y la dignidad de su patria."
+          },
+          {
+                "id": "q9-10",
+                "prompt": "¿Cómo se describe el ambiente sonoro de la ciudad soñolienta en el fragmento?",
+                "options": [
+                      "Tráfico ensordecedor de motores",
+                      "El clamor de bronce de las campanas tañendo en la penumbra",
+                      "El silencio absoluto sin ningún sonido",
+                      "Fiestas ruidosas con cohetes de feria"
+                ],
+                "correctIndex": 1,
+                "explanation": "El fragmento recrea el tañido melancólico y pesado de las campanas de bronce en la ciudad."
+          }
     ]
   },
   {
@@ -570,42 +1326,126 @@ export const KINAL_READINGS: Reading[] = [
     content: `En la cosmovisión maya, el ser humano no fue forjado del metal frío ni de la piedra estéril, sino de la harina fecunda del maíz amasada con sudor, pensamiento y esperanza. Esta herencia milenaria cobra vida hoy en las aulas, talleres y laboratorios de Fundación Kinal, donde la destreza técnica se hermana indisolublemente con la formación humana y la dignidad del trabajo bien realizado. El verdadero maestro técnico no es aquel que se conforma con dominar los instrumentos de su oficio, sino quien comprende que cada circuito ensamblado, cada línea de software depurada y cada motor ajustado son expresiones concretas de servicio a la familia y a la patria. Alcanzar este décimo nivel no es el final de una ruta, sino el umbral de una vida profesional caracterizada por la excelencia académica, la rectitud ética y el amor inquebrantable a Guatemala.`,
     wordCount: 147,
     questions: [
-      {
-        id: 'q10-1',
-        prompt: '¿Con qué elemento se asocia el trabajo técnico en las aulas de Fundación Kinal?',
-        options: [
-          'Con la ganancia monetaria inmediata sin importar los medios',
-          'Con la formación humana y la dignidad del trabajo bien hecho al servicio comunitario',
-          'Con el aislamiento de la realidad social de Guatemala',
-          'Con la competencia destructiva entre compañeros'
-        ],
-        correctIndex: 1,
-        explanation: 'El texto destaca que la destreza técnica se hermana con la formación ética y la dignidad del trabajo servicial.'
-      },
-      {
-        id: 'q10-2',
-        prompt: 'Según el texto, ¿qué caracteriza al auténtico maestro técnico?',
-        options: [
-          'Comprender que cada labor realizada es una expresión de servicio a la familia y a la nación',
-          'Poseer las herramientas más caras del mercado',
-          'Trabajar únicamente de manera solitaria',
-          'Evitar compartir sus conocimientos con los aprendices'
-        ],
-        correctIndex: 0,
-        explanation: 'Se señala que el verdadero maestro ve en su oficio una vía concreta de servicio para el bien común.'
-      },
-      {
-        id: 'q10-3',
-        prompt: '¿Qué representa alcanzar el décimo nivel de lectura en esta plataforma?',
-        options: [
-          'El cierre definitivo de todo aprendizaje',
-          'El umbral de una vida profesional de excelencia, rectitud y compromiso con Guatemala',
-          'Un requisito burocrático sin trascendencia formativa',
-          'La obtención de un título honorífico sin esfuerzo'
-        ],
-        correctIndex: 1,
-        explanation: 'El epílogo proclama que culminar el décimo nivel es el inicio de una vida técnica guiada por la excelencia y la ética.'
-      }
+          {
+                "id": "q10-1",
+                "prompt": "En la cosmovisión maya, ¿de qué materia fértil fue forjado el ser humano?",
+                "options": [
+                      "Del metal fundido en las forjas",
+                      "De la harina fecunda del maíz amasada con sudor y pensamiento",
+                      "De la piedra volcánica negra y fría",
+                      "De la madera de pino sin savia"
+                ],
+                "correctIndex": 1,
+                "explanation": "La cosmovisión ancestral postula que el ser humano fue hecho de masa de maíz amasada con vida y espíritu."
+          },
+          {
+                "id": "q10-2",
+                "prompt": "¿Dónde cobra vida hoy esta herencia milenaria según el texto de culminación?",
+                "options": [
+                      "En los museos arqueológicos cerrados",
+                      "En las aulas, talleres y laboratorios de Fundación Kinal",
+                      "En las oficinas financieras del extranjero",
+                      "En los campos de batalla históricos"
+                ],
+                "correctIndex": 1,
+                "explanation": "El texto señala que esta herencia de dignidad y trabajo florece en los talleres y laboratorios de Kinal."
+          },
+          {
+                "id": "q10-3",
+                "prompt": "¿Con qué se hermana indisolublemente la destreza técnica de los estudiantes?",
+                "options": [
+                      "Con el afán de enriquecerse a costa de los demás",
+                      "Con la formación humana y la dignidad del trabajo bien realizado",
+                      "Con la competencia desleal entre compañeros",
+                      "Con el desprecio hacia las letras y la filosofía"
+                ],
+                "correctIndex": 1,
+                "explanation": "En Kinal la excelencia técnica va indisolublemente unida a la formación ética y humana."
+          },
+          {
+                "id": "q10-4",
+                "prompt": "¿Quién es el verdadero maestro técnico según la filosofía expuesta?",
+                "options": [
+                      "El que tiene las herramientas más caras importadas",
+                      "Quien comprende que cada labor técnica es una expresión de servicio a la familia y a la patria",
+                      "El que trabaja lo más rápido posible sin revisar la calidad",
+                      "El que solo obedece órdenes mecánicamente"
+                ],
+                "correctIndex": 1,
+                "explanation": "El verdadero profesional técnico entiende que su pericia es vocación de servicio y amor al prójimo."
+          },
+          {
+                "id": "q10-5",
+                "prompt": "¿Qué ejemplos concretos de trabajo técnico se mencionan como actos de servicio?",
+                "options": [
+                      "Comprar repuestos usados sin garantía",
+                      "Cada circuito ensamblado, software depurado y motor ajustado con esmero",
+                      "Limpiar las mesas únicamente al final del año",
+                      "Pintar letreros de propaganda política"
+                ],
+                "correctIndex": 1,
+                "explanation": "Circuitos, líneas de software y motores calibrados son el testimonio palpable del servicio técnico bien hecho."
+          },
+          {
+                "id": "q10-6",
+                "prompt": "¿Qué representa alcanzar este décimo nivel del mapa de lectura?",
+                "options": [
+                      "El final definitivo donde ya no se necesita leer más",
+                      "El umbral de una vida profesional marcada por la excelencia, la ética y el amor a Guatemala",
+                      "Un certificado para no volver a estudiar literatura",
+                      "Una excusa para descansar sin responsabilidades"
+                ],
+                "correctIndex": 1,
+                "explanation": "Llegar al nivel 10 es la puerta de entrada a la madurez profesional y ciudadana del estudiante."
+          },
+          {
+                "id": "q10-7",
+                "prompt": "¿Cuáles son los tres valores rectores que distinguen la vida profesional del egresado?",
+                "options": [
+                      "Riqueza material, fama efímera y astucia comercial",
+                      "Excelencia académica, rectitud ética y amor inquebrantable a Guatemala",
+                      "Autoridad despótica, ambición y aislamiento",
+                      "Conformismo, pereza y rutina"
+                ],
+                "correctIndex": 1,
+                "explanation": "El texto cierra consagrando la excelencia académica, la rectitud ética y el patriotismo constructivo."
+          },
+          {
+                "id": "q10-8",
+                "prompt": "¿De qué materiales fríos y estériles NO fue modelado el ser humano según el relato?",
+                "options": [
+                      "Del metal frío ni de la piedra estéril",
+                      "De la tierra negra cultivable",
+                      "Del agua cristalina de manantial",
+                      "Del aire de las montañas"
+                ],
+                "correctIndex": 0,
+                "explanation": "El ser humano no es un engranaje metálico sin alma ni piedra inerte, sino fruto nutricio de maíz y espíritu."
+          },
+          {
+                "id": "q10-9",
+                "prompt": "¿Por qué el trabajo técnico bien hecho dignifica a la persona?",
+                "options": [
+                      "Porque transforma el esfuerzo cotidiano en progreso para la familia y bien común para el país",
+                      "Porque evita que la persona tenga que convivir con los demás",
+                      "Porque garantiza trabajar menos horas al día",
+                      "Porque sustituye a las leyes morales"
+                ],
+                "correctIndex": 0,
+                "explanation": "El trabajo técnico dignifica cuando se orienta a mejorar la vida familiar y comunitaria."
+          },
+          {
+                "id": "q10-10",
+                "prompt": "¿Cuál es el mensaje final para el estudiante de Kinal que culmina esta etapa?",
+                "options": [
+                      "Que el talento sin ética carece de valor, y que el compromiso con Guatemala empieza en cada labor diaria",
+                      "Que ya ha aprendido todo lo que existe en el mundo técnico",
+                      "Que debe competir para vencer a sus compañeros de promoción",
+                      "Que la literatura no tiene relación con las carreras técnicas"
+                ],
+                "correctIndex": 0,
+                "explanation": "La culminación del nivel 10 es un llamado a la excelencia ética, técnica y ciudadana al servicio del país."
+          }
     ]
   }
 ,

@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Reading, ReadingAttemptResult } from '../../../../core/models/reading.model';
+import { Reading, ReadingAttemptResult, Question } from '../../../../core/models/reading.model';
+import { KINAL_READINGS } from '../../../../core/data/kinal-readings';
 import {
   SpeechRecognitionService,
   SpeechTokensEvent,
@@ -98,6 +99,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
 
   // Quiz & Victoria
   showQuiz = false;
+  activeQuestions: Question[] = [];
   currentQuestionIndex = 0;
   selectedAnswers: number[] = [];
   showExplanation = false;
@@ -108,6 +110,8 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   private timerInterval: any = null;
 
   ngOnInit(): void {
+    this.setupQuizQuestions();
+
     // Separación inteligente de palabras preservando signos tipográficos sin crear tokens vacíos
     const rawSegments = this.reading.content.trim().split(/\s+/).filter(Boolean);
     const tokens: ReadingWordToken[] = [];
@@ -642,9 +646,16 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     // El resultado conserva únicamente el avance confirmado por el micrófono.
     this.previewWordIndex = this.currentWordIndex;
 
-    // Abrir inmediatamente el cuestionario de comprensión
-    this.showQuiz = true;
-    this.currentQuestionIndex = 0;
+    this.setupQuizQuestions();
+
+    // Abrir el cuestionario si hay preguntas activas, o calcular victoria directamente
+    if (this.activeQuestions.length > 0) {
+      this.showQuiz = true;
+      this.currentQuestionIndex = 0;
+    } else {
+      this.calculateFinalResults();
+    }
+    this.isRecording = false;
     this.cdr.detectChanges();
   }
 
@@ -754,6 +765,62 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
    * CUESTIONARIO Y CELEBRACIÓN DE VICTORIA
    * ========================================================================= */
 
+  /**
+   * Selecciona 3 preguntas aleatorias del banco de preguntas (Math.random)
+   * y baraja las opciones A, B, C, D para evitar que los alumnos se pasen copia.
+   */
+  public setupQuizQuestions(): void {
+    let pool: Question[] = [];
+
+    if (this.reading && this.reading.questions && this.reading.questions.length > 0) {
+      pool = [...this.reading.questions];
+    }
+
+    // Si la lectura en memoria o DB tiene menos preguntas, completar con el banco de KINAL_READINGS
+    const kinalFallback = KINAL_READINGS.find(
+      (k) => k.id === this.reading?.id || k.level === this.reading?.level || k.title === this.reading?.title
+    );
+    if (kinalFallback && kinalFallback.questions && kinalFallback.questions.length > pool.length) {
+      pool = [...kinalFallback.questions];
+    }
+
+    if (pool.length === 0) {
+      this.activeQuestions = [];
+      return;
+    }
+
+    // Barajado Fisher-Yates de las preguntas usando Math.random()
+    const shuffledPool = [...pool];
+    for (let i = shuffledPool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledPool[i], shuffledPool[j]] = [shuffledPool[j], shuffledPool[i]];
+    }
+
+    // Tomar 3 preguntas aleatorias del banco
+    const sampleSize = Math.min(shuffledPool.length, 3);
+    const selected = shuffledPool.slice(0, sampleSize);
+
+    // Barajar también las opciones A, B, C, D de cada pregunta y recalcular correctIndex
+    this.activeQuestions = selected.map((q) => {
+      const originalCorrectText = q.options[q.correctIndex];
+      const shuffledOptions = [...q.options];
+      for (let i = shuffledOptions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
+      }
+      const newCorrectIndex = shuffledOptions.indexOf(originalCorrectText);
+      return {
+        ...q,
+        options: shuffledOptions,
+        correctIndex: newCorrectIndex >= 0 ? newCorrectIndex : 0,
+      };
+    });
+
+    this.currentQuestionIndex = 0;
+    this.selectedAnswers = [];
+    this.showExplanation = false;
+  }
+
   selectQuizOption(optIdx: number): void {
     if (this.showExplanation) return;
     this.selectedAnswers[this.currentQuestionIndex] = optIdx;
@@ -762,7 +829,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
 
   nextQuestion(): void {
     this.showExplanation = false;
-    if (this.currentQuestionIndex < this.reading.questions.length - 1) {
+    if (this.currentQuestionIndex < this.activeQuestions.length - 1) {
       this.currentQuestionIndex++;
     } else {
       this.calculateFinalResults();
@@ -773,12 +840,14 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     this.showQuiz = false;
 
     let correctCount = 0;
-    this.reading.questions.forEach((q, idx) => {
+    this.activeQuestions.forEach((q, idx) => {
       if (this.selectedAnswers[idx] === q.correctIndex) {
         correctCount++;
       }
     });
-    this.quizScore = Math.round((correctCount / this.reading.questions.length) * 100);
+    this.quizScore = this.activeQuestions.length > 0
+      ? Math.round((correctCount / this.activeQuestions.length) * 100)
+      : 100;
 
     const calculatedWpm =
       this.secondsElapsed > 0 && this.confirmedMatchedWords > 0
