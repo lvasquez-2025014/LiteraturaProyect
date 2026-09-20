@@ -189,6 +189,7 @@ export class StudentHomeComponent implements OnInit {
     if (studentId) {
       this.http.post<any>(`${environment.apiUrl}/users/${studentId}/reading-attempt`, {
         wpm: result.wpm,
+        oralAccuracy: result.accuracy,
         comprehensionScore: result.comprehensionScore,
         xpEarned: result.xpEarned,
         readingLevel: readingLevel,

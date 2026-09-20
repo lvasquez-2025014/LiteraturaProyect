@@ -192,6 +192,7 @@ export class UsersController {
     @Param('id') id: string,
     @Body() body: {
       wpm: number;
+      oralAccuracy?: number;
       comprehensionScore: number;
       xpEarned: number;
       readingLevel: number;

@@ -154,6 +154,17 @@ export const COMMON_CONTRACTIONS: Record<string, string[]> = {
   al: ['a', 'el'],
 };
 
+// Variantes que un reconocedor español general suele devolver al oír nombres
+// mayas. Se mantienen explícitas para no degradar por igual todo el español.
+export const MAYAN_PRONUNCIATION_VARIANTS: Record<string, string[]> = {
+  qeqchi: ['keqchi', 'kekchi', 'queqchi', 'quechi'],
+  kiche: ['quiche'],
+  kaqchikel: ['cakchiquel', 'kakchikel'],
+  tzutujil: ['tsutujil'],
+  poqomchi: ['pocomchi'],
+  xibalba: ['shibalba', 'sibalba'],
+};
+
 export const SPANISH_WORD_TO_DIGIT_MAP: Record<string, string> = {
   cero: '0',
   un: '1', uno: '1', una: '1', primero: '1', primera: '1', primer: '1',
@@ -262,6 +273,15 @@ export function getWordEquivalents(rawWord: string): string[] {
     }
   }
 
+  if (MAYAN_PRONUNCIATION_VARIANTS[norm]) {
+    MAYAN_PRONUNCIATION_VARIANTS[norm].forEach((variant) => list.add(normalizeSpanishWord(variant)));
+  }
+  for (const [key, variants] of Object.entries(MAYAN_PRONUNCIATION_VARIANTS)) {
+    if (variants.includes(norm)) {
+      list.add(key);
+    }
+  }
+
   return Array.from(list);
 }
 
@@ -283,9 +303,11 @@ export function toPhoneticKey(word: string): string {
   // 1. Proteger dígrafos y fonemas mayas antes de sustituir caracteres individuales
   w = w
     .replace(/ch/g, 'Ç')
-    .replace(/tz/g, 'Ç')
-    .replace(/ts/g, 'Ç')
-    .replace(/sh/g, 'Ç')
+    // tz/ts y sh no son equivalentes a "ch". Colapsarlos producía falsos
+    // positivos precisamente en vocabulario maya y nombres propios.
+    .replace(/tz/g, 'Ţ')
+    .replace(/ts/g, 'Ţ')
+    .replace(/sh/g, 'Š')
     .replace(/qu(?=[ei])/g, 'k')
     .replace(/gu(?=[ei])/g, 'g')
     .replace(/ll/g, 'y');
@@ -302,7 +324,9 @@ export function toPhoneticKey(word: string): string {
     .replace(/g(?=[ei])/g, 'j')
     .replace(/x/g, 's')
     .replace(/h/g, '')
-    .replace(/Ç/g, 'ch');
+    .replace(/Ç/g, 'ch')
+    .replace(/Ţ/g, 'ts')
+    .replace(/Š/g, 'sh');
 
   // 3. Reducción de consonantes geminadas (excepto 'rr' que tiene valor fonémico)
   w = w.replace(/([^r])\1+/g, '$1');
@@ -433,15 +457,15 @@ export class SpeechRecognitionService {
           this.recognition = new SpeechRecognition();
           this.recognition.continuous = true;
           this.recognition.interimResults = true;
-          this.recognition.maxAlternatives = 5;
+          // La UI no presenta un selector de hipótesis. Pedir más alternativas y
+          // mezclarlas sin su posición original convierte con facilidad una palabra
+          // posible de otra frase en un falso avance del texto.
+          this.recognition.maxAlternatives = 1;
 
-          // Priorizar modelo ASR para Guatemala y Latinoamérica ('es-GT' / 'es-419')
-          const navLang = typeof navigator !== 'undefined' && navigator.language ? navigator.language : '';
-          if (navLang.toLowerCase().startsWith('es')) {
-            this.recognition.lang = navLang;
-          } else {
-            this.recognition.lang = 'es-GT';
-          }
+          // La lectura está diseñada para estudiantes de Guatemala. No depender del
+          // idioma del sistema evita terminar en es-ES, es-US u otra variante cuando
+          // el navegador esté configurado de forma distinta.
+          this.recognition.lang = 'es-GT';
 
           // Eventos de ciclo de vida del audio para retroalimentación visual en vivo
           this.recognition.onstart = () => {
@@ -522,15 +546,10 @@ export class SpeechRecognitionService {
                   }
                 }
 
-                // Recopilar hipótesis alternativas del reconocedor de voz (maxAlternatives)
-                if (i >= event.resultIndex) {
-                  for (let a = 1; a < res.length; ++a) {
-                    const alt = res[a]?.transcript;
-                    if (alt) {
-                      candidateAlts.push(...alt.trim().split(/\s+/).filter(Boolean));
-                    }
-                  }
-                }
+                // No se incorporan alternativas como una bolsa de palabras: sin su
+                // resultado y posición originales no son evidencia fiable para
+                // alinear la palabra actual. La transcripción principal se procesa
+                // de forma secuencial abajo.
               }
 
               this.lastSessionFinalTokens = sessionFinalTokens;
@@ -582,6 +601,19 @@ export class SpeechRecognitionService {
                 return;
               }
               console.warn('SpeechRecognition error:', event.error);
+              // Estos errores no se solucionan reintentando en un bucle: el alumno
+              // necesita una explicación y la posibilidad de revisar permisos, red
+              // o dispositivo antes de iniciar otra vez.
+              if (['not-allowed', 'service-not-allowed', 'audio-capture', 'network'].includes(event.error)) {
+                this.isListening = false;
+                this.isPaused = false;
+                this.isMicReady = false;
+                this.isAudioActive = false;
+                if (this.restartTimeout) {
+                  clearTimeout(this.restartTimeout);
+                  this.restartTimeout = null;
+                }
+              }
               this.emitUpdate(
                 event.error === 'not-allowed'
                   ? 'Permiso de micrófono denegado en el navegador'
@@ -688,11 +720,37 @@ export class SpeechRecognitionService {
         this.emitUpdate();
         return true;
       } catch (err) {
-        console.warn('SpeechRecognition start failed, se habilitará modo asistido:', err);
+        console.warn('SpeechRecognition start failed:', err);
+      }
+    }
+    this.isListening = false;
+    this.isMicReady = false;
+    this.isAudioActive = false;
+    this.emitUpdate('No se pudo iniciar el reconocimiento de voz. Revisa el permiso del micrófono e inténtalo de nuevo.');
+    return false;
+  }
+
+  /**
+   * Descarta la transcripción anterior antes de que el estudiante continúe desde
+   * otra palabra. También aborta la sesión actual para que el navegador no vuelva
+   * a entregar resultados pertenecientes al anclaje previo.
+   */
+  public resetTranscriptForReanchor(): void {
+    this.fullTranscript = '';
+    this.interimTranscript = '';
+    this.accumulatedFinalTokens = [];
+    this.lastSessionFinalTokens = [];
+    this.lastResultIndex = -1;
+    this.utteranceCounter = 0;
+
+    if (this.recognition && this.isListening && !this.isPaused) {
+      try {
+        this.recognition.abort();
+      } catch (e) {
+        this.scheduleRestart();
       }
     }
     this.emitUpdate();
-    return false;
   }
 
   public pause(): void {

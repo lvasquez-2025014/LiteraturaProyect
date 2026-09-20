@@ -48,6 +48,9 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   isMicReady = false;
   isAudioActive = false;
   liveSpokenText = '';
+  // El índice visual provisional permite retroalimentación rápida sin convertir
+  // una hipótesis todavía cambiante del ASR en progreso académico definitivo.
+  previewWordIndex = 0;
   currentWordIndex = 0;
   secondsElapsed = 0;
   currentWpm = 0;
@@ -68,6 +71,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   // Punteros de alineación monótona para avance seguro y continuo
   private confirmedWordIndex = 0;
   private consumedFinalTokensCount = 0;
+  private confirmedMatchedWords = 0;
 
   get currentTargetWpm(): number {
     return this.mode === 'assisted'
@@ -192,9 +196,11 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   public reanchorToWord(index: number): void {
     if (index < 0 || index >= this.totalWords) return;
     this.currentWordIndex = index;
+    this.previewWordIndex = index;
     this.confirmedWordIndex = index;
     this.consumedFinalTokensCount = 0;
     this.liveSpokenText = '';
+    this.speechService.resetTranscriptForReanchor();
 
     const wordDisplay = this.words[index] || '';
     this.reanchorToastMessage = `Lectura sincronizada en la palabra ${index + 1}: "${wordDisplay}"`;
@@ -409,18 +415,17 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     const initialWordIndex = this.currentWordIndex;
     const finalTokens = event.finalTokens || [];
     const interimTokens = event.interimTokens || [];
-    const candidateAlts = event.candidateAlts || [];
-
     // 1. Nivel Autoritativo: Procesar tokens finales confirmados
     if (finalTokens.length > this.consumedFinalTokensCount) {
       const newFinalTokens = finalTokens.slice(this.consumedFinalTokensCount);
       const alignFinal = this.alignBandedDP(
         this.confirmedWordIndex,
-        newFinalTokens,
-        candidateAlts
+        newFinalTokens
       );
       if (alignFinal.matchedCount > 0 && alignFinal.targetIndex > this.confirmedWordIndex) {
         this.confirmedWordIndex = alignFinal.targetIndex;
+        this.currentWordIndex = alignFinal.targetIndex;
+        this.confirmedMatchedWords += alignFinal.matchedCount;
         this.consumedFinalTokensCount = finalTokens.length;
       } else if (finalTokens.length - this.consumedFinalTokensCount > 4) {
         // Descartar tokens no emparejados si se acumula ruido para no bloquear el flujo
@@ -428,14 +433,14 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       }
     }
 
-    // 2. Nivel Reactivo (<60ms): Procesar tokens provisionales para respuesta visual instantánea
+    // 2. Nivel Reactivo: solo muestra una previsualización. Los resultados
+    // interinos cambian con frecuencia y no deben alterar PPM, avance ni cierre.
     let tentativeWordIndex = this.confirmedWordIndex;
     if (interimTokens.length > 0) {
       this.liveSpokenText = interimTokens.join(' ');
       const alignInterim = this.alignBandedDP(
         this.confirmedWordIndex,
-        interimTokens,
-        candidateAlts
+        interimTokens
       );
       if (alignInterim.matchedCount > 0 && alignInterim.targetIndex > this.confirmedWordIndex) {
         tentativeWordIndex = alignInterim.targetIndex;
@@ -444,11 +449,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       this.liveSpokenText = '';
     }
 
-    // 3. Monotonicidad visual protegida: el cursor avanza progresivamente y nunca retrocede ante ruidos o repeticiones
-    this.currentWordIndex = Math.min(
-      this.totalWords,
-      Math.max(this.currentWordIndex, Math.max(this.confirmedWordIndex, tentativeWordIndex))
-    );
+    this.previewWordIndex = Math.min(this.totalWords, Math.max(this.confirmedWordIndex, tentativeWordIndex));
 
     // 4. Avance visual, auto-scroll y efectos sonoros
     if (this.currentWordIndex > initialWordIndex) {
@@ -457,7 +458,9 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
 
       this.scrollToCurrentWord();
 
-      if (this.soundEffects) {
+      // No emitir tonos mientras el micrófono está escuchando: en altavoces
+      // pueden introducir eco y ruido que el reconocedor interprete como voz.
+      if (this.soundEffects && this.mode !== 'mic') {
         this.speechService.playWordChime();
         if (
           (prevPercentage < 25 && newPercentage >= 25) ||
@@ -477,7 +480,9 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
 
   private isFiller(token: string): boolean {
     const norm = normalizeSpanishWord(token);
-    const fillers = new Set(['eh', 'este', 'em', 'emm', 'ah', 'hum', 'um', 'uh', 'bueno', 'osea']);
+    // "este" y "bueno" pueden formar parte de la lectura; solo se omiten
+    // interjecciones que no pueden ser palabras objetivo en este contexto.
+    const fillers = new Set(['eh', 'em', 'emm', 'ah', 'hum', 'um', 'uh', 'osea']);
     return fillers.has(norm);
   }
 
@@ -499,8 +504,10 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     this.stopNarrator();
     this.micError = null;
     this.currentWordIndex = 0;
+    this.previewWordIndex = 0;
     this.confirmedWordIndex = 0;
     this.consumedFinalTokensCount = 0;
+    this.confirmedMatchedWords = 0;
     this.liveSpokenText = '';
     this.secondsElapsed = 0;
     this.currentWpm = 0;
@@ -508,24 +515,34 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
 
     if (this.mode === 'mic') {
       const started = this.speechService.start();
-      if (!started && !this.speechService.isSupported()) {
-        this.mode = 'assisted';
-        this.speechService.setAssistedSpeedMultiplier(this.assistedSpeedMultiplier);
-        this.speechService.startAssistedSimulation(this.words, this.reading.targetWpm, (idx) => {
-          this.currentWordIndex = idx;
-          this.confirmedWordIndex = idx;
-          this.updateLiveWpm();
-          if (this.currentWordIndex >= this.totalWords) {
-            this.finishReading();
-          }
-          this.cdr.detectChanges();
-        });
+      if (!started) {
+        if (!this.speechService.isSupported()) {
+          this.mode = 'assisted';
+          this.speechService.setAssistedSpeedMultiplier(this.assistedSpeedMultiplier);
+          this.speechService.startAssistedSimulation(this.words, this.reading.targetWpm, (idx) => {
+            this.currentWordIndex = idx;
+            this.previewWordIndex = idx;
+            this.confirmedWordIndex = idx;
+            this.confirmedMatchedWords = idx;
+            this.updateLiveWpm();
+            if (this.currentWordIndex >= this.totalWords) {
+              this.finishReading();
+            }
+            this.cdr.detectChanges();
+          });
+        } else {
+          this.stopTimer();
+          this.isRecording = false;
+          this.micError = 'No fue posible iniciar el micrófono. Revisa el permiso y vuelve a intentarlo.';
+        }
       }
     } else {
       this.speechService.setAssistedSpeedMultiplier(this.assistedSpeedMultiplier);
       this.speechService.startAssistedSimulation(this.words, this.reading.targetWpm, (idx) => {
         this.currentWordIndex = idx;
+        this.previewWordIndex = idx;
         this.confirmedWordIndex = idx;
+        this.confirmedMatchedWords = idx;
         this.updateLiveWpm();
         if (this.currentWordIndex >= this.totalWords) {
           this.finishReading();
@@ -536,11 +553,11 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   }
 
   updateLiveWpm(): void {
-    if (this.secondsElapsed <= 0 || this.currentWordIndex <= 0) {
+    if (this.secondsElapsed <= 0 || this.confirmedMatchedWords <= 0) {
       this.currentWpm = 0;
       return;
     }
-    const raw = Math.round((this.currentWordIndex / this.secondsElapsed) * 60);
+    const raw = Math.round((this.confirmedMatchedWords / this.secondsElapsed) * 60);
     this.currentWpm = Math.min(450, Math.max(0, raw));
   }
 
@@ -559,8 +576,10 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     this.speechService.stop();
     this.stopNarrator();
     this.currentWordIndex = 0;
+    this.previewWordIndex = 0;
     this.confirmedWordIndex = 0;
     this.consumedFinalTokensCount = 0;
+    this.confirmedMatchedWords = 0;
     this.liveSpokenText = '';
     this.secondsElapsed = 0;
     this.currentWpm = 0;
@@ -573,8 +592,9 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     this.stopTimer();
     this.speechService.stop();
     this.stopNarrator();
-    this.currentWordIndex = this.totalWords;
-    this.confirmedWordIndex = this.totalWords;
+    // Finalizar manualmente no debe fingir que las palabras pendientes se leyeron.
+    // El resultado conserva únicamente el avance confirmado por el micrófono.
+    this.previewWordIndex = this.currentWordIndex;
 
     // Abrir inmediatamente el cuestionario de comprensión
     this.showQuiz = true;
@@ -607,7 +627,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
 
   isWordInFocus(index: number): boolean {
     if (!this.focusMode || !this.isRecording) return true;
-    return Math.abs(index - this.currentWordIndex) <= 6;
+    return Math.abs(index - this.previewWordIndex) <= 6;
   }
 
   /* =========================================================================
@@ -630,6 +650,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
           const textBefore = this.reading.content.substring(0, charIndex);
           const wordCount = textBefore.trim().split(/\s+/).filter(Boolean).length;
           this.currentWordIndex = Math.min(this.totalWords, wordCount);
+          this.previewWordIndex = this.currentWordIndex;
           this.confirmedWordIndex = this.currentWordIndex;
           this.cdr.detectChanges();
         },
@@ -714,16 +735,19 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     this.quizScore = Math.round((correctCount / this.reading.questions.length) * 100);
 
     const calculatedWpm =
-      this.secondsElapsed > 0 && this.currentWordIndex > 0
-        ? Math.round((this.currentWordIndex / this.secondsElapsed) * 60)
-        : (this.currentWpm > 0 ? this.currentWpm : this.currentTargetWpm);
+      this.secondsElapsed > 0 && this.confirmedMatchedWords > 0
+        ? Math.round((this.confirmedMatchedWords / this.secondsElapsed) * 60)
+        : this.currentWpm;
+    const oralAccuracy = this.totalWords > 0
+      ? Math.round((this.confirmedMatchedWords / this.totalWords) * 100)
+      : 0;
 
     this.finalResult = {
       readingId: this.reading.id,
       readingTitle: this.reading.title,
       studentId: this.studentId,
       wpm: calculatedWpm,
-      accuracy: this.quizScore,
+      accuracy: oralAccuracy,
       timeSeconds: this.secondsElapsed,
       comprehensionScore: this.quizScore,
       xpEarned: this.reading.xpReward,

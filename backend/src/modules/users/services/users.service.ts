@@ -162,6 +162,7 @@ export class UsersService {
     id: string,
     attempt: {
       wpm: number;
+      oralAccuracy?: number;
       comprehensionScore: number;
       xpEarned: number;
       readingLevel: number;
@@ -246,6 +247,7 @@ export class UsersService {
       readingTitle: attempt.readingTitle || `Lectura de Nivel ${attempt.readingLevel}`,
       readingLevel: attempt.readingLevel,
       wpm: attempt.wpm,
+      oralAccuracy: attempt.oralAccuracy,
       comprehensionScore: attempt.comprehensionScore,
       xpEarned: attempt.xpEarned,
       completedAt: now,

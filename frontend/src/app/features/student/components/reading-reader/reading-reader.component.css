@@ -391,6 +391,13 @@
   animation: pulseTargetWord 1.6s infinite ease-in-out;
 }
 
+/* El azul tenue indica una hipótesis aún no confirmada por el reconocedor. */
+.word-preview {
+  color: #1d4ed8;
+  background: #dbeafe;
+  border-bottom: 2px dotted #60a5fa;
+}
+
 .word-clickable-reanchor {
   cursor: pointer;
 }
@@ -1676,5 +1683,4 @@
     font-size: 1.35rem;
   }
 }
-
 

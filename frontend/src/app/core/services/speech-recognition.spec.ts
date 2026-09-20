@@ -3,6 +3,7 @@ import {
   normalizeSpanishWord,
   toPhoneticKey,
   isPhoneticMatch,
+  getWordEquivalents,
   SpeechRecognitionService,
 } from './speech-recognition.service';
 import { ReadingReaderComponent } from '../../features/student/components/reading-reader/reading-reader.component';
@@ -54,6 +55,12 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
       expect(isPhoneticMatch('tonces', 'entonces')).toBe(true);
     });
 
+    it('should handle explicit variants for difficult Mayan names without collapsing unrelated sounds', () => {
+      expect(getWordEquivalents("q'eqchi'")).toContain('quechi');
+      expect(isPhoneticMatch('quechi', "q'eqchi'")).toBe(true);
+      expect(toPhoneticKey('tsutujil')).not.toBe(toPhoneticKey('chutujil'));
+    });
+
     it('should tolerate minor acoustic noise with Levenshtein distance', () => {
       expect(isPhoneticMatch('esmeraldas', 'esmeralda')).toBe(true);
       expect(isPhoneticMatch('montanas', 'montana')).toBe(true);
@@ -100,8 +107,8 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
       expect(component.normalizedWords[0]).toBe('en');
     });
 
-    it('should advance when the first word is read', () => {
-      // Simular que el estudiante dice "En las"
+    it('should preview interim words without committing academic progress', () => {
+      // El reconocedor todavía puede corregir "En las" en el siguiente evento.
       (component as any).processSpeechTokens({
         finalTokens: [],
         interimTokens: ['en', 'las'],
@@ -110,7 +117,22 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
         currentWpm: 100,
       });
 
+      expect(component.currentWordIndex).toBe(0);
+      expect(component.previewWordIndex).toBe(2);
+      expect((component as any).confirmedMatchedWords).toBe(0);
+
+      // Solo el resultado final se convierte en avance y palabras medidas.
+      (component as any).processSpeechTokens({
+        finalTokens: ['en', 'las'],
+        interimTokens: [],
+        candidateAlts: [],
+        wordsSpokenCount: 2,
+        currentWpm: 100,
+      });
+
       expect(component.currentWordIndex).toBe(2);
+      expect(component.previewWordIndex).toBe(2);
+      expect((component as any).confirmedMatchedWords).toBe(2);
     });
 
     it('should smoothly advance even if the first word was clipped by mic delay', () => {
@@ -124,7 +146,8 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
       });
 
       // Debe anclarse en "las" y avanzar hasta cumbres (índice 4)
-      expect(component.currentWordIndex).toBe(4);
+      expect(component.currentWordIndex).toBe(0);
+      expect(component.previewWordIndex).toBe(4);
     });
 
     it('should NOT freeze on long continuous interim speech', () => {
@@ -136,7 +159,8 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
         wordsSpokenCount: 4,
         currentWpm: 120,
       });
-      expect(component.currentWordIndex).toBe(4);
+      expect(component.currentWordIndex).toBe(0);
+      expect(component.previewWordIndex).toBe(4);
 
       // El estudiante sigue hablando continuamente sin pausa final: el búfer interino crece
       (component as any).processSpeechTokens({
@@ -147,8 +171,9 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
         currentWpm: 125,
       });
 
-      // Debe continuar avanzando hasta "minas" (índice 10), ¡NO congelarse en 4!
-      expect(component.currentWordIndex).toBe(10);
+      // Debe continuar previsualizando hasta "minas" sin registrar palabras aún no finales.
+      expect(component.currentWordIndex).toBe(0);
+      expect(component.previewWordIndex).toBe(10);
     });
 
     it('should handle title spoken before reading text without getting lost', () => {
@@ -161,7 +186,8 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
         currentWpm: 120,
       });
 
-      expect(component.currentWordIndex).toBe(4);
+      expect(component.currentWordIndex).toBe(0);
+      expect(component.previewWordIndex).toBe(4);
     });
 
     it('should strictly maintain monotonicity and never regress', () => {
@@ -173,7 +199,8 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
         currentWpm: 120,
       });
       const advanced = component.currentWordIndex;
-      expect(advanced).toBe(4);
+      expect(advanced).toBe(3);
+      expect(component.previewWordIndex).toBe(4);
 
       // Una repetición o ruido no debe hacer retroceder el cursor
       (component as any).processSpeechTokens({
@@ -220,7 +247,8 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
       });
 
       // Debe anclar en el segundo quetzal ("este quetzal observaba...") porque tiene 9 coincidencias y avanzar
-      expect(component.currentWordIndex).toBe(component.totalWords);
+      expect(component.currentWordIndex).toBe(6);
+      expect(component.previewWordIndex).toBe(component.totalWords);
     });
 
     it('should match in-progress words by prefix (e.g. bosq -> bosque)', () => {
@@ -236,7 +264,8 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
         currentWpm: 100,
       });
 
-      expect(component.currentWordIndex).toBe(4);
+      expect(component.currentWordIndex).toBe(3);
+      expect(component.previewWordIndex).toBe(4);
     });
 
     it('should seamlessly read through dialogue dashes and typography quotes without freezing', () => {
@@ -323,7 +352,66 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
 
       expect(component.currentWordIndex).toBe(7);
       expect((component as any).confirmedWordIndex).toBe(7);
+      expect(component.previewWordIndex).toBe(7);
       expect(component.reanchorToastMessage).toContain('8');
+    });
+
+    it('should not use an unrelated recognition alternative as matching evidence', () => {
+      component.currentWordIndex = 2;
+      (component as any).confirmedWordIndex = 2;
+
+      (component as any).processSpeechTokens({
+        finalTokens: [],
+        interimTokens: ['ruido'],
+        // Antes una alternativa aislada podía hacer avanzar el cursor aunque
+        // no perteneciera al token "ruido" ni a esta posición.
+        candidateAlts: ['cumbres'],
+        wordsSpokenCount: 1,
+        currentWpm: 100,
+      });
+
+      expect(component.currentWordIndex).toBe(2);
+      expect(component.previewWordIndex).toBe(2);
+    });
+
+    it('should not discard a legitimate reading word merely because it can be a filler', () => {
+      expect((component as any).isFiller('este')).toBe(false);
+      expect((component as any).isFiller('bueno')).toBe(false);
+      expect((component as any).isFiller('eh')).toBe(true);
+    });
+
+    it('should calculate PPM from confirmed matches instead of cursor position', () => {
+      component.secondsElapsed = 60;
+      component.currentWordIndex = 12;
+      (component as any).confirmedMatchedWords = 5;
+
+      component.updateLiveWpm();
+
+      expect(component.currentWpm).toBe(5);
+    });
+
+    it('should not mark pending words as read when the student finishes manually', () => {
+      component.reading = {
+        ...component.reading,
+        questions: [{
+          id: 'finish-q1',
+          prompt: 'Pregunta de prueba',
+          options: ['Opción'],
+          correctIndex: 0,
+        }],
+      };
+      component.selectedAnswers = [-1];
+      component.currentWordIndex = 5;
+      component.previewWordIndex = 8;
+      (component as any).confirmedWordIndex = 5;
+      (component as any).confirmedMatchedWords = 4;
+
+      component.finishReading();
+
+      expect(component.currentWordIndex).toBe(5);
+      expect(component.previewWordIndex).toBe(5);
+      expect((component as any).confirmedMatchedWords).toBe(4);
+      expect(component.showQuiz).toBe(true);
     });
 
     it('should strictly prevent jumping 3 lines (>= 15 words) on isolated words or stopwords', () => {

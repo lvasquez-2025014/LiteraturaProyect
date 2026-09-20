@@ -15,6 +15,7 @@ export interface ReadingHistoryItem {
   readingTitle: string;
   readingLevel?: number;
   wpm: number;
+  oralAccuracy?: number;
   comprehensionScore: number;
   xpEarned?: number;
   completedAt: string | Date;

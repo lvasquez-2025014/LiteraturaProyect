@@ -169,6 +169,7 @@
           class="word-token"
           [class.word-read]="i < currentWordIndex"
           [class.word-current]="i === currentWordIndex && (isRecording || isNarrating)"
+          [class.word-preview]="isRecording && i > currentWordIndex && i < previewWordIndex"
           [class.word-pending]="i > currentWordIndex"
           [class.word-dimmed]="focusMode && isRecording && !isWordInFocus(i)"
           [class.word-clickable-reanchor]="isRecording"
@@ -384,7 +385,7 @@
           </strong>
           <span class="vstat-unit">PPM</span>
         </div>
-        <small class="vstat-sub">Meta: {{ reading.targetWpm }} PPM</small>
+        <small class="vstat-sub">Meta: {{ reading.targetWpm }} PPM · Lectura validada: {{ finalResult.accuracy }}%</small>
       </div>
 
       <div class="vstat-box">
