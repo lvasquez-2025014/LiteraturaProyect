@@ -85,6 +85,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
 
   private currentUtteranceId = -1;
   private consumedTokensInUtterance = 0;
+  private failedTokenAttempts = 0;
 
   ngOnDestroy(): void {
     this.stopTimer();
@@ -92,13 +93,12 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     this.speechService.stopNarrator();
   }
 
-
-
   /**
    * Motor de coincidencia fonética y ortográfica de ultra-alta precisión.
    * Procesa palabra por palabra en estricto orden secuencial rastreando los tokens
    * no consumidos por enunciado.
-   * Previene saltos falsos, tolera sinalefas, palabras compuestas y tildes.
+   * Previene saltos falsos, tolera sinalefas, palabras compuestas, números, tildes,
+   * vacilaciones/muletillas ("eh", "um") y micro-stutters sin desfasar el progreso.
    */
   private processSpokenTokens(
     activeTokens: string[],
@@ -110,6 +110,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     if (utteranceId !== this.currentUtteranceId) {
       this.currentUtteranceId = utteranceId;
       this.consumedTokensInUtterance = 0;
+      this.failedTokenAttempts = 0;
     }
 
     const unconsumed = activeTokens.slice(this.consumedTokensInUtterance);
@@ -117,62 +118,73 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
 
     let advanced = false;
     const initialIndex = this.currentWordIndex;
+    const FILLERS = new Set(['eh', 'este', 'em', 'emm', 'ah', 'hum', 'um', 'uh', 'bueno', 'osea']);
 
     for (let i = 0; i < unconsumed.length; i++) {
       if (this.currentWordIndex >= this.totalWords) break;
 
       const token = unconsumed[i];
       const target = this.words[this.currentWordIndex];
+      const normToken = normalizeSpanishWord(token);
+      const normTarget = normalizeSpanishWord(target);
 
-      // 1. Coincidencia directa fonética y ortográfica (máxima precisión con tildes)
+      // 1. Filtrar muletillas, ruidos breves o titubeos iniciales ("eh", "um", "ah", "hum")
+      if (FILLERS.has(normToken) && normTarget !== 'este') {
+        this.consumedTokensInUtterance++;
+        this.failedTokenAttempts = 0;
+        continue;
+      }
+
+      // 2. Coincidencia directa fonética y ortográfica (máxima precisión con tildes, números y pronunciación guatemalteca)
       if (isPhoneticMatch(token, target)) {
         this.currentWordIndex++;
         this.consumedTokensInUtterance++;
+        this.failedTokenAttempts = 0;
         advanced = true;
         continue;
       }
 
-      // 2. Sinalefa (dos palabras leídas juntas de corrido: "a las" -> "alas", "de el" -> "del", "de la" -> "dela")
+      // 3. Sinalefa (dos palabras leídas juntas de corrido: "a las" -> "alas", "de el" -> "del", "de la" -> "dela")
       if (this.currentWordIndex + 1 < this.totalWords) {
-        const combinedTarget = target + this.words[this.currentWordIndex + 1];
-        if (isPhoneticMatch(token, combinedTarget)) {
+        const nextTarget = this.words[this.currentWordIndex + 1];
+        const combinedTarget = target + nextTarget;
+        const normNextTarget = normalizeSpanishWord(nextTarget);
+
+        if (
+          isPhoneticMatch(token, combinedTarget) ||
+          isPhoneticMatch(token, `${target} ${nextTarget}`) ||
+          (normToken === 'del' && normTarget === 'de' && normNextTarget === 'el') ||
+          (normToken === 'al' && normTarget === 'a' && normNextTarget === 'el')
+        ) {
           this.currentWordIndex += 2;
           this.consumedTokensInUtterance++;
+          this.failedTokenAttempts = 0;
           advanced = true;
           continue;
         }
       }
 
-      // 3. Palabra compuesta o tildada dividida en dos tokens por el micrófono (e.g. "tan", "bien" -> "también")
+      // 4. Palabra compuesta o tildada dividida en dos tokens por el micrófono (e.g. "tan", "bien" -> "también")
       if (i + 1 < unconsumed.length) {
         const combinedSpoken = token + unconsumed[i + 1];
         if (isPhoneticMatch(combinedSpoken, target)) {
           this.currentWordIndex++;
           this.consumedTokensInUtterance += 2;
+          this.failedTokenAttempts = 0;
           i++;
           advanced = true;
           continue;
         }
       }
 
-      // 4. Puente para conjunciones breves de 1 o 2 letras ("y", "a", "o", "e", "de")
-      if (target.length <= 2 && this.currentWordIndex + 1 < this.totalWords) {
-        const nextTarget = this.words[this.currentWordIndex + 1];
-        if (isPhoneticMatch(token, nextTarget)) {
-          this.currentWordIndex += 2;
-          this.consumedTokensInUtterance++;
-          advanced = true;
-          continue;
-        }
-      }
-
-      // 5. Alternativas fonéticas del motor de voz para palabras cortas o tildadas
+      // 5. Alternativas fonéticas devueltas por el motor de voz
       if (candidateAlts && candidateAlts.length > 0) {
         let altMatched = false;
         for (const alt of candidateAlts) {
           if (isPhoneticMatch(alt, target)) {
             this.currentWordIndex++;
             this.consumedTokensInUtterance++;
+            this.failedTokenAttempts = 0;
             advanced = true;
             altMatched = true;
             break;
@@ -184,10 +196,60 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       // 6. Si el alumno repitió la palabra anterior (relectura: "el... el"), consumimos el token sin avanzar erróneamente
       if (this.currentWordIndex > 0 && isPhoneticMatch(token, this.words[this.currentWordIndex - 1])) {
         this.consumedTokensInUtterance++;
+        this.failedTokenAttempts = 0;
         continue;
       }
 
-      // Si el token no coincidió con la palabra esperada, nos detenemos para esperar que el alumno pronuncie la palabra correcta
+      // 7. Lookahead en tokens hablados: si este token fue un ruido o chasquido pero el siguiente token coincide con la palabra actual
+      if (i + 1 < unconsumed.length && isPhoneticMatch(unconsumed[i + 1], target)) {
+        this.currentWordIndex++;
+        this.consumedTokensInUtterance += 2;
+        this.failedTokenAttempts = 0;
+        i++;
+        advanced = true;
+        continue;
+      }
+
+      // 8. Lookahead en texto objetivo: si el alumno se saltó 1 palabra o preposición corta y dijo la siguiente
+      if (this.currentWordIndex + 1 < this.totalWords && isPhoneticMatch(token, this.words[this.currentWordIndex + 1])) {
+        this.currentWordIndex += 2;
+        this.consumedTokensInUtterance++;
+        this.failedTokenAttempts = 0;
+        advanced = true;
+        continue;
+      }
+
+      // 9. Salto de 2 palabras cortas (e.g. omisión de "en la")
+      if (
+        this.currentWordIndex + 2 < this.totalWords &&
+        (normTarget.length <= 3 || normalizeSpanishWord(this.words[this.currentWordIndex + 1]).length <= 3) &&
+        isPhoneticMatch(token, this.words[this.currentWordIndex + 2])
+      ) {
+        this.currentWordIndex += 3;
+        this.consumedTokensInUtterance++;
+        this.failedTokenAttempts = 0;
+        advanced = true;
+        continue;
+      }
+
+      // 10. Prevención de bloqueo por ruido persistente o token ininteligible:
+      // Si el token tiene una coincidencia 2 tokens más adelante, descartamos este token como ruido
+      if (i + 2 < unconsumed.length && isPhoneticMatch(unconsumed[i + 2], target)) {
+        this.consumedTokensInUtterance++;
+        this.failedTokenAttempts = 0;
+        continue;
+      }
+
+      // Si no coincide con ninguna regla, incrementar contador de intentos fallidos
+      this.failedTokenAttempts++;
+      if (this.failedTokenAttempts >= 4) {
+        // Descartar el token bloqueante tras 4 ciclos sin coincidencia para reanudar el flujo libre
+        this.consumedTokensInUtterance++;
+        this.failedTokenAttempts = 0;
+        continue;
+      }
+
+      // Detener este ciclo de procesamiento para esperar el próximo cuadro de audio
       break;
     }
 
@@ -236,6 +298,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     this.currentWpm = 0;
     this.currentUtteranceId = -1;
     this.consumedTokensInUtterance = 0;
+    this.failedTokenAttempts = 0;
     this.startTimer();
 
     if (this.mode === 'mic') {
@@ -283,6 +346,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     this.micError = null;
     this.currentUtteranceId = -1;
     this.consumedTokensInUtterance = 0;
+    this.failedTokenAttempts = 0;
   }
 
   finishReading(): void {

@@ -58,6 +58,88 @@ export function levenshteinDistance(a: string, b: string): number {
 }
 
 /**
+ * Mapeo exhaustivo de números y dígitos en español y números romanos
+ * comunes en lecturas y capítulos literarios.
+ */
+export const NUMBER_WORD_MAP: Record<string, string[]> = {
+  '0': ['cero'],
+  '1': ['uno', 'un', 'una', 'primero', 'primera', 'primer', 'i'],
+  '2': ['dos', 'segundo', 'segunda', 'ii'],
+  '3': ['tres', 'tercero', 'tercera', 'tercer', 'iii'],
+  '4': ['cuatro', 'cuarto', 'cuarta', 'iv'],
+  '5': ['cinco', 'quinto', 'quinta', 'v'],
+  '6': ['seis', 'sexto', 'sexta', 'vi'],
+  '7': ['siete', 'septimo', 'septima', 'vii'],
+  '8': ['ocho', 'octavo', 'octava', 'viii'],
+  '9': ['nueve', 'noveno', 'novena', 'ix'],
+  '10': ['diez', 'decimo', 'decima', 'x'],
+  '11': ['once', 'xi'],
+  '12': ['doce', 'xii'],
+  '13': ['trece', 'xiii'],
+  '14': ['catorce', 'xiv'],
+  '15': ['quince', 'xv'],
+  '16': ['dieciseis', 'xvi'],
+  '17': ['diecisiete', 'xvii'],
+  '18': ['dieciocho', 'xviii'],
+  '19': ['diecinueve', 'xix'],
+  '20': ['veinte', 'xx'],
+  '21': ['veintiuno', 'veintiun', 'veintiuna', 'xxi'],
+  '30': ['treinta', 'xxx'],
+  '40': ['cuarenta', 'xl'],
+  '50': ['cincuenta', 'l'],
+  '100': ['cien', 'ciento', 'c'],
+  '500': ['quinientos', 'd'],
+  '1000': ['mil', 'm'],
+};
+
+/**
+ * Normalización fonética completa adaptada a Guatemala y Latinoamérica:
+ * - Seseo: c (ante e, i), z -> s
+ * - Betacismo: b, v, w -> b
+ * - Yeísmo: ll, y -> y
+ * - K/Q: qu (ante e, i), k, c (ante a, o, u) -> k
+ * - G/J: g (ante e, i), j -> j
+ * - Hache muda: h -> eliminada (salvo dígrafo 'ch')
+ * - Fonética maya / guatemalteca:
+ *     - tz -> ch o ts (e.g. Quetzal, Atitlán)
+ *     - w -> b / hu / u (e.g. Popol Wuj <-> Popol Vuh)
+ *     - x en topónimos mayas (Xela, Xibalbá) -> j o sh o s
+ * - Reducción de consonantes dobles (excepto 'rr')
+ */
+export function toPhoneticKey(word: string): string {
+  let w = normalizeSpanishWord(word);
+  if (!w) return '';
+
+  // 1. Proteger dígrafos y fonemas mayas antes de sustituir caracteres individuales
+  w = w
+    .replace(/ch/g, 'Ç')
+    .replace(/tz/g, 'Ç')
+    .replace(/ts/g, 'Ç')
+    .replace(/sh/g, 'Ç')
+    .replace(/qu(?=[ei])/g, 'k')
+    .replace(/gu(?=[ei])/g, 'g')
+    .replace(/ll/g, 'y');
+
+  // 2. Fonética estándar latinoamericana
+  w = w
+    .replace(/v/g, 'b')
+    .replace(/w/g, 'b')
+    .replace(/c(?=[ei])/g, 's')
+    .replace(/z/g, 's')
+    .replace(/c(?=[aou])/g, 'k')
+    .replace(/c$/g, 'k')
+    .replace(/g(?=[ei])/g, 'j')
+    .replace(/x/g, 's')
+    .replace(/h/g, '')
+    .replace(/Ç/g, 'ch');
+
+  // 3. Reducción de consonantes geminadas (excepto 'rr' que tiene valor fonémico)
+  w = w.replace(/([^r])\1+/g, '$1');
+
+  return w;
+}
+
+/**
  * Coincidencia fonética avanzada adaptada al español de Guatemala y Latinoamérica.
  * Tolera seseo (c/z <-> s), betacismo (b <-> v), yeísmo (ll <-> y), hache muda,
  * variantes indígenas/mayas (tz <-> ch/ts/z) y palabras con o sin tilde diacrítica.
@@ -69,65 +151,52 @@ export function isPhoneticMatch(spokenRaw: string, targetRaw: string): boolean {
   if (!s || !t) return false;
   if (s === t) return true;
 
-  // Palabras muy cortas (1 a 2 letras: "el", "la", "de", "en", "un", "al", "se", "si", "su", "tu", "ya")
-  if (t.length <= 2 || s.length <= 2) {
-    // Normalización fonética básica (v/b, c/z/s, ll/y, hache)
-    const phoneticShort = (w: string) =>
-      w.replace(/v/g, 'b').replace(/[cz]/g, 's').replace(/ll/g, 'y').replace(/^h/, '');
-    return phoneticShort(s) === phoneticShort(t);
+  // 1. Números y dígitos (ej. "3" <-> "tres", "1" <-> "un", "xxi" <-> "veintiuno")
+  if (NUMBER_WORD_MAP[s]?.includes(t) || NUMBER_WORD_MAP[t]?.includes(s)) {
+    return true;
+  }
+  for (const [digit, words] of Object.entries(NUMBER_WORD_MAP)) {
+    const list = [digit, ...words];
+    if (list.includes(s) && list.includes(t)) {
+      return true;
+    }
   }
 
-  // Palabras de 3 letras: "que", "del", "por", "con", "sin", "los", "las", "mas", "nos", "fue", "dio", "ver"
-  if (t.length === 3 && s.length === 3) {
-    const phonetic3 = (w: string) =>
-      w
-        .replace(/v/g, 'b')
-        .replace(/[cz]/g, 's')
-        .replace(/qu/g, 'k')
-        .replace(/^h/, '');
-    return phonetic3(s) === phonetic3(t);
-  }
-
-  // Normalización fonética completa para palabras medianas y largas (>= 4 letras)
-  const phonetic = (w: string) =>
-    w
-      .replace(/v/g, 'b')
-      .replace(/[cz]/g, 's')
-      .replace(/ll/g, 'y')
-      .replace(/qu/g, 'k')
-      .replace(/c(?=[aou])/g, 'k')
-      .replace(/g(?=[ei])/g, 'j')
-      .replace(/tz/g, 'ch')
-      .replace(/x/g, 's')
-      .replace(/^h/, '');
-
-  const ps = phonetic(s);
-  const pt = phonetic(t);
+  // 2. Normalización fonética completa (seseo, betacismo, yeísmo, hache muda, mayismos)
+  const ps = toPhoneticKey(s);
+  const pt = toPhoneticKey(t);
   if (ps === pt) return true;
 
-  // Tolerancia de plurales / singulares (palabras >= 4 letras: "cedros" <-> "cedro", "alas" <-> "ala")
-  if (s === t + 's' || s === t + 'es' || t === s + 's' || t === s + 'es') {
-    return true;
-  }
-  if (ps === pt + 's' || ps === pt + 'es' || pt === ps + 's' || pt === ps + 'es') {
-    return true;
+  // 3. Palabras muy cortas (1 o 2 letras: "el", "la", "de", "en", "un", "al", "se", "si", "su", "tu", "ya")
+  if (s.length <= 2 || t.length <= 2) {
+    return ps === pt;
   }
 
-  // Tolerancia Levenshtein adaptativa:
-  // Palabras medianas (4 a 7 letras): distancia <= 1
-  if (t.length >= 4 && s.length >= 4) {
-    const dist = levenshteinDistance(s, t);
-    if (dist <= 1) return true;
-    const pdist = levenshteinDistance(ps, pt);
-    if (pdist <= 1) return true;
+  // 4. Tolerancia de plurales / singulares (e.g. "ala" <-> "alas", "cedro" <-> "cedros")
+  if (s === t + 's' || s === t + 'es' || t === s + 's' || t === s + 'es') return true;
+  if (ps === pt + 's' || ps === pt + 'es' || pt === ps + 's' || pt === ps + 'es') return true;
+
+  // 5. Tolerancia Levenshtein adaptativa:
+  const maxLen = Math.max(s.length, t.length);
+  const pMaxLen = Math.max(ps.length, pt.length);
+
+  // Palabras de 3 a 5 letras: tolerancia distancia <= 1
+  const rawDist = levenshteinDistance(s, t);
+  if (rawDist <= 1 && maxLen >= 3) return true;
+
+  const phoneDist = levenshteinDistance(ps, pt);
+  if (phoneDist <= 1 && pMaxLen >= 3) return true;
+
+  // Palabras medianas y largas (>= 6 letras): permitir distancia <= 2 o similitud >= 75%
+  if (pMaxLen >= 6) {
+    if (phoneDist <= 2) return true;
+    const similarity = 1 - phoneDist / pMaxLen;
+    if (similarity >= 0.75) return true;
   }
 
-  // Palabras largas (8 o más letras: "centenarios", "guardabosques", "extraviados"): distancia <= 2
-  if (t.length >= 8 && s.length >= 7) {
-    const dist = levenshteinDistance(s, t);
-    if (dist <= 2) return true;
-    const pdist = levenshteinDistance(ps, pt);
-    if (pdist <= 2) return true;
+  // Palabras muy largas (>= 9 letras): permitir distancia <= 3
+  if (pMaxLen >= 9 && phoneDist <= 3) {
+    return true;
   }
 
   return false;
@@ -143,10 +212,12 @@ export class SpeechRecognitionService {
   private isPaused = false;
   private fullTranscript = '';
   private interimTranscript = '';
+  private accumulatedFinalText = '';
   private startTime: number | null = null;
   private pausedDuration = 0;
   private pauseTimestamp: number | null = null;
   private simulationInterval: any = null;
+  private restartTimeout: any = null;
 
   // Web Audio Context para efectos de gamificación
   private audioCtx: AudioContext | null = null;
@@ -190,41 +261,49 @@ export class SpeechRecognitionService {
               }
 
               let currentInterim = '';
-              const latestIndex = event.results.length - 1;
-              const latestResult = event.results[latestIndex];
+              const activeTokens: string[] = [];
+              const candidateAlts: string[] = [];
 
-              // Tokens de la frase activa actual
-              const primaryTranscript = latestResult ? (latestResult[0]?.transcript || '') : '';
-              const activeTokens = primaryTranscript.trim().split(/\s+/).filter(Boolean);
-
-              // Alternativas del motor de reconocimiento
-              const altWords: string[] = [];
-              if (latestResult) {
-                for (let a = 1; a < latestResult.length; ++a) {
-                  const alt = latestResult[a]?.transcript;
+              // Extraer tokens de todos los resultados desde resultIndex hasta el final
+              // (Garantiza que ningún token finalizado se pierda cuando Chrome divide en múltiples segmentos)
+              for (let i = event.resultIndex; i < event.results.length; ++i) {
+                const res = event.results[i];
+                const top = res[0]?.transcript || '';
+                if (top) {
+                  activeTokens.push(...top.trim().split(/\s+/).filter(Boolean));
+                }
+                for (let a = 1; a < res.length; ++a) {
+                  const alt = res[a]?.transcript;
                   if (alt) {
-                    altWords.push(...alt.trim().split(/\s+/).filter(Boolean));
+                    candidateAlts.push(...alt.trim().split(/\s+/).filter(Boolean));
                   }
                 }
               }
 
+              // Calcular transcripción completa acumulada
+              let currentSessionFinal = '';
               for (let i = 0; i < event.results.length; ++i) {
-                if (event.results[i].isFinal) {
-                  if (i >= event.resultIndex) {
-                    this.fullTranscript += ' ' + (event.results[i][0]?.transcript || '');
-                  }
+                const res = event.results[i];
+                if (res.isFinal) {
+                  currentSessionFinal += (currentSessionFinal ? ' ' : '') + (res[0]?.transcript || '');
                 } else {
-                  currentInterim += ' ' + (event.results[i][0]?.transcript || '');
+                  currentInterim += (currentInterim ? ' ' : '') + (res[0]?.transcript || '');
                 }
               }
+
+              this.fullTranscript = (this.accumulatedFinalText + ' ' + currentSessionFinal).trim();
               this.interimTranscript = currentInterim.trim();
 
-              this.emitUpdate(null, activeTokens, altWords, this.utteranceCounter);
+              this.emitUpdate(null, activeTokens, candidateAlts, this.utteranceCounter);
             });
           };
 
           this.recognition.onerror = (event: any) => {
             this.ngZone.run(() => {
+              if (event.error === 'no-speech' || event.error === 'aborted') {
+                // Pausas naturales del estudiante o reinicios; no son fallas críticas
+                return;
+              }
               console.warn('SpeechRecognition error:', event.error);
               this.emitUpdate(
                 event.error === 'not-allowed'
@@ -236,13 +315,9 @@ export class SpeechRecognitionService {
 
           this.recognition.onend = () => {
             this.ngZone.run(() => {
-              if (this.isListening && !this.isPaused) {
-                try {
-                  this.recognition.start();
-                } catch (err) {
-                  // Ya en ejecución
-                }
-              }
+              this.accumulatedFinalText = this.fullTranscript;
+              this.lastResultIndex = -1;
+              this.scheduleRestart();
             });
           };
         } catch (err) {
@@ -256,6 +331,30 @@ export class SpeechRecognitionService {
     }
   }
 
+  private scheduleRestart(): void {
+    if (!this.isListening || this.isPaused) return;
+    if (this.restartTimeout) {
+      clearTimeout(this.restartTimeout);
+      this.restartTimeout = null;
+    }
+    this.restartTimeout = setTimeout(() => {
+      if (this.isListening && !this.isPaused && this.recognition) {
+        try {
+          this.recognition.start();
+        } catch (err) {
+          // Reintentar si el canal de audio tardó en liberarse
+          this.restartTimeout = setTimeout(() => {
+            if (this.isListening && !this.isPaused && this.recognition) {
+              try {
+                this.recognition.start();
+              } catch (e) {}
+            }
+          }, 150);
+        }
+      }
+    }, 60);
+  }
+
   public isSupported(): boolean {
     if (typeof window === 'undefined') return false;
     return Boolean((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
@@ -265,6 +364,7 @@ export class SpeechRecognitionService {
     this.stopNarrator();
     this.fullTranscript = '';
     this.interimTranscript = '';
+    this.accumulatedFinalText = '';
     this.startTime = Date.now();
     this.pausedDuration = 0;
     this.pauseTimestamp = null;
@@ -272,6 +372,10 @@ export class SpeechRecognitionService {
     this.isPaused = false;
     this.utteranceCounter = 0;
     this.lastResultIndex = -1;
+    if (this.restartTimeout) {
+      clearTimeout(this.restartTimeout);
+      this.restartTimeout = null;
+    }
 
     if (this.recognition) {
       try {
@@ -290,6 +394,10 @@ export class SpeechRecognitionService {
     if (!this.isListening || this.isPaused) return;
     this.isPaused = true;
     this.pauseTimestamp = Date.now();
+    if (this.restartTimeout) {
+      clearTimeout(this.restartTimeout);
+      this.restartTimeout = null;
+    }
     if (this.recognition) {
       try {
         this.recognition.stop();
@@ -312,7 +420,9 @@ export class SpeechRecognitionService {
     if (this.recognition) {
       try {
         this.recognition.start();
-      } catch (e) {}
+      } catch (e) {
+        this.scheduleRestart();
+      }
     }
     this.emitUpdate();
   }
@@ -320,6 +430,10 @@ export class SpeechRecognitionService {
   public stop(): void {
     this.isListening = false;
     this.isPaused = false;
+    if (this.restartTimeout) {
+      clearTimeout(this.restartTimeout);
+      this.restartTimeout = null;
+    }
     if (this.recognition) {
       try {
         this.recognition.stop();
