@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { NavbarComponent } from '../../../../shared/components/navbar/navbar.component';
 import { AuthService } from '../../../../core/services/auth.service';
-import { User } from '../../../../core/models/user.model';
+import { User, KINAL_GRADE_GROUPS, KINAL_SECTIONS } from '../../../../core/models/user.model';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { environment } from '../../../../../environments/environment';
 
@@ -19,6 +19,9 @@ export class AdminDashboardComponent implements OnInit {
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
   auth = inject(AuthService);
+
+  readonly gradeGroups = KINAL_GRADE_GROUPS;
+  readonly sections = KINAL_SECTIONS;
 
   users: User[] = [];
   loading = false;
@@ -37,6 +40,39 @@ export class AdminDashboardComponent implements OnInit {
 
   ngOnInit() {
     this.loadUsers();
+    this.userForm.get('role')?.valueChanges.subscribe((role) => {
+      this.onRoleChanged(role || '');
+    });
+  }
+
+  openCreateModal() {
+    this.userForm.reset({
+      name: '',
+      email: '',
+      password: '',
+      role: 'TEACHER_ROLE',
+      grade: '',
+      section: '',
+    });
+    this.onRoleChanged('TEACHER_ROLE');
+    this.showCreateModal = true;
+    this.cdr.markForCheck();
+  }
+
+  private onRoleChanged(role: string) {
+    const gradeCtrl = this.userForm.get('grade');
+    const sectionCtrl = this.userForm.get('section');
+    if (role === 'STUDENT_ROLE') {
+      gradeCtrl?.setValidators([Validators.required]);
+      sectionCtrl?.setValidators([Validators.required]);
+    } else {
+      gradeCtrl?.clearValidators();
+      gradeCtrl?.setValue('', { emitEvent: false });
+      sectionCtrl?.clearValidators();
+      sectionCtrl?.setValue('', { emitEvent: false });
+    }
+    gradeCtrl?.updateValueAndValidity();
+    sectionCtrl?.updateValueAndValidity();
   }
 
   loadUsers() {
@@ -67,6 +103,10 @@ export class AdminDashboardComponent implements OnInit {
     this.http.patch(`${environment.apiUrl}/users/${userId}/role`, { role: newRole }).subscribe({
       next: () => {
         user.role = newRole as any;
+        if (newRole !== 'STUDENT_ROLE') {
+          user.grade = '';
+          user.section = '';
+        }
         this.showToast('Rol actualizado correctamente');
         this.cdr.markForCheck();
       },
@@ -81,7 +121,13 @@ export class AdminDashboardComponent implements OnInit {
   onCreateUser() {
     if (this.userForm.invalid) return;
 
-    this.http.post(`${environment.apiUrl}/users`, this.userForm.value).subscribe({
+    const payload = { ...this.userForm.value };
+    if (payload.role !== 'STUDENT_ROLE') {
+      payload.grade = '';
+      payload.section = '';
+    }
+
+    this.http.post(`${environment.apiUrl}/users`, payload).subscribe({
       next: () => {
         this.showCreateModal = false;
         this.userForm.reset({
@@ -92,6 +138,7 @@ export class AdminDashboardComponent implements OnInit {
           grade: '',
           section: '',
         });
+        this.onRoleChanged('TEACHER_ROLE');
         this.showToast('Cuenta registrada exitosamente');
         this.loadUsers();
       },

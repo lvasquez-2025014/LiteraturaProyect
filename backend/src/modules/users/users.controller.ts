@@ -61,13 +61,14 @@ export class UsersController {
       throw new BadRequestException('Ya existe una cuenta registrada con este correo electrónico');
     }
 
+    const isStudent = body.role === 'STUDENT_ROLE';
     const user = await this.usersService.createUser(
       body.email,
       body.password,
       body.name,
       body.role,
-      body.grade || '',
-      body.section || '',
+      isStudent ? (body.grade || '') : '',
+      isStudent ? (body.section || '') : '',
     );
 
     const { password: _, ...safeUser } = user;
@@ -119,7 +120,13 @@ export class UsersController {
       throw new ForbiddenException('Solo el Administrador Principal configurado en el .env puede gestionar roles de Administrador');
     }
 
-    const updated = await this.usersService.updateRole(id, body.role, body.grade, body.section);
+    const isStudent = body.role === 'STUDENT_ROLE';
+    const updated = await this.usersService.updateRole(
+      id,
+      body.role,
+      isStudent ? body.grade : '',
+      isStudent ? body.section : '',
+    );
     if (!updated) {
       throw new BadRequestException('Estudiante o docente no encontrado');
     }

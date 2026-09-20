@@ -311,6 +311,13 @@
   border-color: #cbd5e1;
 }
 
+.badge-role-na {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.9rem;
+  user-select: none;
+}
+
 /* ==========================================================
  * RESPONSIVE ADAPTATIONS
  * ========================================================== */

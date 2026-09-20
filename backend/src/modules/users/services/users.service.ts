@@ -69,14 +69,15 @@ export class UsersService {
     section?: string,
   ): Promise<UserDocument> {
     const hashedPassword = await bcrypt.hash(password, 10);
+    const isStudent = role === 'STUDENT_ROLE';
     const newUser: UserDocument = {
       email: email.toLowerCase(),
       password: hashedPassword,
       name,
       avatarUrl: '',
       role,
-      grade,
-      section,
+      grade: isStudent ? (grade || '') : '',
+      section: isStudent ? (section || '') : '',
       stats: this.getDefaultStats(),
       coins: 60,
       equippedTitle: 'Cadete de las Letras',
@@ -137,8 +138,13 @@ export class UsersService {
   ): Promise<UserDocument | null> {
     try {
       const updateFields: any = { role, updatedAt: new Date() };
-      if (grade !== undefined) updateFields.grade = grade;
-      if (section !== undefined) updateFields.section = section;
+      if (role !== 'STUDENT_ROLE') {
+        updateFields.grade = '';
+        updateFields.section = '';
+      } else {
+        if (grade !== undefined) updateFields.grade = grade;
+        if (section !== undefined) updateFields.section = section;
+      }
 
       await this.collection.updateOne(
         { _id: new ObjectId(id) },
