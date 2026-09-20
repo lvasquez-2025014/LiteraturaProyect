@@ -173,6 +173,21 @@ export const SPANISH_WORD_TO_DIGIT_MAP: Record<string, string> = {
   cien: '100', ciento: '100', quinientos: '500', mil: '1000',
 };
 
+export const SPANISH_STOPWORDS = new Set<string>([
+  'de', 'la', 'el', 'en', 'y', 'a', 'los', 'del', 'se', 'las', 'por', 'un',
+  'para', 'con', 'no', 'una', 'su', 'al', 'lo', 'como', 'mas', 'pero', 'sus',
+  'le', 'ya', 'o', 'este', 'si', 'porque', 'esta', 'son', 'entre',
+  'cuando', 'muy', 'sin', 'sobre', 'ser', 'tiene', 'tambien', 'me', 'hasta',
+  'hay', 'donde', 'quien', 'desde', 'todo', 'nos', 'durante', 'todos', 'uno',
+  'les', 'ni', 'contra', 'otros', 'ese', 'eso', 'ante', 'ellos', 'e', 'esto',
+  'mi', 'antes', 'algunos', 'que', 'unos', 'unas'
+]);
+
+export function isSpanishStopword(rawWord: string): boolean {
+  const norm = normalizeSpanishWord(rawWord);
+  return SPANISH_STOPWORDS.has(norm);
+}
+
 /**
  * Retorna las formas equivalentes fonéticas y orales de una palabra (números, romanos, contracciones).
  */

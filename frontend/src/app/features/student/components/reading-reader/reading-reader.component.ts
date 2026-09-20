@@ -9,6 +9,7 @@ import {
   toPhoneticKey,
   computePhoneticSimilarity,
   getWordEquivalents,
+  isSpanishStopword,
 } from '../../../../core/services/speech-recognition.service';
 import confetti from 'canvas-confetti';
 
@@ -19,6 +20,7 @@ export interface ReadingWordToken {
   phoneticKey: string;
   equivalents: string[];
   isPronounceable: boolean;
+  isStopword: boolean;
 }
 
 @Component({
@@ -127,6 +129,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
         phoneticKey: toPhoneticKey(clean),
         equivalents: getWordEquivalents(clean),
         isPronounceable: true,
+        isStopword: isSpanishStopword(clean),
       });
     }
 
@@ -211,8 +214,8 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Motor de Alineación Dinámica Bandeada (Smith-Waterman / Needleman-Wunsch Adaptativo).
-   * Tolera saltos de palabras, ruidos acústicos, números multipalabra y sinéresis sin atascos.
+   * Motor de Alineación Dinámica Bandeada con Evidencia Acotada (Smith-Waterman / Needleman-Wunsch).
+   * Tolera omisiones y variaciones fonéticas, impidiendo matemáticamente saltos arbitrarios de líneas.
    */
   public alignBandedDP(
     baseIndex: number,
@@ -249,9 +252,11 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       return { targetIndex: baseIndex, matchedCount: 0 };
     }
 
-    // 3. Ventana bandeada: 2 palabras atrás y hasta 26 palabras adelante
-    const windowStart = Math.max(0, baseIndex - 2);
-    const windowEnd = Math.min(this.totalWords, baseIndex + 26);
+    // 3. Ventana adaptativa proporcional a la longitud de palabras habladas:
+    // Evita físicamente inspeccionar líneas distantes ante ruidos o palabras aisladas.
+    const maxForward = Math.min(30, Math.max(5, activeSpoken.length * 2 + 6));
+    const windowStart = Math.max(0, baseIndex - 1);
+    const windowEnd = Math.min(this.totalWords, baseIndex + maxForward);
     const textSlice = this.tokens.slice(windowStart, windowEnd);
     if (textSlice.length === 0) {
       return { targetIndex: baseIndex, matchedCount: 0 };
@@ -261,6 +266,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     const N = textSlice.length;
     const dp: number[][] = Array.from({ length: M + 1 }, () => new Array(N + 1).fill(0));
     const matchCount: number[][] = Array.from({ length: M + 1 }, () => new Array(N + 1).fill(0));
+    const contentMatchCount: number[][] = Array.from({ length: M + 1 }, () => new Array(N + 1).fill(0));
 
     for (let i = 1; i <= M; i++) {
       const spokenTok = activeSpoken[i - 1];
@@ -285,33 +291,39 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
           if (comboSim > sim) sim = comboSim;
         }
 
-        // Distancia suave desde baseIndex para evitar saltos lejanos injustificados de palabras aisladas
-        const distFromBase = Math.max(0, globalWordIdx - baseIndex);
-        const distPenalty = distFromBase * 0.12;
-
         let matchReward = -1.0;
         let isMatch = false;
         if (sim >= 0.85) {
-          matchReward = 3.2 * sim;
+          matchReward = 3.5 * sim;
           isMatch = true;
-        } else if (sim >= 0.70) {
-          matchReward = 2.0 * sim;
+        } else if (sim >= 0.72) {
+          matchReward = 2.2 * sim;
           isMatch = true;
         }
 
-        const scoreDiag = dp[i - 1][j - 1] + matchReward - distPenalty;
-        const scoreSkipText = dp[i][j - 1] - 0.75; // Salto en texto (palabra omitida por el estudiante o caída de micro)
-        const scoreSkipSpoken = dp[i - 1][j] - 0.45; // Token extra hablado (muletilla o ruido)
+        // Penalización de anclaje inicial aplicada al primer token para desincentivar saltos lejanos
+        let anchorPenalty = 0;
+        if (i === 1) {
+          const distFromBase = Math.max(0, globalWordIdx - baseIndex);
+          anchorPenalty = distFromBase * 0.40;
+        }
+
+        const scoreDiag = dp[i - 1][j - 1] + matchReward - anchorPenalty;
+        const scoreSkipText = dp[i][j - 1] - 1.2; // Penalización por omitir palabra del texto
+        const scoreSkipSpoken = dp[i - 1][j] - 0.5; // Penalización por palabra hablada sobrante o ruido
 
         const bestScore = Math.max(0, scoreDiag, scoreSkipText, scoreSkipSpoken);
         dp[i][j] = bestScore;
 
         if (bestScore === scoreDiag && isMatch) {
           matchCount[i][j] = matchCount[i - 1][j - 1] + 1;
+          contentMatchCount[i][j] = contentMatchCount[i - 1][j - 1] + (word.isStopword ? 0 : 1);
         } else if (bestScore === scoreSkipText) {
           matchCount[i][j] = matchCount[i][j - 1];
+          contentMatchCount[i][j] = contentMatchCount[i][j - 1];
         } else if (bestScore === scoreSkipSpoken) {
           matchCount[i][j] = matchCount[i - 1][j];
+          contentMatchCount[i][j] = contentMatchCount[i - 1][j];
         }
       }
     }
@@ -319,6 +331,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     let bestScore = 0;
     let bestJ = 0;
     let bestMatches = 0;
+    let bestContentMatches = 0;
 
     for (let i = 1; i <= M; i++) {
       for (let j = 1; j <= N; j++) {
@@ -329,15 +342,45 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
           bestScore = dp[i][j];
           bestJ = j;
           bestMatches = matchCount[i][j];
+          bestContentMatches = contentMatchCount[i][j];
         }
       }
     }
 
     if (bestScore >= 1.6 && bestJ > 0 && bestMatches >= 1) {
-      const targetIndex = windowStart + bestJ;
-      if (targetIndex > baseIndex) {
+      const candidateTarget = windowStart + bestJ;
+      const jumpDistance = candidateTarget - baseIndex;
+
+      // Validación Matemática del Salto en función de la Evidencia Acumulada:
+      // Imposibilita que 1 o 2 palabras salten 3 líneas (> 15 palabras).
+      let allowedSkip = 0;
+      if (bestMatches === 1) {
+        allowedSkip = 1; // Salto máximo de 2 palabras (progreso normal o salto de artículo)
+      } else if (bestMatches === 2) {
+        allowedSkip = 2; // Salto máximo de 4 palabras
+      } else if (bestMatches === 3) {
+        allowedSkip = 2; // Salto máximo de 5 palabras
+      } else if (bestMatches <= 5) {
+        allowedSkip = 3; // Salto máximo de 8 palabras
+      } else {
+        // 6+ palabras coincidentes: permite saltos mayores si se articuló una oración completa
+        if (bestScore >= 14 && bestContentMatches >= 4) {
+          allowedSkip = 16;
+        } else {
+          allowedSkip = 5;
+        }
+      }
+
+      const maxAllowedJump = bestMatches + allowedSkip;
+
+      if (jumpDistance > 0 && jumpDistance <= maxAllowedJump) {
+        // Protección contra stopwords: palabras vacías no pueden saltar palabras con contenido
+        if (jumpDistance >= 3 && bestContentMatches < 1 && bestMatches < 3) {
+          return { targetIndex: baseIndex, matchedCount: 0 };
+        }
+
         return {
-          targetIndex: Math.min(this.totalWords, targetIndex),
+          targetIndex: Math.min(this.totalWords, candidateTarget),
           matchedCount: bestMatches,
         };
       }
@@ -378,8 +421,11 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       );
       if (alignFinal.matchedCount > 0 && alignFinal.targetIndex > this.confirmedWordIndex) {
         this.confirmedWordIndex = alignFinal.targetIndex;
+        this.consumedFinalTokensCount = finalTokens.length;
+      } else if (finalTokens.length - this.consumedFinalTokensCount > 4) {
+        // Descartar tokens no emparejados si se acumula ruido para no bloquear el flujo
+        this.consumedFinalTokensCount = finalTokens.length;
       }
-      this.consumedFinalTokensCount = finalTokens.length;
     }
 
     // 2. Nivel Reactivo (<60ms): Procesar tokens provisionales para respuesta visual instantánea
@@ -398,7 +444,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       this.liveSpokenText = '';
     }
 
-    // 3. Monotonicidad estricta y elástica: el cursor visual nunca retrocede ante ruidos o repeticiones
+    // 3. Monotonicidad visual protegida: el cursor avanza progresivamente y nunca retrocede ante ruidos o repeticiones
     this.currentWordIndex = Math.min(
       this.totalWords,
       Math.max(this.currentWordIndex, Math.max(this.confirmedWordIndex, tentativeWordIndex))

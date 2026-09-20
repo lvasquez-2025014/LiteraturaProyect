@@ -325,5 +325,80 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
       expect((component as any).confirmedWordIndex).toBe(7);
       expect(component.reanchorToastMessage).toContain('8');
     });
+
+    it('should strictly prevent jumping 3 lines (>= 15 words) on isolated words or stopwords', () => {
+      // Caso crítico reportado por el usuario: el estudiante lee desde el inicio y el cursor salta 3 líneas
+      component.currentWordIndex = 0;
+      (component as any).confirmedWordIndex = 0;
+
+      // Simular que el reconocedor capta una palabra que aparece 3 líneas más abajo (ej. "quetzal" o "de las")
+      (component as any).processSpeechTokens({
+        finalTokens: [],
+        interimTokens: ['quetzal'],
+        candidateAlts: [],
+        wordsSpokenCount: 1,
+        currentWpm: 120,
+      });
+
+      // NO debe saltar a la palabra 21/22 ni avanzar arbitrariamente
+      expect(component.currentWordIndex).toBe(0);
+
+      // Simular par de stopwords ("de las") que aparecen más adelante
+      component.currentWordIndex = 11;
+      (component as any).confirmedWordIndex = 11;
+
+      (component as any).processSpeechTokens({
+        finalTokens: [],
+        interimTokens: ['de', 'las'],
+        candidateAlts: [],
+        wordsSpokenCount: 2,
+        currentWpm: 120,
+      });
+
+      // NO debe saltar a las palabras 27-29 (+18 palabras / 2-3 líneas)
+      expect(component.currentWordIndex).toBe(11);
+    });
+
+    it('should mathematically limit single-word advance to at most 2 words', () => {
+      component.currentWordIndex = 2; // palabra "altas"
+      (component as any).confirmedWordIndex = 2;
+
+      // El alumno lee la palabra contigua omitiendo 1 palabra ("cumbres")
+      (component as any).processSpeechTokens({
+        finalTokens: ['cumbres'],
+        interimTokens: [],
+        candidateAlts: [],
+        wordsSpokenCount: 1,
+        currentWpm: 100,
+      });
+
+      // El salto debe ser exactamente de 2 palabras (a índice 4: "de")
+      expect(component.currentWordIndex).toBe(4);
+    });
+
+    it('should read smoothly through consecutive sentences without arbitrary line jumps', () => {
+      component.currentWordIndex = 0;
+      (component as any).confirmedWordIndex = 0;
+
+      const sentence1 = ['en', 'las', 'altas', 'cumbres', 'de', 'la', 'sierra'];
+      (component as any).processSpeechTokens({
+        finalTokens: sentence1,
+        interimTokens: [],
+        candidateAlts: [],
+        wordsSpokenCount: sentence1.length,
+        currentWpm: 130,
+      });
+      expect(component.currentWordIndex).toBe(7);
+
+      const sentence2 = ['de', 'las', 'minas', 'donde', 'la', 'niebla', 'danza'];
+      (component as any).processSpeechTokens({
+        finalTokens: [...sentence1, ...sentence2],
+        interimTokens: [],
+        candidateAlts: [],
+        wordsSpokenCount: sentence1.length + sentence2.length,
+        currentWpm: 130,
+      });
+      expect(component.currentWordIndex).toBe(14);
+    });
   });
 });
