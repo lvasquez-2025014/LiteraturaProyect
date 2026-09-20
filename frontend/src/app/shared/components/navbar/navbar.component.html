@@ -16,9 +16,9 @@
       </div>
     </a>
 
-    <!-- Conmutador de Portales para el Administrador (Super-Acceso) -->
-    <nav class="admin-portal-switcher" *ngIf="user?.role === 'ADMIN_ROLE'" aria-label="Portales de navegación">
-      <a routerLink="/admin" routerLinkActive="active-portal" class="portal-link" title="Panel de Cuentas y Permisos">
+    <!-- Conmutador de Portales para Administrador y Docente -->
+    <nav class="admin-portal-switcher" *ngIf="user?.role === 'ADMIN_ROLE' || user?.role === 'TEACHER_ROLE'" aria-label="Portales de navegación">
+      <a *ngIf="user?.role === 'ADMIN_ROLE'" routerLink="/admin" routerLinkActive="active-portal" class="portal-link" title="Panel de Cuentas y Permisos">
         <span class="portal-icon">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
@@ -50,8 +50,8 @@
     <!-- User Information & Stats -->
     <div class="user-actions" *ngIf="user as u">
 
-      <!-- Gamification pills for students and admin (compact on mobile) -->
-      <div class="gamification-pills" *ngIf="u.role === 'STUDENT_ROLE' || u.role === 'ADMIN_ROLE'">
+      <!-- Gamification pills for students, teachers and admin (compact on mobile) -->
+      <div class="gamification-pills" *ngIf="u.role === 'STUDENT_ROLE' || u.role === 'ADMIN_ROLE' || u.role === 'TEACHER_ROLE'">
         <!-- Streak -->
         <div class="pill pill-streak" title="Racha de días leyendo">
           <span class="pill-icon">
@@ -158,10 +158,10 @@
             </div>
           </div>
 
-          <!-- Portal Links for Admin inside dropdown -->
-          <div class="dropdown-portal-links" *ngIf="u.role === 'ADMIN_ROLE'">
+          <!-- Portal Links for Admin & Teacher inside dropdown -->
+          <div class="dropdown-portal-links" *ngIf="u.role === 'ADMIN_ROLE' || u.role === 'TEACHER_ROLE'">
             <div class="dropdown-section-title">Navegación de Portales</div>
-            <a routerLink="/admin" (click)="closeUserMenu()" class="dropdown-nav-item" routerLinkActive="active">
+            <a *ngIf="u.role === 'ADMIN_ROLE'" routerLink="/admin" (click)="closeUserMenu()" class="dropdown-nav-item" routerLinkActive="active">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
               <span>Panel de Administración</span>
             </a>

@@ -120,3 +120,56 @@ export const KINAL_GRADE_GROUPS: GradeGroup[] = [
     ],
   },
 ];
+
+export const KINAL_GRADE_LEVELS = [
+  'Primero Básico',
+  'Segundo Básico',
+  'Tercero Básico',
+  'Cuarto Perito',
+  'Quinto Perito',
+  'Sexto Perito',
+] as const;
+
+export type KinalGradeLevel = typeof KINAL_GRADE_LEVELS[number];
+
+export const KINAL_CAREERS = [
+  'Informática',
+  'Dibujo',
+  'Electrónica',
+  'Electricidad',
+  'Mecánica',
+] as const;
+
+export type KinalCareer = typeof KINAL_CAREERS[number];
+
+export function isPeritoGrade(gradeLevel?: string): boolean {
+  if (!gradeLevel) return false;
+  return gradeLevel.toLowerCase().includes('perito');
+}
+
+export function formatFullGrade(level: string, career?: string): string {
+  if (!level) return '';
+  if (isPeritoGrade(level) && career && career !== 'all' && career !== 'none' && career.trim() !== '') {
+    return `${level} en ${career}`;
+  }
+  return level;
+}
+
+export function parseGradeLevelAndCareer(fullGrade?: string): { level: string; career: string } {
+  if (!fullGrade) return { level: '', career: '' };
+  const lower = fullGrade.toLowerCase();
+  for (const lvl of KINAL_GRADE_LEVELS) {
+    if (lower.startsWith(lvl.toLowerCase())) {
+      if (isPeritoGrade(lvl)) {
+        for (const car of KINAL_CAREERS) {
+          if (lower.includes(car.toLowerCase())) {
+            return { level: lvl, career: car };
+          }
+        }
+        return { level: lvl, career: '' };
+      }
+      return { level: lvl, career: '' };
+    }
+  }
+  return { level: fullGrade, career: '' };
+}

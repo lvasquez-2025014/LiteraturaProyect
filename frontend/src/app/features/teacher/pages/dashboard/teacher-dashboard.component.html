@@ -186,17 +186,25 @@
             />
           </div>
 
-          <!-- Grade & Section Filters -->
+          <!-- Grade, Career & Section Filters -->
           <div class="filters-group">
             <div class="filter-item">
               <label for="grade-select" class="filter-label">Grado:</label>
-              <select id="grade-select" [(ngModel)]="selectedGrade" class="filter-select">
+              <select id="grade-select" [(ngModel)]="selectedGrade" (ngModelChange)="onGradeFilterChange()" class="filter-select">
                 <option value="all">Todos los Grados</option>
-                <optgroup *ngFor="let group of gradeGroups" [label]="group.group">
-                  <option *ngFor="let g of group.grades" [value]="g">
-                    {{ g }}
-                  </option>
-                </optgroup>
+                <option *ngFor="let g of gradeLevels" [value]="g">
+                  {{ g }}
+                </option>
+              </select>
+            </div>
+
+            <div class="filter-item">
+              <label for="career-select" class="filter-label">Carrera:</label>
+              <select id="career-select" [(ngModel)]="selectedCareer" class="filter-select" [disabled]="isBasicoSelected">
+                <option value="all">{{ isBasicoSelected ? 'No aplica (Básico)' : 'Todas las Carreras' }}</option>
+                <option *ngFor="let c of careers" [value]="c">
+                  {{ c }}
+                </option>
               </select>
             </div>
 
@@ -212,6 +220,7 @@
 
             <button (click)="loadStudents()" class="btn-refresh" [disabled]="loading" title="Actualizar Datos">
               <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.2" fill="none">
+                <polyline points="23 4 23 10 17 10"></polyline>
                 <polyline points="23 4 23 10 17 10"></polyline>
                 <polyline points="1 20 1 14 7 14"></polyline>
                 <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>

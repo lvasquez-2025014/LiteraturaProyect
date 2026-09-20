@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { NavbarComponent } from '../../../../shared/components/navbar/navbar.component';
 import { AuthService } from '../../../../core/services/auth.service';
-import { User, KINAL_GRADE_GROUPS, KINAL_SECTIONS } from '../../../../core/models/user.model';
+import { User, KINAL_GRADE_LEVELS, KINAL_CAREERS, KINAL_SECTIONS, isPeritoGrade } from '../../../../core/models/user.model';
 import { StudentPerformance, Reading, Question, RoadmapStage } from '../../../../core/models/reading.model';
 import { StudentDetailModalComponent } from '../../components/student-detail-modal/student-detail-modal.component';
 import { ReadingsService } from '../../../../core/services/readings.service';
@@ -19,7 +19,8 @@ import { environment } from '../../../../../environments/environment';
   styleUrl: './teacher-dashboard.component.css',
 })
 export class TeacherDashboardComponent implements OnInit {
-  readonly gradeGroups = KINAL_GRADE_GROUPS;
+  readonly gradeLevels = KINAL_GRADE_LEVELS;
+  readonly careers = KINAL_CAREERS;
   readonly sections = KINAL_SECTIONS;
 
   private http = inject(HttpClient);
@@ -35,8 +36,19 @@ export class TeacherDashboardComponent implements OnInit {
   loading = false;
   searchQuery = '';
   selectedGrade = 'all';
+  selectedCareer = 'all';
   selectedSection = 'all';
   selectedStudentForModal: StudentPerformance | null = null;
+
+  get isBasicoSelected(): boolean {
+    return this.selectedGrade !== 'all' && !isPeritoGrade(this.selectedGrade);
+  }
+
+  onGradeFilterChange() {
+    if (this.isBasicoSelected) {
+      this.selectedCareer = 'all';
+    }
+  }
 
   // Toast notification
   toastMessage: string | null = null;
@@ -141,19 +153,27 @@ export class TeacherDashboardComponent implements OnInit {
 
   get filteredStudents(): User[] {
     return this.students.filter((student) => {
+      const studentGrade = (student.grade || '').toLowerCase();
+
       const matchesGrade =
         this.selectedGrade === 'all' ||
-        (student.grade && student.grade.toLowerCase().includes(this.selectedGrade.toLowerCase()));
+        studentGrade.includes(this.selectedGrade.toLowerCase());
+
+      const matchesCareer =
+        this.selectedCareer === 'all' ||
+        studentGrade.includes(this.selectedCareer.toLowerCase());
+
       const matchesSection =
         this.selectedSection === 'all' ||
         (student.section && student.section.toUpperCase() === this.selectedSection.toUpperCase());
+
       const query = this.searchQuery.toLowerCase().trim();
       const matchesSearch =
         !query ||
         student.name.toLowerCase().includes(query) ||
         student.email.toLowerCase().includes(query);
 
-      return matchesGrade && matchesSection && matchesSearch;
+      return matchesGrade && matchesCareer && matchesSection && matchesSearch;
     });
   }
 

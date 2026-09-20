@@ -160,36 +160,37 @@
         </select>
       </div>
 
-      <!-- Grado y Sección SOLO se preguntan si el rol seleccionado es Estudiante -->
+      <!-- Grado, Carrera y Sección SOLO se preguntan si el rol seleccionado es Estudiante -->
       <div class="form-row" *ngIf="userForm.get('role')?.value === 'STUDENT_ROLE'">
         <div class="form-group">
-          <label>Grado / Carrera *</label>
-          <select formControlName="grade" class="form-control"
-            [class.is-invalid]="userForm.get('grade')?.invalid && userForm.get('grade')?.touched">
-            <option value="" disabled>Selecciona el grado...</option>
-            <optgroup *ngFor="let group of gradeGroups" [label]="group.group">
-              <option *ngFor="let grade of group.grades" [value]="grade">
-                {{ grade }}
-              </option>
-            </optgroup>
+          <label>Grado Escolar *</label>
+          <select [(ngModel)]="newStudentGradeLevel" (ngModelChange)="onNewStudentGradeChange()" [ngModelOptions]="{standalone: true}" class="form-control" required>
+            <option value="" disabled>Selecciona grado...</option>
+            <option *ngFor="let g of gradeLevels" [value]="g">{{ g }}</option>
           </select>
-          <span class="field-error" *ngIf="userForm.get('grade')?.hasError('required') && userForm.get('grade')?.touched">
-            Selecciona el grado
-          </span>
         </div>
         <div class="form-group">
-          <label>Sección *</label>
-          <select formControlName="section" class="form-control"
-            [class.is-invalid]="userForm.get('section')?.invalid && userForm.get('section')?.touched">
-            <option value="" disabled>Selec...</option>
-            <option *ngFor="let sec of sections" [value]="sec">
-              Sección {{ sec }}
-            </option>
+          <label>Carrera Técnica *</label>
+          <select [(ngModel)]="newStudentCareer" (ngModelChange)="onNewStudentGradeChange()" [ngModelOptions]="{standalone: true}" class="form-control" [disabled]="!isNewStudentPerito">
+            <option value="" *ngIf="!isNewStudentPerito">No aplica (Básico)</option>
+            <option value="" disabled *ngIf="isNewStudentPerito">Selecciona carrera...</option>
+            <option *ngFor="let c of careers" [value]="c">{{ c }}</option>
           </select>
-          <span class="field-error" *ngIf="userForm.get('section')?.hasError('required') && userForm.get('section')?.touched">
-            Selecciona la sección
-          </span>
         </div>
+      </div>
+
+      <div class="form-group" *ngIf="userForm.get('role')?.value === 'STUDENT_ROLE'">
+        <label>Sección Académica *</label>
+        <select formControlName="section" class="form-control"
+          [class.is-invalid]="userForm.get('section')?.invalid && userForm.get('section')?.touched">
+          <option value="" disabled>Selecciona sección...</option>
+          <option *ngFor="let sec of sections" [value]="sec">
+            Sección {{ sec }}
+          </option>
+        </select>
+        <span class="field-error" *ngIf="userForm.get('section')?.hasError('required') && userForm.get('section')?.touched">
+          Selecciona la sección
+        </span>
       </div>
 
       <div class="modal-footer">
@@ -217,16 +218,27 @@
     </div>
 
     <form (ngSubmit)="onSaveGradeSection()" class="modal-body">
-      <div class="form-group">
-        <label>Grado / Carrera Oficial *</label>
-        <select [(ngModel)]="editGrade" name="editGrade" class="form-control" required>
-          <option value="" disabled>Selecciona el grado escolar...</option>
-          <optgroup *ngFor="let group of gradeGroups" [label]="group.group">
-            <option *ngFor="let grade of group.grades" [value]="grade">
-              {{ grade }}
+      <div class="form-row">
+        <div class="form-group">
+          <label>Grado Escolar *</label>
+          <select [(ngModel)]="editGradeLevel" (ngModelChange)="onEditGradeLevelChange()" name="editGradeLevel" class="form-control" required>
+            <option value="" disabled>Selecciona el grado...</option>
+            <option *ngFor="let g of gradeLevels" [value]="g">
+              {{ g }}
             </option>
-          </optgroup>
-        </select>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Carrera Técnica *</label>
+          <select [(ngModel)]="editCareer" name="editCareer" class="form-control" [disabled]="!isEditStudentPerito">
+            <option value="" *ngIf="!isEditStudentPerito">No aplica (Básico)</option>
+            <option value="" disabled *ngIf="isEditStudentPerito">Selecciona la carrera...</option>
+            <option *ngFor="let c of careers" [value]="c">
+              {{ c }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <div class="form-group">
@@ -247,7 +259,7 @@
         <button type="button" (click)="closeEditGradeModal()" class="btn btn-secondary" [disabled]="savingGrade">
           Cancelar
         </button>
-        <button type="submit" [disabled]="savingGrade || !editGrade || !editSection" class="btn btn-primary">
+        <button type="submit" [disabled]="savingGrade || !editGradeLevel || !editSection || (isEditStudentPerito && !editCareer)" class="btn btn-primary">
           <span *ngIf="!savingGrade">Guardar Cambios</span>
           <span *ngIf="savingGrade">Guardando...</span>
         </button>

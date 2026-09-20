@@ -3,7 +3,15 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { NavbarComponent } from '../../../../shared/components/navbar/navbar.component';
 import { AuthService } from '../../../../core/services/auth.service';
-import { User, KINAL_GRADE_GROUPS, KINAL_SECTIONS } from '../../../../core/models/user.model';
+import {
+  User,
+  KINAL_GRADE_LEVELS,
+  KINAL_CAREERS,
+  KINAL_SECTIONS,
+  isPeritoGrade,
+  formatFullGrade,
+  parseGradeLevelAndCareer,
+} from '../../../../core/models/user.model';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { environment } from '../../../../../environments/environment';
 
@@ -20,7 +28,8 @@ export class AdminDashboardComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   auth = inject(AuthService);
 
-  readonly gradeGroups = KINAL_GRADE_GROUPS;
+  readonly gradeLevels = KINAL_GRADE_LEVELS;
+  readonly careers = KINAL_CAREERS;
   readonly sections = KINAL_SECTIONS;
 
   users: User[] = [];
@@ -30,13 +39,40 @@ export class AdminDashboardComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
 
+  // Estado para creación de estudiante con grado y carrera separados
+  newStudentGradeLevel = '';
+  newStudentCareer = '';
+
+  get isNewStudentPerito(): boolean {
+    return isPeritoGrade(this.newStudentGradeLevel);
+  }
+
+  onNewStudentGradeChange() {
+    if (!this.isNewStudentPerito) {
+      this.newStudentCareer = '';
+    }
+    const full = formatFullGrade(this.newStudentGradeLevel, this.newStudentCareer);
+    this.userForm.patchValue({ grade: full });
+  }
+
   // Estado para la edición de Grado y Sección (Solo Admin)
   showEditGradeModal = false;
   editingStudent: User | null = null;
-  editGrade = '';
+  editGradeLevel = '';
+  editCareer = '';
   editSection = '';
   savingGrade = false;
   editGradeError = '';
+
+  get isEditStudentPerito(): boolean {
+    return isPeritoGrade(this.editGradeLevel);
+  }
+
+  onEditGradeLevelChange() {
+    if (!this.isEditStudentPerito) {
+      this.editCareer = '';
+    }
+  }
 
   get isAdmin(): boolean {
     return this.auth.currentUserSignal()?.role === 'ADMIN_ROLE';
@@ -59,6 +95,8 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   openCreateModal() {
+    this.newStudentGradeLevel = '';
+    this.newStudentCareer = '';
     this.userForm.reset({
       name: '',
       email: '',
@@ -136,7 +174,9 @@ export class AdminDashboardComponent implements OnInit {
   openEditGradeModal(user: User) {
     if (!this.isAdmin) return;
     this.editingStudent = user;
-    this.editGrade = user.grade || '';
+    const parsed = parseGradeLevelAndCareer(user.grade);
+    this.editGradeLevel = parsed.level;
+    this.editCareer = parsed.career;
     this.editSection = user.section || 'A';
     this.editGradeError = '';
     this.showEditGradeModal = true;
@@ -146,7 +186,8 @@ export class AdminDashboardComponent implements OnInit {
   closeEditGradeModal() {
     this.showEditGradeModal = false;
     this.editingStudent = null;
-    this.editGrade = '';
+    this.editGradeLevel = '';
+    this.editCareer = '';
     this.editSection = '';
     this.editGradeError = '';
     this.cdr.markForCheck();
@@ -158,11 +199,17 @@ export class AdminDashboardComponent implements OnInit {
       return;
     }
 
-    if (!this.editingStudent || !this.editGrade || !this.editSection) {
-      this.editGradeError = 'Por favor selecciona el grado y la sección';
+    if (!this.editingStudent || !this.editGradeLevel || !this.editSection) {
+      this.editGradeError = 'Por favor selecciona el grado escolar y la sección';
       return;
     }
 
+    if (this.isEditStudentPerito && !this.editCareer) {
+      this.editGradeError = 'Por favor selecciona la carrera técnica correspondiente';
+      return;
+    }
+
+    const fullGrade = formatFullGrade(this.editGradeLevel, this.editCareer);
     const userId = this.editingStudent.id || (this.editingStudent as any)._id;
     if (!userId) return;
 
@@ -170,18 +217,18 @@ export class AdminDashboardComponent implements OnInit {
     this.editGradeError = '';
 
     this.http.patch<User>(`${environment.apiUrl}/users/${userId}/academic-profile`, {
-      grade: this.editGrade,
+      grade: fullGrade,
       section: this.editSection,
     }).subscribe({
       next: (updated) => {
         const studentName = this.editingStudent?.name;
         if (this.editingStudent) {
-          this.editingStudent.grade = updated.grade || this.editGrade;
+          this.editingStudent.grade = updated.grade || fullGrade;
           this.editingStudent.section = updated.section || this.editSection;
         }
         const found = this.users.find((u) => (u.id || (u as any)._id) === userId);
         if (found) {
-          found.grade = updated.grade || this.editGrade;
+          found.grade = updated.grade || fullGrade;
           found.section = updated.section || this.editSection;
         }
 

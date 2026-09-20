@@ -20,7 +20,7 @@ export const routes: Routes = [
     path: 'estudiante',
     component: StudentHomeComponent,
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['STUDENT_ROLE', 'ADMIN_ROLE'] },
+    data: { roles: ['STUDENT_ROLE', 'TEACHER_ROLE', 'ADMIN_ROLE'] },
   },
 
   {
