@@ -176,7 +176,27 @@ export function isPhoneticMatch(spokenRaw: string, targetRaw: string): boolean {
   if (s === t + 's' || s === t + 'es' || t === s + 's' || t === s + 'es') return true;
   if (ps === pt + 's' || ps === pt + 'es' || pt === ps + 's' || pt === ps + 'es') return true;
 
-  // 5. Tolerancia Levenshtein adaptativa:
+  // 5. Tolerancia de raíces léxicas y número gramatical (-s / -es) para palabras >= 4 caracteres
+  const stemS = ps.length >= 4 && ps.endsWith('s') ? ps.slice(0, -1) : ps;
+  const stemT = pt.length >= 4 && pt.endsWith('s') ? pt.slice(0, -1) : pt;
+  if (stemS === stemT) return true;
+
+  // 6. Equivalencia acústica bilabial (p <-> b / v / w) adaptada al habla continua:
+  // Los motores ASR con frecuencia sustituyen bilabiales en palabras literarias (ej. "cumbres" <-> "compre", "cobre", "compres", etc.)
+  const bps = stemS.replace(/p/g, 'b');
+  const bpt = stemT.replace(/p/g, 'b');
+  if (bps === bpt) return true;
+
+  const stemDist = levenshteinDistance(bps, bpt);
+  const stemMaxLen = Math.max(bps.length, bpt.length);
+  if (bps[0] === bpt[0]) {
+    if (stemDist <= 1 && stemMaxLen >= 4) return true;
+    if (stemDist <= 2 && stemMaxLen >= 6) return true;
+  } else {
+    if (stemDist <= 1 && stemMaxLen >= 6) return true;
+  }
+
+  // 7. Tolerancia Levenshtein adaptativa:
   const maxLen = Math.max(s.length, t.length);
   const pMaxLen = Math.max(ps.length, pt.length);
 
@@ -259,7 +279,9 @@ export class SpeechRecognitionService {
           this.recognition.continuous = true;
           this.recognition.interimResults = true;
           this.recognition.maxAlternatives = 5;
-          this.recognition.lang = 'es-GT';
+          // 'es-419' (Español de Latinoamérica) proporciona el modelo ASR con el léxico literario más amplio
+          // en los servidores de voz de Google/Chrome, reduciendo sustituciones coloquiales no deseadas
+          this.recognition.lang = 'es-419';
 
           this.recognition.onresult = (event: any) => {
             this.ngZone.run(() => {

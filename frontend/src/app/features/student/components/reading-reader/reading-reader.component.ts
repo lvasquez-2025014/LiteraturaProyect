@@ -222,6 +222,40 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
         continue;
       }
 
+      // 7b. Confirmación de flujo continuo por ventana multi-token (Lookahead de recuperación):
+      // Si la palabra actual tuvo una distorsión acústica que no encajó al 100%, pero el alumno
+      // continuó su lectura y el siguiente token coincide con la palabra posterior del texto (ej. "de" con "de",
+      // y preferentemente "la" con "la"):
+      if (
+        i + 1 < unconsumed.length &&
+        this.currentWordIndex + 1 < this.totalWords &&
+        isPhoneticMatch(unconsumed[i + 1], this.words[this.currentWordIndex + 1])
+      ) {
+        const nextTarget = this.words[this.currentWordIndex + 1];
+        const normNextTarget = normalizeSpanishWord(nextTarget);
+
+        const hasThirdTokenConfirmation =
+          i + 2 < unconsumed.length &&
+          this.currentWordIndex + 2 < this.totalWords &&
+          isPhoneticMatch(unconsumed[i + 2], this.words[this.currentWordIndex + 2]);
+
+        const hasPhoneticAffinity =
+          normToken.length >= 3 &&
+          (normToken[0] === normTarget[0] ||
+            normToken.endsWith(normTarget.slice(-2)) ||
+            normToken.includes(normTarget.slice(0, 3)));
+
+        // Si se confirma por 3er token consecutivo, afinidad acústica con la palabra objetivo, o la siguiente palabra es de contenido
+        if (hasThirdTokenConfirmation || hasPhoneticAffinity || normNextTarget.length >= 4) {
+          this.currentWordIndex += 2;
+          this.consumedTokensInUtterance += 2;
+          this.failedTokenAttempts = 0;
+          i++; // Consumir ambos tokens
+          advanced = true;
+          continue;
+        }
+      }
+
       // 8. Lookahead en texto objetivo: si el alumno se saltó 1 palabra o preposición corta y dijo la siguiente
       if (this.currentWordIndex + 1 < this.totalWords && isPhoneticMatch(token, this.words[this.currentWordIndex + 1])) {
         this.currentWordIndex += 2;
@@ -254,8 +288,8 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
 
       // Si no coincide con ninguna regla, incrementar contador de intentos fallidos
       this.failedTokenAttempts++;
-      if (this.failedTokenAttempts >= 4) {
-        // Descartar el token bloqueante tras 4 ciclos sin coincidencia para reanudar el flujo libre
+      if (this.failedTokenAttempts >= 2) {
+        // Descartar el token bloqueante tras 2 ciclos sin coincidencia para reanudar el flujo libre
         this.consumedTokensInUtterance++;
         this.failedTokenAttempts = 0;
         continue;
