@@ -101,7 +101,7 @@
     <div class="metric-item">
       <span class="metric-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Velocidad en Vivo</span>
       <div class="wpm-display">
-        <span class="metric-value" [class.wpm-fast]="currentWpm >= reading.targetWpm">
+        <span class="metric-value" [class.wpm-fast]="currentWpm >= currentTargetWpm">
           {{ currentWpm }}
         </span>
         <span class="wpm-unit">PPM</span>
@@ -190,6 +190,34 @@
           title="Simulación guiada de lectura a velocidad objetivo">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Asistido
         </button>
+
+        <!-- Selector de ritmo para el modo asistido -->
+        <div *ngIf="mode === 'assisted'" class="assisted-speed-inline">
+          <button 
+            (click)="setAssistedSpeed(0.8)" 
+            class="speed-chip" 
+            [class.speed-chip-active]="assistedSpeedMultiplier === 0.8"
+            [disabled]="isRecording"
+            title="Ritmo pausado (80% de velocidad meta)">
+            0.8x Lento
+          </button>
+          <button 
+            (click)="setAssistedSpeed(1.0)" 
+            class="speed-chip" 
+            [class.speed-chip-active]="assistedSpeedMultiplier === 1.0"
+            [disabled]="isRecording"
+            title="Ritmo normal según la meta de la lectura">
+            1.0x Normal
+          </button>
+          <button 
+            (click)="setAssistedSpeed(1.2)" 
+            class="speed-chip" 
+            [class.speed-chip-active]="assistedSpeedMultiplier === 1.2"
+            [disabled]="isRecording"
+            title="Ritmo ágil (120% de velocidad meta)">
+            1.2x Ágil
+          </button>
+        </div>
       </div>
 
       <!-- Center: Main Mic Button -->

@@ -35,8 +35,18 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   transcript = '';
   micError: string | null = null;
   mode: 'mic' | 'assisted' = 'mic';
+  assistedSpeedMultiplier = 1.0;
 
+  get currentTargetWpm(): number {
+    return this.mode === 'assisted'
+      ? Math.round(this.reading.targetWpm * this.assistedSpeedMultiplier)
+      : this.reading.targetWpm;
+  }
 
+  setAssistedSpeed(multiplier: number): void {
+    this.assistedSpeedMultiplier = multiplier;
+    this.speechService.setAssistedSpeedMultiplier(multiplier);
+  }
 
   // Opciones de Accesibilidad y Pedagogía
   fontSize: 'normal' | 'large' | 'xlarge' = 'normal';
@@ -77,8 +87,10 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     };
 
     this.speechService.onWordsUpdated = (spokenWords, wpm, activeTokens, candidateAlts, utteranceId) => {
-      this.currentWpm = wpm;
-      this.processSpokenTokens(activeTokens || [], candidateAlts || [], utteranceId ?? 0);
+      if (this.mode === 'mic') {
+        this.processSpokenTokens(activeTokens || [], candidateAlts || [], utteranceId ?? 0);
+      }
+      this.updateLiveWpm();
       this.cdr.detectChanges();
     };
   }
@@ -305,8 +317,10 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       const started = this.speechService.start();
       if (!started && !this.speechService.isSupported()) {
         this.mode = 'assisted';
+        this.speechService.setAssistedSpeedMultiplier(this.assistedSpeedMultiplier);
         this.speechService.startAssistedSimulation(this.words, this.reading.targetWpm, (idx) => {
           this.currentWordIndex = idx;
+          this.updateLiveWpm();
           if (this.currentWordIndex >= this.totalWords) {
             this.finishReading();
           }
@@ -314,14 +328,25 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
         });
       }
     } else {
+      this.speechService.setAssistedSpeedMultiplier(this.assistedSpeedMultiplier);
       this.speechService.startAssistedSimulation(this.words, this.reading.targetWpm, (idx) => {
         this.currentWordIndex = idx;
+        this.updateLiveWpm();
         if (this.currentWordIndex >= this.totalWords) {
           this.finishReading();
         }
         this.cdr.detectChanges();
       });
     }
+  }
+
+  updateLiveWpm(): void {
+    if (this.secondsElapsed <= 0 || this.currentWordIndex <= 0) {
+      this.currentWpm = 0;
+      return;
+    }
+    const raw = Math.round((this.currentWordIndex / this.secondsElapsed) * 60);
+    this.currentWpm = Math.min(450, Math.max(0, raw));
   }
 
   pauseReading(): void {
@@ -497,7 +522,9 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     this.quizScore = Math.round((correctCount / this.reading.questions.length) * 100);
 
     const calculatedWpm =
-      this.currentWpm > 0 ? this.currentWpm : Math.round((this.totalWords / Math.max(1, this.secondsElapsed)) * 60);
+      this.secondsElapsed > 0 && this.currentWordIndex > 0
+        ? Math.round((this.currentWordIndex / this.secondsElapsed) * 60)
+        : (this.currentWpm > 0 ? this.currentWpm : this.currentTargetWpm);
 
     this.finalResult = {
       readingId: this.reading.id,
@@ -543,6 +570,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     this.stopTimer();
     this.timerInterval = setInterval(() => {
       this.secondsElapsed++;
+      this.updateLiveWpm();
       this.cdr.detectChanges();
     }, 1000);
   }

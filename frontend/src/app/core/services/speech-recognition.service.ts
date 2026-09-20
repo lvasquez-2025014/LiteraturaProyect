@@ -216,8 +216,16 @@ export class SpeechRecognitionService {
   private startTime: number | null = null;
   private pausedDuration = 0;
   private pauseTimestamp: number | null = null;
-  private simulationInterval: any = null;
   private restartTimeout: any = null;
+
+  // Motor de simulación guiada para modo asistido
+  private isAssistedMode = false;
+  private assistedWords: string[] = [];
+  private assistedTargetWpm = 130;
+  private assistedWordIdx = 0;
+  private assistedCallback?: (currentWordIndex: number) => void;
+  private assistedTimeout: any = null;
+  private assistedSpeedMultiplier = 1.0;
 
   // Web Audio Context para efectos de gamificación
   private audioCtx: AudioContext | null = null;
@@ -360,8 +368,17 @@ export class SpeechRecognitionService {
     return Boolean((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
   }
 
+  public setAssistedSpeedMultiplier(multiplier: number): void {
+    this.assistedSpeedMultiplier = Math.max(0.5, Math.min(2.0, multiplier));
+  }
+
+  public getAssistedWordIndex(): number {
+    return this.assistedWordIdx;
+  }
+
   public start(): boolean {
     this.stopNarrator();
+    this.isAssistedMode = false;
     this.fullTranscript = '';
     this.interimTranscript = '';
     this.accumulatedFinalText = '';
@@ -375,6 +392,10 @@ export class SpeechRecognitionService {
     if (this.restartTimeout) {
       clearTimeout(this.restartTimeout);
       this.restartTimeout = null;
+    }
+    if (this.assistedTimeout) {
+      clearTimeout(this.assistedTimeout);
+      this.assistedTimeout = null;
     }
 
     if (this.recognition) {
@@ -398,14 +419,14 @@ export class SpeechRecognitionService {
       clearTimeout(this.restartTimeout);
       this.restartTimeout = null;
     }
+    if (this.assistedTimeout) {
+      clearTimeout(this.assistedTimeout);
+      this.assistedTimeout = null;
+    }
     if (this.recognition) {
       try {
         this.recognition.stop();
       } catch (e) {}
-    }
-    if (this.simulationInterval) {
-      clearInterval(this.simulationInterval);
-      this.simulationInterval = null;
     }
     this.emitUpdate();
   }
@@ -417,7 +438,9 @@ export class SpeechRecognitionService {
       this.pausedDuration += Date.now() - this.pauseTimestamp;
       this.pauseTimestamp = null;
     }
-    if (this.recognition) {
+    if (this.isAssistedMode) {
+      this.scheduleNextAssistedWord();
+    } else if (this.recognition) {
       try {
         this.recognition.start();
       } catch (e) {
@@ -430,18 +453,19 @@ export class SpeechRecognitionService {
   public stop(): void {
     this.isListening = false;
     this.isPaused = false;
+    this.isAssistedMode = false;
     if (this.restartTimeout) {
       clearTimeout(this.restartTimeout);
       this.restartTimeout = null;
+    }
+    if (this.assistedTimeout) {
+      clearTimeout(this.assistedTimeout);
+      this.assistedTimeout = null;
     }
     if (this.recognition) {
       try {
         this.recognition.stop();
       } catch (e) {}
-    }
-    if (this.simulationInterval) {
-      clearInterval(this.simulationInterval);
-      this.simulationInterval = null;
     }
     this.emitUpdate();
   }
@@ -453,31 +477,60 @@ export class SpeechRecognitionService {
   ): void {
     this.stop();
     this.stopNarrator();
+    this.isAssistedMode = true;
+    this.assistedWords = targetWords;
+    this.assistedTargetWpm = targetWpm;
+    this.assistedWordIdx = 0;
+    this.assistedCallback = onProgress;
+    this.fullTranscript = '';
+    this.interimTranscript = '';
+    this.accumulatedFinalText = '';
     this.isListening = true;
     this.isPaused = false;
     this.startTime = Date.now();
     this.pausedDuration = 0;
+    this.pauseTimestamp = null;
 
-    let wordIdx = 0;
-    const msPerWord = Math.max(160, Math.floor((60 / targetWpm) * 1000));
-
-    this.simulationInterval = setInterval(() => {
-      this.ngZone.run(() => {
-        if (this.isPaused) return;
-        if (wordIdx >= targetWords.length) {
-          clearInterval(this.simulationInterval);
-          this.simulationInterval = null;
-          this.stop();
-          return;
-        }
-        this.fullTranscript += ' ' + targetWords[wordIdx];
-        wordIdx++;
-        onProgress(wordIdx);
-        this.emitUpdate();
-      });
-    }, msPerWord);
-
+    this.scheduleNextAssistedWord();
     this.emitUpdate();
+  }
+
+  private scheduleNextAssistedWord(): void {
+    if (!this.isAssistedMode || this.isPaused || !this.isListening) return;
+    if (this.assistedWordIdx >= this.assistedWords.length) {
+      this.stop();
+      return;
+    }
+
+    const currentWord = this.assistedWords[this.assistedWordIdx];
+    const effectiveWpm = Math.max(60, Math.min(300, Math.round(this.assistedTargetWpm * this.assistedSpeedMultiplier)));
+    const baseMs = Math.floor((60 / effectiveWpm) * 1000);
+
+    // Pausas naturales pedagógicas según puntuación (evita sensación robótica acelerada)
+    let delay = baseMs;
+    if (/[,\:\;]$/.test(currentWord)) {
+      delay += 220; // Pausa natural en comas
+    } else if (/[\.\!\?]$/.test(currentWord)) {
+      delay += 450; // Pausa natural al final de oración
+    }
+
+    this.assistedTimeout = setTimeout(() => {
+      this.ngZone.run(() => {
+        if (!this.isAssistedMode || this.isPaused || !this.isListening) return;
+
+        this.assistedWordIdx++;
+        if (this.assistedCallback) {
+          this.assistedCallback(this.assistedWordIdx);
+        }
+        this.emitUpdate();
+
+        if (this.assistedWordIdx < this.assistedWords.length) {
+          this.scheduleNextAssistedWord();
+        } else {
+          this.stop();
+        }
+      });
+    }, delay);
   }
 
   /* =====================================================================
@@ -648,12 +701,12 @@ export class SpeechRecognitionService {
   private calculateWpm(): number {
     if (!this.startTime) return 0;
     const now = this.pauseTimestamp || Date.now();
-    const activeSeconds = Math.max(1, (now - this.startTime - this.pausedDuration) / 1000);
-    const words = (this.fullTranscript + ' ' + this.interimTranscript)
-      .trim()
-      .split(/\s+/)
-      .filter((w) => w.length > 0);
-    return Math.round((words.length / activeSeconds) * 60);
+    const activeSeconds = Math.max(2, (now - this.startTime - this.pausedDuration) / 1000);
+    const wordsCount = this.isAssistedMode
+      ? this.assistedWordIdx
+      : (this.fullTranscript + ' ' + this.interimTranscript).trim().split(/\s+/).filter(Boolean).length;
+    const raw = Math.round((wordsCount / activeSeconds) * 60);
+    return Math.min(450, Math.max(0, raw));
   }
 
   private emitUpdate(
