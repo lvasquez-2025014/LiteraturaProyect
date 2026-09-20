@@ -25,6 +25,7 @@ export class AdminDashboardComponent implements OnInit {
 
   users: User[] = [];
   loading = false;
+  creatingUser = false;
   showCreateModal = false;
   successMessage = '';
   errorMessage = '';
@@ -32,7 +33,7 @@ export class AdminDashboardComponent implements OnInit {
   userForm = this.fb.group({
     name: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    password: ['', [Validators.required, Validators.minLength(4)]],
     role: ['TEACHER_ROLE', Validators.required],
     grade: [''],
     section: [''],
@@ -119,8 +120,12 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   onCreateUser() {
-    if (this.userForm.invalid) return;
+    if (this.userForm.invalid) {
+      this.userForm.markAllAsTouched();
+      return;
+    }
 
+    this.creatingUser = true;
     const payload = { ...this.userForm.value };
     if (payload.role !== 'STUDENT_ROLE') {
       payload.grade = '';
@@ -129,6 +134,7 @@ export class AdminDashboardComponent implements OnInit {
 
     this.http.post(`${environment.apiUrl}/users`, payload).subscribe({
       next: () => {
+        this.creatingUser = false;
         this.showCreateModal = false;
         this.userForm.reset({
           name: '',
@@ -143,6 +149,8 @@ export class AdminDashboardComponent implements OnInit {
         this.loadUsers();
       },
       error: (err) => {
+        this.creatingUser = false;
+        this.cdr.markForCheck();
         alert(err.error?.message || 'Error registrando estudiante o docente');
       },
     });

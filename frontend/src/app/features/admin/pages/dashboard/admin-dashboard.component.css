@@ -263,6 +263,24 @@
   border-color: var(--primary);
 }
 
+.form-control.is-invalid {
+  border-color: #ef4444;
+  background-color: #fffaf0;
+}
+
+.text-hint {
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.field-error {
+  font-size: 0.76rem;
+  color: #ef4444;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
