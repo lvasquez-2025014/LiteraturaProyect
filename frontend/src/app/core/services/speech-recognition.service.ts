@@ -20,6 +20,8 @@ export interface SpeechTokensEvent {
   wordsSpokenCount: number;
   currentWpm: number;
   isAudioActive?: boolean;
+  rawTranscript?: string;
+  isInterim?: boolean;
 }
 
 /**
@@ -526,30 +528,27 @@ export class SpeechRecognitionService {
                 this.utteranceCounter++;
               }
 
+              const allParts: string[] = [];
               const sessionFinalTokens: string[] = [];
               let currentInterim = '';
+              let latestFinal = '';
               const interimTokens: string[] = [];
               const candidateAlts: string[] = [];
 
-              // Extraer tokens finales e interinos con estricta separación
+              // Extraer tokens finales e interinos con estricta separación (patrón preview.html)
               for (let i = 0; i < event.results.length; ++i) {
                 const res = event.results[i];
                 const top = res[0]?.transcript || '';
-                if (res.isFinal) {
-                  if (top) {
-                    sessionFinalTokens.push(...top.trim().split(/\s+/).filter(Boolean));
-                  }
-                } else {
-                  if (top) {
-                    currentInterim += (currentInterim ? ' ' : '') + top;
-                    interimTokens.push(...top.trim().split(/\s+/).filter(Boolean));
-                  }
-                }
+                if (!top) continue;
+                allParts.push(top.trim());
 
-                // No se incorporan alternativas como una bolsa de palabras: sin su
-                // resultado y posición originales no son evidencia fiable para
-                // alinear la palabra actual. La transcripción principal se procesa
-                // de forma secuencial abajo.
+                if (res.isFinal) {
+                  latestFinal = top.trim();
+                  sessionFinalTokens.push(...top.trim().split(/\s+/).filter(Boolean));
+                } else {
+                  currentInterim += (currentInterim ? ' ' : '') + top.trim();
+                  interimTokens.push(...top.trim().split(/\s+/).filter(Boolean));
+                }
               }
 
               this.lastSessionFinalTokens = sessionFinalTokens;
@@ -557,6 +556,12 @@ export class SpeechRecognitionService {
               this.interimTranscript = currentInterim.trim();
               this.fullTranscript = allFinalTokens.join(' ');
 
+              const visual = allParts.join(' ').trim();
+              const fullSessionSpoken = this.accumulatedFinalTokens.length > 0
+                ? (this.accumulatedFinalTokens.join(' ') + ' ' + visual).trim()
+                : visual;
+
+              const isInterim = Boolean(currentInterim);
               const currentWpm = this.calculateWpm();
 
               // Emitir evento estructurado de alta precisión para el lector
@@ -568,6 +573,8 @@ export class SpeechRecognitionService {
                   wordsSpokenCount: allFinalTokens.length + interimTokens.length,
                   currentWpm,
                   isAudioActive: this.isAudioActive,
+                  rawTranscript: fullSessionSpoken || visual || currentInterim || latestFinal,
+                  isInterim,
                 });
               }
 

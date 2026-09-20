@@ -224,8 +224,248 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Motor de Alineación Dinámica Bandeada con Evidencia Acotada (Smith-Waterman / Needleman-Wunsch).
-   * Tolera omisiones y variaciones fonéticas, impidiendo matemáticamente saltos arbitrarios de líneas.
+   * Distancia de Levenshtein rápida con vector 1D (proveniente de preview.html)
+   */
+  public fastLevenshtein(a: string, b: string): number {
+    if (a === b) return 0;
+    if (!a) return b.length;
+    if (!b) return a.length;
+    let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+    for (let i = 1; i <= a.length; i++) {
+      const cur = [i];
+      for (let j = 1; j <= b.length; j++) {
+        cur[j] = Math.min(cur[j - 1] + 1, prev[j] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      }
+      prev = cur;
+    }
+    return prev[b.length];
+  }
+
+  /**
+   * Similitud ortográfica relativa en rango [0, 1]
+   */
+  public similarity(a: string, b: string): number {
+    if (!a || !b) return 0;
+    if (a === b) return 1;
+    return 1 - this.fastLevenshtein(a, b) / Math.max(a.length, b.length);
+  }
+
+  /**
+   * Puntuación de coincidencia de preview.html:
+   * - Coincidencia exacta o equivalencia (números, variantes mayas, contracciones)
+   * - Reconocimiento de prefijos provisionales en tiempo real para palabras de 4+ letras
+   * - Similitud fonética y ortográfica estricta
+   */
+  public matchScore(
+    spoken: string,
+    expectedToken: ReadingWordToken,
+    interim: boolean
+  ): number {
+    if (!spoken || !expectedToken) return 0;
+    const expected = expectedToken.clean;
+    if (spoken === expected) return 1;
+
+    // Equivalencias directas (ej. "2" <-> "dos", "1" <-> "un", variantes mayas y contracciones)
+    if (expectedToken.equivalents && expectedToken.equivalents.includes(spoken)) {
+      return 1;
+    }
+
+    // Fonética idéntica latinoamericana (seseo c/s/z, betacismo b/v, yeísmo ll/y)
+    if (expectedToken.phoneticKey && toPhoneticKey(spoken) === expectedToken.phoneticKey) {
+      return 0.96;
+    }
+
+    // Prefijo en tiempo real (preview.html): reconocer palabras de 4+ letras antes de que Chrome termine de formarlas
+    if (interim && expected.length >= 4 && spoken.length >= 2) {
+      if (expected.startsWith(spoken)) {
+        return Math.min(0.995, 0.86 + (spoken.length / expected.length) * 0.12);
+      }
+      if (spoken.startsWith(expected)) {
+        return 0.985;
+      }
+    }
+
+    return this.similarity(spoken, expected);
+  }
+
+  /**
+   * Umbrales dinámicos de preview.html que previenen saltos involuntarios:
+   * - Palabras cortas (<= 2 letras): 0.985 (interim) y 0.96 (final)
+   * - Palabras medianas (3 letras): 0.94 (interim) y 0.92 (final)
+   * - Palabras de 4+ letras: 0.80 (interim) y 0.82 (final)
+   */
+  public threshold(word: string, interim: boolean): number {
+    if (interim) {
+      if (word.length <= 2) return 0.985;
+      if (word.length === 3) return 0.94;
+      return 0.80;
+    }
+    if (word.length <= 2) return 0.96;
+    if (word.length === 3) return 0.92;
+    return 0.82;
+  }
+
+  /**
+   * Motor de cálculo de índice de preview.html:
+   * Encuentra la palabra actual dentro de la ventana de reconocimiento y avanza de forma estrictamente monótona.
+   */
+  public calculateIndex(spokenWords: string[], interim: boolean): number {
+    if (!spokenWords.length || this.currentWordIndex >= this.totalWords) {
+      return this.currentWordIndex;
+    }
+
+    const center = this.currentWordIndex;
+    const start = Math.max(0, Math.min(center - 5, spokenWords.length - 12));
+    const end = spokenWords.length - 1;
+
+    let bestPointer = this.currentWordIndex;
+    let bestMatches = 0;
+
+    const anchorCandidates: { spokenIdx: number; textIdx: number; initialScore: number }[] = [];
+
+    // Prioridad 1: palabra actual
+    const currentTarget = this.tokens[this.currentWordIndex];
+    if (currentTarget) {
+      for (let i = start; i <= end; i++) {
+        const s = this.matchScore(spokenWords[i], currentTarget, interim);
+        if (s >= this.threshold(currentTarget.clean, interim)) {
+          anchorCandidates.push({ spokenIdx: i, textIdx: this.currentWordIndex, initialScore: s });
+        }
+      }
+    }
+
+    // Prioridad 2: si no se encontró en la palabra actual, comprobar palabra inmediatamente siguiente
+    // (maneja casos de recorte del micrófono al iniciar la frase o palabra muy breve)
+    if (anchorCandidates.length === 0 && this.currentWordIndex + 1 < this.totalWords) {
+      const nextTarget = this.tokens[this.currentWordIndex + 1];
+      if (nextTarget) {
+        for (let i = start; i <= end; i++) {
+          const s = this.matchScore(spokenWords[i], nextTarget, interim);
+          if (s >= this.threshold(nextTarget.clean, interim)) {
+            anchorCandidates.push({ spokenIdx: i, textIdx: this.currentWordIndex + 1, initialScore: s });
+          }
+        }
+      }
+    }
+
+    // Prioridad 3: detectar reanudación de lectura en párrafos posteriores (requiere al menos 3 coincidencias consecutivas)
+    if (this.currentWordIndex + 2 < this.totalWords) {
+      const forwardLimit = Math.min(this.totalWords, this.currentWordIndex + 25);
+      for (let tIdx = this.currentWordIndex + 2; tIdx < forwardLimit; tIdx++) {
+        const target = this.tokens[tIdx];
+        if (!target || target.clean.length <= 3) continue; // Nunca anclar saltos en palabras vacías cortas
+        for (let i = start; i <= end; i++) {
+          const s = this.matchScore(spokenWords[i], target, interim);
+          if (s >= 0.88) {
+            anchorCandidates.push({ spokenIdx: i, textIdx: tIdx, initialScore: s });
+          }
+        }
+      }
+    }
+
+    // Evaluar cada candidato avanzando secuencialmente desde el ancla encontrado
+    for (const cand of anchorCandidates) {
+      let pointer = cand.textIdx + 1;
+      let matches = 1;
+
+      for (let i = cand.spokenIdx + 1; i < spokenWords.length && pointer < this.totalWords; i++) {
+        const spoken = spokenWords[i];
+        const expected = this.tokens[pointer];
+        const s = this.matchScore(spoken, expected, interim);
+        const needed = this.threshold(expected.clean, interim);
+
+        if (s >= needed) {
+          pointer++;
+          matches++;
+          continue;
+        }
+
+        // Permite como máximo saltar una palabra en reconocimiento provisional
+        // y dos en un resultado más estable, exigiendo similitud alta (>= 0.92)
+        const maxLookAhead = interim ? 1 : 2;
+        let bestLookIndex = -1;
+        let bestLookScore = 0;
+
+        for (let offset = 1; offset <= maxLookAhead; offset++) {
+          const cIndex = pointer + offset;
+          if (cIndex >= this.totalWords) break;
+          const candidateToken = this.tokens[cIndex];
+          const cScore = this.matchScore(spoken, candidateToken, interim);
+          if (cScore > bestLookScore) {
+            bestLookScore = cScore;
+            bestLookIndex = cIndex;
+          }
+        }
+
+        if (bestLookIndex >= 0 && bestLookScore >= 0.92) {
+          pointer = bestLookIndex + 1;
+          matches++;
+        }
+      }
+
+      // Si el anclaje fue más allá de la palabra actual o la siguiente, exigir al menos 3 coincidencias
+      if (cand.textIdx > this.currentWordIndex + 1 && matches < 3) {
+        continue;
+      }
+
+      if (matches > bestMatches || (matches === bestMatches && pointer > bestPointer)) {
+        bestMatches = matches;
+        bestPointer = pointer;
+      }
+    }
+
+    return bestPointer;
+  }
+
+  /**
+   * Procesa el texto reconocido (visual o interino) y actualiza el avance si hay progreso.
+   */
+  public processTranscript(text: string, interim: boolean): void {
+    if (!text || this.currentWordIndex >= this.totalWords) return;
+
+    const spoken = text
+      .split(/\s+/)
+      .map((w) => normalizeSpanishWord(w))
+      .filter((w) => Boolean(w) && !this.isFiller(w));
+
+    if (!spoken.length) return;
+
+    const next = this.calculateIndex(spoken, interim);
+
+    if (next > this.currentWordIndex) {
+      this.setCurrentWordIndex(next);
+    }
+  }
+
+  /**
+   * Aplica el avance del índice actual garantizando consistencia, métricas y auto-scroll
+   */
+  public setCurrentWordIndex(next: number): void {
+    const target = Math.min(Math.max(next, this.currentWordIndex), this.totalWords);
+    if (target === this.currentWordIndex) return;
+
+    const initialWordIndex = this.currentWordIndex;
+    this.currentWordIndex = target;
+    this.confirmedWordIndex = target;
+    this.confirmedMatchedWords = target;
+    this.previewWordIndex = target;
+
+    this.updateLiveWpm();
+    this.scrollToCurrentWord();
+
+    // Efectos de sonido si aplica
+    if (this.soundEffects && this.mode !== 'mic') {
+      this.speechService.playWordChime();
+    }
+
+    // Comprobar si se completó la lectura
+    if (this.currentWordIndex >= this.totalWords && !this.showQuiz && !this.showVictory) {
+      this.finishReading();
+    }
+  }
+
+  /**
+   * Compatibilidad hacia atrás para el motor de alineación
    */
   public alignBandedDP(
     baseIndex: number,
@@ -235,206 +475,18 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     if (!spokenTokens || spokenTokens.length === 0 || baseIndex >= this.totalWords) {
       return { targetIndex: baseIndex, matchedCount: 0 };
     }
-
-    // 1. Filtrar muletillas ('eh', 'este', 'em', 'um', etc.)
     const cleanTokens = spokenTokens.filter((t) => !this.isFiller(t));
     if (cleanTokens.length === 0) {
       return { targetIndex: baseIndex, matchedCount: 0 };
     }
-
-    // 2. Sincronización y descarte de prefijo histórico:
-    let startTok = 0;
-    if (baseIndex === 0 && this.normalizedTitleWords.length > 0) {
-      // Si el estudiante lee el título al inicio, sincronizar tras el título
-      const firstTarget = this.normalizedWords[0];
-      const secondTarget = this.normalizedWords[1] || '';
-      for (let t = 0; t < cleanTokens.length; t++) {
-        if (
-          isPhoneticMatch(cleanTokens[t], firstTarget) ||
-          (secondTarget && isPhoneticMatch(cleanTokens[t], secondTarget))
-        ) {
-          startTok = t;
-          break;
-        }
-      }
-    } else if (baseIndex > 0 && cleanTokens.length > 2) {
-      // ANCLAJE DINÁMICO EN EL TEXTO HABLADO ACUMULADO:
-      // Chrome suele acumular las palabras de la sesión o frase en cleanTokens.
-      // Cuando baseIndex > 0, las palabras del inicio de cleanTokens ya fueron leídas.
-      // Si no descartamos ese prefijo histórico, la matriz DP acumula penalizaciones por omisión
-      // de tokens viejos y bloquea el avance cuando el texto es largo.
-      const currentTarget = this.normalizedWords[baseIndex] || '';
-      const prevTarget = baseIndex > 0 ? this.normalizedWords[baseIndex - 1] : '';
-      const nextTarget = baseIndex + 1 < this.totalWords ? this.normalizedWords[baseIndex + 1] : '';
-
-      let bestAnchor = -1;
-      let bestAnchorScore = 0;
-
-      // Buscar de atrás hacia adelante en cleanTokens para anclar en la elocución más reciente
-      for (let t = cleanTokens.length - 1; t >= 0; t--) {
-        const tok = cleanTokens[t];
-        let score = 0;
-        if (currentTarget && isPhoneticMatch(tok, currentTarget)) {
-          score = 3.0;
-        } else if (nextTarget && isPhoneticMatch(tok, nextTarget)) {
-          score = 2.5;
-        } else if (prevTarget && isPhoneticMatch(tok, prevTarget)) {
-          score = 2.0;
-        }
-
-        if (score > bestAnchorScore) {
-          bestAnchorScore = score;
-          bestAnchor = t;
-          if (score === 3.0) break;
-        }
-      }
-
-      if (bestAnchor >= 0) {
-        startTok = Math.max(0, bestAnchor - 1);
-      } else if (cleanTokens.length > 10) {
-        startTok = Math.max(0, cleanTokens.length - 8);
-      }
-    }
-    const activeSpoken = cleanTokens.slice(startTok);
-    if (activeSpoken.length === 0) {
-      return { targetIndex: baseIndex, matchedCount: 0 };
-    }
-
-    // 3. Ventana adaptativa proporcional a la longitud de palabras habladas:
-    // Evita físicamente inspeccionar líneas distantes ante ruidos o palabras aisladas.
-    const maxForward = Math.min(30, Math.max(5, activeSpoken.length * 2 + 6));
-    const windowStart = Math.max(0, baseIndex - 1);
-    const windowEnd = Math.min(this.totalWords, baseIndex + maxForward);
-    const textSlice = this.tokens.slice(windowStart, windowEnd);
-    if (textSlice.length === 0) {
-      return { targetIndex: baseIndex, matchedCount: 0 };
-    }
-
-    const M = activeSpoken.length;
-    const N = textSlice.length;
-    const dp: number[][] = Array.from({ length: M + 1 }, () => new Array(N + 1).fill(0));
-    const matchCount: number[][] = Array.from({ length: M + 1 }, () => new Array(N + 1).fill(0));
-    const contentMatchCount: number[][] = Array.from({ length: M + 1 }, () => new Array(N + 1).fill(0));
-
-    for (let i = 1; i <= M; i++) {
-      const spokenTok = activeSpoken[i - 1];
-      for (let j = 1; j <= N; j++) {
-        const word = textSlice[j - 1];
-        const globalWordIdx = windowStart + j - 1;
-
-        let sim = computePhoneticSimilarity(spokenTok, word.clean);
-
-        // Hipótesis alternativas del reconocedor
-        if (sim < 0.75 && candidateAlts && candidateAlts.length > 0) {
-          for (const alt of candidateAlts) {
-            const altSim = computePhoneticSimilarity(alt, word.clean);
-            if (altSim > sim) sim = altSim;
-          }
-        }
-
-        // Combinación de 2 tokens hablados continuos (ej. "tan" + "bien" -> "también", o "veinti" + "uno")
-        if (sim < 0.75 && i >= 2) {
-          const comboSpoken = activeSpoken[i - 2] + activeSpoken[i - 1];
-          const comboSim = computePhoneticSimilarity(comboSpoken, word.clean);
-          if (comboSim > sim) sim = comboSim;
-        }
-
-        let matchReward = -1.0;
-        let isMatch = false;
-        if (sim >= 0.85) {
-          matchReward = 3.5 * sim;
-          isMatch = true;
-        } else if (sim >= 0.72) {
-          matchReward = 2.2 * sim;
-          isMatch = true;
-        }
-
-        // Penalización de anclaje inicial aplicada al primer token para desincentivar saltos lejanos
-        let anchorPenalty = 0;
-        if (i === 1) {
-          const distFromBase = Math.max(0, globalWordIdx - baseIndex);
-          anchorPenalty = distFromBase * 0.40;
-        }
-
-        const scoreDiag = dp[i - 1][j - 1] + matchReward - anchorPenalty;
-        const scoreSkipText = dp[i][j - 1] - 1.2; // Penalización por omitir palabra del texto
-        const scoreSkipSpoken = dp[i - 1][j] - 0.5; // Penalización por palabra hablada sobrante o ruido
-
-        const bestScore = Math.max(0, scoreDiag, scoreSkipText, scoreSkipSpoken);
-        dp[i][j] = bestScore;
-
-        if (bestScore === scoreDiag && isMatch) {
-          matchCount[i][j] = matchCount[i - 1][j - 1] + 1;
-          contentMatchCount[i][j] = contentMatchCount[i - 1][j - 1] + (word.isStopword ? 0 : 1);
-        } else if (bestScore === scoreSkipText) {
-          matchCount[i][j] = matchCount[i][j - 1];
-          contentMatchCount[i][j] = contentMatchCount[i][j - 1];
-        } else if (bestScore === scoreSkipSpoken) {
-          matchCount[i][j] = matchCount[i - 1][j];
-          contentMatchCount[i][j] = contentMatchCount[i - 1][j];
-        }
-      }
-    }
-
-    let bestScore = 0;
-    let bestJ = 0;
-    let bestMatches = 0;
-    let bestContentMatches = 0;
-
-    for (let i = 1; i <= M; i++) {
-      for (let j = 1; j <= N; j++) {
-        if (
-          dp[i][j] > bestScore ||
-          (dp[i][j] === bestScore && matchCount[i][j] > bestMatches)
-        ) {
-          bestScore = dp[i][j];
-          bestJ = j;
-          bestMatches = matchCount[i][j];
-          bestContentMatches = contentMatchCount[i][j];
-        }
-      }
-    }
-
-    if (bestScore >= 1.6 && bestJ > 0 && bestMatches >= 1) {
-      const candidateTarget = windowStart + bestJ;
-      const jumpDistance = candidateTarget - baseIndex;
-
-      // Validación Matemática del Salto en función de la Evidencia Acumulada:
-      // Imposibilita que 1 o 2 palabras salten 3 líneas (> 15 palabras).
-      let allowedSkip = 0;
-      if (bestMatches === 1) {
-        allowedSkip = 1; // Salto máximo de 2 palabras (progreso normal o salto de artículo)
-      } else if (bestMatches === 2) {
-        allowedSkip = 2; // Salto máximo de 4 palabras
-      } else if (bestMatches === 3) {
-        allowedSkip = 2; // Salto máximo de 5 palabras
-      } else if (bestMatches <= 5) {
-        allowedSkip = 3; // Salto máximo de 8 palabras
-      } else {
-        // 6+ palabras coincidentes: permite saltos mayores si se articuló una oración completa
-        if (bestScore >= 14 && bestContentMatches >= 4) {
-          allowedSkip = 16;
-        } else {
-          allowedSkip = 5;
-        }
-      }
-
-      const maxAllowedJump = bestMatches + allowedSkip;
-
-      if (jumpDistance > 0 && jumpDistance <= maxAllowedJump) {
-        // Protección contra stopwords: palabras vacías no pueden saltar palabras con contenido
-        if (jumpDistance >= 3 && bestContentMatches < 1 && bestMatches < 3) {
-          return { targetIndex: baseIndex, matchedCount: 0 };
-        }
-
-        return {
-          targetIndex: Math.min(this.totalWords, candidateTarget),
-          matchedCount: bestMatches,
-        };
-      }
-    }
-
-    return { targetIndex: baseIndex, matchedCount: 0 };
+    const prevIndex = this.currentWordIndex;
+    this.currentWordIndex = baseIndex;
+    const next = this.calculateIndex(cleanTokens, false);
+    this.currentWordIndex = prevIndex;
+    return {
+      targetIndex: next,
+      matchedCount: Math.max(0, next - baseIndex),
+    };
   }
 
   /**
@@ -449,83 +501,35 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Procesa eventos de tokens con alineación monótona en dos niveles (interim reactivo vs final autoritativo).
+   * Procesa eventos de tokens con el motor de alta precisión de preview.html
    */
   private processSpeechTokens(event: SpeechTokensEvent): void {
     if (this.currentWordIndex >= this.totalWords) return;
 
-    const initialWordIndex = this.currentWordIndex;
-    const finalTokens = event.finalTokens || [];
-    const interimTokens = event.interimTokens || [];
-    // 1. Nivel Autoritativo: Procesar tokens finales confirmados
-    if (finalTokens.length > this.consumedFinalTokensCount) {
-      const newFinalTokens = finalTokens.slice(this.consumedFinalTokensCount);
-      const alignFinal = this.alignBandedDP(
-        this.confirmedWordIndex,
-        newFinalTokens
-      );
-      if (alignFinal.matchedCount > 0 && alignFinal.targetIndex > this.confirmedWordIndex) {
-        this.confirmedWordIndex = alignFinal.targetIndex;
-        this.currentWordIndex = Math.max(this.currentWordIndex, alignFinal.targetIndex);
-        this.confirmedMatchedWords = Math.max(this.confirmedMatchedWords, this.currentWordIndex);
-        this.consumedFinalTokensCount = finalTokens.length;
-      } else if (finalTokens.length - this.consumedFinalTokensCount > 4) {
-        // Descartar tokens no emparejados si se acumula ruido para no bloquear el flujo
-        this.consumedFinalTokensCount = finalTokens.length;
-      }
+    let transcriptText = event.rawTranscript || '';
+    if (!transcriptText) {
+      const combined = [...(event.finalTokens || []), ...(event.interimTokens || [])];
+      transcriptText = combined.join(' ');
     }
 
-    // 2. Nivel Reactivo en Tiempo Real:
-    // El estudiante lee en voz alta continuamente. Durante la elocución, Chrome emite
-    // resultados interinos sin pausas finales. Avanzamos el cursor y las palabras leídas
-    // en tiempo real para evitar que la lectura se congele.
-    if (interimTokens.length > 0) {
-      this.liveSpokenText = interimTokens.slice(-14).join(' ');
-      const alignInterim = this.alignBandedDP(
-        this.currentWordIndex,
-        interimTokens
-      );
-      if (alignInterim.matchedCount > 0 && alignInterim.targetIndex > this.currentWordIndex) {
-        this.currentWordIndex = alignInterim.targetIndex;
-        this.confirmedWordIndex = Math.max(this.confirmedWordIndex, alignInterim.targetIndex);
-        this.confirmedMatchedWords = Math.max(this.confirmedMatchedWords, this.currentWordIndex);
-        this.updateLiveWpm();
-      }
+    const isInterim =
+      event.isInterim !== undefined
+        ? event.isInterim
+        : Boolean(event.interimTokens && event.interimTokens.length > 0);
+
+    // Actualizar liveSpokenText para el indicador visual responsivo
+    if (event.interimTokens && event.interimTokens.length > 0) {
+      this.liveSpokenText = event.interimTokens.slice(-14).join(' ');
+    } else if (event.finalTokens && event.finalTokens.length > 0) {
+      this.liveSpokenText = event.finalTokens.slice(-8).join(' ');
+    } else if (transcriptText) {
+      this.liveSpokenText = transcriptText.split(/\s+/).slice(-10).join(' ');
     } else {
-      if (finalTokens.length > 0) {
-        this.liveSpokenText = finalTokens.slice(-8).join(' ');
-      } else {
-        this.liveSpokenText = '';
-      }
+      this.liveSpokenText = '';
     }
 
+    this.processTranscript(transcriptText, isInterim);
     this.previewWordIndex = this.currentWordIndex;
-
-    // 4. Avance visual, auto-scroll y efectos sonoros
-    if (this.currentWordIndex > initialWordIndex) {
-      const prevPercentage = Math.floor((initialWordIndex / this.totalWords) * 100);
-      const newPercentage = Math.floor((this.currentWordIndex / this.totalWords) * 100);
-
-      this.scrollToCurrentWord();
-
-      // No emitir tonos mientras el micrófono está escuchando: en altavoces
-      // pueden introducir eco y ruido que el reconocedor interprete como voz.
-      if (this.soundEffects && this.mode !== 'mic') {
-        this.speechService.playWordChime();
-        if (
-          (prevPercentage < 25 && newPercentage >= 25) ||
-          (prevPercentage < 50 && newPercentage >= 50) ||
-          (prevPercentage < 75 && newPercentage >= 75)
-        ) {
-          this.speechService.playMilestoneSound();
-        }
-      }
-    }
-
-    // 5. Finalizar lectura al alcanzar el final del texto
-    if (this.currentWordIndex >= this.totalWords && !this.showQuiz && !this.showVictory) {
-      this.finishReading();
-    }
   }
 
   private isFiller(token: string): boolean {
