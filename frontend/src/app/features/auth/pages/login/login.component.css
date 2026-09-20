@@ -8,9 +8,16 @@
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
-  background-color: #f8fafc;
   position: relative;
   overflow-x: hidden;
+  background-color: #14100c;
+  background-image: 
+    linear-gradient(135deg, rgba(12, 10, 8, 0.55) 0%, rgba(15, 23, 42, 0.45) 50%, rgba(10, 8, 6, 0.65) 100%),
+    url('/fondo.png');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 .auth-layout-container {
@@ -38,14 +45,17 @@
   gap: 8px;
   align-self: flex-start;
   padding: 6px 14px;
-  background: rgba(0, 74, 173, 0.08);
-  border: 1px solid rgba(0, 74, 173, 0.18);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-radius: 999px;
   font-family: var(--font-heading);
   font-size: 0.82rem;
   font-weight: 700;
-  color: var(--kinal-blue);
+  color: #f8fafc;
   letter-spacing: 0.02em;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
 }
 
 .badge-dot {
@@ -53,7 +63,7 @@
   height: 8px;
   background: var(--kinal-orange);
   border-radius: 50%;
-  box-shadow: 0 0 8px rgba(243, 111, 33, 0.6);
+  box-shadow: 0 0 10px rgba(243, 111, 33, 0.9);
 }
 
 .hero-headline {
@@ -61,21 +71,24 @@
   font-size: clamp(2rem, 3.4vw, 2.75rem);
   font-weight: 800;
   line-height: 1.18;
-  color: var(--kinal-dark-blue);
+  color: #ffffff;
   letter-spacing: -0.025em;
   margin: 0;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.65);
 }
 
 .highlight-text {
-  color: var(--kinal-blue);
+  color: #fbbf24;
+  text-shadow: 0 0 24px rgba(251, 191, 36, 0.5);
 }
 
 .hero-subtext {
   font-size: 1.05rem;
-  color: #475569;
+  color: #e2e8f0;
   line-height: 1.6;
   margin: 0;
   max-width: 520px;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
 }
 
 /* 3D Visual Card with Floating Gamification Badges */
@@ -196,10 +209,12 @@
   align-items: center;
   gap: 12px;
   padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(0, 74, 173, 0.08);
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
 }
 
 .feature-emoji {
@@ -219,12 +234,12 @@
 .feature-item strong {
   font-size: 0.86rem;
   font-weight: 700;
-  color: var(--kinal-dark-blue);
+  color: #ffffff;
 }
 
 .feature-item span {
   font-size: 0.76rem;
-  color: #64748b;
+  color: #cbd5e1;
 }
 
 /* --------------------------------------------------------------------------
@@ -239,11 +254,13 @@
 .auth-card {
   width: 100%;
   max-width: 440px;
-  background: #ffffff;
-  border: 1px solid rgba(0, 74, 173, 0.12);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
   border-radius: 24px;
   padding: 38px 34px;
-  box-shadow: 0 20px 45px -10px rgba(0, 74, 173, 0.12), 0 4px 12px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45), 0 4px 16px rgba(0, 0, 0, 0.12);
   position: relative;
 }
 
