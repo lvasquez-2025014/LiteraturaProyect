@@ -324,6 +324,26 @@
   font-weight: 500;
 }
 
+.reanchor-toast {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 16px;
+  background: #eff6ff;
+  border: 1px solid #93c5fd;
+  color: #1e40af;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.1);
+  animation: fadeInDown 0.22s ease-out;
+}
+
+.reanchor-toast svg {
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
 /* --------------------------------------------------------------------------
    Reading Canvas (Word tokens with live karaoke highlighting)
    -------------------------------------------------------------------------- */
@@ -351,7 +371,7 @@
   padding: 1px 3px;
   font-weight: 600;
   box-sizing: border-box;
-  transition: background-color 0.12s ease, color 0.12s ease;
+  transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
   cursor: default;
   user-select: text;
 }
@@ -369,6 +389,17 @@
   font-weight: 700;
   border-radius: 6px;
   animation: pulseTargetWord 1.6s infinite ease-in-out;
+}
+
+.word-clickable-reanchor {
+  cursor: pointer;
+}
+
+.word-clickable-reanchor:hover:not(.word-current) {
+  background-color: rgba(59, 130, 246, 0.14);
+  color: #1d4ed8;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.35);
 }
 
 @keyframes pulseTargetWord {

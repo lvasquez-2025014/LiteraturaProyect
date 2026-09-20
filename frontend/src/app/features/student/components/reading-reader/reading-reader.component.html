@@ -147,6 +147,12 @@
       <span class="spoken-label">Audio:</span>
       <span class="spoken-text">"{{ liveSpokenText }}"</span>
     </div>
+
+    <!-- Reanchor Toast Feedback -->
+    <div *ngIf="reanchorToastMessage" class="reanchor-toast" role="status">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      <span>{{ reanchorToastMessage }}</span>
+    </div>
   </div>
 
   <!-- Reading Canvas (Word-by-word Karaoke Style with Ultra-Stable Layout) -->
@@ -165,6 +171,8 @@
           [class.word-current]="i === currentWordIndex && (isRecording || isNarrating)"
           [class.word-pending]="i > currentWordIndex"
           [class.word-dimmed]="focusMode && isRecording && !isWordInFocus(i)"
+          [class.word-clickable-reanchor]="isRecording"
+          [attr.title]="isRecording ? 'Clic para continuar leyendo desde esta palabra' : (reading.vocabulary ? 'Clic para ver vocabulario' : null)"
           (click)="onWordClick(word, i)"
         >{{ word }} </span>
       </p>

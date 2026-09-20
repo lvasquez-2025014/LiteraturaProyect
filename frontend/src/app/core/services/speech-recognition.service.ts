@@ -24,20 +24,21 @@ export interface SpeechTokensEvent {
 
 /**
  * Normaliza palabras en español para comparación fonética y ortográfica robusta.
- * Elimina acentos, tildes (é, á, í, ó, ú), diéresis, signos de puntuación tipográfica y símbolos.
+ * Elimina acentos, tildes (é, á, í, ó, ú), diéresis, signos de puntuación tipográfica,
+ * comillas (latinas, curvas y rectas), rayas de diálogo y símbolos.
  */
 export function normalizeSpanishWord(word: string): string {
   if (!word) return '';
   return word
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Remueve tildes, acentos agudos, graves y diéresis
-    .replace(/[^\p{L}\p{N}]/gu, '')  // Remueve cualquier signo de puntuación, comillas tipográficas, guiones o símbolos
+    .replace(/[\u0300-\u036f]/g, '') // Remueve tildes y diéresis
+    .replace(/[^\p{L}\p{N}]/gu, '')  // Remueve cualquier signo de puntuación o símbolo
     .trim();
 }
 
 /**
- * Distancia de Levenshtein para tolerancia de pronunciación y ruido de micrófono.
+ * Distancia de Levenshtein para tolerancia de pronunciación y ruido acústico.
  */
 export function levenshteinDistance(a: string, b: string): number {
   if (a === b) return 0;
@@ -68,44 +69,76 @@ export function levenshteinDistance(a: string, b: string): number {
   return matrix[b.length][a.length];
 }
 
-/**
- * Mapeo exhaustivo de números y dígitos en español y números romanos
- * comunes en lecturas y capítulos literarios.
- */
-export const NUMBER_WORD_MAP: Record<string, string[]> = {
-  '0': ['cero'],
-  '1': ['uno', 'un', 'una', 'primero', 'primera', 'primer', 'i'],
-  '2': ['dos', 'segundo', 'segunda', 'ii'],
-  '3': ['tres', 'tercero', 'tercera', 'tercer', 'iii'],
-  '4': ['cuatro', 'cuarto', 'cuarta', 'iv'],
-  '5': ['cinco', 'quinto', 'quinta', 'v'],
-  '6': ['seis', 'sexto', 'sexta', 'vi'],
-  '7': ['siete', 'septimo', 'septima', 'vii'],
-  '8': ['ocho', 'octavo', 'octava', 'viii'],
-  '9': ['nueve', 'noveno', 'novena', 'ix'],
-  '10': ['diez', 'decimo', 'decima', 'x'],
-  '11': ['once', 'xi'],
-  '12': ['doce', 'xii'],
-  '13': ['trece', 'xiii'],
-  '14': ['catorce', 'xiv'],
-  '15': ['quince', 'xv'],
-  '16': ['dieciseis', 'xvi'],
-  '17': ['diecisiete', 'xvii'],
-  '18': ['dieciocho', 'xviii'],
-  '19': ['diecinueve', 'xix'],
-  '20': ['veinte', 'xx'],
-  '21': ['veintiuno', 'veintiun', 'veintiuna', 'xxi'],
-  '30': ['treinta', 'xxx'],
-  '40': ['cuarenta', 'xl'],
-  '50': ['cincuenta', 'l'],
-  '100': ['cien', 'ciento', 'c'],
-  '500': ['quinientos', 'd'],
-  '1000': ['mil', 'm'],
-};
+const CARDINAL_ONES = ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
+const CARDINAL_TEENS = ['diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciseis', 'diecisiete', 'dieciocho', 'diecinueve'];
+const CARDINAL_TENS = ['', 'diez', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
+const CARDINAL_HUNDREDS = ['', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos', 'setecientos', 'ochocientos', 'novecientos'];
 
 /**
- * Contracciones y apócopes comunes en el habla hispana / latinoamericana
+ * Convierte un número entero (0 a 9999) en su representación en palabras en español.
  */
+export function numberToSpanishWords(n: number): string[] {
+  if (n === 0) return ['cero'];
+  if (n === 100) return ['cien'];
+  const words: string[] = [];
+
+  if (n >= 1000) {
+    const thousands = Math.floor(n / 1000);
+    if (thousands === 1) {
+      words.push('mil');
+    } else {
+      words.push(...numberToSpanishWords(thousands));
+      words.push('mil');
+    }
+    n %= 1000;
+  }
+
+  if (n >= 100) {
+    if (n === 100) {
+      words.push('cien');
+      n = 0;
+    } else {
+      words.push(CARDINAL_HUNDREDS[Math.floor(n / 100)]);
+      n %= 100;
+    }
+  }
+
+  if (n >= 20) {
+    if (n === 20) {
+      words.push('veinte');
+      n = 0;
+    } else if (n < 30) {
+      words.push('veinti' + CARDINAL_ONES[n - 20]);
+      n = 0;
+    } else {
+      const ten = Math.floor(n / 10);
+      const one = n % 10;
+      if (one === 0) {
+        words.push(CARDINAL_TENS[ten]);
+      } else {
+        words.push(CARDINAL_TENS[ten]);
+        words.push('y');
+        words.push(CARDINAL_ONES[one]);
+      }
+      n = 0;
+    }
+  } else if (n >= 10) {
+    words.push(CARDINAL_TEENS[n - 10]);
+    n = 0;
+  } else if (n > 0) {
+    words.push(CARDINAL_ONES[n]);
+    n = 0;
+  }
+
+  return words;
+}
+
+export const ROMAN_NUMERALS_MAP: Record<string, number> = {
+  i: 1, ii: 2, iii: 3, iv: 4, v: 5, vi: 6, vii: 7, viii: 8, ix: 9, x: 10,
+  xi: 11, xii: 12, xiii: 13, xiv: 14, xv: 15, xvi: 16, xvii: 17, xviii: 18, xix: 19, xx: 20,
+  xxi: 21, xxii: 22, xxiii: 23, xxiv: 24, xxv: 25, xxx: 30, xl: 40, l: 50, c: 100, d: 500, m: 1000,
+};
+
 export const COMMON_CONTRACTIONS: Record<string, string[]> = {
   para: ['pa', 'pra'],
   donde: ['onde'],
@@ -117,7 +150,105 @@ export const COMMON_CONTRACTIONS: Record<string, string[]> = {
   senor: ['sr'],
   senora: ['sra'],
   doctor: ['dr'],
+  del: ['de', 'el'],
+  al: ['a', 'el'],
 };
+
+export const SPANISH_WORD_TO_DIGIT_MAP: Record<string, string> = {
+  cero: '0',
+  un: '1', uno: '1', una: '1', primero: '1', primera: '1', primer: '1',
+  dos: '2', segundo: '2', segunda: '2',
+  tres: '3', tercero: '3', tercera: '3', tercer: '3',
+  cuatro: '4', cuarto: '4', cuarta: '4',
+  cinco: '5', quinto: '5', quinta: '5',
+  seis: '6', sexto: '6', sexta: '6',
+  siete: '7', septimo: '7', septima: '7',
+  ocho: '8', octavo: '8', octava: '8',
+  nueve: '9', noveno: '9', novena: '9',
+  diez: '10', decimo: '10', decima: '10',
+  once: '11', doce: '12', trece: '13', catorce: '14', quince: '15',
+  dieciseis: '16', diecisiete: '17', dieciocho: '18', diecinueve: '19',
+  veinte: '20', veintiuno: '21', veintiun: '21', veintiuna: '21',
+  treinta: '30', cuarenta: '40', cincuenta: '50',
+  cien: '100', ciento: '100', quinientos: '500', mil: '1000',
+};
+
+/**
+ * Retorna las formas equivalentes fonéticas y orales de una palabra (números, romanos, contracciones).
+ */
+export function getWordEquivalents(rawWord: string): string[] {
+  const norm = normalizeSpanishWord(rawWord);
+  if (!norm) return [];
+  const list = new Set<string>([norm]);
+
+  // Números romanos
+  if (ROMAN_NUMERALS_MAP[norm]) {
+    const num = ROMAN_NUMERALS_MAP[norm];
+    list.add(String(num));
+    if (num === 1) {
+      list.add('un');
+      list.add('uno');
+      list.add('una');
+      list.add('primero');
+    }
+    const words = numberToSpanishWords(num);
+    words.forEach(w => list.add(normalizeSpanishWord(w)));
+    list.add(words.map(w => normalizeSpanishWord(w)).join(''));
+    list.add(words.map(w => normalizeSpanishWord(w)).join(' '));
+    if (num === 1) list.add('primero');
+    if (num === 2) list.add('segundo');
+    if (num === 3) list.add('tercero');
+    if (num === 4) list.add('cuarto');
+    if (num === 5) list.add('quinto');
+    if (num === 6) list.add('sexto');
+    if (num === 7) list.add('septimo');
+    if (num === 8) list.add('octavo');
+    if (num === 9) list.add('noveno');
+    if (num === 10) list.add('decimo');
+  }
+
+  // Dígitos arábigos (ej. "1", "1821", "250", "3")
+  if (/^\d+$/.test(norm)) {
+    const num = parseInt(norm, 10);
+    if (num === 1) {
+      list.add('un');
+      list.add('uno');
+      list.add('una');
+      list.add('primero');
+      list.add('primer');
+    }
+    if (num <= 9999) {
+      const words = numberToSpanishWords(num);
+      words.forEach(w => list.add(normalizeSpanishWord(w)));
+      list.add(words.map(w => normalizeSpanishWord(w)).join(''));
+      list.add(words.map(w => normalizeSpanishWord(w)).join(' '));
+    }
+  }
+
+  // Si la palabra es un número escrito en palabras (ej. "uno", "tres", "quince")
+  if (SPANISH_WORD_TO_DIGIT_MAP[norm]) {
+    const digit = SPANISH_WORD_TO_DIGIT_MAP[norm];
+    list.add(digit);
+    if (digit === '1') {
+      list.add('un');
+      list.add('uno');
+      list.add('una');
+      list.add('primero');
+    }
+  }
+
+  // Contracciones y apócopes
+  if (COMMON_CONTRACTIONS[norm]) {
+    COMMON_CONTRACTIONS[norm].forEach(c => list.add(normalizeSpanishWord(c)));
+  }
+  for (const [key, alts] of Object.entries(COMMON_CONTRACTIONS)) {
+    if (alts.includes(norm)) {
+      list.add(normalizeSpanishWord(key));
+    }
+  }
+
+  return Array.from(list);
+}
 
 /**
  * Normalización fonética completa adaptada a Guatemala y Latinoamérica:
@@ -127,10 +258,7 @@ export const COMMON_CONTRACTIONS: Record<string, string[]> = {
  * - K/Q: qu (ante e, i), k, c (ante a, o, u) -> k
  * - G/J: g (ante e, i), j -> j
  * - Hache muda: h -> eliminada (salvo dígrafo 'ch')
- * - Fonética maya / guatemalteca:
- *     - tz -> ch o ts (e.g. Quetzal, Atitlán)
- *     - w -> b / hu / u (e.g. Popol Wuj <-> Popol Vuh)
- *     - x en topónimos mayas (Xela, Xibalbá) -> j o sh o s
+ * - Fonemas mayas y mesoamericanos: tz, ts, sh, x
  * - Reducción de consonantes dobles (excepto 'rr')
  */
 export function toPhoneticKey(word: string): string {
@@ -168,81 +296,66 @@ export function toPhoneticKey(word: string): string {
 }
 
 /**
- * Coincidencia fonética avanzada adaptada al español de Guatemala y Latinoamérica.
- * Tolera seseo (c/z <-> s), betacismo (b <-> v), yeísmo (ll <-> y), hache muda,
- * variantes indígenas/mayas (tz <-> ch/ts/z) y palabras con o sin tilde diacrítica.
+ * Calcula una similitud fonética normalizada entre 0.0 y 1.0 entre la palabra hablada y la palabra esperada.
  */
-export function isPhoneticMatch(spokenRaw: string, targetRaw: string): boolean {
+export function computePhoneticSimilarity(spokenRaw: string, targetRaw: string): number {
   const s = normalizeSpanishWord(spokenRaw);
   const t = normalizeSpanishWord(targetRaw);
 
-  if (!s || !t) return false;
-  if (s === t) return true;
+  if (!s || !t) return 0.0;
+  if (s === t) return 1.0;
 
-  // 1. Números y dígitos (ej. "3" <-> "tres", "1" <-> "un", "xxi" <-> "veintiuno")
-  if (NUMBER_WORD_MAP[s]?.includes(t) || NUMBER_WORD_MAP[t]?.includes(s)) {
-    return true;
-  }
-  for (const [digit, words] of Object.entries(NUMBER_WORD_MAP)) {
-    const list = [digit, ...words];
-    if (list.includes(s) && list.includes(t)) {
-      return true;
-    }
-  }
+  // 1. Coincidencia mediante equivalentes numéricos o romanos
+  const tEquivs = getWordEquivalents(t);
+  if (tEquivs.includes(s)) return 0.98;
+  const sEquivs = getWordEquivalents(s);
+  if (sEquivs.includes(t)) return 0.98;
 
-  // 2. Contracciones y apócopes comunes ("pa" <-> "para", "tonces" <-> "entonces")
-  if (COMMON_CONTRACTIONS[t]?.includes(s) || COMMON_CONTRACTIONS[s]?.includes(t)) {
-    return true;
-  }
-
-  // 3. Normalización fonética completa (seseo, betacismo, yeísmo, hache muda, mayismos)
+  // 2. Llaves fonéticas completas (seseo, betacismo, yeísmo, hache muda)
   const ps = toPhoneticKey(s);
   const pt = toPhoneticKey(t);
-  if (ps === pt) return true;
+  if (ps === pt) return 0.95;
 
-  // 4. Palabras muy cortas (1 o 2 letras: "el", "la", "de", "en", "un", "al", "se", "si", "su", "tu", "ya")
+  // 3. Palabras muy cortas (1-2 letras: "de", "la", "el", "en", "al", "un")
   if (s.length <= 2 || t.length <= 2) {
-    return ps === pt;
+    return ps === pt ? 0.95 : 0.0;
   }
 
-  // 5. Tolerancia de plurales / singulares regulares en palabras de longitud >= 3 (e.g. "ala" <-> "alas", "cedro" <-> "cedros")
+  // 4. Tolerancia de número gramatical regular (singular / plural: -s, -es)
   if (s.length >= 3 && t.length >= 3) {
-    if (s === t + 's' || s === t + 'es' || t === s + 's' || t === s + 'es') return true;
-    if (ps === pt + 's' || ps === pt + 'es' || pt === ps + 's' || pt === ps + 'es') return true;
+    if (s === t + 's' || s === t + 'es' || t === s + 's' || t === s + 'es') return 0.92;
+    if (ps === pt + 's' || ps === pt + 'es' || pt === ps + 's' || pt === ps + 'es') return 0.92;
   }
 
-  // 6. Tolerancia de raíces léxicas y número gramatical (-s / -es) para palabras >= 4 caracteres
-  const stemS = ps.length >= 4 && ps.endsWith('s') ? ps.slice(0, -1) : ps;
-  const stemT = pt.length >= 4 && pt.endsWith('s') ? pt.slice(0, -1) : pt;
-  if (stemS === stemT) return true;
+  // 5. Coincidencia de prefijo para palabras en curso (ej. "bosq" -> "bosque", min 3 letras)
+  if (s.length >= 3 && t.length >= 4) {
+    if (t.startsWith(s) || pt.startsWith(ps)) return 0.88;
+  }
 
-  // 7. Tolerancia Levenshtein adaptativa:
+  // 6. Similitud Levenshtein adaptativa sobre llaves fonéticas
   const pMaxLen = Math.max(ps.length, pt.length);
   const phoneDist = levenshteinDistance(ps, pt);
+  const sim = 1.0 - phoneDist / pMaxLen;
 
-  // Palabras de 3 letras: exigir coincidencia estricta de primer fonema y dist <= 1
-  if (pMaxLen === 3) {
-    return ps[0] === pt[0] && phoneDist <= 1;
+  // Palabras medianas y largas (>= 5 letras)
+  if (pMaxLen >= 5) {
+    if (phoneDist <= 1) return 0.85;
+    if (pMaxLen >= 6 && phoneDist <= 2 && sim >= 0.72) return sim * 0.88;
+    if (pMaxLen >= 9 && phoneDist <= 3) return 0.76;
+  } else if (pMaxLen === 4) {
+    if (phoneDist <= 1 && ps[0] === pt[0]) return 0.82;
+  } else if (pMaxLen === 3) {
+    if (phoneDist <= 1 && ps[0] === pt[0]) return 0.80;
   }
 
-  // Palabras de 4 a 5 letras: permitir distancia <= 1 si coinciden en fonema inicial
-  if (pMaxLen >= 4 && pMaxLen <= 5) {
-    if (phoneDist <= 1 && ps[0] === pt[0]) return true;
-  }
+  return 0.0;
+}
 
-  // Palabras medianas y largas (>= 6 letras): permitir distancia <= 2 o similitud >= 75%
-  if (pMaxLen >= 6) {
-    if (phoneDist <= 2) return true;
-    const similarity = 1 - phoneDist / pMaxLen;
-    if (similarity >= 0.75) return true;
-  }
-
-  // Palabras muy largas (>= 9 letras): permitir distancia <= 3
-  if (pMaxLen >= 9 && phoneDist <= 3) {
-    return true;
-  }
-
-  return false;
+/**
+ * Coincidencia fonética booleana avanzada con umbral optimizado para alta precisión.
+ */
+export function isPhoneticMatch(spokenRaw: string, targetRaw: string): boolean {
+  return computePhoneticSimilarity(spokenRaw, targetRaw) >= 0.75;
 }
 
 @Injectable({
@@ -468,7 +581,7 @@ export class SpeechRecognitionService {
               this.accumulatedFinalTokens = [...this.accumulatedFinalTokens, ...this.lastSessionFinalTokens];
               this.lastSessionFinalTokens = [];
               this.lastResultIndex = -1;
-              this.scheduleRestart();
+              this.scheduleRestart(true);
             });
           };
         } catch (err) {
@@ -482,28 +595,38 @@ export class SpeechRecognitionService {
     }
   }
 
-  private scheduleRestart(): void {
+  private scheduleRestart(immediate = false): void {
     if (!this.isListening || this.isPaused) return;
     if (this.restartTimeout) {
       clearTimeout(this.restartTimeout);
       this.restartTimeout = null;
     }
+
+    if (immediate && this.recognition) {
+      try {
+        this.recognition.start();
+        return;
+      } catch (e) {
+        // El hardware de audio del navegador tardará unos milisegundos en liberarse
+      }
+    }
+
     this.restartTimeout = setTimeout(() => {
       if (this.isListening && !this.isPaused && this.recognition) {
         try {
           this.recognition.start();
         } catch (err) {
-          // Reintentar si el canal de audio tardó en liberarse
+          // Reintento en caliente ultra-rápido
           this.restartTimeout = setTimeout(() => {
             if (this.isListening && !this.isPaused && this.recognition) {
               try {
                 this.recognition.start();
               } catch (e) {}
             }
-          }, 150);
+          }, 80);
         }
       }
-    }, 60);
+    }, 20);
   }
 
   public isSupported(): boolean {

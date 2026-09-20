@@ -238,5 +238,92 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
 
       expect(component.currentWordIndex).toBe(4);
     });
+
+    it('should seamlessly read through dialogue dashes and typography quotes without freezing', () => {
+      const dashReading: Reading = {
+        ...mockReading,
+        content: 'Recuerda que el lema de Kinal —"Excelencia que trasciende"— no es un eslogan',
+        wordCount: 13,
+      };
+      component.reading = dashReading;
+      component.ngOnInit();
+
+      // Leer primera mitad antes de la raya de diálogo
+      (component as any).processSpeechTokens({
+        finalTokens: ['recuerda', 'que', 'el', 'lema', 'de', 'kinal'],
+        interimTokens: [],
+        candidateAlts: [],
+        wordsSpokenCount: 6,
+        currentWpm: 120,
+      });
+
+      expect(component.currentWordIndex).toBe(6);
+
+      // Leer a través de la raya de diálogo y comillas
+      (component as any).processSpeechTokens({
+        finalTokens: ['recuerda', 'que', 'el', 'lema', 'de', 'kinal', 'excelencia', 'que', 'trasciende'],
+        interimTokens: [],
+        candidateAlts: [],
+        wordsSpokenCount: 9,
+        currentWpm: 120,
+      });
+
+      expect(component.currentWordIndex).toBe(9);
+    });
+
+    it('should effortlessly hop over skipped medium words without freezing or breaking the sentence', () => {
+      const skipReading: Reading = {
+        ...mockReading,
+        content: 'En las altas cumbres de la Sierra de las Minas vivía un joven quetzal',
+        wordCount: 14,
+      };
+      component.reading = skipReading;
+      component.ngOnInit();
+
+      // El estudiante omite la palabra "cumbres" (7 letras) y lee directamente "de la Sierra"
+      (component as any).processSpeechTokens({
+        finalTokens: ['en', 'las', 'altas', 'de', 'la', 'sierra'],
+        interimTokens: [],
+        candidateAlts: [],
+        wordsSpokenCount: 6,
+        currentWpm: 120,
+      });
+
+      // Debe sincronizarse y avanzar hasta después de la palabra Sierra (índice 7)
+      expect(component.currentWordIndex).toBe(7);
+    });
+
+    it('should align multi-token spoken numbers to digits in text (1821 -> mil ochocientos veintiuno)', () => {
+      const dateReading: Reading = {
+        ...mockReading,
+        content: 'En el año 1821 se proclamó la independencia durante el siglo XIX',
+        wordCount: 11,
+      };
+      component.reading = dateReading;
+      component.ngOnInit();
+
+      (component as any).processSpeechTokens({
+        finalTokens: ['en', 'el', 'ano', 'mil', 'ochocientos', 'veintiuno'],
+        interimTokens: [],
+        candidateAlts: [],
+        wordsSpokenCount: 6,
+        currentWpm: 120,
+      });
+
+      // Debe avanzar más allá de '1821' (índice 4)
+      expect(component.currentWordIndex).toBeGreaterThanOrEqual(4);
+    });
+
+    it('should allow student to interactively re-anchor by clicking any word during recording', () => {
+      component.isRecording = true;
+      component.currentWordIndex = 2;
+
+      // El alumno hace clic en la palabra en el índice 7
+      component.onWordClick(component.words[7], 7);
+
+      expect(component.currentWordIndex).toBe(7);
+      expect((component as any).confirmedWordIndex).toBe(7);
+      expect(component.reanchorToastMessage).toContain('8');
+    });
   });
 });
