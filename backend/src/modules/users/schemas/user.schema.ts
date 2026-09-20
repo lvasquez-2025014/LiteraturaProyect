@@ -12,6 +12,16 @@ export interface UserStats {
   lastReadingDate?: Date;
 }
 
+export interface ReadingHistoryItem {
+  readingId?: string;
+  readingTitle: string;
+  readingLevel?: number;
+  wpm: number;
+  comprehensionScore: number;
+  xpEarned?: number;
+  completedAt: Date;
+}
+
 export interface UserDocument {
   _id?: ObjectId;
   googleId?: string;
@@ -29,6 +39,8 @@ export interface UserDocument {
   unlockedAchievements?: string[];   // Lista de IDs de logros desbloqueados
   claimedMissions?: string[];        // Lista de IDs de misiones reclamadas
   lastChestClaimDate?: string;       // Fecha ISO del último cofre reclamado
+  readingHistory?: ReadingHistoryItem[]; // Historial real de lecturas realizadas
   createdAt: Date;
   updatedAt: Date;
 }
+

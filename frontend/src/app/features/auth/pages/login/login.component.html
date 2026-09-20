@@ -236,4 +236,80 @@
     </section>
 
   </div>
+
+  <!-- Modal de Selección de Grado y Sección (Onboarding para registro con Google) -->
+  <div *ngIf="showAcademicOnboardingModal" class="academic-onboarding-backdrop">
+    <div class="academic-onboarding-card glass-panel" (click)="$event.stopPropagation()">
+      
+      <div class="onboarding-header">
+        <div class="onboarding-kinal-logo">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#004AAD" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+          </svg>
+        </div>
+        <h2 class="onboarding-title">¡Bienvenido a Kinal Lectura!</h2>
+        <p class="onboarding-subtitle">
+          Hola <strong>{{ pendingGoogleUser?.name }}</strong>. Para asignarte a tu aula y preparar tus retos de fluidez, por favor indícanos tu grado y sección:
+        </p>
+      </div>
+
+      <form (ngSubmit)="submitAcademicOnboarding()" class="onboarding-form">
+        <div *ngIf="onboardingError" class="onboarding-alert-error">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span>{{ onboardingError }}</span>
+        </div>
+
+        <!-- Paso 1: Grado (Primero, Segundo, Tercero Básico y Cuarto, Quinto, Sexto Perito) -->
+        <div class="onboarding-group">
+          <label for="onboarding-grade" class="onboarding-label">
+            <span class="step-circle">1</span>
+            <span>¿Qué grado o carrera cursas actualmente? *</span>
+          </label>
+          <div class="select-wrapper">
+            <select id="onboarding-grade" [(ngModel)]="selectedGrade" name="selectedGrade" class="onboarding-select" required>
+              <option value="" disabled selected>Selecciona tu grado o carrera técnica...</option>
+              <optgroup *ngFor="let g of gradeGroups" [label]="g.group">
+                <option *ngFor="let gr of g.grades" [value]="gr">{{ gr }}</option>
+              </optgroup>
+            </select>
+            <div class="select-arrow">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paso 2: Sección (De la A hasta la J) -->
+        <div class="onboarding-group">
+          <label class="onboarding-label">
+            <span class="step-circle">2</span>
+            <span>¿Cuál es tu sección? (A a la J) *</span>
+          </label>
+          <div class="sections-pills-grid">
+            <button 
+              type="button" 
+              *ngFor="let sec of sections" 
+              class="section-pill-btn"
+              [class.section-selected]="selectedSection === sec"
+              (click)="selectedSection = sec">
+              {{ sec }}
+            </button>
+          </div>
+        </div>
+
+        <div class="onboarding-footer-actions">
+          <button type="submit" class="btn-onboarding-submit" [disabled]="onboardingLoading || !selectedGrade || !selectedSection">
+            <span *ngIf="!onboardingLoading">Completar y Comenzar Aventuras</span>
+            <span *ngIf="onboardingLoading">Configurando tu Aula...</span>
+            <svg *ngIf="!onboardingLoading" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+
+          <button type="button" (click)="showAcademicOnboardingModal = false; auth.logout()" class="btn-onboarding-cancel" style="margin-top: 10px; width: 100%; background: none; border: none; color: #64748b; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <span>Cancelar y volver a la pantalla de acceso</span>
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
 </div>

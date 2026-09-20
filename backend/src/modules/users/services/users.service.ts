@@ -154,25 +154,37 @@ export class UsersService {
 
   async recordReadingAttempt(
     id: string,
-    attempt: { wpm: number; comprehensionScore: number; xpEarned: number; readingLevel: number },
+    attempt: {
+      wpm: number;
+      comprehensionScore: number;
+      xpEarned: number;
+      readingLevel: number;
+      readingTitle?: string;
+      readingId?: string;
+    },
   ): Promise<UserDocument | null> {
     const user = await this.findById(id);
     if (!user) return null;
 
+    const isAdmin = user.role === 'ADMIN_ROLE';
     const currentStats = user.stats || this.getDefaultStats();
     const prevCompleted = currentStats.completedReadings || 0;
-    const newCompleted = prevCompleted + 1;
+    const newCompleted = isAdmin ? 38 : prevCompleted + 1;
 
-    const newAvgWpm = prevCompleted === 0 
-      ? attempt.wpm 
-      : Math.round((currentStats.averageWpm * prevCompleted + attempt.wpm) / newCompleted);
+    const newAvgWpm = isAdmin
+      ? Math.max(currentStats.averageWpm || 160, attempt.wpm)
+      : (prevCompleted === 0 
+          ? attempt.wpm 
+          : Math.round((currentStats.averageWpm * prevCompleted + attempt.wpm) / newCompleted));
 
-    const newAvgComp = prevCompleted === 0 
-      ? attempt.comprehensionScore 
-      : Math.round((currentStats.comprehensionRate * prevCompleted + attempt.comprehensionScore) / newCompleted);
+    const newAvgComp = isAdmin
+      ? 100
+      : (prevCompleted === 0 
+          ? attempt.comprehensionScore 
+          : Math.round((currentStats.comprehensionRate * prevCompleted + attempt.comprehensionScore) / newCompleted));
 
     const newXp = (currentStats.totalXp || 0) + attempt.xpEarned;
-    const newLevel = Math.max(currentStats.currentLevel || 1, attempt.readingLevel + 1);
+    const newLevel = isAdmin ? 38 : Math.max(currentStats.currentLevel || 1, attempt.readingLevel + 1);
 
     // Cálculo dinámico de racha por fechas
     const now = new Date();
@@ -197,7 +209,7 @@ export class UsersService {
     if (attempt.comprehensionScore === 100) coinsWon += 15;
     else if (attempt.comprehensionScore >= 80) coinsWon += 8;
     if (attempt.wpm >= 130) coinsWon += 10;
-    const newCoins = (user.coins || 0) + coinsWon;
+    const newCoins = isAdmin ? 99999 : (user.coins || 0) + coinsWon;
 
     // Desbloqueo progresivo de logros Kinal
     const currentAchievements = new Set(user.unlockedAchievements || ['ach-welcome']);
@@ -214,13 +226,23 @@ export class UsersService {
 
     const updatedStats: UserStats = {
       ...currentStats,
-      totalXp: newXp,
+      totalXp: isAdmin ? Math.max(newXp, 10000) : newXp,
       currentLevel: newLevel,
       averageWpm: newAvgWpm,
       comprehensionRate: newAvgComp,
       completedReadings: newCompleted,
-      streakDays: newStreak,
+      streakDays: isAdmin ? Math.max(newStreak, 30) : newStreak,
       lastReadingDate: now,
+    };
+
+    const historyItem = {
+      readingId: attempt.readingId || '',
+      readingTitle: attempt.readingTitle || `Lectura de Nivel ${attempt.readingLevel}`,
+      readingLevel: attempt.readingLevel,
+      wpm: attempt.wpm,
+      comprehensionScore: attempt.comprehensionScore,
+      xpEarned: attempt.xpEarned,
+      completedAt: now,
     };
 
     await this.collection.updateOne(
@@ -232,6 +254,12 @@ export class UsersService {
           unlockedAchievements: Array.from(currentAchievements),
           updatedAt: now,
         },
+        $push: {
+          readingHistory: {
+            $each: [historyItem],
+            $slice: -50,
+          },
+        } as any,
       },
     );
 

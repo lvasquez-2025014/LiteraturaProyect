@@ -183,7 +183,14 @@ export class UsersController {
   @Roles('STUDENT_ROLE', 'TEACHER_ROLE', 'ADMIN_ROLE')
   async recordReadingAttempt(
     @Param('id') id: string,
-    @Body() body: { wpm: number; comprehensionScore: number; xpEarned: number; readingLevel: number },
+    @Body() body: {
+      wpm: number;
+      comprehensionScore: number;
+      xpEarned: number;
+      readingLevel: number;
+      readingTitle?: string;
+      readingId?: string;
+    },
   ) {
     const updatedUser = await this.usersService.recordReadingAttempt(id, body);
     if (!updatedUser) {
@@ -247,5 +254,37 @@ export class UsersController {
       throw new BadRequestException(result.message);
     }
     return result;
+  }
+
+  @Patch(':id/academic-profile')
+  @Roles('STUDENT_ROLE', 'TEACHER_ROLE', 'ADMIN_ROLE')
+  async updateAcademicProfile(
+    @Param('id') id: string,
+    @Body() body: { grade: string; section: string },
+    @CurrentUser() requester: any,
+  ) {
+    if (!body.grade || !body.section) {
+      throw new BadRequestException('El grado y la sección son obligatorios');
+    }
+
+    const requesterId = requester?.id || requester?._id;
+    if (requesterId && requesterId !== id && requester.role !== 'ADMIN_ROLE' && requester.role !== 'TEACHER_ROLE') {
+      throw new ForbiddenException('No tienes permiso para actualizar este perfil');
+    }
+
+    await this.usersService.updateProfile(id, {
+      grade: body.grade.trim(),
+      section: body.section.trim().toUpperCase(),
+    });
+
+    const updated = await this.usersService.findById(id);
+    if (!updated) {
+      throw new BadRequestException('Usuario no encontrado');
+    }
+    const { password, ...safeUser } = updated as any;
+    return {
+      ...safeUser,
+      id: updated._id ? updated._id.toString() : (updated as any).id,
+    };
   }
 }

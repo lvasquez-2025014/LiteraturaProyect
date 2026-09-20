@@ -51,6 +51,7 @@ export class AuthService {
         this.clearSessionData();
       } else {
         this.scheduleAutoLogout(token);
+        this.fetchProfile().subscribe({ error: () => {} });
       }
     }
 
@@ -209,6 +210,43 @@ export class AuthService {
   loginWithGoogle(credential: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.API_URL}/google`, { credential }).pipe(
       tap((res) => this.saveSession(res)),
+    );
+  }
+
+  updateAcademicProfile(userId: string, grade: string, section: string): Observable<User> {
+    return this.http.patch<User>(`${environment.apiUrl}/users/${userId}/academic-profile`, { grade, section }).pipe(
+      tap((updatedUser) => {
+        const currentUser = this.currentUserSignal();
+        if (currentUser) {
+          const merged: User = {
+            ...currentUser,
+            ...updatedUser,
+            grade: updatedUser.grade || grade,
+            section: updatedUser.section || section,
+          };
+          this.saveSession({
+            token: this.tokenSignal() || '',
+            user: merged,
+          });
+        }
+      }),
+    );
+  }
+
+  fetchProfile(): Observable<User> {
+    return this.http.get<User>(`${this.API_URL}/profile`).pipe(
+      tap((freshUser) => {
+        const currentUser = this.currentUserSignal();
+        const merged: User = {
+          ...currentUser,
+          ...freshUser,
+          id: freshUser.id || (freshUser as any)._id || currentUser?.id || '',
+        };
+        const token = this.tokenSignal();
+        if (token) {
+          this.saveSession({ token, user: merged });
+        }
+      }),
     );
   }
 

@@ -127,6 +127,28 @@
     <button (click)="mode = 'assisted'; startReading()" class="btn-alert-action">Activar Modo Asistido</button>
   </div>
 
+  <!-- Live Microphone Status Banner & Live Spoken Speech Pill -->
+  <div *ngIf="isRecording && mode === 'mic'" class="mic-live-banner">
+    <div class="mic-status-indicator" [class.mic-status-active]="isAudioActive">
+      <span class="mic-pulse-ring" *ngIf="!isAudioActive"></span>
+      <div class="mic-wave-bars" *ngIf="isAudioActive">
+        <span class="wave-bar bar-1"></span>
+        <span class="wave-bar bar-2"></span>
+        <span class="wave-bar bar-3"></span>
+        <span class="wave-bar bar-4"></span>
+      </div>
+      <span class="mic-status-label" *ngIf="!isMicReady">Conectando micrófono...</span>
+      <span class="mic-status-label" *ngIf="isMicReady && !isAudioActive">Micrófono activo · ¡Lee en voz alta!</span>
+      <span class="mic-status-label" *ngIf="isMicReady && isAudioActive">Escuchando lectura en tiempo real...</span>
+    </div>
+
+    <!-- Live Spoken Words Preview -->
+    <div *ngIf="liveSpokenText" class="live-spoken-pill" title="Últimas palabras detectadas por el micrófono">
+      <span class="spoken-label">Audio:</span>
+      <span class="spoken-text">"{{ liveSpokenText }}"</span>
+    </div>
+  </div>
+
   <!-- Reading Canvas (Word-by-word Karaoke Style with Ultra-Stable Layout) -->
   <main class="reading-canvas">
     <div 

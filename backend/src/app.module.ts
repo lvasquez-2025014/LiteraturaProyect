@@ -3,6 +3,7 @@ import { DatabaseModule } from './core/database/database.module.js';
 import { UsersModule } from './modules/users/users.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { ReadingsModule } from './modules/readings/readings.module.js';
+import { StagesModule } from './modules/stages/stages.module.js';
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import { ReadingsModule } from './modules/readings/readings.module.js';
     UsersModule,
     AuthModule,
     ReadingsModule,
+    StagesModule,
   ],
 })
 export class AppModule {}

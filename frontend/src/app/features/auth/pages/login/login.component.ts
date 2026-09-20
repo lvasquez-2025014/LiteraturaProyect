@@ -1,20 +1,21 @@
 import { Component, inject, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, ChangeDetectorRef, NgZone, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
+import { User, KINAL_GRADE_GROUPS, KINAL_SECTIONS } from '../../../../core/models/user.model';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
 export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   private fb = inject(FormBuilder);
-  private auth = inject(AuthService);
+  public auth = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
@@ -33,6 +34,17 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   showPassword = false;
   googleReady = false;
 
+  // Academic Onboarding State for Google Registration
+  showAcademicOnboardingModal = false;
+  onboardingLoading = false;
+  pendingGoogleUser: User | null = null;
+  selectedGrade = '';
+  selectedSection = '';
+  onboardingError = '';
+
+  readonly gradeGroups = KINAL_GRADE_GROUPS;
+  readonly sections = KINAL_SECTIONS;
+
   private clientId = '';
   private configSub?: Subscription;
   private retryTimer: any = null;
@@ -44,7 +56,10 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
       this.sessionExpiredMessage = 'Tu sesión ha expirado tras 2 horas por seguridad. Por favor, ingresa tus credenciales nuevamente.';
     }
 
-    if (this.auth.isAuthenticated() && !this.auth.isTokenExpired()) {
+    const isReset = this.route.snapshot.queryParams['reset'] !== undefined || this.route.snapshot.queryParams['logout'] !== undefined;
+    if (isReset) {
+      this.auth.logout();
+    } else if (this.auth.isAuthenticated() && !this.auth.isTokenExpired()) {
       this.auth.redirectByRole();
     }
   }
@@ -202,6 +217,14 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
       this.auth.loginWithGoogle(response.credential).subscribe({
         next: (res) => {
           this.loading = false;
+          if (res.user.role === 'STUDENT_ROLE' && (!res.user.grade || !res.user.section)) {
+            this.pendingGoogleUser = res.user;
+            this.selectedGrade = res.user.grade || '';
+            this.selectedSection = res.user.section || '';
+            this.showAcademicOnboardingModal = true;
+            this.cdr.detectChanges();
+            return;
+          }
           this.auth.redirectByRole(res.user.role);
         },
         error: (err) => {
@@ -210,6 +233,34 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
           this.cdr.detectChanges();
         },
       });
+    });
+  }
+
+  submitAcademicOnboarding() {
+    if (!this.selectedGrade) {
+      this.onboardingError = 'Por favor, selecciona tu grado educativo.';
+      return;
+    }
+    if (!this.selectedSection) {
+      this.onboardingError = 'Por favor, selecciona tu sección correspondiente (A a la J).';
+      return;
+    }
+    if (!this.pendingGoogleUser) return;
+
+    this.onboardingLoading = true;
+    this.onboardingError = '';
+
+    this.auth.updateAcademicProfile(this.pendingGoogleUser.id, this.selectedGrade, this.selectedSection).subscribe({
+      next: (updatedUser) => {
+        this.onboardingLoading = false;
+        this.showAcademicOnboardingModal = false;
+        this.auth.redirectByRole(updatedUser.role);
+      },
+      error: (err) => {
+        this.onboardingLoading = false;
+        this.onboardingError = err.error?.message || 'Error al guardar tu grado y sección. Intenta nuevamente.';
+        this.cdr.detectChanges();
+      },
     });
   }
 

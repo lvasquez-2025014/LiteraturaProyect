@@ -69,7 +69,17 @@ export class AuthService {
         avatarUrl: user.avatarUrl || '',
         grade: user.grade,
         section: user.section,
-        stats: user.stats,
+        stats: isAdmin
+          ? {
+              totalXp: Math.max(user.stats?.totalXp || 0, 10000),
+              currentLevel: 38,
+              averageWpm: Math.max(user.stats?.averageWpm || 0, 160),
+              comprehensionRate: 100,
+              streakDays: Math.max(user.stats?.streakDays || 0, 30),
+              completedReadings: 38,
+              lastReadingDate: user.stats?.lastReadingDate,
+            }
+          : user.stats,
         coins: isAdmin ? 99999 : (user.coins ?? 60),
         equippedTitle: user.equippedTitle || 'Cadete de las Letras',
         equippedFrame: user.equippedFrame || 'frame-default',

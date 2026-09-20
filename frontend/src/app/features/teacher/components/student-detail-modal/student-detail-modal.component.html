@@ -74,14 +74,18 @@
               <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
               <polyline points="17 6 23 6 23 12"></polyline>
             </svg>
-            <span>Evolución de Fluidez (Últimas 4 Semanas)</span>
+            <span>Evolución de Fluidez (Historial Reciente)</span>
           </div>
-          <span class="trend-badge">
-            <span class="trend-arrow">▲</span> +30 PPM de incremento
+          <span
+            class="trend-badge"
+            [class.trend-down]="performance.trendDirection === 'down'"
+            [class.trend-neutral]="performance.trendDirection === 'neutral'"
+          >
+            {{ performance.trendLabel || 'Sin datos' }}
           </span>
         </div>
 
-        <div class="bars-container">
+        <div class="bars-container" *ngIf="performance.weeklyHistory && performance.weeklyHistory.length > 0; else noChartData">
           <div *ngFor="let item of performance.weeklyHistory" class="bar-col">
             <span class="bar-val">{{ item.wpm }} PPM</span>
             <div class="bar-track">
@@ -90,6 +94,12 @@
             <span class="bar-week">{{ item.week }}</span>
           </div>
         </div>
+
+        <ng-template #noChartData>
+          <div class="empty-chart-note">
+            <span>No hay lecturas registradas todavía para graficar la evolución. Esta sección se completará automáticamente con los intentos reales del estudiante.</span>
+          </div>
+        </ng-template>
       </div>
 
       <!-- Recent Readings List -->
@@ -99,10 +109,10 @@
             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
             <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
           </svg>
-          <span>Historial Reciente de Evaluaciones</span>
+          <span>Historial Real de Evaluaciones ({{ performance.recentReadings?.length || 0 }})</span>
         </div>
 
-        <div class="readings-list">
+        <div class="readings-list" *ngIf="performance.recentReadings && performance.recentReadings.length > 0; else noRecentReadings">
           <div *ngFor="let rec of performance.recentReadings" class="reading-row">
             <div class="reading-left">
               <div class="reading-check">
@@ -123,6 +133,12 @@
             </div>
           </div>
         </div>
+
+        <ng-template #noRecentReadings>
+          <div class="empty-history-box">
+            <p>Este estudiante aún no ha completado lecturas evaluadas en el sistema.</p>
+          </div>
+        </ng-template>
       </div>
 
       <!-- Teacher Pedagogical Note -->
@@ -133,10 +149,10 @@
             <line x1="12" y1="16" x2="12" y2="12"></line>
             <line x1="12" y1="8" x2="12.01" y2="8"></line>
           </svg>
-          <span class="note-title">Recomendación Pedagógica para el Docente:</span>
+          <span class="note-title">Diagnóstico y Recomendación Pedagógica:</span>
         </div>
         <p class="note-text">
-          El estudiante demuestra entonación progresiva y respeto por las pausas de puntuación. Para afianzar la velocidad hacia la meta de 180 PPM, se sugiere asignar lecturas con vocabulario técnico contextualizado y promover el hábito continuo de lectura diaria.
+          {{ performance.pedagogicalNote }}
         </p>
       </div>
     </div>

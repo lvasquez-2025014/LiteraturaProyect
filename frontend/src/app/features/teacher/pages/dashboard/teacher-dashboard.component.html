@@ -60,6 +60,19 @@
         </svg>
         <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg> Gestor de Lecturas Kinal ({{ readings.length }})</span>
       </button>
+
+      <button 
+        type="button"
+        class="tab-btn" 
+        [class.active]="activeTab === 'stages'" 
+        (click)="setTab('stages')">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+          <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon>
+          <line x1="9" y1="3" x2="9" y2="18"></line>
+          <line x1="15" y1="6" x2="15" y2="21"></line>
+        </svg>
+        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg> Gestor de Etapas Literarias ({{ stages.length }})</span>
+      </button>
     </div>
 
     <!-- TAB 1: MONITOREO DE ALUMNOS -->
@@ -179,10 +192,11 @@
               <label for="grade-select" class="filter-label">Grado:</label>
               <select id="grade-select" [(ngModel)]="selectedGrade" class="filter-select">
                 <option value="all">Todos los Grados</option>
-                <option value="Computación">5to Perito en Computación</option>
-                <option value="Electricidad">5to Perito en Electricidad</option>
-                <option value="Mecánica">5to Perito en Mecánica</option>
-                <option value="Bachillerato">4to Bachillerato</option>
+                <optgroup *ngFor="let group of gradeGroups" [label]="group.group">
+                  <option *ngFor="let g of group.grades" [value]="g">
+                    {{ g }}
+                  </option>
+                </optgroup>
               </select>
             </div>
 
@@ -190,9 +204,9 @@
               <label for="section-select" class="filter-label">Sección:</label>
               <select id="section-select" [(ngModel)]="selectedSection" class="filter-select">
                 <option value="all">Todas</option>
-                <option value="A">Sección A</option>
-                <option value="B">Sección B</option>
-                <option value="C">Sección C</option>
+                <option *ngFor="let sec of sections" [value]="sec">
+                  Sección {{ sec }}
+                </option>
               </select>
             </div>
 
@@ -417,6 +431,86 @@
       </div>
     </ng-container>
 
+    <!-- TAB 3: GESTOR DE ETAPAS LITERARIAS -->
+    <ng-container *ngIf="activeTab === 'stages'">
+      <div class="stages-manager-card">
+        <div class="stages-manager-header">
+          <div>
+            <h2 class="stages-title">Ruta Pedagógica y Gestión de Etapas</h2>
+            <p class="stages-subtitle">
+              Administra las etapas temáticas que agrupan los retos de lectura en el mapa de fluidez de los estudiantes. Cada etapa define hitos formativos, insignias y recompensas de XP y Monedas Kinal.
+            </p>
+          </div>
+          <button type="button" class="btn-primary-kinal" (click)="openCreateStageModal()">
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>Nueva Etapa</span>
+          </button>
+        </div>
+
+        <div class="stages-admin-grid">
+          <div *ngFor="let s of stages" class="stage-admin-card" [style.border-top-color]="s.themeColor">
+            <div class="stage-card-top">
+              <div class="stage-badge-group">
+                <span class="stage-pill-num" [style.background]="s.themeColor">ETAPA {{ s.stageNumber || s.id }}</span>
+                <span class="stage-pill-levels">Niveles {{ s.startLevel }} - {{ s.endLevel }} ({{ s.totalLevels }} retos)</span>
+              </div>
+              <span class="stage-pill-color-indicator" [style.background]="s.themeColor" [title]="'Color: ' + s.themeColor"></span>
+            </div>
+
+            <h3 class="stage-card-title">{{ s.title }}</h3>
+            <div class="stage-card-sub" *ngIf="s.subtitle">{{ s.subtitle }}</div>
+            
+            <p class="stage-card-desc">
+              {{ s.description || 'Sin descripción pedagógica especificada.' }}
+            </p>
+
+            <div class="stage-card-meta-box">
+              <div class="stage-meta-row">
+                <span class="meta-label">Insignia Otorgada:</span>
+                <span class="meta-badge-val" [style.color]="s.themeColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+                  {{ s.badge || 'Medalla de Etapa' }}
+                </span>
+              </div>
+
+              <div class="stage-meta-row">
+                <span class="meta-label">Cofre de Recompensa:</span>
+                <span class="meta-chest-val">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/></svg>
+                  {{ s.milestoneTitle || 'Cofre Kinal' }}
+                </span>
+              </div>
+
+              <div class="stage-rewards-pills">
+                <span class="pill-reward-xp">+{{ s.rewardXp }} XP</span>
+                <span class="pill-reward-coins">+{{ s.rewardCoins }} Monedas</span>
+              </div>
+            </div>
+
+            <div class="stage-card-actions">
+              <button type="button" class="btn-stage-edit" (click)="openEditStageModal(s, $event)">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                  <path d="M12 20h9"></path>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+                <span>Editar</span>
+              </button>
+              <button type="button" class="btn-stage-delete" (click)="deleteStage(s, $event)">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                <span>Eliminar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
   </div>
 
   <!-- Modal: Crear / Editar Lectura -->
@@ -526,6 +620,112 @@
             <button type="button" class="btn-cancel" (click)="closeReadingModal()">Cancelar</button>
             <button type="submit" class="btn-save" [disabled]="readingModalLoading">
               {{ readingModalLoading ? 'Guardando...' : (isEditingReading ? 'Actualizar Lectura' : 'Guardar Nueva Lectura') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Crear / Editar Etapa Literaria -->
+  <div *ngIf="isStageModalOpen" class="modal-backdrop" (click)="closeStageModal()">
+    <div class="modal-dialog-medium glass-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3>{{ isEditingStage ? 'Editar Etapa Literaria' : 'Nueva Etapa Literaria' }}</h3>
+          <p class="modal-subtitle">Configura los rangos de niveles, recompensas y metadatos pedagógicos de la etapa.</p>
+        </div>
+        <button type="button" class="btn-modal-close" (click)="closeStageModal()"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+
+      <div class="modal-body">
+        <form (ngSubmit)="saveStage()" class="reading-form">
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label>Número de Etapa *</label>
+              <input type="number" [(ngModel)]="stageFormData.stageNumber" name="stageNumber" min="1" max="50" required class="form-input" />
+            </div>
+
+            <div class="form-group flex-3">
+              <label>Título de la Etapa *</label>
+              <input type="text" [(ngModel)]="stageFormData.title" name="stageTitle" placeholder="Ej: Etapa 1: Semillero Lector & Fábulas Ancestrales" required class="form-input" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label>Subtítulo Descriptivo</label>
+              <input type="text" [(ngModel)]="stageFormData.subtitle" name="stageSubtitle" placeholder="Ej: Primeros 3 Niveles (1 al 3)" class="form-input" />
+            </div>
+
+            <div class="form-group flex-1">
+              <label>Insignia / Medalla</label>
+              <input type="text" [(ngModel)]="stageFormData.badge" name="stageBadge" placeholder="Ej: Explorador Silvestre" class="form-input" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label>Nivel Inicial *</label>
+              <input type="number" [(ngModel)]="stageFormData.startLevel" name="startLevel" min="1" max="100" required class="form-input" />
+            </div>
+
+            <div class="form-group flex-1">
+              <label>Nivel Final *</label>
+              <input type="number" [(ngModel)]="stageFormData.endLevel" name="endLevel" min="1" max="100" required class="form-input" />
+            </div>
+
+            <div class="form-group flex-1">
+              <label>Total de Retos Calculados</label>
+              <input type="text" [value]="(stageFormData.endLevel >= stageFormData.startLevel ? (stageFormData.endLevel - stageFormData.startLevel + 1) : 0) + ' retos'" disabled class="form-input" style="background: rgba(255,255,255,0.05); cursor: not-allowed;" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Descripción Pedagógica y Propósito Formativo</label>
+            <textarea [(ngModel)]="stageFormData.description" name="stageDesc" rows="3" placeholder="Describe los géneros literarios, objetivos de fluidez verbal y competencias a evaluar en esta etapa..." class="form-textarea"></textarea>
+          </div>
+
+          <!-- Color Temático con Presets -->
+          <div class="form-group">
+            <label>Color Temático de Etapa</label>
+            <div class="color-preset-row">
+              <button 
+                *ngFor="let c of stageColorPresets" 
+                type="button" 
+                class="color-preset-btn"
+                [style.background]="c.value"
+                [class.color-selected]="stageFormData.themeColor === c.value"
+                [title]="c.name"
+                (click)="stageFormData.themeColor = c.value">
+                <svg *ngIf="stageFormData.themeColor === c.value" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+              <input type="color" [(ngModel)]="stageFormData.themeColor" name="customColor" class="custom-color-input" title="Personalizar color exacto" />
+              <span class="color-val-preview" [style.color]="stageFormData.themeColor">{{ stageFormData.themeColor }}</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label>Recompensa XP al Completar</label>
+              <input type="number" [(ngModel)]="stageFormData.rewardXp" name="rewardXp" min="50" max="5000" class="form-input" />
+            </div>
+
+            <div class="form-group flex-1">
+              <label>Monedas Kinal al Completar</label>
+              <input type="number" [(ngModel)]="stageFormData.rewardCoins" name="rewardCoins" min="10" max="2000" class="form-input" />
+            </div>
+
+            <div class="form-group flex-2">
+              <label>Título del Cofre / Relicario</label>
+              <input type="text" [(ngModel)]="stageFormData.milestoneTitle" name="milestoneTitle" placeholder="Ej: Gran Cofre de la Expedición Maya" class="form-input" />
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-cancel" (click)="closeStageModal()">Cancelar</button>
+            <button type="submit" class="btn-save" [disabled]="stageModalLoading">
+              {{ stageModalLoading ? 'Guardando...' : (isEditingStage ? 'Actualizar Etapa' : 'Guardar Nueva Etapa') }}
             </button>
           </div>
         </form>

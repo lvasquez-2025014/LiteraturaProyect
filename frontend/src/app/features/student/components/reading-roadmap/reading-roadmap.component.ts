@@ -1,7 +1,8 @@
 import { Component, Input, Output, EventEmitter, inject, signal, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Reading, RoadmapStage, ROADMAP_STAGES } from '../../../../core/models/reading.model';
+import { Reading, RoadmapStage } from '../../../../core/models/reading.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { StagesService } from '../../../../core/services/stages.service';
 
 @Component({
   selector: 'app-reading-roadmap',
@@ -16,16 +17,23 @@ export class ReadingRoadmapComponent implements OnInit, OnChanges {
   @Output() selectReading = new EventEmitter<Reading>();
 
   auth = inject(AuthService);
+  private stagesService = inject(StagesService);
 
-  readonly stages: RoadmapStage[] = ROADMAP_STAGES;
   selectedStageId = signal<number>(1);
   viewMode = signal<'stage' | 'all'>('stage');
+
+  get stages(): RoadmapStage[] {
+    return this.stagesService.stagesSignal();
+  }
 
   get isAdmin(): boolean {
     return this.auth.isAdmin();
   }
 
   ngOnInit(): void {
+    this.stagesService.getStages().subscribe(() => {
+      this.updateActiveStageFromCurrentLevel();
+    });
     this.updateActiveStageFromCurrentLevel();
   }
 
@@ -36,6 +44,10 @@ export class ReadingRoadmapComponent implements OnInit, OnChanges {
   }
 
   private updateActiveStageFromCurrentLevel(): void {
+    if (this.isAdmin) {
+      this.selectedStageId.set(1);
+      return;
+    }
     const currentStage = this.stages.find(
       (s) => this.currentLevel >= s.startLevel && this.currentLevel <= s.endLevel
     );
@@ -69,6 +81,15 @@ export class ReadingRoadmapComponent implements OnInit, OnChanges {
   }
 
   getStageProgress(stage: RoadmapStage): { completed: number; total: number; percentage: number; isUnlocked: boolean; isCompleted: boolean } {
+    if (this.isAdmin) {
+      return {
+        completed: stage.totalLevels,
+        total: stage.totalLevels,
+        percentage: 100,
+        isUnlocked: true,
+        isCompleted: true,
+      };
+    }
     const total = stage.totalLevels;
     const stageReadings = this.sortedReadings.filter(
       (r) => r.level >= stage.startLevel && r.level <= stage.endLevel
@@ -88,14 +109,23 @@ export class ReadingRoadmapComponent implements OnInit, OnChanges {
   }
 
   isCompleted(reading: Reading): boolean {
+    if (this.isAdmin) {
+      return true;
+    }
     return !!reading.completed || reading.level < this.currentLevel;
   }
 
   isCurrent(reading: Reading): boolean {
+    if (this.isAdmin) {
+      return false;
+    }
     return reading.level === this.currentLevel;
   }
 
   isLocked(reading: Reading): boolean {
+    if (this.isAdmin) {
+      return false;
+    }
     return !this.isCompleted(reading) && !this.isCurrent(reading);
   }
 

@@ -30,6 +30,9 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
 
   isRecording = false;
   isPaused = false;
+  isMicReady = false;
+  isAudioActive = false;
+  liveSpokenText = '';
   currentWordIndex = 0;
   secondsElapsed = 0;
   currentWpm = 0;
@@ -38,9 +41,14 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   mode: 'mic' | 'assisted' = 'mic';
   assistedSpeedMultiplier = 1.0;
 
-  // Punteros de alineación monótona para evitar saltos de palabras
+  // Palabras pre-normalizadas para comparación ultrarrápida
+  normalizedWords: string[] = [];
+  titleWords: string[] = [];
+  normalizedTitleWords: string[] = [];
+
+  // Punteros de alineación monótona para avance seguro y continuo
   private confirmedWordIndex = 0;
-  private consumedFinalTokensIndex = 0;
+  private consumedFinalTokensCount = 0;
 
   get currentTargetWpm(): number {
     return this.mode === 'assisted'
@@ -77,23 +85,41 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   private timerInterval: any = null;
 
   ngOnInit(): void {
-    this.words = this.reading.content.trim().split(/\s+/);
+    // Sanitizar y separar palabras respetando signos pero aislando rayas de diálogo o espacios múltiples
+    const cleanContent = this.reading.content
+      .replace(/—/g, ' — ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    this.words = cleanContent.split(' ').filter(Boolean);
     this.totalWords = this.words.length;
+    this.normalizedWords = this.words.map((w) => normalizeSpanishWord(w));
+
+    this.titleWords = (this.reading.title || '').trim().split(/\s+/).filter(Boolean);
+    this.normalizedTitleWords = this.titleWords.map((w) => normalizeSpanishWord(w));
+
     this.selectedAnswers = new Array(this.reading.questions.length).fill(-1);
 
     this.speechService.onStateChange = (state) => {
       this.isRecording = state.isListening && !state.isPaused;
       this.isPaused = state.isPaused;
+      this.isMicReady = state.isMicReady;
+      this.isAudioActive = state.isAudioActive;
       this.transcript = state.transcript;
+      if (state.interimTranscript) {
+        this.liveSpokenText = state.interimTranscript;
+      }
       if (state.error) {
         this.micError = state.error;
       }
       this.cdr.detectChanges();
     };
 
-    // Evento de alta fidelidad que procesa tokens finales e interinos por separado
+    // Evento de alta fidelidad que procesa tokens finales e interinos con ventana elástica
     this.speechService.onSpeechTokens = (event) => {
       if (this.mode === 'mic') {
+        if (event.isAudioActive !== undefined) {
+          this.isAudioActive = event.isAudioActive;
+        }
         this.processSpeechTokens(event);
       }
       this.updateLiveWpm();
@@ -113,12 +139,168 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Motor de alineación fonética de ultra-alta precisión.
-   * Elimina de raíz el problema de saltarse palabras:
-   * 1. Confirma palabras finales en estricto orden monótono inmutable (nunca retrocede ni salta).
-   * 2. Evalúa tokens provisionales en tiempo real para iluminación inmediata (<50ms).
-   * 3. Soporta sinalefas ("de la" -> "dela", "de el" -> "del") y palabras divididas ("tan bien" -> "también").
-   * 4. Bloqueo de confirmación de dos palabras: NUNCA salta una palabra por un solo token aislado.
+   * Motor de alineación elástica multipalabra por ventana deslizante.
+   * Resuelve de raíz los 3 desafíos clave de la lectura en voz alta:
+   * 1. Arranque inmediato: tolera si el micrófono recortó la primera palabra.
+   * 2. Tolerancia a lectura de título previa sin desorientar el cursor.
+   * 3. Alineación continua sin congelamiento en frases largas ni desincronización por palabras saltadas.
+   */
+  private alignTokenSequence(
+    baseIndex: number,
+    tokens: string[],
+    candidateAlts?: string[]
+  ): { targetIndex: number; matchedCount: number } {
+    if (!tokens || tokens.length === 0 || baseIndex >= this.totalWords) {
+      return { targetIndex: baseIndex, matchedCount: 0 };
+    }
+
+    // 1. Filtrar muletillas iniciales del fragmento ("eh", "um", etc.)
+    let startTokIdx = 0;
+    while (startTokIdx < tokens.length && this.isFiller(tokens[startTokIdx])) {
+      startTokIdx++;
+    }
+    if (startTokIdx >= tokens.length) {
+      return { targetIndex: baseIndex, matchedCount: 0 };
+    }
+
+    // 2. Si estamos al principio (baseIndex === 0) y el estudiante leyó el título antes de la lectura,
+    // buscar si el texto de la lectura comienza tras las palabras del título
+    if (baseIndex === 0 && this.normalizedTitleWords.length > 0) {
+      const firstTargetWord = this.normalizedWords[0];
+      const secondTargetWord = this.normalizedWords[1] || '';
+      for (let t = startTokIdx; t < tokens.length; t++) {
+        if (
+          isPhoneticMatch(tokens[t], firstTargetWord) ||
+          (secondTargetWord && isPhoneticMatch(tokens[t], secondTargetWord))
+        ) {
+          startTokIdx = t;
+          break;
+        }
+      }
+    }
+
+    // 3. Ventana de búsqueda de ancla amplia:
+    // Permite mirar 2 palabras atrás (re-lecturas) y hasta 30 palabras adelante (saltos de frase o buffer largo de voz)
+    const minText = Math.max(0, baseIndex - 2);
+    const maxText = Math.min(this.totalWords - 1, baseIndex + 30);
+
+    let bestAnchor = {
+      textIdx: -1,
+      tokIdx: -1,
+      matchedCount: 0,
+      endTextIdx: baseIndex,
+    };
+
+    // Escanear los primeros tokens para encontrar todos los anclas candidatos y elegir el óptimo
+    const maxTokenAnchorScan = Math.min(tokens.length, startTokIdx + 5);
+
+    for (let t = startTokIdx; t < maxTokenAnchorScan; t++) {
+      const tok = tokens[t];
+      if (this.isFiller(tok)) continue;
+
+      for (let w = minText; w <= maxText; w++) {
+        const directMatch = this.matchTokenAgainstText(w, t, tokens, candidateAlts);
+        if (!directMatch) continue;
+
+        // Simular avance secuencial desde este ancla candidato para calcular su longitud de coincidencia
+        let textPtr = w + directMatch.textWordsAdvanced;
+        let tokPtr = t + directMatch.tokensConsumed;
+        let candidateMatched = directMatch.textWordsAdvanced;
+
+        while (tokPtr < tokens.length && textPtr < this.totalWords) {
+          const match = this.matchTokenAgainstText(textPtr, tokPtr, tokens, candidateAlts);
+          if (match) {
+            textPtr += match.textWordsAdvanced;
+            tokPtr += match.tokensConsumed;
+            candidateMatched += match.textWordsAdvanced;
+            continue;
+          }
+
+          const currentTok = tokens[tokPtr];
+
+          // Muletilla o repetición de la palabra recién leída
+          if (
+            this.isFiller(currentTok) ||
+            (textPtr > 0 && isPhoneticMatch(currentTok, this.words[textPtr - 1]))
+          ) {
+            tokPtr++;
+            continue;
+          }
+
+          // Omisión de palabra corta en el texto (ej. "de", "la", "el", "a", "en")
+          if (
+            textPtr + 1 < this.totalWords &&
+            this.normalizedWords[textPtr].length <= 3 &&
+            isPhoneticMatch(currentTok, this.words[textPtr + 1])
+          ) {
+            textPtr += 2;
+            tokPtr++;
+            candidateMatched += 1;
+            continue;
+          }
+
+          // Sustitución fonética de una sola palabra
+          if (
+            textPtr + 1 < this.totalWords &&
+            tokPtr + 1 < tokens.length &&
+            isPhoneticMatch(tokens[tokPtr + 1], this.words[textPtr + 1])
+          ) {
+            textPtr += 2;
+            tokPtr += 2;
+            candidateMatched += 1;
+            continue;
+          }
+
+          // Discrepancia no recuperable en esta cadena
+          break;
+        }
+
+        // Criterio de validación de ancla según distancia de salto:
+        const jumpDistance = w - baseIndex;
+        let isValid = false;
+
+        if (jumpDistance <= 1) {
+          // En posición actual o paso inmediato (+1)
+          isValid = candidateMatched >= 1;
+        } else if (jumpDistance <= 6) {
+          // Salto moderado (2 a 6 palabras)
+          isValid = candidateMatched >= 2 || this.normalizedWords[w].length >= 5;
+        } else {
+          // Salto amplio (> 6 palabras): exigir al menos 2 palabras en secuencia o 3+ coincidencias
+          isValid = candidateMatched >= 2;
+        }
+
+        if (isValid) {
+          // Seleccionar el ancla que proporcione la mayor cantidad de palabras coincidentes
+          // En caso de empate, preferir el más cercano a baseIndex
+          if (
+            candidateMatched > bestAnchor.matchedCount ||
+            (candidateMatched === bestAnchor.matchedCount &&
+              Math.abs(w - baseIndex) < Math.abs(bestAnchor.textIdx - baseIndex))
+          ) {
+            bestAnchor = {
+              textIdx: w,
+              tokIdx: t,
+              matchedCount: candidateMatched,
+              endTextIdx: textPtr,
+            };
+          }
+        }
+      }
+    }
+
+    if (bestAnchor.matchedCount > 0 && bestAnchor.endTextIdx > baseIndex) {
+      return {
+        targetIndex: Math.min(this.totalWords, bestAnchor.endTextIdx),
+        matchedCount: bestAnchor.matchedCount,
+      };
+    }
+
+    return { targetIndex: baseIndex, matchedCount: 0 };
+  }
+
+  /**
+   * Procesa eventos de tokens con alineación monótona en tiempo real.
    */
   private processSpeechTokens(event: SpeechTokensEvent): void {
     if (this.currentWordIndex >= this.totalWords) return;
@@ -128,149 +310,42 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     const interimTokens = event.interimTokens || [];
     const candidateAlts = event.candidateAlts || [];
 
-    // 1. Procesar tokens finales confirmados (permanentes, inmutables)
-    while (this.consumedFinalTokensIndex < finalTokens.length && this.confirmedWordIndex < this.totalWords) {
-      const match = this.matchTokenAgainstText(
+    // 1. Procesar nuevos tokens finales confirmados
+    if (finalTokens.length > this.consumedFinalTokensCount) {
+      const newFinalTokens = finalTokens.slice(this.consumedFinalTokensCount);
+      const alignFinal = this.alignTokenSequence(
         this.confirmedWordIndex,
-        this.consumedFinalTokensIndex,
-        finalTokens,
+        newFinalTokens,
         candidateAlts
       );
-
-      if (match) {
-        this.confirmedWordIndex += match.textWordsAdvanced;
-        this.consumedFinalTokensIndex += match.tokensConsumed;
-        continue;
+      if (alignFinal.matchedCount > 0) {
+        this.confirmedWordIndex = Math.max(this.confirmedWordIndex, alignFinal.targetIndex);
       }
-
-      const token = finalTokens[this.consumedFinalTokensIndex];
-
-      // A. Muletilla o vacilación ("eh", "um", "ah", etc.)
-      if (this.isFiller(token) && normalizeSpanishWord(this.words[this.confirmedWordIndex]) !== 'este') {
-        this.consumedFinalTokensIndex++;
-        continue;
-      }
-
-      // B. Relectura o autocorrección (el alumno repite una palabra previa para corregirse)
-      if (this.confirmedWordIndex > 0 && isPhoneticMatch(token, this.words[this.confirmedWordIndex - 1])) {
-        this.consumedFinalTokensIndex++;
-        continue;
-      }
-
-      // C. Bloqueo de confirmación de dos palabras (Two-Word Confirmation Lock):
-      // Si el alumno verdaderamente se saltó 1 palabra en el texto, SOLO se permite avanzar
-      // si este token coincide con la palabra siguiente Y el token posterior coincide con la subsiguiente.
-      // Jamás se salta una palabra por un solo token aislado (evita falsos saltos accidentales).
-      if (
-        this.confirmedWordIndex + 2 <= this.totalWords &&
-        this.consumedFinalTokensIndex + 1 < finalTokens.length &&
-        isPhoneticMatch(token, this.words[this.confirmedWordIndex + 1]) &&
-        isPhoneticMatch(finalTokens[this.consumedFinalTokensIndex + 1], this.words[this.confirmedWordIndex + 2])
-      ) {
-        this.confirmedWordIndex += 2;
-        this.consumedFinalTokensIndex += 2;
-        continue;
-      }
-
-      // D. Token de ruido o distorsión acústica: consumir token y esperar al audio del alumno.
-      // El cursor SE MANTIENE FIRME en la palabra actual, sin saltarse palabras.
-      this.consumedFinalTokensIndex++;
+      this.consumedFinalTokensCount = finalTokens.length;
     }
 
-    // 2. Procesar tokens provisionales (interim) usando ventana deslizante dinámica con ancla acústica
+    // 2. Procesar tokens provisionales (interim) en tiempo real (<50ms)
     let tentativeWordIndex = this.confirmedWordIndex;
-
-    if (interimTokens.length > 0 && this.confirmedWordIndex < this.totalWords) {
-      let firstInterimIdx = 0;
-      while (firstInterimIdx < interimTokens.length && this.isFiller(interimTokens[firstInterimIdx])) {
-        firstInterimIdx++;
-      }
-
-      if (firstInterimIdx < interimTokens.length) {
-        // Ventana de búsqueda de ancla centrada alrededor del punto más avanzado (confirmado o actual)
-        const baseIdx = Math.max(this.confirmedWordIndex, this.currentWordIndex);
-        const searchMin = Math.max(0, baseIdx - 2);
-        const searchMax = Math.min(this.totalWords - 1, baseIdx + 3);
-
-        let bestAnchorTextIdx = -1;
-        let bestAnchorTokenIdx = -1;
-        let bestAdvance = 0;
-
-        for (let targetIdx = searchMin; targetIdx <= searchMax; targetIdx++) {
-          const match = this.matchTokenAgainstText(
-            targetIdx,
-            firstInterimIdx,
-            interimTokens,
-            candidateAlts
-          );
-
-          if (match) {
-            // Si el ancla se adelanta a la base, exigir confirmación de salto seguro
-            if (targetIdx > baseIdx) {
-              const skippedWord = normalizeSpanishWord(this.words[baseIdx]);
-              const isShortWord = skippedWord.length <= 3;
-              const hasNextInterimMatch =
-                firstInterimIdx + match.tokensConsumed < interimTokens.length &&
-                targetIdx + match.textWordsAdvanced < this.totalWords &&
-                Boolean(
-                  this.matchTokenAgainstText(
-                    targetIdx + match.textWordsAdvanced,
-                    firstInterimIdx + match.tokensConsumed,
-                    interimTokens,
-                    candidateAlts
-                  )
-                );
-
-              if (!isShortWord && !hasNextInterimMatch) {
-                continue;
-              }
-            }
-
-            bestAnchorTextIdx = targetIdx;
-            bestAnchorTokenIdx = firstInterimIdx;
-            bestAdvance = match.textWordsAdvanced;
-            break;
-          }
-        }
-
-        // Si encontramos un ancla acústica válida, avanzar linealmente el resto de tokens interinos
-        if (bestAnchorTextIdx !== -1) {
-          let textPtr = bestAnchorTextIdx + bestAdvance;
-          let tokenPtr = bestAnchorTokenIdx + 1;
-
-          while (tokenPtr < interimTokens.length && textPtr < this.totalWords) {
-            const match = this.matchTokenAgainstText(
-              textPtr,
-              tokenPtr,
-              interimTokens,
-              candidateAlts
-            );
-
-            if (match) {
-              textPtr += match.textWordsAdvanced;
-              tokenPtr += match.tokensConsumed;
-            } else {
-              const itoken = interimTokens[tokenPtr];
-              if (
-                this.isFiller(itoken) ||
-                (textPtr > 0 && isPhoneticMatch(itoken, this.words[textPtr - 1]))
-              ) {
-                tokenPtr++;
-              } else {
-                break;
-              }
-            }
-          }
-
-          tentativeWordIndex = Math.max(tentativeWordIndex, textPtr);
-        }
+    if (interimTokens.length > 0) {
+      this.liveSpokenText = interimTokens.join(' ');
+      const baseSearch = Math.max(
+        this.confirmedWordIndex,
+        Math.min(this.currentWordIndex, this.confirmedWordIndex + 2)
+      );
+      const alignInterim = this.alignTokenSequence(
+        baseSearch,
+        interimTokens,
+        candidateAlts
+      );
+      if (alignInterim.matchedCount > 0) {
+        tentativeWordIndex = Math.max(tentativeWordIndex, alignInterim.targetIndex);
       }
     }
 
-    // 3. Monotonicidad estricta: el cursor visual avanza fluidamente y jamás retrocede
-    this.currentWordIndex = Math.max(
-      this.currentWordIndex,
-      Math.max(this.confirmedWordIndex, tentativeWordIndex)
+    // 3. Monotonicidad estricta: avanzar sin saltos abruptos ni retrocesos
+    this.currentWordIndex = Math.min(
+      this.totalWords,
+      Math.max(this.currentWordIndex, Math.max(this.confirmedWordIndex, tentativeWordIndex))
     );
 
     // 4. Avance visual y efectos sonoros
@@ -314,9 +389,20 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
 
     const token = tokens[tokenIdx];
     const target = this.words[targetIdx];
+    const normToken = normalizeSpanishWord(token);
+    const normTarget = this.normalizedWords[targetIdx];
 
     // 1. Coincidencia directa fonética y ortográfica
     if (isPhoneticMatch(token, target)) {
+      return { textWordsAdvanced: 1, tokensConsumed: 1 };
+    }
+
+    // 1b. Coincidencia de prefijo para palabras en curso (ej. "bosq" <-> "bosque")
+    if (
+      normToken.length >= 4 &&
+      normTarget.length >= 4 &&
+      (normTarget.startsWith(normToken) || normToken.startsWith(normTarget))
+    ) {
       return { textWordsAdvanced: 1, tokensConsumed: 1 };
     }
 
@@ -334,21 +420,21 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     if (targetIdx + 1 < this.totalWords) {
       const nextTarget = this.words[targetIdx + 1];
       const combinedTarget = target + nextTarget;
-      const normToken = normalizeSpanishWord(token);
-      const normTarget = normalizeSpanishWord(target);
-      const normNext = normalizeSpanishWord(nextTarget);
+      const normNext = this.normalizedWords[targetIdx + 1];
 
       if (
         isPhoneticMatch(token, combinedTarget) ||
         isPhoneticMatch(token, `${target} ${nextTarget}`) ||
         (normToken === 'del' && normTarget === 'de' && normNext === 'el') ||
-        (normToken === 'al' && normTarget === 'a' && normNext === 'el')
+        (normToken === 'al' && normTarget === 'a' && normNext === 'el') ||
+        (normToken === 'dela' && normTarget === 'de' && normNext === 'la') ||
+        (normToken === 'alas' && normTarget === 'a' && normNext === 'las')
       ) {
         return { textWordsAdvanced: 2, tokensConsumed: 1 };
       }
     }
 
-    // 4. Palabra compuesta o tildada dividida en dos tokens por el reconocedor
+    // 4. Palabra compuesta o dividida en dos tokens por el reconocedor
     // ej. "tan" + "bien" -> "también", "a" + "donde" -> "adonde"
     if (tokenIdx + 1 < tokens.length) {
       const combinedSpoken = token + tokens[tokenIdx + 1];
@@ -379,7 +465,8 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     this.micError = null;
     this.currentWordIndex = 0;
     this.confirmedWordIndex = 0;
-    this.consumedFinalTokensIndex = 0;
+    this.consumedFinalTokensCount = 0;
+    this.liveSpokenText = '';
     this.secondsElapsed = 0;
     this.currentWpm = 0;
     this.startTimer();
@@ -438,7 +525,8 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     this.stopNarrator();
     this.currentWordIndex = 0;
     this.confirmedWordIndex = 0;
-    this.consumedFinalTokensIndex = 0;
+    this.consumedFinalTokensCount = 0;
+    this.liveSpokenText = '';
     this.secondsElapsed = 0;
     this.currentWpm = 0;
     this.isRecording = false;
@@ -596,6 +684,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
 
     this.finalResult = {
       readingId: this.reading.id,
+      readingTitle: this.reading.title,
       studentId: this.studentId,
       wpm: calculatedWpm,
       accuracy: this.quizScore,

@@ -1245,6 +1245,313 @@
   .readings-grid {
     grid-template-columns: 1fr;
   }
+  .stages-admin-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================
+ * GESTOR DE ETAPAS LITERARIAS (Pestaña Docente / Administrador)
+ * ========================================================== */
+.stages-manager-card {
+  background: #FFFFFF;
+  border-radius: 1.25rem;
+  border: 1px solid #E2E8F0;
+  padding: 1.75rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.stages-manager-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.stages-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1C2D5A;
+  margin: 0 0 0.35rem 0;
+}
+
+.stages-subtitle {
+  color: #64748B;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 720px;
+}
+
+.stages-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.stage-admin-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-top-width: 5px;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  position: relative;
+}
+
+.stage-admin-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  border-color: #CBD5E1;
+}
+
+.stage-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.85rem;
+}
+
+.stage-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.stage-pill-num {
+  color: #FFFFFF;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.stage-pill-levels {
+  background: #F1F5F9;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #E2E8F0;
+}
+
+.stage-pill-color-indicator {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 0 0 1px #CBD5E1;
+  flex-shrink: 0;
+}
+
+.stage-card-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1E293B;
+  margin: 0 0 0.35rem 0;
+  line-height: 1.35;
+}
+
+.stage-card-sub {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #004AAD;
+  margin-bottom: 0.75rem;
+}
+
+.stage-card-desc {
+  font-size: 0.84rem;
+  color: #475569;
+  line-height: 1.55;
+  margin: 0 0 1.2rem 0;
+  flex-grow: 1;
+}
+
+.stage-card-meta-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 0.75rem;
+  padding: 0.85rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stage-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+}
+
+.meta-label {
+  color: #64748B;
+  font-weight: 600;
+}
+
+.meta-badge-val {
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.meta-chest-val {
+  color: #1E293B;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stage-rewards-pills {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed #E2E8F0;
+}
+
+.pill-reward-xp {
+  background: #EFF6FF;
+  color: #1D4ED8;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid #DBEAFE;
+}
+
+.pill-reward-coins {
+  background: #FEF3C7;
+  color: #B45309;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid #FDE68A;
+}
+
+.stage-card-actions {
+  display: flex;
+  gap: 0.65rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid #F1F5F9;
+}
+
+.btn-stage-edit {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  color: #004AAD;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-stage-edit:hover {
+  background: #DBEAFE;
+  border-color: #004AAD;
+}
+
+.btn-stage-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  color: #DC2626;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-stage-delete:hover {
+  background: #FEE2E2;
+  border-color: #DC2626;
+}
+
+/* Modal Mediano para Etapas */
+.modal-dialog-medium {
+  background: #FFFFFF;
+  border-radius: 1.25rem;
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  border: 1px solid #E2E8F0;
+  animation: modalScaleIn 0.25s ease-out;
+}
+
+.color-preset-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  padding: 6px 0;
+}
+
+.color-preset-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 0 0 1.5px #CBD5E1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.color-preset-btn:hover {
+  transform: scale(1.15);
+}
+
+.color-preset-btn.color-selected {
+  box-shadow: 0 0 0 3px #004AAD;
+  transform: scale(1.1);
+}
+
+.custom-color-input {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: none;
+}
+
+.color-val-preview {
+  font-size: 0.85rem;
+  font-weight: 800;
+  font-family: monospace;
+  margin-left: 4px;
 }
 
 

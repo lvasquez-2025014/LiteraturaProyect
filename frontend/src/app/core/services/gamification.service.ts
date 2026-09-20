@@ -124,7 +124,7 @@ export class GamificationService {
         current: 1,
         rewardXp: 40,
         rewardCoins: 15,
-        completed: true,
+        completed: isAdmin ? true : completedToday,
         claimed: isAdmin ? true : claimed.includes('mission-daily-read'),
       },
       {
@@ -136,7 +136,7 @@ export class GamificationService {
         current: 1,
         rewardXp: 50,
         rewardCoins: 20,
-        completed: true,
+        completed: isAdmin ? true : wpmGoal,
         claimed: isAdmin ? true : claimed.includes('mission-wpm-boost'),
       },
       {
@@ -148,7 +148,7 @@ export class GamificationService {
         current: 1,
         rewardXp: 60,
         rewardCoins: 25,
-        completed: true,
+        completed: isAdmin ? true : compGoal,
         claimed: isAdmin ? true : claimed.includes('mission-comp-master'),
       },
     ];

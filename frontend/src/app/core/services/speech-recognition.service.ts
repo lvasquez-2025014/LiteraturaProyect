@@ -3,6 +3,8 @@ import { Injectable, NgZone, inject } from '@angular/core';
 export interface SpeechRecognitionState {
   isListening: boolean;
   isPaused: boolean;
+  isMicReady: boolean;
+  isAudioActive: boolean;
   transcript: string;
   interimTranscript: string;
   wordsSpokenCount: number;
@@ -17,6 +19,7 @@ export interface SpeechTokensEvent {
   candidateAlts: string[];
   wordsSpokenCount: number;
   currentWpm: number;
+  isAudioActive?: boolean;
 }
 
 /**
@@ -151,6 +154,7 @@ export function toPhoneticKey(word: string): string {
     .replace(/c(?=[ei])/g, 's')
     .replace(/z/g, 's')
     .replace(/c(?=[aou])/g, 'k')
+    .replace(/c(?=[^aeious])/g, 'k')
     .replace(/c$/g, 'k')
     .replace(/g(?=[ei])/g, 'j')
     .replace(/x/g, 's')
@@ -249,6 +253,8 @@ export class SpeechRecognitionService {
   private recognition: any = null;
   private isListening = false;
   private isPaused = false;
+  private isMicReady = false;
+  private isAudioActive = false;
   private fullTranscript = '';
   private interimTranscript = '';
   private accumulatedFinalTokens: string[] = [];
@@ -300,12 +306,69 @@ export class SpeechRecognitionService {
           this.recognition.continuous = true;
           this.recognition.interimResults = true;
           this.recognition.maxAlternatives = 5;
-          // 'es-419' (Español de Latinoamérica) proporciona el modelo ASR con el léxico literario más amplio
-          // en los servidores de voz de Google/Chrome, reduciendo sustituciones coloquiales no deseadas
-          this.recognition.lang = 'es-419';
+
+          // Priorizar modelo ASR para Guatemala y Latinoamérica ('es-GT' / 'es-419')
+          const navLang = typeof navigator !== 'undefined' && navigator.language ? navigator.language : '';
+          if (navLang.toLowerCase().startsWith('es')) {
+            this.recognition.lang = navLang;
+          } else {
+            this.recognition.lang = 'es-GT';
+          }
+
+          // Eventos de ciclo de vida del audio para retroalimentación visual en vivo
+          this.recognition.onstart = () => {
+            this.ngZone.run(() => {
+              this.isMicReady = true;
+              this.emitUpdate();
+            });
+          };
+
+          this.recognition.onaudiostart = () => {
+            this.ngZone.run(() => {
+              this.isMicReady = true;
+              this.isAudioActive = true;
+              this.emitUpdate();
+            });
+          };
+
+          this.recognition.onsoundstart = () => {
+            this.ngZone.run(() => {
+              this.isAudioActive = true;
+              this.emitUpdate();
+            });
+          };
+
+          this.recognition.onspeechstart = () => {
+            this.ngZone.run(() => {
+              this.isAudioActive = true;
+              this.emitUpdate();
+            });
+          };
+
+          this.recognition.onspeechend = () => {
+            this.ngZone.run(() => {
+              this.isAudioActive = false;
+              this.emitUpdate();
+            });
+          };
+
+          this.recognition.onsoundend = () => {
+            this.ngZone.run(() => {
+              this.isAudioActive = false;
+              this.emitUpdate();
+            });
+          };
+
+          this.recognition.onaudioend = () => {
+            this.ngZone.run(() => {
+              this.isAudioActive = false;
+              this.emitUpdate();
+            });
+          };
 
           this.recognition.onresult = (event: any) => {
             this.ngZone.run(() => {
+              this.isAudioActive = true;
               if (event.resultIndex !== this.lastResultIndex) {
                 this.lastResultIndex = event.resultIndex;
                 this.utteranceCounter++;
@@ -357,6 +420,7 @@ export class SpeechRecognitionService {
                   candidateAlts,
                   wordsSpokenCount: allFinalTokens.length + interimTokens.length,
                   currentWpm,
+                  isAudioActive: this.isAudioActive,
                 });
               }
 
@@ -370,6 +434,8 @@ export class SpeechRecognitionService {
                 this.onStateChange({
                   isListening: this.isListening,
                   isPaused: this.isPaused,
+                  isMicReady: this.isMicReady,
+                  isAudioActive: this.isAudioActive,
                   transcript: (this.fullTranscript + ' ' + this.interimTranscript).trim(),
                   interimTranscript: this.interimTranscript,
                   wordsSpokenCount: allFinalTokens.length + interimTokens.length,
@@ -465,6 +531,8 @@ export class SpeechRecognitionService {
     this.pauseTimestamp = null;
     this.isListening = true;
     this.isPaused = false;
+    this.isMicReady = false;
+    this.isAudioActive = false;
     this.utteranceCounter = 0;
     this.lastResultIndex = -1;
     if (this.restartTimeout) {
@@ -492,6 +560,7 @@ export class SpeechRecognitionService {
   public pause(): void {
     if (!this.isListening || this.isPaused) return;
     this.isPaused = true;
+    this.isAudioActive = false;
     this.pauseTimestamp = Date.now();
     if (this.restartTimeout) {
       clearTimeout(this.restartTimeout);
@@ -531,6 +600,8 @@ export class SpeechRecognitionService {
   public stop(): void {
     this.isListening = false;
     this.isPaused = false;
+    this.isMicReady = false;
+    this.isAudioActive = false;
     this.isAssistedMode = false;
     if (this.restartTimeout) {
       clearTimeout(this.restartTimeout);
@@ -805,6 +876,8 @@ export class SpeechRecognitionService {
       this.onStateChange({
         isListening: this.isListening,
         isPaused: this.isPaused,
+        isMicReady: this.isMicReady,
+        isAudioActive: this.isAudioActive,
         transcript: combined,
         interimTranscript: this.interimTranscript,
         wordsSpokenCount: words.length,

@@ -10,6 +10,7 @@ export interface Question {
 
 export interface RoadmapStage {
   id: number;
+  stageNumber?: number;
   title: string;
   subtitle: string;
   startLevel: number;
@@ -21,6 +22,7 @@ export interface RoadmapStage {
   rewardXp: number;
   rewardCoins: number;
   milestoneTitle: string;
+  _id?: string;
 }
 
 export const ROADMAP_STAGES: RoadmapStage[] = [
@@ -120,6 +122,7 @@ export interface Reading {
 
 export interface ReadingAttemptResult {
   readingId: string;
+  readingTitle?: string;
   studentId: string;
   wpm: number;
   accuracy: number;
@@ -138,4 +141,7 @@ export interface StudentPerformance {
   status: 'Destacado' | 'En Progreso' | 'Atención Requerida';
   weeklyHistory: { week: string; wpm: number; comprehension: number }[];
   recentReadings: { title: string; date: string; wpm: number; score: number }[];
+  trendLabel?: string;
+  trendDirection?: 'up' | 'down' | 'neutral';
+  pedagogicalNote?: string;
 }

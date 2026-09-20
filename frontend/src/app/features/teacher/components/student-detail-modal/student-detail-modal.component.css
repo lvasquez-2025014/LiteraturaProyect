@@ -242,6 +242,36 @@
   border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
+.trend-badge.trend-down {
+  color: #dc2626;
+  background: #fef2f2;
+  border-color: rgba(220, 38, 38, 0.2);
+}
+
+.trend-badge.trend-neutral {
+  color: #475569;
+  background: #f1f5f9;
+  border-color: rgba(100, 116, 139, 0.2);
+}
+
+.empty-chart-note,
+.empty-history-box {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  background: #ffffff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 0.875rem;
+  color: #64748b;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  margin: 0.5rem 0;
+}
+
+.empty-history-box p {
+  margin: 0;
+  font-weight: 500;
+}
+
 .trend-arrow {
   font-size: 0.65rem;
 }
