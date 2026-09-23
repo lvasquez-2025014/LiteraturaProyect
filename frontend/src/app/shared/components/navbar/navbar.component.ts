@@ -1,69 +1,221 @@
-import { Component, inject, HostListener } from '@angular/core';
+import { Component, inject, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, NavigationEnd } from '@angular/router';
+import { filter, Subscription } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
-import { DockComponent, DockItemConfig } from '../dock/dock.component';
+import {
+  BranchedMenuComponent,
+  BranchedMenuItem,
+  BranchedMenuChild,
+} from '../branched-menu/branched-menu.component';
+import {
+  DashboardSquare01Icon,
+  Book02Icon,
+  UserGroupIcon,
+  Rocket01Icon,
+  StarIcon,
+  CrownIcon,
+  Award01Icon,
+} from '@hugeicons/core-free-icons';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, DockComponent],
+  imports: [CommonModule, RouterLink, BranchedMenuComponent],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css',
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit, OnDestroy {
   auth = inject(AuthService);
-  isUserMenuOpen = false;
+  private router = inject(Router);
+  private navSub?: Subscription;
 
-  toggleUserMenu(): void {
-    this.isUserMenuOpen = !this.isUserMenuOpen;
+  isMobileMenuOpen = false;
+  currentActiveItem: string = '';
+
+  ngOnInit() {
+    this.updateActiveItemFromUrl(this.router.url);
+    this.navSub = this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event) => {
+        this.updateActiveItemFromUrl(event.urlAfterRedirects || event.url);
+        this.closeMobileMenu();
+      });
   }
 
-  closeUserMenu(): void {
-    this.isUserMenuOpen = false;
+  ngOnDestroy() {
+    this.navSub?.unsubscribe();
+  }
+
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen = false;
   }
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
-    this.closeUserMenu();
+    this.closeMobileMenu();
   }
 
   get user() {
     return this.auth.currentUserSignal();
   }
 
-  get dockItems(): DockItemConfig[] {
+  get branchedMenuItems(): BranchedMenuItem[] {
     const role = this.user?.role;
-    if (role !== 'ADMIN_ROLE' && role !== 'TEACHER_ROLE') {
-      return [];
-    }
-
-    const items: DockItemConfig[] = [];
 
     if (role === 'ADMIN_ROLE') {
-      items.push({
-        id: 'admin',
-        label: 'Admin',
-        route: '/admin',
-        icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>`,
-      });
+      return [
+        {
+          label: 'Portales de Acceso',
+          children: [
+            {
+              value: 'admin',
+              label: 'Panel Administrador',
+              icon: DashboardSquare01Icon,
+              route: '/admin',
+            },
+            {
+              value: 'teacher',
+              label: 'Portal Docente',
+              icon: Book02Icon,
+              route: '/profesor',
+            },
+            {
+              value: 'student',
+              label: 'Aventura Estudiante',
+              icon: Rocket01Icon,
+              route: '/estudiante',
+            },
+          ],
+        },
+        {
+          label: 'Gestión Institucional',
+          children: [
+            {
+              value: 'users',
+              label: 'Cuentas & Roles',
+              icon: UserGroupIcon,
+              route: '/admin',
+            },
+            {
+              value: 'readings',
+              label: 'Catálogo de Lecturas',
+              icon: Book02Icon,
+              route: '/profesor?tab=readings',
+            },
+          ],
+        },
+      ];
     }
 
-    items.push({
-      id: 'teacher',
-      label: 'Docente',
-      route: '/profesor',
-      icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`,
-    });
+    if (role === 'TEACHER_ROLE') {
+      return [
+        {
+          label: 'Portal Docente',
+          children: [
+            {
+              value: 'students',
+              label: 'Rendimiento Alumnos',
+              icon: UserGroupIcon,
+              route: '/profesor?tab=students',
+            },
+            {
+              value: 'readings',
+              label: 'Catálogo de Lecturas',
+              icon: Book02Icon,
+              route: '/profesor?tab=readings',
+            },
+            {
+              value: 'stages',
+              label: 'Rutas & Etapas',
+              icon: Award01Icon,
+              route: '/profesor?tab=stages',
+            },
+          ],
+        },
+        {
+          label: 'Navegación Alumno',
+          children: [
+            {
+              value: 'adventure',
+              label: 'Ver Modo Aventura',
+              icon: Rocket01Icon,
+              route: '/estudiante',
+            },
+          ],
+        },
+      ];
+    }
 
-    items.push({
-      id: 'student',
-      label: 'Aventura',
-      route: '/estudiante',
-      icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>`,
-    });
+    // STUDENT_ROLE (o por defecto)
+    return [
+      {
+        label: 'Mi Aventura Lectora',
+        children: [
+          {
+            value: 'roadmap',
+            label: 'Mapa de Rutas',
+            icon: Rocket01Icon,
+            route: '/estudiante?tab=roadmap',
+          },
+          {
+            value: 'rewards',
+            label: 'Centro Recompensas',
+            icon: StarIcon,
+            route: '/estudiante?tab=rewards',
+          },
+          {
+            value: 'leaderboard',
+            label: 'Tabla de Posiciones',
+            icon: CrownIcon,
+            route: '/estudiante?tab=leaderboard',
+          },
+          {
+            value: 'achievements',
+            label: 'Mis Logros & Trofeos',
+            icon: Award01Icon,
+            route: '/estudiante?tab=achievements',
+          },
+        ],
+      },
+    ];
+  }
 
-    return items;
+  private updateActiveItemFromUrl(url: string) {
+    if (url.startsWith('/admin')) {
+      this.currentActiveItem = 'admin';
+    } else if (url.startsWith('/profesor')) {
+      if (url.includes('tab=readings')) {
+        this.currentActiveItem = 'readings';
+      } else if (url.includes('tab=stages')) {
+        this.currentActiveItem = 'stages';
+      } else {
+        this.currentActiveItem = this.user?.role === 'ADMIN_ROLE' ? 'teacher' : 'students';
+      }
+    } else if (url.startsWith('/estudiante')) {
+      if (url.includes('tab=rewards')) {
+        this.currentActiveItem = 'rewards';
+      } else if (url.includes('tab=leaderboard')) {
+        this.currentActiveItem = 'leaderboard';
+      } else if (url.includes('tab=achievements')) {
+        this.currentActiveItem = 'achievements';
+      } else {
+        this.currentActiveItem = this.user?.role === 'STUDENT_ROLE' ? 'roadmap' : 'student';
+      }
+    }
+  }
+
+  onMenuSelect(event: { value: string; item: BranchedMenuItem | BranchedMenuChild }) {
+    this.currentActiveItem = event.value;
+    const targetRoute = event.item.route;
+    if (targetRoute) {
+      this.router.navigateByUrl(targetRoute);
+    }
+    this.closeMobileMenu();
   }
 
   get coins(): number {
@@ -110,28 +262,27 @@ export class NavbarComponent {
 
   getRoleLabel(role?: string): string {
     switch (role) {
-      case 'ADMIN_ROLE': return 'Administrador';
-      case 'TEACHER_ROLE': return 'Profesor';
-      case 'STUDENT_ROLE': return 'Estudiante';
-      default: return '';
-    }
-  }
-
-  getShortRoleLabel(role?: string): string {
-    switch (role) {
-      case 'ADMIN_ROLE': return 'Admin';
-      case 'TEACHER_ROLE': return 'Docente';
-      case 'STUDENT_ROLE': return 'Alumno';
-      default: return '';
+      case 'ADMIN_ROLE':
+        return 'Administrador';
+      case 'TEACHER_ROLE':
+        return 'Profesor';
+      case 'STUDENT_ROLE':
+        return 'Estudiante';
+      default:
+        return '';
     }
   }
 
   getRoleClass(role?: string): string {
     switch (role) {
-      case 'ADMIN_ROLE': return 'badge-admin';
-      case 'TEACHER_ROLE': return 'badge-teacher';
-      case 'STUDENT_ROLE': return 'badge-student';
-      default: return '';
+      case 'ADMIN_ROLE':
+        return 'badge-admin';
+      case 'TEACHER_ROLE':
+        return 'badge-teacher';
+      case 'STUDENT_ROLE':
+        return 'badge-student';
+      default:
+        return '';
     }
   }
 
@@ -143,7 +294,7 @@ export class NavbarComponent {
   }
 
   logout(): void {
-    this.closeUserMenu();
+    this.closeMobileMenu();
     this.auth.logout();
   }
 }

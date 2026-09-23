@@ -1,183 +1,167 @@
-<header class="navbar-header">
-  <div class="navbar-container">
-    <!-- Brand / Logo -->
-    <a routerLink="/" class="brand" title="Inicio - Proyecto Literatura">
+<!-- Barra Superior Móvil (Pantallas pequeñas < 992px) -->
+<header class="mobile-top-bar">
+  <button
+    type="button"
+    class="mobile-menu-btn"
+    (click)="toggleMobileMenu()"
+    aria-label="Abrir menú de navegación"
+    [attr.aria-expanded]="isMobileMenuOpen"
+  >
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </button>
+
+  <a routerLink="/" class="mobile-brand" (click)="closeMobileMenu()">
+    <img src="/logo.png" alt="Proyecto Literatura" class="mobile-brand-logo" />
+    <span class="mobile-brand-title">Proyecto <span class="accent">Literatura</span></span>
+  </a>
+
+  <div class="mobile-user-actions" *ngIf="user as u">
+    <button (click)="logout()" class="mobile-logout-btn" title="Cerrar sesión" aria-label="Cerrar sesión">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+        <polyline points="16 17 21 12 16 7"></polyline>
+        <line x1="21" y1="12" x2="9" y2="12"></line>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<!-- Backdrop para Móvil -->
+<div
+  class="sidebar-backdrop"
+  *ngIf="isMobileMenuOpen"
+  (click)="closeMobileMenu()"
+  aria-hidden="true"
+></div>
+
+<!-- Barra de Navegación Lateral Izquierda (Sidebar) -->
+<aside class="app-sidebar" [class.is-open]="isMobileMenuOpen" aria-label="Navegación principal">
+  
+  <!-- Encabezado / Logo Institucional -->
+  <div class="sidebar-header">
+    <a routerLink="/" class="sidebar-brand" (click)="closeMobileMenu()">
       <div class="brand-icon">
         <img src="/logo.png" alt="Proyecto Literatura" class="brand-logo-img" />
       </div>
-      <div class="brand-text">
+      <div class="brand-info">
         <span class="brand-title">
-          <span class="brand-prefix">Proyecto </span><span class="brand-accent">Literatura</span>
+          <span>Proyecto </span><span class="brand-accent">Literatura</span>
         </span>
-        <span class="brand-tag">Comprensión & Velocidad Lectora</span>
+        <span class="brand-tag">Comprensión & Velocidad</span>
       </div>
     </a>
 
-    <!-- Conmutador Interactivo estilo macOS Dock para Portales -->
-    <app-dock
-      *ngIf="dockItems.length > 0"
-      [items]="dockItems"
-      [baseItemSize]="36"
-      [magnification]="48"
-      [distance]="110"
-      [panelHeight]="42"
-      labelPosition="bottom"
-      layout="inline"
-      ariaLabel="Portales de navegación del sistema"
-    ></app-dock>
+    <button
+      type="button"
+      class="sidebar-close-btn"
+      (click)="closeMobileMenu()"
+      aria-label="Cerrar menú"
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
 
-    <!-- User Information & Stats -->
-    <div class="user-actions" *ngIf="user as u">
-
-      <!-- Gamification pills for students, teachers and admin (compact on mobile) -->
-      <div class="gamification-pills" *ngIf="u.role === 'STUDENT_ROLE' || u.role === 'ADMIN_ROLE' || u.role === 'TEACHER_ROLE'">
-        <!-- Streak -->
-        <div class="pill pill-streak" title="Racha de días leyendo">
-          <span class="pill-icon">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2.2">
-              <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
-            </svg>
-          </span>
-          <span class="pill-value">{{ streakDays }}</span>
-          <span class="pill-unit">días</span>
-        </div>
-
-        <!-- XP -->
-        <div class="pill pill-xp" title="Puntos de Experiencia (XP)">
-          <span class="pill-icon">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.2">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-            </svg>
-          </span>
-          <span class="pill-value">{{ formatStat(totalXp) }}</span>
-          <span class="pill-unit">XP</span>
-        </div>
-
-        <!-- Level -->
-        <div class="pill pill-level" title="Nivel del lector">
-          <span class="pill-icon">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="#2563eb" stroke="#2563eb" stroke-width="2">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-            </svg>
-          </span>
-          <span class="pill-value"><span class="level-prefix">Nvl. </span>{{ currentLevel }}</span>
-        </div>
-
-        <!-- Coins -->
-        <div class="pill pill-coins" title="Monedas de Sabiduría">
-          <span class="pill-icon">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2.2">
-              <circle cx="12" cy="12" r="9"></circle>
-              <path d="M12 7v10"></path>
-              <path d="M9 9h6"></path>
-              <path d="M9 15h6"></path>
-            </svg>
-          </span>
-          <span class="pill-value">{{ formatStat(coins) }}</span>
-          <span class="pill-unit">Monedas</span>
-        </div>
-      </div>
-
-      <!-- Role Badge (Desktop and Mobile) -->
-      <span class="badge" [ngClass]="getRoleClass(u.role)" title="Rol en la plataforma">
-        <span class="badge-full">{{ getRoleLabel(u.role) }}</span>
-        <span class="badge-short">{{ getShortRoleLabel(u.role) }}</span>
-      </span>
-
-      <!-- User Profile Box & Dropdown Trigger -->
-      <div class="user-profile-container">
-        <button type="button" class="user-profile-btn" (click)="toggleUserMenu()" [attr.aria-expanded]="isUserMenuOpen" title="Menú de perfil y estadísticas">
-          <div class="avatar-circle" [ngClass]="equippedFrame">
-            <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" [alt]="u.name" class="avatar-img" />
-            <span *ngIf="!u.avatarUrl" class="avatar-initial">{{ u.name ? u.name.charAt(0).toUpperCase() : 'E' }}</span>
-          </div>
-          <div class="user-details">
-            <div class="name-with-title">
-              <span class="user-name">{{ u.name }}</span>
-              <span *ngIf="equippedTitle" class="user-title-tag">{{ equippedTitle }}</span>
-            </div>
-            <span class="user-sub">{{ u.grade ? u.grade + ' "' + (u.section || 'A') + '"' : u.email }}</span>
-          </div>
-        </button>
-
-        <!-- Dropdown Menu Overlay / Backdrop -->
-        <div class="dropdown-backdrop" *ngIf="isUserMenuOpen" (click)="closeUserMenu()"></div>
-
-        <!-- Dropdown Card -->
-        <div class="dropdown-menu-card" *ngIf="isUserMenuOpen">
-          <div class="dropdown-header">
-            <div class="avatar-circle" [ngClass]="equippedFrame">
-              <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" [alt]="u.name" class="avatar-img" />
-              <span *ngIf="!u.avatarUrl" class="avatar-initial">{{ u.name ? u.name.charAt(0).toUpperCase() : 'E' }}</span>
-            </div>
-            <div class="dropdown-user-meta">
-              <span class="dropdown-user-name">{{ u.name }}</span>
-              <span class="dropdown-user-email">{{ u.email }}</span>
-              <span class="badge" [ngClass]="getRoleClass(u.role)">{{ getRoleLabel(u.role) }}</span>
-            </div>
-          </div>
-
-          <!-- Stats inside menu on mobile -->
-          <div class="dropdown-stats-grid" *ngIf="u.role === 'STUDENT_ROLE' || u.role === 'ADMIN_ROLE'">
-            <div class="dropdown-stat-card">
-              <span class="stat-num">{{ streakDays }} 🔥</span>
-              <span class="stat-lbl">Días de racha</span>
-            </div>
-            <div class="dropdown-stat-card">
-              <span class="stat-num">{{ totalXp }} ⚡</span>
-              <span class="stat-lbl">Puntos XP</span>
-            </div>
-            <div class="dropdown-stat-card">
-              <span class="stat-num">{{ currentLevel }} ⭐</span>
-              <span class="stat-lbl">Nivel actual</span>
-            </div>
-            <div class="dropdown-stat-card">
-              <span class="stat-num">{{ coins }} 🪙</span>
-              <span class="stat-lbl">Monedas</span>
-            </div>
-          </div>
-
-          <!-- Portal Links for Admin & Teacher inside dropdown -->
-          <div class="dropdown-portal-links" *ngIf="u.role === 'ADMIN_ROLE' || u.role === 'TEACHER_ROLE'">
-            <div class="dropdown-section-title">Navegación de Portales</div>
-            <a *ngIf="u.role === 'ADMIN_ROLE'" routerLink="/admin" (click)="closeUserMenu()" class="dropdown-nav-item" routerLinkActive="active">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
-              <span>Panel de Administración</span>
-            </a>
-            <a routerLink="/profesor" (click)="closeUserMenu()" class="dropdown-nav-item" routerLinkActive="active">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-              <span>Portal de Profesores</span>
-            </a>
-            <a routerLink="/estudiante" (click)="closeUserMenu()" class="dropdown-nav-item" routerLinkActive="active">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
-              <span>Aventura de Estudiantes</span>
-            </a>
-          </div>
-
-          <!-- Logout Button inside dropdown menu -->
-          <div class="dropdown-footer">
-            <button (click)="logout()" class="dropdown-logout-btn">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                <polyline points="16 17 21 12 16 7"></polyline>
-                <line x1="21" y1="12" x2="9" y2="12"></line>
-              </svg>
-              <span>Cerrar Sesión</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- BOTÓN PRINCIPAL DE CERRAR SESIÓN (SIEMPRE VISIBLE Y ACCESIBLE) -->
-      <button (click)="logout()" class="btn-logout" title="Cerrar sesión" aria-label="Cerrar sesión">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-          <polyline points="16 17 21 12 16 7"></polyline>
-          <line x1="21" y1="12" x2="9" y2="12"></line>
-        </svg>
-        <span class="logout-text">Salir</span>
-      </button>
-
+  <!-- Rol Activo Badge -->
+  <div class="sidebar-role-container" *ngIf="user as u">
+    <div class="role-badge" [ngClass]="getRoleClass(u.role)">
+      <span class="role-dot"></span>
+      <span class="role-text">{{ getRoleLabel(u.role) }}</span>
     </div>
   </div>
-</header>
+
+  <!-- Menú Ramificado Interactivo (BranchedMenu de React Bits) -->
+  <div class="sidebar-nav-scroll">
+    <app-branched-menu
+      [items]="branchedMenuItems"
+      [defaultOpen]="[0, 1]"
+      [defaultActive]="currentActiveItem"
+      [color]="'#f1f5f9'"
+      [accentColor]="'#f36f21'"
+      [lineColor]="'#334155'"
+      [width]="236"
+      [rowHeight]="38"
+      [indent]="36"
+      [trunk]="14"
+      [radius]="10"
+      [lineWidth]="1.5"
+      [fontSize]="13.5"
+      [drawDuration]="400"
+      [foldDuration]="300"
+      (selectItem)="onMenuSelect($event)"
+    ></app-branched-menu>
+  </div>
+
+  <!-- Métricas Rápidas de Gamificación -->
+  <div class="sidebar-gamification" *ngIf="user as u">
+    <div class="gamification-grid">
+      <!-- Racha -->
+      <div class="metric-item metric-streak" title="Racha de lectura">
+        <span class="metric-icon">🔥</span>
+        <div class="metric-meta">
+          <span class="metric-val">{{ streakDays }}</span>
+          <span class="metric-lbl">días</span>
+        </div>
+      </div>
+
+      <!-- XP -->
+      <div class="metric-item metric-xp" title="Puntos XP">
+        <span class="metric-icon">⚡</span>
+        <div class="metric-meta">
+          <span class="metric-val">{{ formatStat(totalXp) }}</span>
+          <span class="metric-lbl">XP</span>
+        </div>
+      </div>
+
+      <!-- Nivel -->
+      <div class="metric-item metric-level" title="Nivel del lector">
+        <span class="metric-icon">⭐</span>
+        <div class="metric-meta">
+          <span class="metric-val">Nvl {{ currentLevel }}</span>
+          <span class="metric-lbl">Rango</span>
+        </div>
+      </div>
+
+      <!-- Monedas -->
+      <div class="metric-item metric-coins" title="Monedas acumuladas">
+        <span class="metric-icon">🪙</span>
+        <div class="metric-meta">
+          <span class="metric-val">{{ formatStat(coins) }}</span>
+          <span class="metric-lbl">Monedas</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pie de Sidebar: Perfil de Usuario y Logout -->
+  <div class="sidebar-footer" *ngIf="user as u">
+    <div class="user-profile-row">
+      <div class="avatar-circle" [ngClass]="equippedFrame">
+        <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" [alt]="u.name" class="avatar-img" />
+        <span *ngIf="!u.avatarUrl" class="avatar-initial">{{ u.name ? u.name.charAt(0).toUpperCase() : 'U' }}</span>
+      </div>
+
+      <div class="user-info">
+        <span class="user-name" [title]="u.name">{{ u.name }}</span>
+        <span class="user-sub">{{ u.grade ? u.grade + ' "' + (u.section || 'A') + '"' : u.email }}</span>
+      </div>
+    </div>
+
+    <!-- Botón de Cerrar Sesión -->
+    <button (click)="logout()" class="sidebar-logout-btn" title="Cerrar sesión actual">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+        <polyline points="16 17 21 12 16 7"></polyline>
+        <line x1="21" y1="12" x2="9" y2="12"></line>
+      </svg>
+      <span>Cerrar Sesión</span>
+    </button>
+  </div>
+
+</aside>

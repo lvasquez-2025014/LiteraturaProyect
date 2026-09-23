@@ -2,6 +2,7 @@ import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
 import { NavbarComponent } from '../../../../shared/components/navbar/navbar.component';
 import { AuthService } from '../../../../core/services/auth.service';
 import { User, KINAL_GRADE_LEVELS, KINAL_CAREERS, KINAL_SECTIONS, isPeritoGrade } from '../../../../core/models/user.model';
@@ -25,6 +26,7 @@ export class TeacherDashboardComponent implements OnInit {
 
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
+  private route = inject(ActivatedRoute);
 
   auth = inject(AuthService);
   readingsService = inject(ReadingsService);
@@ -98,6 +100,14 @@ export class TeacherDashboardComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.route.queryParams.subscribe((params) => {
+      const tab = params['tab'];
+      if (tab && ['students', 'readings', 'stages'].includes(tab)) {
+        this.activeTab = tab as 'students' | 'readings' | 'stages';
+        this.cdr.markForCheck();
+      }
+    });
+
     this.loadStudents();
     this.loadReadings();
     this.loadStages();

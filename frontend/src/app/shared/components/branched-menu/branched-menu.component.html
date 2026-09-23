@@ -1,0 +1,117 @@
+<nav
+  #navRef
+  class="branched-menu"
+  [class]="className"
+  [style.--bm-w]="width + 'px'"
+  [style.--bm-ink]="color"
+  [style.--bm-accent]="accentColor"
+  [style.--bm-line]="lineColor"
+  [style.--bm-font]="fontSize + 'px'"
+  [style.--bm-row]="rowHeight + 'px'"
+  [style.--bm-indent]="indent + 'px'"
+  [style.--bm-line-w]="lineWidth"
+  [style.--bm-draw]="drawDuration + 'ms'"
+  [style.--bm-fold]="foldDuration + 'ms'"
+>
+  <span #markerRef class="branched-menu__marker" aria-hidden="true"></span>
+
+  @for (item of items; track item.value || item.label; let i = $index) {
+    @let kids = item.children;
+    @let isSectionOpen = kids ? isOpen(i) : false;
+    @let leafValue = item.value ?? item.label;
+    @let leafActive = !kids && leafValue === active;
+    @let bodyH = kids ? calcBodyHeight(kids.length) : 0;
+
+    <div class="branched-menu__section" [attr.data-open]="isSectionOpen ? '' : null">
+      <button
+        #headBtn
+        type="button"
+        class="branched-menu__head"
+        [attr.aria-expanded]="kids ? isSectionOpen : null"
+        [attr.aria-current]="leafActive ? 'true' : null"
+        [attr.data-active]="leafActive ? '' : null"
+        (click)="kids ? toggle(i) : select(leafValue, item)"
+      >
+        <span class="branched-menu__head-content">
+          @if (item.icon) {
+            <span class="branched-menu__icon" aria-hidden="true">
+              @if (isIconTupleArray(item.icon)) {
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  @for (shape of item.icon; track shape[1].key || $index) {
+                    @if (shape[0] === 'path') {
+                      <path [attr.d]="shape[1].d" [attr.stroke]="shape[1].stroke || 'currentColor'" [attr.stroke-width]="shape[1]['stroke-width'] || shape[1]['strokeWidth'] || '1.8'" [attr.stroke-linecap]="shape[1]['stroke-linecap'] || shape[1]['strokeLinecap'] || 'round'" [attr.stroke-linejoin]="shape[1]['stroke-linejoin'] || shape[1]['strokeLinejoin'] || 'round'" [attr.fill]="shape[1].fill || 'none'"></path>
+                    } @else if (shape[0] === 'circle') {
+                      <circle [attr.cx]="shape[1].cx" [attr.cy]="shape[1].cy" [attr.r]="shape[1].r" [attr.stroke]="shape[1].stroke || 'currentColor'" [attr.fill]="shape[1].fill || 'none'"></circle>
+                    }
+                  }
+                </svg>
+              } @else if (isSvgString(item.icon)) {
+                <span [innerHTML]="getSafeSvg(item.icon)"></span>
+              }
+            </span>
+          }
+          <span class="branched-menu__head-label">{{ item.label }}</span>
+        </span>
+        @if (item.badge) {
+          <span class="branched-menu__badge">{{ item.badge }}</span>
+        }
+      </button>
+
+      @if (kids) {
+        <div class="branched-menu__body">
+          <div class="branched-menu__fold">
+            <div class="branched-menu__tree" [style.height.px]="bodyH">
+              <svg class="branched-menu__lines" [attr.width]="indent" [attr.height]="bodyH" aria-hidden="true">
+                <path class="branched-menu__base" [attr.d]="calcBasePath(kids.length)" />
+                @for (kid of kids; track kid.value; let k = $index) {
+                  <path class="branched-menu__base" [attr.d]="calcBranchPath(k)" />
+                }
+                @for (kid of kids; track kid.value; let k = $index) {
+                  <path
+                    class="branched-menu__reach"
+                    [attr.d]="calcReachPath(k)"
+                    [style.strokeDasharray]="calcLength(k)"
+                    [style.strokeDashoffset]="kid.value === active ? 0 : calcLength(k)"
+                  />
+                }
+              </svg>
+
+              @for (kid of kids; track kid.value) {
+                <button
+                  type="button"
+                  class="branched-menu__item"
+                  [attr.aria-current]="kid.value === active ? 'true' : null"
+                  [attr.data-active]="kid.value === active ? '' : null"
+                  [attr.tabindex]="isSectionOpen ? 0 : -1"
+                  (click)="select(kid.value, kid)"
+                >
+                  @if (kid.icon) {
+                    <span class="branched-menu__icon" aria-hidden="true">
+                      @if (isIconTupleArray(kid.icon)) {
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                          @for (shape of kid.icon; track shape[1].key || $index) {
+                            @if (shape[0] === 'path') {
+                              <path [attr.d]="shape[1].d" [attr.stroke]="shape[1].stroke || 'currentColor'" [attr.stroke-width]="shape[1]['stroke-width'] || shape[1]['strokeWidth'] || '1.8'" [attr.stroke-linecap]="shape[1]['stroke-linecap'] || shape[1]['strokeLinecap'] || 'round'" [attr.stroke-linejoin]="shape[1]['stroke-linejoin'] || shape[1]['strokeLinejoin'] || 'round'" [attr.fill]="shape[1].fill || 'none'"></path>
+                            } @else if (shape[0] === 'circle') {
+                              <circle [attr.cx]="shape[1].cx" [attr.cy]="shape[1].cy" [attr.r]="shape[1].r" [attr.stroke]="shape[1].stroke || 'currentColor'" [attr.fill]="shape[1].fill || 'none'"></circle>
+                            }
+                          }
+                        </svg>
+                      } @else if (isSvgString(kid.icon)) {
+                        <span [innerHTML]="getSafeSvg(kid.icon)"></span>
+                      }
+                    </span>
+                  }
+                  <span class="branched-menu__label">{{ kid.label }}</span>
+                  @if (kid.badge) {
+                    <span class="branched-menu__badge">{{ kid.badge }}</span>
+                  }
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</nav>

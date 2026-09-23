@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal, ChangeDetectorRef } from '@angular/c
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { NavbarComponent } from '../../../../shared/components/navbar/navbar.component';
 import { AuthService } from '../../../../core/services/auth.service';
 import { GamificationService } from '../../../../core/services/gamification.service';
@@ -47,6 +48,7 @@ export class StudentHomeComponent implements OnInit {
   private readingsService = inject(ReadingsService);
   private cdr = inject(ChangeDetectorRef);
   private http = inject(HttpClient);
+  private route = inject(ActivatedRoute);
 
   readings: Reading[] = [...KINAL_READINGS];
   activeReading: Reading | null = null;
@@ -186,6 +188,15 @@ export class StudentHomeComponent implements OnInit {
   ngOnInit(): void {
     this.initOnboardingFields();
     this.syncReadingsWithLevel();
+
+    this.route.queryParams.subscribe((params) => {
+      const tab = params['tab'];
+      if (tab && ['roadmap', 'rewards', 'achievements', 'leaderboard'].includes(tab)) {
+        this.activeTab.set(tab as 'roadmap' | 'rewards' | 'achievements' | 'leaderboard');
+        this.cdr.markForCheck();
+      }
+    });
+
     this.readingsService.getReadings().subscribe({
       next: (dbReadings) => {
         if (dbReadings && dbReadings.length > 0) {
