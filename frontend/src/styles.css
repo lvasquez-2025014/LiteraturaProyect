@@ -1,16 +1,16 @@
 /* ==========================================================
-   FUNDACIÓN KINAL - PALETA INSTITUCIONAL Y SISTEMA DE DISEÑO
+   PALETA INSTITUCIONAL Y SISTEMA DE DISEÑO
    ========================================================== */
 
 :root {
-  /* Colores Corporativos Kinal */
+  /* Colores Corporativos */
   --kinal-blue: #004aad;          /* Azul Cobalto Institucional */
   --kinal-blue-hover: #003b8a;
   --kinal-dark-blue: #1c2d5a;     /* Azul Marino Profundo */
   --kinal-light-blue: #e8eeff;
   --kinal-blue-glow: rgba(0, 74, 173, 0.25);
 
-  --kinal-orange: #f36f21;        /* Naranja Llama Kinal */
+  --kinal-orange: #f36f21;        /* Naranja Fervor Institucional */
   --kinal-orange-hover: #d8570c;
   --kinal-orange-light: #fff4ed;
   --kinal-orange-glow: rgba(243, 111, 33, 0.25);
@@ -125,7 +125,7 @@ button, input, select, textarea {
   border: 1px solid #cbd5e1;
 }
 
-/* Botones con identidad Kinal */
+/* Botones Institucionales */
 .btn {
   display: inline-flex;
   align-items: center;

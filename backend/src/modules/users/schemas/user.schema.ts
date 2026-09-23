@@ -27,8 +27,8 @@ export interface UserDocument {
   _id?: ObjectId;
   googleId?: string;
   email: string;
-  institutionalEmail?: string; // Correo institucional Kinal (ej. 2025014@kinal.edu.gt)
-  carnet?: string;             // Número de carnet de estudiante Kinal (ej. 2025014)
+  institutionalEmail?: string; // Correo institucional (ej. 2025014@institucion.edu)
+  carnet?: string;             // Número de carnet de estudiante (ej. 2025014)
   password?: string;
   name: string;
   avatarUrl?: string;
@@ -36,7 +36,7 @@ export interface UserDocument {
   grade?: string;      // ej. "5to Perito", "4to Bachillerato"
   section?: string;    // ej. "A", "B"
   stats: UserStats;
-  coins?: number;                    // Monedas de Sabiduría Kinal
+  coins?: number;                    // Monedas de Sabiduría
   equippedTitle?: string;            // Título honorífico activo (ej. 'Cadete de las Letras')
   equippedFrame?: string;            // Marco cosmético activo (ej. 'frame-gold')
   unlockedAchievements?: string[];   // Lista de IDs de logros desbloqueados

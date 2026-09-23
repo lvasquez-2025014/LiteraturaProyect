@@ -61,7 +61,7 @@ export class NavbarComponent {
 
   get equippedTitle(): string {
     if (this.auth.isAdmin()) {
-      return this.user?.equippedTitle || 'Ingeniero Humanista Kinal';
+      return this.user?.equippedTitle || 'Lector Destacado';
     }
     return this.user?.equippedTitle || 'Cadete de las Letras';
   }

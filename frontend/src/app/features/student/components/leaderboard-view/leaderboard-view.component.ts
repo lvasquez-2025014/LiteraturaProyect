@@ -86,7 +86,7 @@ export class LeaderboardViewComponent implements OnInit {
         averageWpm: 172,
         comprehensionRate: 94,
         streakDays: 9,
-        equippedTitle: 'Ingeniero Humanista Kinal',
+        equippedTitle: 'Lector Destacado',
         equippedFrame: 'frame-gold',
       },
       {
@@ -122,7 +122,7 @@ export class LeaderboardViewComponent implements OnInit {
       {
         rank: 4,
         id: current?.id || 'usr-me',
-        name: current?.name || 'Estudiante Kinal Activo',
+        name: current?.name || 'Estudiante Activo',
         avatarUrl: current?.avatarUrl || '',
         grade: current?.grade || '5to Bachillerato en Computación',
         section: current?.section || 'A',

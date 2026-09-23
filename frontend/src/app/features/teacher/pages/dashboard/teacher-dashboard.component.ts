@@ -67,8 +67,8 @@ export class TeacherDashboardComponent implements OnInit {
     targetWpm: 150,
     xpReward: 100,
     difficulty: 'Intermedio' as 'Básico' | 'Intermedio' | 'Avanzado',
-    author: 'Docente Kinal',
-    pedagogicalSource: 'MINEDUC / Plan Lector Kinal',
+    author: 'Cuerpo Docente',
+    pedagogicalSource: 'Plan Lector / Literatura',
     content: '',
     questions: [
       {
@@ -345,8 +345,8 @@ export class TeacherDashboardComponent implements OnInit {
       targetWpm: 150,
       xpReward: 120,
       difficulty: 'Intermedio',
-      author: 'Docente Kinal',
-      pedagogicalSource: 'MINEDUC / Plan Lector Kinal',
+      author: 'Cuerpo Docente',
+      pedagogicalSource: 'Plan Lector / Literatura',
       content: '',
       questions: [
         {
@@ -372,8 +372,8 @@ export class TeacherDashboardComponent implements OnInit {
       targetWpm: reading.targetWpm,
       xpReward: reading.xpReward || 100,
       difficulty: reading.difficulty || 'Intermedio',
-      author: reading.author || 'Docente Kinal',
-      pedagogicalSource: reading.pedagogicalSource || 'MINEDUC / Plan Lector Kinal',
+      author: reading.author || 'Cuerpo Docente',
+      pedagogicalSource: reading.pedagogicalSource || 'Plan Lector / Literatura',
       content: reading.content,
       questions: reading.questions && reading.questions.length > 0
         ? JSON.parse(JSON.stringify(reading.questions))
@@ -528,7 +528,7 @@ export class TeacherDashboardComponent implements OnInit {
   };
 
   readonly stageColorPresets = [
-    { name: 'Azul Kinal', value: '#004AAD' },
+    { name: 'Azul Cobalto', value: '#004AAD' },
     { name: 'Esmeralda', value: '#059669' },
     { name: 'Ámbar', value: '#D97706' },
     { name: 'Púrpura', value: '#7C3AED' },
@@ -614,7 +614,7 @@ export class TeacherDashboardComponent implements OnInit {
       totalLevels,
       description: this.stageFormData.description.trim(),
       themeColor: this.stageFormData.themeColor || '#004AAD',
-      badge: this.stageFormData.badge.trim() || 'Lector Kinal',
+      badge: this.stageFormData.badge.trim() || 'Gran Lector',
       rewardXp: Number(this.stageFormData.rewardXp) || 250,
       rewardCoins: Number(this.stageFormData.rewardCoins) || 100,
       milestoneTitle: this.stageFormData.milestoneTitle.trim() || `Cofre de la Etapa ${this.stageFormData.stageNumber}`,

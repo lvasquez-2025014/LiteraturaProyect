@@ -44,7 +44,7 @@ export class GamificationService {
   // Título y Marco activos
   readonly equippedTitle = computed(() => {
     if (this.currentUser()?.role === 'ADMIN_ROLE') {
-      return this.currentUser()?.equippedTitle || 'Ingeniero Humanista Kinal';
+      return this.currentUser()?.equippedTitle || 'Lector Destacado';
     }
     return this.currentUser()?.equippedTitle || 'Cadete de las Letras';
   });
@@ -129,7 +129,7 @@ export class GamificationService {
       },
       {
         id: 'mission-wpm-boost',
-        title: 'Impulso de Velocidad Kinal',
+        title: 'Impulso de Velocidad',
         description: 'Mantén un ritmo promedio superior o igual a 130 PPM.',
         icon: 'zap',
         target: 1,

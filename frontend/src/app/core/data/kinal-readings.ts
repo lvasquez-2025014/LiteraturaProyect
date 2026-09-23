@@ -10,7 +10,7 @@ export const KINAL_READINGS: Reading[] = [
     targetWpm: 120,
     xpReward: 120,
     difficulty: 'Básico',
-    author: 'Tradición Pedagógica Kinal',
+    author: 'Tradición Pedagógica',
     pedagogicalSource: 'MINEDUC Guatemala — Programa Nacional de Lectura "Leamos Juntos"',
     competencies: ['Fluidez verbal', 'Comprensión literal', 'Educación ambiental y servicio'],
     vocabulary: [
@@ -444,12 +444,12 @@ export const KINAL_READINGS: Reading[] = [
     id: 'lec-04',
     level: 4,
     title: 'Código y Algoritmos: La Chispa Binaria',
-    genre: 'Ciencia y Tecnología Kinal',
+    genre: 'Ciencia y Tecnología',
     targetWpm: 155,
     xpReward: 180,
     difficulty: 'Intermedio',
-    author: 'Área Técnica Kinal',
-    pedagogicalSource: 'Fundación Kinal — Formación Vocacional y Pensamiento Algorítmico',
+    author: 'Área Técnica',
+    pedagogicalSource: 'Formación Vocacional y Pensamiento Algorítmico',
     competencies: ['Pensamiento lógico-matemático', 'Ética profesional', 'Vocabulario tecnológico'],
     vocabulary: [
       { word: 'algoritmo', meaning: 'Conjunto ordenado y finito de operaciones que permite hallar la solución a un problema.' },
@@ -1024,7 +1024,7 @@ export const KINAL_READINGS: Reading[] = [
     targetWpm: 190,
     xpReward: 260,
     difficulty: 'Avanzado',
-    author: 'Divulgación Científica Kinal',
+    author: 'Divulgación Científica',
     pedagogicalSource: 'Revista de Divulgación Científica y Tecnológica — Fronteras de la Nanociencia',
     competencies: ['Comprensión científica avanzada', 'Innovación sustentable', 'Física y nanotecnología aplicada'],
     vocabulary: [
@@ -1308,12 +1308,12 @@ export const KINAL_READINGS: Reading[] = [
     id: 'lec-10',
     level: 10,
     title: 'Hombres de Maíz: La Gran Epopeya del Trabajo Técnico',
-    genre: 'Literatura y Técnica Kinal',
+    genre: 'Literatura y Humanidades',
     targetWpm: 210,
     xpReward: 300,
     difficulty: 'Avanzado',
-    author: 'Cátedra Mayor de Humanidades Kinal',
-    pedagogicalSource: 'Fundación Kinal — Cátedra Mayor de Humanidades, Vocación Técnica y Trascendencia Social',
+    author: 'Cátedra Mayor de Humanidades',
+    pedagogicalSource: 'Cátedra Mayor de Humanidades, Vocación Técnica y Trascendencia Social',
     competencies: ['Comprensión sintética y valorativa', 'Ética profesional y vocacional', 'Identidad cultural y servicio ciudadano'],
     vocabulary: [
       { word: 'cosmovisión', meaning: 'Manera de ver e interpretar el mundo y la existencia que tiene una cultura o pueblo.' },
@@ -1323,7 +1323,7 @@ export const KINAL_READINGS: Reading[] = [
     estimatedMinutes: 4,
     unlocked: false,
     completed: false,
-    content: `En la cosmovisión maya, el ser humano no fue forjado del metal frío ni de la piedra estéril, sino de la harina fecunda del maíz amasada con sudor, pensamiento y esperanza. Esta herencia milenaria cobra vida hoy en las aulas, talleres y laboratorios de Fundación Kinal, donde la destreza técnica se hermana indisolublemente con la formación humana y la dignidad del trabajo bien realizado. El verdadero maestro técnico no es aquel que se conforma con dominar los instrumentos de su oficio, sino quien comprende que cada circuito ensamblado, cada línea de software depurada y cada motor ajustado son expresiones concretas de servicio a la familia y a la patria. Alcanzar este décimo nivel no es el final de una ruta, sino el umbral de una vida profesional caracterizada por la excelencia académica, la rectitud ética y el amor inquebrantable a Guatemala.`,
+    content: `En la cosmovisión maya, el ser humano no fue forjado del metal frío ni de la piedra estéril, sino de la harina fecunda del maíz amasada con sudor, pensamiento y esperanza. Esta herencia milenaria cobra vida hoy en las aulas, talleres y laboratorios de formación integral, donde la destreza técnica se hermana indisolublemente con la formación humana y la dignidad del trabajo bien realizado. El verdadero maestro técnico no es aquel que se conforma con dominar los instrumentos de su oficio, sino quien comprende que cada circuito ensamblado, cada línea de software depurada y cada motor ajustado son expresiones concretas de servicio a la familia y a la patria. Alcanzar este décimo nivel no es el final de una ruta, sino el umbral de una vida profesional caracterizada por la excelencia académica, la rectitud ética y el amor inquebrantable a Guatemala.`,
     wordCount: 147,
     questions: [
           {
@@ -1343,12 +1343,12 @@ export const KINAL_READINGS: Reading[] = [
                 "prompt": "¿Dónde cobra vida hoy esta herencia milenaria según el texto de culminación?",
                 "options": [
                       "En los museos arqueológicos cerrados",
-                      "En las aulas, talleres y laboratorios de Fundación Kinal",
+                      "En las aulas, talleres y laboratorios de formación integral",
                       "En las oficinas financieras del extranjero",
                       "En los campos de batalla históricos"
                 ],
                 "correctIndex": 1,
-                "explanation": "El texto señala que esta herencia de dignidad y trabajo florece en los talleres y laboratorios de Kinal."
+                "explanation": "El texto señala que esta herencia de dignidad y trabajo florece en los talleres y laboratorios de formación integral."
           },
           {
                 "id": "q10-3",
@@ -1360,7 +1360,7 @@ export const KINAL_READINGS: Reading[] = [
                       "Con el desprecio hacia las letras y la filosofía"
                 ],
                 "correctIndex": 1,
-                "explanation": "En Kinal la excelencia técnica va indisolublemente unida a la formación ética y humana."
+                "explanation": "La excelencia técnica va indisolublemente unida a la formación ética y humana."
           },
           {
                 "id": "q10-4",
@@ -1436,7 +1436,7 @@ export const KINAL_READINGS: Reading[] = [
           },
           {
                 "id": "q10-10",
-                "prompt": "¿Cuál es el mensaje final para el estudiante de Kinal que culmina esta etapa?",
+                "prompt": "¿Cuál es el mensaje final para el estudiante que culmina esta etapa?",
                 "options": [
                       "Que el talento sin ética carece de valor, y que el compromiso con Guatemala empieza en cada labor diaria",
                       "Que ya ha aprendido todo lo que existe en el mundo técnico",
@@ -1604,7 +1604,7 @@ export const KINAL_READINGS: Reading[] = [
     "xpReward": 170,
     "difficulty": "Intermedio",
     "author": "Crónicas del Valle de Panchoy",
-    "pedagogicalSource": "Fundación Kinal — Humanidades y Sentido del Tiempo",
+    "pedagogicalSource": "Humanidades y Sentido del Tiempo",
     "competencies": [
       "Gestión del tiempo",
       "Paciencia y minuciosidad técnica",
@@ -2547,12 +2547,12 @@ export const KINAL_READINGS: Reading[] = [
   {
     "id": "lec-26",
     "level": 26,
-    "title": "La Balada del Hormigo y la Marimba Kinal",
+    "title": "La Balada del Hormigo y la Marimba Nacional",
     "genre": "Música y Patrimonio Nacional",
     "targetWpm": 208,
     "xpReward": 245,
     "difficulty": "Avanzado",
-    "author": "Cátedra de Arte y Musicología Kinal",
+    "author": "Cátedra de Arte y Musicología",
     "pedagogicalSource": "Conservatorio Nacional de Música \"Germán Alcántara\"",
     "competencies": [
       "Identidad sonora nacional",
@@ -2576,7 +2576,7 @@ export const KINAL_READINGS: Reading[] = [
     "estimatedMinutes": 3,
     "unlocked": false,
     "completed": false,
-    "content": "En las manos diestras del ebanista, la madera rojiza del árbol de hormigo se convierte en teclado musical capaz de hacer vibrar el alma de toda una nación. Cada tecla debe cepillarse con precisión milimétrica para que su tono resuene afinado sobre los resonadores de madera de cedro. Cuando los jóvenes marimbistas de Fundación Kinal interpretan al unísono las notas de \"Luna de Xelajú\", no solo ejecutan una partitura: demuestran que la armonía social se alcanza cuando cada individuo afina sus destrezas con rigor y las coordina al compás solidario de sus hermanos.",
+    "content": "En las manos diestras del ebanista, la madera rojiza del árbol de hormigo se convierte en teclado musical capaz de hacer vibrar el alma de toda una nación. Cada tecla debe cepillarse con precisión milimétrica para que su tono resuene afinado sobre los resonadores de madera de cedro. Cuando los jóvenes marimbistas interpretan al unísono las notas de \"Luna de Xelajú\", no solo ejecutan una partitura: demuestran que la armonía social se alcanza cuando cada individuo afina sus destrezas con rigor y las coordina al compás solidario de sus hermanos.",
     "wordCount": 94,
     "questions": [
       {
@@ -2766,13 +2766,13 @@ export const KINAL_READINGS: Reading[] = [
   {
     "id": "lec-29",
     "level": 29,
-    "title": "El Manifiesto Humanista del Técnico Kinal",
+    "title": "El Manifiesto Humanista del Técnico Profesional",
     "genre": "Ética y Vocación de Servicio",
     "targetWpm": 218,
     "xpReward": 270,
     "difficulty": "Avanzado",
-    "author": "Cátedra Mayor de Humanidades Kinal",
-    "pedagogicalSource": "Fundación Kinal — Ideario Formativo Institucional",
+    "author": "Cátedra Mayor de Humanidades",
+    "pedagogicalSource": "Ideario Formativo Institucional",
     "competencies": [
       "Ética profesional",
       "Humanización del trabajo técnico",
@@ -2795,12 +2795,12 @@ export const KINAL_READINGS: Reading[] = [
     "estimatedMinutes": 3,
     "unlocked": false,
     "completed": false,
-    "content": "En los talleres y laboratorios de Fundación Kinal, la técnica no es un fin en sí misma, sino el medio noble por el cual el ser humano perfecciona su propia alma y transforma positivamente su comunidad. El auténtico técnico humanista rechaza la frialdad del mecanicismo ciego; comprende que detrás de cada plano de ingeniería, de cada circuito integrado y de cada línea de código computacional palpitan vidas humanas que confían en la seguridad de su labor. Trabajar con honradez es orar con las manos y construir con la mente una patria más justa, solidaria y próspera para todos.",
+    "content": "En las aulas y talleres de formación, la técnica no es un fin en sí misma, sino el medio noble por el cual el ser humano perfecciona su propia alma y transforma positivamente su comunidad. El auténtico técnico humanista rechaza la frialdad del mecanicismo ciego; comprende que detrás de cada plano de ingeniería, de cada circuito integrado y de cada línea de código computacional palpitan vidas humanas que confían en la seguridad de su labor. Trabajar con honradez es orar con las manos y construir con la mente una patria más justa, solidaria y próspera para todos.",
     "wordCount": 97,
     "questions": [
       {
         "id": "q29-1",
-        "prompt": "¿Qué papel desempeña la técnica en la filosofía formativa de Fundación Kinal?",
+        "prompt": "¿Qué papel desempeña la técnica en la filosofía formativa del proyecto formativo?",
         "options": [
           "Un medio noble para perfeccionar el carácter humano y servir comunitariamente",
           "Un mecanismo puramente lucrativo para desplazar a los trabajadores",
@@ -2808,11 +2808,11 @@ export const KINAL_READINGS: Reading[] = [
           "Un pasatiempo exclusivo de laboratorio sin aplicación práctica"
         ],
         "correctIndex": 0,
-        "explanation": "En Kinal la destreza técnica se subordina a la dignidad humana y a la vocación de servicio desinteresado."
+        "explanation": "La destreza técnica se subordina a la dignidad humana y a la vocación de servicio desinteresado."
       },
       {
         "id": "q29-2",
-        "prompt": "¿Qué principio orienta el trabajo de cada profesional graduado de Kinal?",
+        "prompt": "¿Qué principio orienta el trabajo de cada profesional graduado?",
         "options": [
           "Comprender que detrás de cada desarrollo técnico hay seres humanos cuya seguridad depende de su honradez",
           "Reducir costos a cualquier precio sacrificando la calidad de los materiales",
@@ -3136,7 +3136,7 @@ export const KINAL_READINGS: Reading[] = [
     "targetWpm": 230,
     "xpReward": 320,
     "difficulty": "Avanzado",
-    "author": "Cátedra de Lingüística Aplicada Kinal",
+    "author": "Cátedra de Lingüística Aplicada",
     "pedagogicalSource": "Academia Guatemalteca de la Lengua — RAE",
     "competencies": [
       "Enriquecimiento léxico",
@@ -3355,7 +3355,7 @@ export const KINAL_READINGS: Reading[] = [
     "targetWpm": 240,
     "xpReward": 350,
     "difficulty": "Avanzado",
-    "author": "Cátedra de Estética Barroca Kinal",
+    "author": "Cátedra de Estética Barroca",
     "pedagogicalSource": "Patrimonio Sonoro de la Nueva Guatemala — Consejo Nacional de la Cultura",
     "competencies": [
       "Comprensión estética superior",
@@ -3423,13 +3423,13 @@ export const KINAL_READINGS: Reading[] = [
   {
     "id": "lec-38",
     "level": 38,
-    "title": "La Cúspide Kinal: Excelencia Técnica que Trasciende",
+    "title": "La Cúspide de la Lectura: Excelencia Técnica que Trasciende",
     "genre": "Liderazgo, Trascendencia y Futuro",
     "targetWpm": 250,
     "xpReward": 500,
     "difficulty": "Avanzado",
-    "author": "Dirección General y Consejo Directivo Kinal",
-    "pedagogicalSource": "Fundación Kinal — Cúspide del Programa Formativo y Trascendencia Ciudadana",
+    "author": "Dirección General y Consejo Académico",
+    "pedagogicalSource": "Cúspide del Programa Formativo y Trascendencia Ciudadana",
     "competencies": [
       "Liderazgo transformador",
       "Visión prospectiva de futuro",
@@ -3452,7 +3452,7 @@ export const KINAL_READINGS: Reading[] = [
     "estimatedMinutes": 3,
     "unlocked": false,
     "completed": false,
-    "content": "Alcanzar la cima de la trigésima octava lectura es coronar una de las travesías intelectuales y éticas más ambiciosas que un estudiante guatemalteco puede emprender. Desde aquel primer vuelo del quetzal en las nieblas de la Sierra de las Minas hasta este umbral de maestría lectora, cada palabra articulada a más de doscientas cincuenta palabras por minuto ha templado tu atención, ensanchado tu léxico y afinado tu espíritu crítico. Recuerda que el lema de Kinal —\"Excelencia que trasciende\"— no es un eslogan publicitario, sino un mandato sagrado: tu destreza técnica, tu pensamiento reflexivo y tu bondad moral deben convertirse en luz, progreso y esperanza viva para los más necesitados de nuestra amada Guatemala. ¡Adelante con valentía, nobleza y amor constante al prójimo!",
+    "content": "Alcanzar la cima de la trigésima octava lectura es coronar una de las travesías intelectuales y éticas más ambiciosas que un estudiante guatemalteco puede emprender. Desde aquel primer vuelo del quetzal en las nieblas de la Sierra de las Minas hasta este umbral de maestría lectora, cada palabra articulada a más de doscientas cincuenta palabras por minuto ha templado tu atención, ensanchado tu léxico y afinado tu espíritu crítico. Recuerda que el lema —\"Excelencia que trasciende\"— no es un eslogan publicitario, sino un mandato sagrado: tu destreza técnica, tu pensamiento reflexivo y tu bondad moral deben convertirse en luz, progreso y esperanza viva para los más necesitados de nuestra amada Guatemala. ¡Adelante con valentía, nobleza y amor constante al prójimo!",
     "wordCount": 125,
     "questions": [
       {
@@ -3469,7 +3469,7 @@ export const KINAL_READINGS: Reading[] = [
       },
       {
         "id": "q38-2",
-        "prompt": "¿Cuál es el lema institucional fundacional de Kinal que sella el epílogo del programa?",
+        "prompt": "¿Cuál es el lema formativo que sella el epílogo del programa?",
         "options": [
           "\"Excelencia que trasciende\"",
           "\"El más fuerte sobrevive\"",
@@ -3481,7 +3481,7 @@ export const KINAL_READINGS: Reading[] = [
       },
       {
         "id": "q38-3",
-        "prompt": "¿Hacia qué propósito supremo debe orientarse la preparación de los egresados de Kinal?",
+        "prompt": "¿Hacia qué propósito supremo debe orientarse la preparación de los egresados?",
         "options": [
           "Convertirse en luz, progreso y esperanza transformadora para Guatemala y los más vulnerables",
           "Buscar el enriquecimiento personal sin importar las consecuencias colectivas",
@@ -3499,7 +3499,7 @@ export const INITIAL_USERS: User[] = [
   {
     id: 'usr-student-01',
     name: 'Juan Pablo Morales Castillo',
-    email: 'jmorales@kinal.edu.gt',
+    email: 'jmorales@institucion.edu',
     role: 'STUDENT_ROLE',
     avatarUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
     grade: '5to Perito en Computación',
@@ -3517,7 +3517,7 @@ export const INITIAL_USERS: User[] = [
   {
     id: 'usr-teacher-01',
     name: 'Prof. Carlos Eduardo Méndez',
-    email: 'cmendez@kinal.edu.gt',
+    email: 'cmendez@institucion.edu',
     role: 'TEACHER_ROLE',
     avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
     grade: 'Coordinador de Lengua y Literatura',
@@ -3527,11 +3527,11 @@ export const INITIAL_USERS: User[] = [
   {
     id: 'usr-admin-01',
     name: 'Licda. Marcela Estrada',
-    email: 'mestrada@kinal.edu.gt',
+    email: 'mestrada@institucion.edu',
     role: 'ADMIN_ROLE',
     avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
     grade: 'Dirección Académica',
-    section: 'Fundación Kinal',
+    section: 'Dirección General',
     status: 'Activo'
   }
 ];
@@ -3541,7 +3541,7 @@ export const MOCK_STUDENTS_PERFORMANCE: StudentPerformance[] = [
     student: {
       id: 'usr-st-01',
       name: 'Juan Pablo Morales Castillo',
-      email: 'jmorales@kinal.edu.gt',
+      email: 'jmorales@institucion.edu',
       role: 'STUDENT_ROLE',
       avatarUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
       grade: '5to Perito en Computación',
@@ -3577,7 +3577,7 @@ export const MOCK_STUDENTS_PERFORMANCE: StudentPerformance[] = [
     student: {
       id: 'usr-st-02',
       name: 'Diego Alejandro Gómez Vásquez',
-      email: 'dgomez@kinal.edu.gt',
+      email: 'dgomez@institucion.edu',
       role: 'STUDENT_ROLE',
       avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
       grade: '5to Perito en Computación',
@@ -3612,7 +3612,7 @@ export const MOCK_STUDENTS_PERFORMANCE: StudentPerformance[] = [
     student: {
       id: 'usr-st-03',
       name: 'Brandon Josué Hernández López',
-      email: 'bhernandez@kinal.edu.gt',
+      email: 'bhernandez@institucion.edu',
       role: 'STUDENT_ROLE',
       avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
       grade: '5to Perito en Computación',
@@ -3646,7 +3646,7 @@ export const MOCK_STUDENTS_PERFORMANCE: StudentPerformance[] = [
     student: {
       id: 'usr-st-04',
       name: 'Josué Daniel Cabrera Aguilar',
-      email: 'jcabrera@kinal.edu.gt',
+      email: 'jcabrera@institucion.edu',
       role: 'STUDENT_ROLE',
       avatarUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
       grade: '5to Perito en Computación',
@@ -3680,7 +3680,7 @@ export const MOCK_STUDENTS_PERFORMANCE: StudentPerformance[] = [
     student: {
       id: 'usr-st-05',
       name: 'Gabriel Estuardo Álvarez Ortiz',
-      email: 'galvarez@kinal.edu.gt',
+      email: 'galvarez@institucion.edu',
       role: 'STUDENT_ROLE',
       avatarUrl: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=150&auto=format&fit=crop&q=80',
       grade: '4to Bachillerato en Computación',
@@ -3714,7 +3714,7 @@ export const MOCK_STUDENTS_PERFORMANCE: StudentPerformance[] = [
     student: {
       id: 'usr-st-06',
       name: 'Rodrigo Antonio Fuentes Solís',
-      email: 'rfuentes@kinal.edu.gt',
+      email: 'rfuentes@institucion.edu',
       role: 'STUDENT_ROLE',
       avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
       grade: '5to Perito en Electricidad',
@@ -3748,7 +3748,7 @@ export const MOCK_STUDENTS_PERFORMANCE: StudentPerformance[] = [
     student: {
       id: 'usr-st-07',
       name: 'Mario Roberto Paz Quiñónez',
-      email: 'mpaz@kinal.edu.gt',
+      email: 'mpaz@institucion.edu',
       role: 'STUDENT_ROLE',
       avatarUrl: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80',
       grade: '4to Bachillerato en Computación',
@@ -3782,7 +3782,7 @@ export const MOCK_STUDENTS_PERFORMANCE: StudentPerformance[] = [
     student: {
       id: 'usr-st-08',
       name: 'Javier Alejandro Morales Rivas',
-      email: 'jmoralesr@kinal.edu.gt',
+      email: 'jmoralesr@institucion.edu',
       role: 'STUDENT_ROLE',
       avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
       grade: '5to Perito en Mecánica',

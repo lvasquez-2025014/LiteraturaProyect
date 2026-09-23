@@ -224,7 +224,7 @@ export class UsersService {
     if (attempt.wpm >= 130) coinsWon += 10;
     const newCoins = isAdmin ? 99999 : (user.coins || 0) + coinsWon;
 
-    // Desbloqueo progresivo de logros Kinal
+    // Desbloqueo progresivo de logros
     const currentAchievements = new Set(user.unlockedAchievements || ['ach-welcome']);
     if (newCompleted >= 1) currentAchievements.add('ach-first-step');
     if (attempt.wpm >= 140) currentAchievements.add('ach-speed-140');
@@ -420,7 +420,7 @@ export class UsersService {
     const isAdmin = user.role === 'ADMIN_ROLE';
     const currentCoins = isAdmin ? 99999 : (user.coins || 0);
     if (!isAdmin && currentCoins < cost) {
-      return { success: false, message: 'No dispones de suficientes Monedas Kinal' };
+      return { success: false, message: 'No dispones de suficientes Monedas de Sabiduría' };
     }
 
     const newCoins = isAdmin ? 99999 : Math.max(0, currentCoins - cost);

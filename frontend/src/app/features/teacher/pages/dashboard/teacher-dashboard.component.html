@@ -29,7 +29,7 @@
       <div class="cycle-card">
         <span class="cycle-label">Ciclo Escolar</span>
         <span class="cycle-year">2025 - 2026</span>
-        <span class="cycle-brand">Fundación Kinal</span>
+        <span class="cycle-brand">Proyecto Literatura</span>
       </div>
     </div>
 
@@ -58,7 +58,7 @@
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
         </svg>
-        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg> Gestor de Lecturas Kinal ({{ readings.length }})</span>
+        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg> Gestor de Lecturas ({{ readings.length }})</span>
       </button>
 
       <button 
@@ -374,7 +374,7 @@
       </div>
     </ng-container>
 
-    <!-- TAB 2: GESTOR DE LECTURAS KINAL -->
+    <!-- TAB 2: GESTOR DE LECTURAS -->
     <ng-container *ngIf="activeTab === 'readings'">
       <div class="readings-manager-card">
         <div class="readings-manager-header">
@@ -384,7 +384,7 @@
               Administra el contenido que leen los estudiantes en su ruta de fluidez. Cada lectura impacta en el cálculo de PPM y comprensión.
             </p>
           </div>
-          <button type="button" class="btn-primary-kinal" (click)="openCreateReadingModal()">
+          <button type="button" class="btn-primary-action" (click)="openCreateReadingModal()">
             <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none">
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -450,10 +450,10 @@
           <div>
             <h2 class="stages-title">Ruta Pedagógica y Gestión de Etapas</h2>
             <p class="stages-subtitle">
-              Administra las etapas temáticas que agrupan los retos de lectura en el mapa de fluidez de los estudiantes. Cada etapa define hitos formativos, insignias y recompensas de XP y Monedas Kinal.
+              Administra las etapas temáticas que agrupan los retos de lectura en el mapa de fluidez de los estudiantes. Cada etapa define hitos formativos, insignias y recompensas de XP y Monedas de Sabiduría.
             </p>
           </div>
-          <button type="button" class="btn-primary-kinal" (click)="openCreateStageModal()">
+          <button type="button" class="btn-primary-action" (click)="openCreateStageModal()">
             <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none">
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -492,7 +492,7 @@
                 <span class="meta-label">Cofre de Recompensa:</span>
                 <span class="meta-chest-val">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/></svg>
-                  {{ s.milestoneTitle || 'Cofre Kinal' }}
+                  {{ s.milestoneTitle || 'Cofre de Sabiduría' }}
                 </span>
               </div>
 
@@ -724,7 +724,7 @@
             </div>
 
             <div class="form-group flex-1">
-              <label>Monedas Kinal al Completar</label>
+              <label>Monedas de Sabiduría al Completar</label>
               <input type="number" [(ngModel)]="stageFormData.rewardCoins" name="rewardCoins" min="10" max="2000" class="form-input" />
             </div>
 

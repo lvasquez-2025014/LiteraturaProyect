@@ -63,12 +63,12 @@ export interface LeaderboardEntry {
 }
 
 /* =====================================================================
- * CATÁLOGO INSTITUCIONAL DE LOGROS KINAL
+ * CATÁLOGO INSTITUCIONAL DE LOGROS
  * ===================================================================== */
 export const KINAL_ACHIEVEMENTS: Achievement[] = [
   {
     id: 'ach-welcome',
-    title: 'Bienvenido a Kinal Lee',
+    title: 'Bienvenida Lectora',
     description: 'Inicia sesión institucional y activa tu perfil de lector/a.',
     icon: '🎖️',
     category: 'especial',
@@ -140,7 +140,7 @@ export const KINAL_ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'ach-bibliophile',
-    title: 'Bibliófilo Kinal',
+    title: 'Gran Bibliófilo',
     description: 'Supera 5 obras literarias de autores guatemaltecos y clásicos.',
     icon: '📖',
     category: 'constancia',
@@ -159,7 +159,7 @@ export const KINAL_ACHIEVEMENTS: Achievement[] = [
   {
     id: 'ach-coins-200',
     title: 'Tesorero de Sabiduría',
-    description: 'Acumula 200 Monedas Kinal gracias a tu esfuerzo lector.',
+    description: 'Acumula 200 Monedas de Sabiduría gracias a tu esfuerzo lector.',
     icon: '🪙',
     category: 'especial',
     xpReward: 75,
@@ -177,7 +177,7 @@ export const KINAL_ACHIEVEMENTS: Achievement[] = [
 ];
 
 /* =====================================================================
- * LIGAS ESCOLARES KINAL
+ * LIGAS ESCOLARES
  * ===================================================================== */
 export const KINAL_LEAGUES: League[] = [
   {
@@ -204,7 +204,7 @@ export const KINAL_LEAGUES: League[] = [
   },
   {
     id: 'oro',
-    name: 'Liga Oro Kinal',
+    name: 'Liga Oro',
     badge: '🥇',
     minXp: 1200,
     maxXp: 2499,
@@ -253,11 +253,11 @@ export const KINAL_COSMETICS: CosmeticItem[] = [
   },
   {
     id: 'frame-blue',
-    name: 'Aura Azul Cobalto Kinal',
+    name: 'Aura Azul Cobalto',
     type: 'frame',
     icon: '🔷',
     cost: 120,
-    description: 'Resalta tu avatar con el brillo cobalto de Fundación Kinal.',
+    description: 'Resalta tu avatar con el brillo cobalto institucional.',
     previewClass: 'frame-blue',
   },
   {
@@ -327,7 +327,7 @@ export const KINAL_COSMETICS: CosmeticItem[] = [
   },
   {
     id: 'title-ingeniero',
-    name: 'Ingeniero Humanista Kinal',
+    name: 'Lector Destacado',
     type: 'title',
     icon: '🏛️',
     cost: 400,

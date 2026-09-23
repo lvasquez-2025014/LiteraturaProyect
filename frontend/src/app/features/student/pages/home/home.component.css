@@ -478,7 +478,8 @@
   margin-bottom: 1.75rem;
 }
 
-.onboarding-kinal-logo {
+.onboarding-kinal-logo,
+.onboarding-modal-logo {
   width: 60px;
   height: 60px;
   border-radius: 1rem;

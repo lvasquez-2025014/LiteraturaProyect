@@ -820,7 +820,8 @@ app-scroll-velocity {
   margin-bottom: 1.15rem;
 }
 
-.onboarding-kinal-logo {
+.onboarding-kinal-logo,
+.onboarding-modal-logo {
   width: 48px;
   height: 48px;
   border-radius: 0.85rem;

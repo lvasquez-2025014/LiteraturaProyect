@@ -144,7 +144,7 @@ export class RewardsCenterComponent {
 
     // Si tiene costo
     if (this.coins < item.cost) {
-      this.showMessage(`Necesitas ${item.cost} Monedas Kinal (tienes ${this.coins})`);
+      this.showMessage(`Necesitas ${item.cost} Monedas de Sabiduría (tienes ${this.coins})`);
       return;
     }
 

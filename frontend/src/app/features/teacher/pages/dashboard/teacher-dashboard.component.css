@@ -778,7 +778,8 @@
   margin-top: 4px;
 }
 
-.btn-primary-kinal {
+.btn-primary-kinal,
+.btn-primary-action {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -794,7 +795,8 @@
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.btn-primary-kinal:hover {
+.btn-primary-kinal:hover,
+.btn-primary-action:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 25px -4px rgba(243, 111, 33, 0.5);
 }

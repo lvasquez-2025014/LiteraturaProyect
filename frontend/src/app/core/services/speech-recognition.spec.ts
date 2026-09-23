@@ -77,7 +77,7 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
       targetWpm: 120,
       xpReward: 100,
       difficulty: 'Básico',
-      author: 'Kinal',
+      author: 'Editorial',
       pedagogicalSource: 'MINEDUC',
       competencies: ['Fluidez'],
       vocabulary: [],
@@ -271,7 +271,7 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
     it('should seamlessly read through dialogue dashes and typography quotes without freezing', () => {
       const dashReading: Reading = {
         ...mockReading,
-        content: 'Recuerda que el lema de Kinal —"Excelencia que trasciende"— no es un eslogan',
+        content: 'Recuerda que el lema del aula —"Excelencia que trasciende"— no es un eslogan',
         wordCount: 13,
       };
       component.reading = dashReading;
@@ -279,7 +279,7 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
 
       // Leer primera mitad antes de la raya de diálogo
       (component as any).processSpeechTokens({
-        finalTokens: ['recuerda', 'que', 'el', 'lema', 'de', 'kinal'],
+        finalTokens: ['recuerda', 'que', 'el', 'lema', 'del', 'aula'],
         interimTokens: [],
         candidateAlts: [],
         wordsSpokenCount: 6,
@@ -290,7 +290,7 @@ describe('Speech Recognition & Phonetic Alignment Engine', () => {
 
       // Leer a través de la raya de diálogo y comillas
       (component as any).processSpeechTokens({
-        finalTokens: ['recuerda', 'que', 'el', 'lema', 'de', 'kinal', 'excelencia', 'que', 'trasciende'],
+        finalTokens: ['recuerda', 'que', 'el', 'lema', 'del', 'aula', 'excelencia', 'que', 'trasciende'],
         interimTokens: [],
         candidateAlts: [],
         wordsSpokenCount: 9,

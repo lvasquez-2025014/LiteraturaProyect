@@ -266,12 +266,12 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
           if (isStudent && isProfileIncomplete) {
             this.pendingGoogleUser = res.user;
             const googleEmail = res.user.email || '';
-            const isGoogleKinalEmail =
+            const isGoogleInstEmail =
               googleEmail.toLowerCase().endsWith('@kinal.edu.gt') ||
               googleEmail.toLowerCase().endsWith('@kinal.org.gt');
 
             this.inputInstitutionalEmail =
-              res.user.institutionalEmail || (isGoogleKinalEmail ? googleEmail : '');
+              res.user.institutionalEmail || (isGoogleInstEmail ? googleEmail : '');
             this.inputCarnet = res.user.carnet || '';
             
             const parsed = parseGradeLevelAndCareer(res.user.grade);
@@ -299,12 +299,12 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
     const cleanCarnet = this.inputCarnet ? this.inputCarnet.trim() : '';
 
     if (!cleanEmail) {
-      this.onboardingError = 'Por favor, ingresa tu correo institucional de Kinal.';
+      this.onboardingError = 'Por favor, ingresa tu correo institucional.';
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(cleanEmail)) {
-      this.onboardingError = 'Por favor, ingresa un correo institucional válido (ej. 2025014@kinal.edu.gt).';
+      this.onboardingError = 'Por favor, ingresa un correo institucional válido (ej. 2025014@institucion.edu).';
       return;
     }
     if (!cleanCarnet) {
