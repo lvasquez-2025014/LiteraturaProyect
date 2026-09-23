@@ -174,15 +174,14 @@
 
       <div class="onboarding-header">
         <div class="onboarding-kinal-logo">
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none"
             stroke="#004AAD" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
           </svg>
         </div>
         <h2 class="onboarding-title">¡Bienvenido a Kinal Lectura!</h2>
         <p class="onboarding-subtitle">
-          Hola <strong>{{ pendingGoogleUser?.name }}</strong>. Para vincular tu cuenta estudiantil y prepararte tus retos de fluidez,
-          por favor ingresa tus datos institucionales:
+          Hola <strong>{{ pendingGoogleUser?.name }}</strong>. Por favor, completa tus datos para asignarte a tu aula:
         </p>
       </div>
 
@@ -197,69 +196,72 @@
           <span>{{ onboardingError }}</span>
         </div>
 
-        <!-- Paso 1: Correo Institucional -->
-        <div class="onboarding-group">
-          <label for="onboarding-email" class="onboarding-label">
-            <span class="step-circle">1</span>
-            <span>Correo Institucional Kinal *</span>
-          </label>
-          <div class="onboarding-input-wrap">
-            <span class="onboarding-input-icon">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                <polyline points="22,6 12,13 2,6"></polyline>
-              </svg>
-            </span>
-            <input 
-              id="onboarding-email" 
-              type="email" 
-              [(ngModel)]="inputInstitutionalEmail" 
-              name="inputInstitutionalEmail"
-              placeholder="ejemplo: 2025014@kinal.edu.gt" 
-              class="onboarding-input" 
-              required />
+        <div class="onboarding-grid-2col">
+          <!-- Paso 1: Correo Institucional -->
+          <div class="onboarding-group">
+            <label for="onboarding-email" class="onboarding-label">
+              <span class="step-circle">1</span>
+              <span>Correo Institucional *</span>
+            </label>
+            <div class="onboarding-input-wrap">
+              <span class="onboarding-input-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+              </span>
+              <input 
+                id="onboarding-email" 
+                type="email" 
+                [(ngModel)]="inputInstitutionalEmail" 
+                name="inputInstitutionalEmail"
+                placeholder="2025014@kinal.edu.gt" 
+                class="onboarding-input" 
+                required />
+            </div>
           </div>
-          <span class="onboarding-hint">Ingresa tu correo oficial otorgado por Fundación Kinal</span>
+
+          <!-- Paso 2: Número de Carnet -->
+          <div class="onboarding-group">
+            <label for="onboarding-carnet" class="onboarding-label">
+              <span class="step-circle">2</span>
+              <span>No. de Carnet *</span>
+            </label>
+            <div class="onboarding-input-wrap">
+              <span class="onboarding-input-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                  <line x1="2" y1="10" x2="22" y2="10"></line>
+                </svg>
+              </span>
+              <input 
+                id="onboarding-carnet" 
+                type="text" 
+                [(ngModel)]="inputCarnet" 
+                name="inputCarnet"
+                placeholder="2025014" 
+                class="onboarding-input" 
+                required />
+            </div>
+          </div>
         </div>
 
-        <!-- Paso 2: Número de Carnet -->
+        <!-- Paso 3: Selector de Grado -->
         <div class="onboarding-group">
-          <label for="onboarding-carnet" class="onboarding-label">
-            <span class="step-circle">2</span>
-            <span>Número de Carnet *</span>
-          </label>
-          <div class="onboarding-input-wrap">
-            <span class="onboarding-input-icon">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="2" y="5" width="20" height="14" rx="2"></rect>
-                <line x1="2" y1="10" x2="22" y2="10"></line>
-              </svg>
-            </span>
-            <input 
-              id="onboarding-carnet" 
-              type="text" 
-              [(ngModel)]="inputCarnet" 
-              name="inputCarnet"
-              placeholder="ejemplo: 2025014 o 2021-001" 
-              class="onboarding-input" 
-              required />
-          </div>
-          <span class="onboarding-hint">Tu código de estudiante Kinal para validar tus evaluaciones</span>
-        </div>
-
-        <!-- Paso 3: Grado (Primero, Segundo, Tercero Básico y Cuarto, Quinto, Sexto Perito) -->
-        <div class="onboarding-group">
-          <label for="onboarding-grade" class="onboarding-label">
+          <label for="onboarding-grade-level" class="onboarding-label">
             <span class="step-circle">3</span>
-            <span>¿Qué grado o carrera cursas actualmente? *</span>
+            <span>Grado *</span>
           </label>
           <div class="select-wrapper">
-            <select id="onboarding-grade" [(ngModel)]="selectedGrade" name="selectedGrade" class="onboarding-select"
+            <select 
+              id="onboarding-grade-level" 
+              [(ngModel)]="selectedGradeLevel" 
+              (ngModelChange)="onGradeLevelChange()"
+              name="selectedGradeLevel" 
+              class="onboarding-select"
               required>
-              <option value="" disabled selected>Selecciona tu grado o carrera técnica...</option>
-              <optgroup *ngFor="let g of gradeGroups" [label]="g.group">
-                <option *ngFor="let gr of g.grades" [value]="gr">{{ gr }}</option>
-              </optgroup>
+              <option value="" disabled selected>Selecciona tu grado...</option>
+              <option *ngFor="let g of gradeLevels" [value]="g">{{ g }}</option>
             </select>
             <div class="select-arrow">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -270,23 +272,59 @@
           </div>
         </div>
 
-        <!-- Paso 4: Sección (De la A hasta la J) -->
-        <div class="onboarding-group">
-          <label class="onboarding-label">
+        <!-- Paso 4 (Condicional): Carrera Técnica para Peritos -->
+        <div class="onboarding-group" *ngIf="isPeritoSelected">
+          <label for="onboarding-career" class="onboarding-label">
             <span class="step-circle">4</span>
-            <span>¿Cuál es tu sección? (A a la J) *</span>
+            <span>Carrera Técnica (Especialidad) *</span>
           </label>
-          <div class="sections-pills-grid">
-            <button type="button" *ngFor="let sec of sections" class="section-pill-btn"
-              [class.section-selected]="selectedSection === sec" (click)="selectedSection = sec">
-              {{ sec }}
-            </button>
+          <div class="select-wrapper">
+            <select 
+              id="onboarding-career" 
+              [(ngModel)]="selectedCareer" 
+              name="selectedCareer" 
+              class="onboarding-select"
+              required>
+              <option value="" disabled selected>Selecciona tu carrera técnica...</option>
+              <option *ngFor="let c of careers" [value]="c">Perito en {{ c }}</option>
+            </select>
+            <div class="select-arrow">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selector de Sección -->
+        <div class="onboarding-group">
+          <label for="onboarding-section" class="onboarding-label">
+            <span class="step-circle">{{ isPeritoSelected ? '5' : '4' }}</span>
+            <span>Sección *</span>
+          </label>
+          <div class="select-wrapper">
+            <select 
+              id="onboarding-section" 
+              [(ngModel)]="selectedSection" 
+              name="selectedSection" 
+              class="onboarding-select"
+              required>
+              <option value="" disabled selected>Selecciona tu sección (A a la J)...</option>
+              <option *ngFor="let s of sections" [value]="s">Sección {{ s }}</option>
+            </select>
+            <div class="select-arrow">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </div>
           </div>
         </div>
 
         <div class="onboarding-footer-actions">
           <button type="submit" class="btn-onboarding-submit"
-            [disabled]="onboardingLoading || !inputInstitutionalEmail || !inputCarnet || !selectedGrade || !selectedSection">
+            [disabled]="onboardingLoading || !inputInstitutionalEmail || !inputCarnet || !selectedGradeLevel || (isPeritoSelected && !selectedCareer) || !selectedSection">
             <span *ngIf="!onboardingLoading">Completar y Comenzar Aventuras</span>
             <span *ngIf="onboardingLoading">Guardando tus datos...</span>
             <svg *ngIf="!onboardingLoading" xmlns="http://www.w3.org/2000/svg" width="18" height="18"

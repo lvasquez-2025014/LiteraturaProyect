@@ -3,7 +3,15 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
-import { User, KINAL_GRADE_GROUPS, KINAL_SECTIONS } from '../../../../core/models/user.model';
+import {
+  User,
+  KINAL_GRADE_LEVELS,
+  KINAL_CAREERS,
+  KINAL_SECTIONS,
+  isPeritoGrade,
+  formatFullGrade,
+  parseGradeLevelAndCareer,
+} from '../../../../core/models/user.model';
 import { CrowdCanvasComponent } from '../../../../shared/components/crowd-canvas/crowd-canvas.component';
 import { Subscription } from 'rxjs';
 
@@ -42,12 +50,24 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   pendingGoogleUser: User | null = null;
   inputInstitutionalEmail = '';
   inputCarnet = '';
-  selectedGrade = '';
+  selectedGradeLevel = '';
+  selectedCareer = '';
   selectedSection = '';
   onboardingError = '';
 
-  readonly gradeGroups = KINAL_GRADE_GROUPS;
+  readonly gradeLevels = KINAL_GRADE_LEVELS;
+  readonly careers = KINAL_CAREERS;
   readonly sections = KINAL_SECTIONS;
+
+  get isPeritoSelected(): boolean {
+    return isPeritoGrade(this.selectedGradeLevel);
+  }
+
+  onGradeLevelChange(): void {
+    if (!this.isPeritoSelected) {
+      this.selectedCareer = '';
+    }
+  }
 
   private clientId = '';
   private configSub?: Subscription;
@@ -244,7 +264,10 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
             this.inputInstitutionalEmail =
               res.user.institutionalEmail || (isGoogleKinalEmail ? googleEmail : '');
             this.inputCarnet = res.user.carnet || '';
-            this.selectedGrade = res.user.grade || '';
+            
+            const parsed = parseGradeLevelAndCareer(res.user.grade);
+            this.selectedGradeLevel = parsed.level || '';
+            this.selectedCareer = parsed.career || '';
             this.selectedSection = res.user.section || '';
             this.onboardingError = '';
             this.showAcademicOnboardingModal = true;
@@ -279,15 +302,21 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
       this.onboardingError = 'Por favor, ingresa tu número de carnet de estudiante.';
       return;
     }
-    if (!this.selectedGrade) {
-      this.onboardingError = 'Por favor, selecciona tu grado o carrera técnica.';
+    if (!this.selectedGradeLevel) {
+      this.onboardingError = 'Por favor, selecciona tu grado educativo.';
+      return;
+    }
+    if (this.isPeritoSelected && !this.selectedCareer) {
+      this.onboardingError = 'Por favor, selecciona tu carrera técnica.';
       return;
     }
     if (!this.selectedSection) {
-      this.onboardingError = 'Por favor, selecciona tu sección correspondiente (A a la J).';
+      this.onboardingError = 'Por favor, selecciona tu sección correspondiente.';
       return;
     }
     if (!this.pendingGoogleUser) return;
+
+    const finalGrade = formatFullGrade(this.selectedGradeLevel, this.selectedCareer);
 
     this.onboardingLoading = true;
     this.onboardingError = '';
@@ -295,7 +324,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
     this.auth
       .updateAcademicProfile(
         this.pendingGoogleUser.id,
-        this.selectedGrade,
+        finalGrade,
         this.selectedSection,
         cleanEmail,
         cleanCarnet,
