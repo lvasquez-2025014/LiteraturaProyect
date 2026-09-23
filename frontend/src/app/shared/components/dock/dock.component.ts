@@ -1,21 +1,14 @@
 import {
   Component,
   Input,
-  ElementRef,
-  ViewChildren,
-  ViewChild,
-  QueryList,
-  NgZone,
-  ChangeDetectorRef,
-  OnDestroy,
   OnInit,
-  AfterViewInit,
-  OnChanges,
+  OnDestroy,
+  ChangeDetectorRef,
   inject,
   ChangeDetectionStrategy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
@@ -31,61 +24,36 @@ export interface DockItemConfig {
   badge?: string | number;
 }
 
-export interface DockSpringConfig {
-  mass: number;
-  stiffness: number;
-  damping: number;
-}
-
-interface ItemState {
-  size: number;
-  targetSize: number;
-  velocity: number;
-}
-
 @Component({
   selector: 'app-dock',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './dock.component.html',
   styleUrl: './dock.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DockComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
+export class DockComponent implements OnInit, OnDestroy {
   @Input() items: DockItemConfig[] = [];
   @Input() className = '';
-  @Input() spring: DockSpringConfig = { mass: 0.1, stiffness: 160, damping: 22 };
+  @Input() baseItemSize = 38;
   @Input() magnification = 50;
   @Input() distance = 110;
+  @Input() spring?: any;
   @Input() panelHeight = 44;
-  @Input() dockHeight = 256;
-  @Input() baseItemSize = 36;
   @Input() layout: 'inline' | 'floating' = 'inline';
   @Input() labelPosition: 'top' | 'bottom' | 'auto' = 'auto';
   @Input() theme: 'auto' | 'light' | 'dark' | 'glass' = 'auto';
-  @Input() ariaLabel = 'Application dock';
-
-  @ViewChild('panelRef') panelRef!: ElementRef<HTMLElement>;
-  @ViewChildren('dockItemRef') itemRefs!: QueryList<ElementRef<HTMLElement>>;
+  @Input() ariaLabel = 'Portales de navegación';
 
   private router = inject(Router);
   private sanitizer = inject(DomSanitizer);
-  private ngZone = inject(NgZone);
   private cdr = inject(ChangeDetectorRef);
 
-  mouseX = Infinity;
-  isHovered = false;
   hoveredIndex: number | null = null;
-  itemStates: ItemState[] = [];
-
-  private rafId: number | null = null;
-  private lastTime = 0;
-  private isDestroyed = false;
   private svgCache = new Map<string, SafeHtml>();
   private routerSub?: Subscription;
 
   ngOnInit(): void {
-    this.syncItemStates();
     this.routerSub = this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe(() => {
@@ -94,34 +62,8 @@ export class DockComponent implements OnInit, AfterViewInit, OnChanges, OnDestro
       });
   }
 
-  ngAfterViewInit(): void {
-    this.syncItemStates();
-  }
-
-  ngOnChanges(): void {
-    this.syncItemStates();
-  }
-
   ngOnDestroy(): void {
-    this.isDestroyed = true;
     this.routerSub?.unsubscribe();
-    if (this.rafId !== null) {
-      cancelAnimationFrame(this.rafId);
-      this.rafId = null;
-    }
-  }
-
-  private syncItemStates(): void {
-    while (this.itemStates.length < this.items.length) {
-      this.itemStates.push({
-        size: this.baseItemSize,
-        targetSize: this.baseItemSize,
-        velocity: 0,
-      });
-    }
-    while (this.itemStates.length > this.items.length) {
-      this.itemStates.pop();
-    }
   }
 
   getSafeSvg(iconSvg?: string): SafeHtml {
@@ -141,6 +83,14 @@ export class DockComponent implements OnInit, AfterViewInit, OnChanges, OnDestro
     return this.layout === 'inline' ? 'bottom' : 'top';
   }
 
+  getItemScale(index: number): number {
+    if (this.hoveredIndex === null) return 1.0;
+    const diff = Math.abs(this.hoveredIndex - index);
+    if (diff === 0) return 1.28; // Ítem bajo el cursor con magnificación elástica
+    if (diff === 1) return 1.12; // Vecinos inmediatos con onda de atracción magnética
+    return 1.0;
+  }
+
   isItemActive(item: DockItemConfig): boolean {
     if (typeof item.active === 'boolean') {
       return item.active;
@@ -156,23 +106,6 @@ export class DockComponent implements OnInit, AfterViewInit, OnChanges, OnDestro
     return false;
   }
 
-  onPanelMouseMove(event: MouseEvent): void {
-    this.isHovered = true;
-    this.mouseX = event.clientX;
-    this.startAnimationLoop();
-  }
-
-  onPanelMouseLeave(): void {
-    this.isHovered = false;
-    this.hoveredIndex = null;
-    this.mouseX = Infinity;
-    for (const state of this.itemStates) {
-      state.targetSize = this.baseItemSize;
-    }
-    this.startAnimationLoop();
-    this.cdr.markForCheck();
-  }
-
   onItemMouseEnter(index: number): void {
     this.hoveredIndex = index;
     this.cdr.markForCheck();
@@ -185,127 +118,19 @@ export class DockComponent implements OnInit, AfterViewInit, OnChanges, OnDestro
     this.cdr.markForCheck();
   }
 
-  onItemFocus(index: number): void {
-    this.hoveredIndex = index;
-    if (this.itemStates[index]) {
-      this.itemStates[index].targetSize = this.magnification;
-      this.startAnimationLoop();
-      this.cdr.markForCheck();
-    }
+  onPanelMouseLeave(): void {
+    this.hoveredIndex = null;
+    this.cdr.markForCheck();
   }
 
-  onItemBlur(index: number): void {
-    if (this.hoveredIndex === index) {
-      this.hoveredIndex = null;
-    }
-    if (this.itemStates[index]) {
-      this.itemStates[index].targetSize = this.baseItemSize;
-      this.startAnimationLoop();
-      this.cdr.markForCheck();
-    }
-  }
-
-  onItemClick(item: DockItemConfig, event: Event): void {
-    event.preventDefault();
-    event.stopPropagation();
+  onItemClick(item: DockItemConfig, event: MouseEvent): void {
     this.hoveredIndex = null;
     this.cdr.markForCheck();
 
     if (item.onClick) {
-      item.onClick();
-    } else if (item.route) {
-      this.ngZone.run(() => {
-        this.router.navigate([item.route]).then(() => {
-          this.cdr.markForCheck();
-        });
-      });
-    }
-  }
-
-  onItemKeyDown(event: KeyboardEvent, item: DockItemConfig): void {
-    if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      event.stopPropagation();
-      this.onItemClick(item, event);
+      item.onClick();
     }
+    // Si tiene ruta definida, Angular RouterLink ejecuta la navegación nativa de inmediato
   }
-
-  private startAnimationLoop(): void {
-    if (this.rafId !== null) return;
-    this.lastTime = performance.now();
-    this.ngZone.runOutsideAngular(() => {
-      this.rafId = requestAnimationFrame(this.renderLoop);
-    });
-  }
-
-  private renderLoop = (now: number): void => {
-    if (this.isDestroyed) {
-      this.rafId = null;
-      return;
-    }
-
-    const dt = Math.min((now - this.lastTime) * 0.001, 0.033) || 0.016;
-    this.lastTime = now;
-
-    // 1. Calcular centros estáticos basados en el contenedor fijo del dock
-    // Esto es CRUCIAL: al usar centros estáticos, los ítems nunca tiemblan ni se desestabilizan mutuamente
-    if (this.isHovered && Number.isFinite(this.mouseX) && this.panelRef) {
-      const panelEl = this.panelRef.nativeElement;
-      const panelRect = panelEl.getBoundingClientRect();
-      const itemCount = this.items.length;
-      const gap = 6;
-      const totalContentWidth = itemCount * this.baseItemSize + (itemCount - 1) * gap;
-      const paddingLeft = Math.max(0, (panelRect.width - totalContentWidth) / 2);
-
-      for (let i = 0; i < itemCount; i++) {
-        if (!this.itemStates[i]) continue;
-        const staticItemCenterX =
-          panelRect.left + paddingLeft + i * (this.baseItemSize + gap) + this.baseItemSize / 2;
-        const distanceToMouse = Math.abs(this.mouseX - staticItemCenterX);
-
-        if (distanceToMouse < this.distance) {
-          const factor = Math.cos((distanceToMouse / this.distance) * (Math.PI / 2));
-          this.itemStates[i].targetSize =
-            this.baseItemSize + (this.magnification - this.baseItemSize) * factor;
-        } else {
-          this.itemStates[i].targetSize = this.baseItemSize;
-        }
-      }
-    } else {
-      for (const state of this.itemStates) {
-        state.targetSize = this.baseItemSize;
-      }
-    }
-
-    // 2. Simulación de física amortiguada suave sin oscilación ni rebote
-    let hasSignificantMotion = false;
-    const { mass, stiffness, damping } = this.spring;
-
-    for (let i = 0; i < this.itemStates.length; i++) {
-      const state = this.itemStates[i];
-      const displacement = state.size - state.targetSize;
-      const springForce = -stiffness * displacement;
-      const dampingForce = -damping * state.velocity;
-      const force = springForce + dampingForce;
-      const acceleration = force / mass;
-
-      state.velocity += acceleration * dt;
-      state.size += state.velocity * dt;
-
-      if (Math.abs(displacement) > 0.05 || Math.abs(state.velocity) > 0.05) {
-        hasSignificantMotion = true;
-      } else {
-        state.size = state.targetSize;
-        state.velocity = 0;
-      }
-    }
-
-    this.cdr.markForCheck();
-
-    if (hasSignificantMotion || this.isHovered) {
-      this.rafId = requestAnimationFrame(this.renderLoop);
-    } else {
-      this.rafId = null;
-    }
-  };
 }
