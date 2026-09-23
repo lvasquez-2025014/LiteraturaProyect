@@ -202,6 +202,7 @@ export class GradientWavesComponent implements OnInit, AfterViewInit, OnDestroy 
   private isPageVisible = true;
 
   private t0: number = 0;
+  private lastRenderTime: number = 0;
   private currentMouse: [number, number] = [0.5, 0.5];
   private targetMouse: [number, number] = [0.5, 0.5];
 
@@ -262,9 +263,11 @@ export class GradientWavesComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private detailToSteps(detail: GradientWavesDetail): number {
-    if (detail === 'low') return 40.0;
-    if (detail === 'high') return 110.0;
-    return 70.0;
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+    if (isMobile) return 26.0;
+    if (detail === 'low') return 30.0;
+    if (detail === 'high') return 58.0;
+    return 40.0;
   }
 
   private hexToRgb(hex: string): [number, number, number] {
@@ -398,7 +401,11 @@ export class GradientWavesComponent implements OnInit, AfterViewInit, OnDestroy 
     if (!this.gl || !this.canvasRef || !this.containerRef) return;
     const container = this.containerRef.nativeElement;
     const canvas = this.canvasRef.nativeElement;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+
+    // En móviles renderizamos a 0.55x (el reescalado bilineal nativo por GPU mantiene las olas suaves e idénticas con 75% menos píxeles)
+    // En ordenadores limitamos a 1.0x para evitar saturar pantallas 2K/4K
+    const dpr = isMobile ? 0.55 : Math.min(window.devicePixelRatio || 1, 1.0);
     const width = Math.max(1, Math.floor(container.clientWidth * dpr));
     const height = Math.max(1, Math.floor(container.clientHeight * dpr));
 
@@ -435,14 +442,24 @@ export class GradientWavesComponent implements OnInit, AfterViewInit, OnDestroy 
   private renderLoop = (): void => {
     if (this.isDestroyed || !this.gl || !this.program) return;
 
+    const now = performance.now();
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+    // 30 FPS en celulares para fluidez total sin recalentar GPU; 60 FPS en computadoras
+    const minInterval = isMobile ? 1000 / 30 : 1000 / 60;
+
+    if (now - this.lastRenderTime < minInterval) {
+      this.rafId = requestAnimationFrame(this.renderLoop);
+      return;
+    }
+    this.lastRenderTime = now;
+
     const gl = this.gl;
     const canvas = this.canvasRef.nativeElement;
-    const now = performance.now();
     const elapsedTime = (now - this.t0) * 0.001;
 
     // Smooth mouse lerp
-    const tx = this.mouseInteraction ? this.targetMouse[0] : 0.5;
-    const ty = this.mouseInteraction ? this.targetMouse[1] : 0.5;
+    const tx = (!isMobile && this.mouseInteraction) ? this.targetMouse[0] : 0.5;
+    const ty = (!isMobile && this.mouseInteraction) ? this.targetMouse[1] : 0.5;
     this.currentMouse[0] += 0.05 * (tx - this.currentMouse[0]);
     this.currentMouse[1] += 0.05 * (ty - this.currentMouse[1]);
 
@@ -463,11 +480,11 @@ export class GradientWavesComponent implements OnInit, AfterViewInit, OnDestroy 
     gl.uniform1f(this.uStepsLoc, this.detailToSteps(this.detail));
     gl.uniform1f(this.uBrightnessLoc, this.brightness);
     gl.uniform1f(this.uOpacityLoc, this.opacity);
-    gl.uniform1f(this.uGrainLoc, this.grain ? 1.0 : 0.0);
+    gl.uniform1f(this.uGrainLoc, isMobile ? 0.0 : (this.grain ? 1.0 : 0.0));
     gl.uniform1f(this.uGrainIntensityLoc, this.grainIntensity);
     gl.uniform2f(this.uMouseLoc, this.currentMouse[0], this.currentMouse[1]);
-    gl.uniform1f(this.uParallaxLoc, this.parallaxStrength);
-    gl.uniform1i(this.uEnableMouseLoc, this.mouseInteraction ? 1 : 0);
+    gl.uniform1f(this.uParallaxLoc, isMobile ? 0.0 : this.parallaxStrength);
+    gl.uniform1i(this.uEnableMouseLoc, (!isMobile && this.mouseInteraction) ? 1 : 0);
 
     const [hr, hg, hb] = this.hexToRgb(this.horizonColor);
     gl.uniform3f(this.uHorizonColorLoc, hr, hg, hb);

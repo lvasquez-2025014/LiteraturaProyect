@@ -104,6 +104,7 @@ export class CrowdCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     scale: 0.85,
   };
 
+  private lastRenderTime = 0;
   private isDestroyed = false;
 
   ngOnInit(): void {}
@@ -341,7 +342,9 @@ export class CrowdCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private initCrowd(): void {
-    const defaultDensity = this.stage.width < 640 ? 10 : (this.stage.width < 1024 ? 16 : 24);
+    const isMobile = this.stage.width < 640;
+    // 4 personajes en móviles para una base limpia y ligera; 12 en tablet; 18 en desktop
+    const defaultDensity = isMobile ? 4 : (this.stage.width < 1024 ? 12 : 18);
     const limit = this.maxPeeps ?? Math.min(this.availablePeeps.length, defaultDensity);
 
     while (this.availablePeeps.length && this.crowd.length < limit) {
@@ -381,7 +384,15 @@ export class CrowdCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     const canvas = this.canvasRef.nativeElement;
     if (!this.ctx || !canvas) return;
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+    const now = performance.now();
+    // Throttle a 30 FPS en pantallas móviles
+    if (isMobile && now - this.lastRenderTime < 1000 / 30) {
+      return;
+    }
+    this.lastRenderTime = now;
+
+    const dpr = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
     this.ctx.clearRect(0, 0, canvas.width, canvas.height);
     this.ctx.save();
     this.ctx.scale(dpr, dpr);
@@ -398,7 +409,8 @@ export class CrowdCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!canvas) return;
 
     const parent = canvas.parentElement || canvas;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+    const dpr = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
 
     this.stage.width = parent.clientWidth || window.innerWidth;
     this.stage.height = parent.clientHeight || window.innerHeight;

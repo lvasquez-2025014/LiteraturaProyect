@@ -223,6 +223,15 @@ export class ScrollVelocityComponent implements OnInit, AfterViewInit, OnDestroy
   private renderLoop = (): void => {
     if (this.isDestroyed) return;
 
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+    if (isMobile) {
+      // En móviles el texto se presenta fijo y centrado; ahorramos 100% de CPU de este bucle
+      this.rafId = setTimeout(() => {
+        if (!this.isDestroyed) this.renderLoop();
+      }, 600) as any;
+      return;
+    }
+
     const now = performance.now();
     const delta = Math.min((now - this.lastTime) * 0.001, 0.1);
     this.lastTime = now;
