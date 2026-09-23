@@ -27,6 +27,8 @@ export interface UserDocument {
   _id?: ObjectId;
   googleId?: string;
   email: string;
+  institutionalEmail?: string; // Correo institucional Kinal (ej. 2025014@kinal.edu.gt)
+  carnet?: string;             // Número de carnet de estudiante Kinal (ej. 2025014)
   password?: string;
   name: string;
   avatarUrl?: string;

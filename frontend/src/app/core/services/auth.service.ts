@@ -402,24 +402,39 @@ export class AuthService {
     );
   }
 
-  updateAcademicProfile(userId: string, grade: string, section: string): Observable<User> {
-    return this.http.patch<User>(`${environment.apiUrl}/users/${userId}/academic-profile`, { grade, section }).pipe(
-      tap((updatedUser) => {
-        const currentUser = this.currentUserSignal();
-        if (currentUser) {
-          const merged: User = {
-            ...currentUser,
-            ...updatedUser,
-            grade: updatedUser.grade || grade,
-            section: updatedUser.section || section,
-          };
-          this.saveSession({
-            token: this.tokenSignal() || '',
-            user: merged,
-          });
-        }
-      }),
-    );
+  updateAcademicProfile(
+    userId: string,
+    grade: string,
+    section: string,
+    institutionalEmail?: string,
+    carnet?: string,
+  ): Observable<User> {
+    return this.http
+      .patch<User>(`${environment.apiUrl}/users/${userId}/academic-profile`, {
+        grade,
+        section,
+        institutionalEmail,
+        carnet,
+      })
+      .pipe(
+        tap((updatedUser) => {
+          const currentUser = this.currentUserSignal();
+          if (currentUser) {
+            const merged: User = {
+              ...currentUser,
+              ...updatedUser,
+              grade: updatedUser.grade || grade,
+              section: updatedUser.section || section,
+              institutionalEmail: updatedUser.institutionalEmail || institutionalEmail || currentUser.institutionalEmail,
+              carnet: updatedUser.carnet || carnet || currentUser.carnet,
+            };
+            this.saveSession({
+              token: this.tokenSignal() || '',
+              user: merged,
+            });
+          }
+        }),
+      );
   }
 
   fetchProfile(): Observable<User> {

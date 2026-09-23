@@ -36,10 +36,12 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   showPassword = false;
   googleReady = false;
 
-  // Academic Onboarding State for Google Registration
+  // Academic Onboarding State for Google Registration & Student Verification
   showAcademicOnboardingModal = false;
   onboardingLoading = false;
   pendingGoogleUser: User | null = null;
+  inputInstitutionalEmail = '';
+  inputCarnet = '';
   selectedGrade = '';
   selectedSection = '';
   onboardingError = '';
@@ -225,10 +227,26 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
       this.auth.loginWithGoogle(response.credential).subscribe({
         next: (res) => {
           this.loading = false;
-          if (res.user.role === 'STUDENT_ROLE' && (!res.user.grade || !res.user.section)) {
+          const isStudent = res.user.role === 'STUDENT_ROLE';
+          const isProfileIncomplete =
+            !res.user.institutionalEmail ||
+            !res.user.carnet ||
+            !res.user.grade ||
+            !res.user.section;
+
+          if (isStudent && isProfileIncomplete) {
             this.pendingGoogleUser = res.user;
+            const googleEmail = res.user.email || '';
+            const isGoogleKinalEmail =
+              googleEmail.toLowerCase().endsWith('@kinal.edu.gt') ||
+              googleEmail.toLowerCase().endsWith('@kinal.org.gt');
+
+            this.inputInstitutionalEmail =
+              res.user.institutionalEmail || (isGoogleKinalEmail ? googleEmail : '');
+            this.inputCarnet = res.user.carnet || '';
             this.selectedGrade = res.user.grade || '';
             this.selectedSection = res.user.section || '';
+            this.onboardingError = '';
             this.showAcademicOnboardingModal = true;
             this.cdr.detectChanges();
             return;
@@ -245,8 +263,24 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   submitAcademicOnboarding() {
+    const cleanEmail = this.inputInstitutionalEmail ? this.inputInstitutionalEmail.trim().toLowerCase() : '';
+    const cleanCarnet = this.inputCarnet ? this.inputCarnet.trim() : '';
+
+    if (!cleanEmail) {
+      this.onboardingError = 'Por favor, ingresa tu correo institucional de Kinal.';
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      this.onboardingError = 'Por favor, ingresa un correo institucional válido (ej. 2025014@kinal.edu.gt).';
+      return;
+    }
+    if (!cleanCarnet) {
+      this.onboardingError = 'Por favor, ingresa tu número de carnet de estudiante.';
+      return;
+    }
     if (!this.selectedGrade) {
-      this.onboardingError = 'Por favor, selecciona tu grado educativo.';
+      this.onboardingError = 'Por favor, selecciona tu grado o carrera técnica.';
       return;
     }
     if (!this.selectedSection) {
@@ -258,18 +292,27 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
     this.onboardingLoading = true;
     this.onboardingError = '';
 
-    this.auth.updateAcademicProfile(this.pendingGoogleUser.id, this.selectedGrade, this.selectedSection).subscribe({
-      next: (updatedUser) => {
-        this.onboardingLoading = false;
-        this.showAcademicOnboardingModal = false;
-        this.auth.redirectByRole(updatedUser.role);
-      },
-      error: (err) => {
-        this.onboardingLoading = false;
-        this.onboardingError = err.error?.message || 'Error al guardar tu grado y sección. Intenta nuevamente.';
-        this.cdr.detectChanges();
-      },
-    });
+    this.auth
+      .updateAcademicProfile(
+        this.pendingGoogleUser.id,
+        this.selectedGrade,
+        this.selectedSection,
+        cleanEmail,
+        cleanCarnet,
+      )
+      .subscribe({
+        next: (updatedUser) => {
+          this.onboardingLoading = false;
+          this.showAcademicOnboardingModal = false;
+          this.auth.redirectByRole(updatedUser.role);
+        },
+        error: (err) => {
+          this.onboardingLoading = false;
+          this.onboardingError =
+            err.error?.message || 'Error al guardar tus datos institucionales. Intenta nuevamente.';
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   onSubmit() {

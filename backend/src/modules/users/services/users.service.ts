@@ -38,6 +38,8 @@ export class UsersService {
   async createStudent(email: string, name: string, avatarUrl?: string, googleId?: string): Promise<UserDocument> {
     const newUser: UserDocument = {
       email: email.toLowerCase(),
+      institutionalEmail: '',
+      carnet: '',
       name,
       avatarUrl: avatarUrl || '',
       googleId,
@@ -67,11 +69,15 @@ export class UsersService {
     role: UserRole,
     grade?: string,
     section?: string,
+    institutionalEmail?: string,
+    carnet?: string,
   ): Promise<UserDocument> {
     const hashedPassword = await bcrypt.hash(password, 10);
     const isStudent = role === 'STUDENT_ROLE';
     const newUser: UserDocument = {
       email: email.toLowerCase(),
+      institutionalEmail: institutionalEmail ? institutionalEmail.trim().toLowerCase() : (isStudent ? email.toLowerCase() : ''),
+      carnet: carnet ? carnet.trim() : '',
       password: hashedPassword,
       name,
       avatarUrl: '',

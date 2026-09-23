@@ -55,7 +55,11 @@
                 </div>
                 <span class="user-title">{{ u.name }}</span>
               </td>
-              <td class="email-cell">{{ u.email }}</td>
+              <td class="email-cell">
+                <div>{{ u.institutionalEmail || u.email }}</div>
+                <div *ngIf="u.carnet" style="font-size: 0.72rem; color: #0284c7; font-weight: 600;">Carnet: {{ u.carnet }}</div>
+                <div *ngIf="u.institutionalEmail && u.institutionalEmail !== u.email" style="font-size: 0.7rem; color: #94a3b8;">Google: {{ u.email }}</div>
+              </td>
               <td>
                 <select [value]="u.role" (change)="onRoleChange(u, $any($event.target).value)" class="role-select"
                   [class.role-student]="u.role === 'STUDENT_ROLE'" [class.role-teacher]="u.role === 'TEACHER_ROLE'"

@@ -63,6 +63,8 @@ export class AuthService {
       user: {
         id: user._id ? user._id.toString() : '',
         email: user.email,
+        institutionalEmail: user.institutionalEmail || '',
+        carnet: user.carnet || '',
         name: user.name,
         role: user.role,
         isSuperAdmin,

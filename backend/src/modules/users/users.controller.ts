@@ -50,7 +50,17 @@ export class UsersController {
   @Post()
   @Roles('ADMIN_ROLE')
   async createUser(
-    @Body() body: { email: string; password?: string; name: string; role: UserRole; grade?: string; section?: string },
+    @Body()
+    body: {
+      email: string;
+      password?: string;
+      name: string;
+      role: UserRole;
+      grade?: string;
+      section?: string;
+      institutionalEmail?: string;
+      carnet?: string;
+    },
   ) {
     if (!body.email || !body.name || !body.role || !body.password) {
       throw new BadRequestException('Email, nombre, contraseña y rol son obligatorios');
@@ -69,6 +79,8 @@ export class UsersController {
       body.role,
       isStudent ? (body.grade || '') : '',
       isStudent ? (body.section || '') : '',
+      body.institutionalEmail,
+      body.carnet,
     );
 
     const { password: _, ...safeUser } = user;
@@ -268,7 +280,7 @@ export class UsersController {
   @Roles('STUDENT_ROLE', 'TEACHER_ROLE', 'ADMIN_ROLE')
   async updateAcademicProfile(
     @Param('id') id: string,
-    @Body() body: { grade: string; section: string },
+    @Body() body: { grade: string; section: string; institutionalEmail?: string; carnet?: string },
     @CurrentUser() requester: any,
   ) {
     if (!body.grade || !body.section) {
@@ -278,13 +290,22 @@ export class UsersController {
     const requesterId = requester?.id || requester?._id;
     const isSelf = requesterId && requesterId.toString() === id.toString();
     if (!isSelf && requester.role !== 'ADMIN_ROLE') {
-      throw new ForbiddenException('Solo un administrador tiene permiso para modificar el grado y sección de otros usuarios');
+      throw new ForbiddenException('Solo un administrador tiene permiso para modificar el perfil de otros usuarios');
     }
 
-    await this.usersService.updateProfile(id, {
+    const updates: any = {
       grade: body.grade.trim(),
       section: body.section.trim().toUpperCase(),
-    });
+    };
+
+    if (body.institutionalEmail) {
+      updates.institutionalEmail = body.institutionalEmail.trim().toLowerCase();
+    }
+    if (body.carnet) {
+      updates.carnet = body.carnet.trim();
+    }
+
+    await this.usersService.updateProfile(id, updates);
 
     const updated = await this.usersService.findById(id);
     if (!updated) {

@@ -25,6 +25,8 @@ export interface User {
   id: string;
   _id?: string;
   email: string;
+  institutionalEmail?: string;
+  carnet?: string;
   name: string;
   role: UserRole;
   avatarUrl?: string;

@@ -282,7 +282,10 @@
                     </div>
                     <div class="student-info">
                       <span class="student-name">{{ item.student.name }}</span>
-                      <span class="student-email">{{ item.student.email }}</span>
+                      <span class="student-email">
+                        {{ item.student.institutionalEmail || item.student.email }}
+                        <span *ngIf="item.student.carnet" class="student-carnet-tag">· Carnet: {{ item.student.carnet }}</span>
+                      </span>
                     </div>
                   </div>
                 </td>

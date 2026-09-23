@@ -181,8 +181,8 @@
         </div>
         <h2 class="onboarding-title">¡Bienvenido a Kinal Lectura!</h2>
         <p class="onboarding-subtitle">
-          Hola <strong>{{ pendingGoogleUser?.name }}</strong>. Para asignarte a tu aula y preparar tus retos de fluidez,
-          por favor indícanos tu grado y sección:
+          Hola <strong>{{ pendingGoogleUser?.name }}</strong>. Para vincular tu cuenta estudiantil y prepararte tus retos de fluidez,
+          por favor ingresa tus datos institucionales:
         </p>
       </div>
 
@@ -197,10 +197,60 @@
           <span>{{ onboardingError }}</span>
         </div>
 
-        <!-- Paso 1: Grado (Primero, Segundo, Tercero Básico y Cuarto, Quinto, Sexto Perito) -->
+        <!-- Paso 1: Correo Institucional -->
+        <div class="onboarding-group">
+          <label for="onboarding-email" class="onboarding-label">
+            <span class="step-circle">1</span>
+            <span>Correo Institucional Kinal *</span>
+          </label>
+          <div class="onboarding-input-wrap">
+            <span class="onboarding-input-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+            </span>
+            <input 
+              id="onboarding-email" 
+              type="email" 
+              [(ngModel)]="inputInstitutionalEmail" 
+              name="inputInstitutionalEmail"
+              placeholder="ejemplo: 2025014@kinal.edu.gt" 
+              class="onboarding-input" 
+              required />
+          </div>
+          <span class="onboarding-hint">Ingresa tu correo oficial otorgado por Fundación Kinal</span>
+        </div>
+
+        <!-- Paso 2: Número de Carnet -->
+        <div class="onboarding-group">
+          <label for="onboarding-carnet" class="onboarding-label">
+            <span class="step-circle">2</span>
+            <span>Número de Carnet *</span>
+          </label>
+          <div class="onboarding-input-wrap">
+            <span class="onboarding-input-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                <line x1="2" y1="10" x2="22" y2="10"></line>
+              </svg>
+            </span>
+            <input 
+              id="onboarding-carnet" 
+              type="text" 
+              [(ngModel)]="inputCarnet" 
+              name="inputCarnet"
+              placeholder="ejemplo: 2025014 o 2021-001" 
+              class="onboarding-input" 
+              required />
+          </div>
+          <span class="onboarding-hint">Tu código de estudiante Kinal para validar tus evaluaciones</span>
+        </div>
+
+        <!-- Paso 3: Grado (Primero, Segundo, Tercero Básico y Cuarto, Quinto, Sexto Perito) -->
         <div class="onboarding-group">
           <label for="onboarding-grade" class="onboarding-label">
-            <span class="step-circle">1</span>
+            <span class="step-circle">3</span>
             <span>¿Qué grado o carrera cursas actualmente? *</span>
           </label>
           <div class="select-wrapper">
@@ -220,10 +270,10 @@
           </div>
         </div>
 
-        <!-- Paso 2: Sección (De la A hasta la J) -->
+        <!-- Paso 4: Sección (De la A hasta la J) -->
         <div class="onboarding-group">
           <label class="onboarding-label">
-            <span class="step-circle">2</span>
+            <span class="step-circle">4</span>
             <span>¿Cuál es tu sección? (A a la J) *</span>
           </label>
           <div class="sections-pills-grid">
@@ -236,9 +286,9 @@
 
         <div class="onboarding-footer-actions">
           <button type="submit" class="btn-onboarding-submit"
-            [disabled]="onboardingLoading || !selectedGrade || !selectedSection">
+            [disabled]="onboardingLoading || !inputInstitutionalEmail || !inputCarnet || !selectedGrade || !selectedSection">
             <span *ngIf="!onboardingLoading">Completar y Comenzar Aventuras</span>
-            <span *ngIf="onboardingLoading">Configurando tu Aula...</span>
+            <span *ngIf="onboardingLoading">Guardando tus datos...</span>
             <svg *ngIf="!onboardingLoading" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
               viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
               stroke-linejoin="round">
