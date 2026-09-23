@@ -1,20 +1,17 @@
 <div class="auth-page">
-  <!-- Dynamic Atmospheric Background Layer -->
+  <!-- Dynamic Atmospheric Background Layer (Clean White) -->
   <div class="auth-bg-layer" aria-hidden="true">
     <div class="auth-bg-ambient-backdrop"></div>
-    <div class="auth-glow-orb orb-primary"></div>
-    <div class="auth-glow-orb orb-accent"></div>
   </div>
 
-  <!-- Dynamic Crowd Canvas: Estudiantes y Personajes Caminando en la Base (Skiper39) -->
-  <app-crowd-canvas src="/openpeeps-crowd.png" [rows]="15" [cols]="7" [inverted]="true" class="auth-crowd-layer">
+  <!-- Dynamic Crowd Canvas: Personajes Caminando en Escala Mayor (Fondo Blanco) -->
+  <app-crowd-canvas 
+    src="/openpeeps-crowd.png" 
+    [rows]="15" 
+    [cols]="7" 
+    [inverted]="false" 
+    class="auth-crowd-layer">
   </app-crowd-canvas>
-
-  <!-- Walkway / Promenade Light Baseline at the bottom of the screen -->
-  <div class="auth-promenade-glow" aria-hidden="true">
-    <div class="promenade-line"></div>
-    <div class="promenade-reflection"></div>
-  </div>
 
   <!-- Notificación Flotante de Cierre de Sesión -->
   <aside class="auth-floating-notice" *ngIf="sessionExpiredMessage" role="alert" aria-live="assertive">

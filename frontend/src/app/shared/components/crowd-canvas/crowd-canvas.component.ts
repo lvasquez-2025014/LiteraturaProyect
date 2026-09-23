@@ -36,7 +36,6 @@ interface Peep {
   template: `
     <div class="crowd-canvas-wrapper" [class.inverted]="inverted">
       <canvas #canvas class="crowd-canvas"></canvas>
-      <div class="crowd-ground-gradient"></div>
     </div>
   `,
   styles: [
@@ -47,7 +46,7 @@ interface Peep {
         bottom: 0;
         left: 0;
         width: 100%;
-        height: 200px;
+        height: 330px;
         pointer-events: none;
         overflow: hidden;
         z-index: 1;
@@ -71,26 +70,10 @@ interface Peep {
         pointer-events: none;
       }
 
-      /* Inversión luminosa para fondos oscuros con destello sutil */
+      /* Inversión opcional solo si se usa en fondos oscuros */
       .crowd-canvas-wrapper.inverted .crowd-canvas {
         filter: invert(1) brightness(1.15) drop-shadow(0 4px 14px rgba(0, 74, 173, 0.35));
         opacity: 0.78;
-      }
-
-      /* Base difuminada sutil para fundir los personajes con el piso */
-      .crowd-ground-gradient {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 40px;
-        background: linear-gradient(
-          to top,
-          rgba(7, 12, 24, 0.8) 0%,
-          rgba(7, 12, 24, 0.2) 60%,
-          transparent 100%
-        );
-        pointer-events: none;
       }
     `,
   ],
@@ -225,16 +208,16 @@ export class CrowdCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private calculateScale(width: number): number {
-    if (width < 640) return 0.34;
-    if (width < 1024) return 0.40;
-    if (width < 1440) return 0.44;
-    return 0.48;
+    if (width < 640) return 0.58;
+    if (width < 1024) return 0.72;
+    if (width < 1440) return 0.85;
+    return 0.95;
   }
 
   private resetPeep(stage: { width: number; height: number; scale: number }, peep: Peep) {
     const direction = Math.random() > 0.5 ? 1 : -1;
     // Alineación precisa y estricta en el piso inferior de la pantalla
-    const offsetY = (4 - 12 * Math.random()) * stage.scale;
+    const offsetY = (2 - 8 * Math.random()) * stage.scale;
     const startY = stage.height - peep.height + offsetY;
     let startX: number;
     let endX: number;
@@ -358,7 +341,7 @@ export class CrowdCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private initCrowd(): void {
-    const defaultDensity = this.stage.width < 640 ? 12 : (this.stage.width < 1024 ? 22 : 36);
+    const defaultDensity = this.stage.width < 640 ? 10 : (this.stage.width < 1024 ? 16 : 24);
     const limit = this.maxPeeps ?? Math.min(this.availablePeeps.length, defaultDensity);
 
     while (this.availablePeeps.length && this.crowd.length < limit) {
