@@ -95,8 +95,14 @@
 }
 
 /* --------------------------------------------------------------------------
-   Admin Portal Switcher (Super-Access)
+   Interactive Dock Portal Switcher (Super-Access)
    -------------------------------------------------------------------------- */
+app-dock {
+  flex-shrink: 0;
+  margin: 0 4px;
+  z-index: 10;
+}
+
 .admin-portal-switcher {
   display: flex;
   align-items: center;

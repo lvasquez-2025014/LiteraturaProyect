@@ -1,0 +1,66 @@
+<div
+  class="dock-outer"
+  [ngClass]="[className, 'layout-' + layout, 'theme-' + theme]"
+  role="region"
+  [attr.aria-label]="ariaLabel"
+>
+  <div
+    class="dock-panel"
+    [style.height.px]="panelHeight"
+    (mousemove)="onPanelMouseMove($event)"
+    (mouseleave)="onPanelMouseLeave()"
+    role="toolbar"
+    [attr.aria-label]="ariaLabel"
+  >
+    <div
+      #dockItemRef
+      *ngFor="let item of items; let i = index"
+      class="dock-item"
+      [ngClass]="[
+        item.className || '',
+        itemStates[i]?.isHovered ? 'hovered' : '',
+        isItemActive(item) ? 'active' : ''
+      ]"
+      [style.width.px]="itemStates[i]?.size || baseItemSize"
+      [style.height.px]="itemStates[i]?.size || baseItemSize"
+      (mouseenter)="onItemMouseEnter(i)"
+      (mouseleave)="onItemMouseLeave(i)"
+      (focus)="onItemFocus(i)"
+      (blur)="onItemBlur(i)"
+      (click)="onItemClick(item, $event)"
+      (keydown)="onItemKeyDown($event, item)"
+      tabindex="0"
+      role="button"
+      [attr.aria-label]="item.label"
+      [attr.aria-haspopup]="true"
+      [attr.title]="item.label"
+    >
+      <!-- Icon Container -->
+      <div class="dock-icon">
+        <ng-container *ngIf="item.icon; else fallbackLabel">
+          <span [innerHTML]="getSafeSvg(item.icon)" class="icon-svg-wrapper"></span>
+        </ng-container>
+        <ng-template #fallbackLabel>
+          <span class="icon-fallback">{{ item.label.charAt(0) }}</span>
+        </ng-template>
+      </div>
+
+      <!-- Active macOS-style Indicator Dot / Glow -->
+      <span class="dock-active-dot" *ngIf="isItemActive(item)"></span>
+
+      <!-- Floating Animated Tooltip Label -->
+      <div
+        class="dock-label"
+        [ngClass]="[
+          'position-' + resolvedLabelPosition,
+          itemStates[i]?.isHovered ? 'visible' : ''
+        ]"
+        role="tooltip"
+        [attr.aria-hidden]="!itemStates[i]?.isHovered"
+      >
+        <span>{{ item.label }}</span>
+        <span class="dock-label-badge" *ngIf="item.badge">{{ item.badge }}</span>
+      </div>
+    </div>
+  </div>
+</div>
