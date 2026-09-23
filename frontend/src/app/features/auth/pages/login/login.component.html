@@ -1,8 +1,28 @@
 <div class="auth-page">
-  <!-- Dynamic Atmospheric Background Layer (Clean White) -->
-  <div class="auth-bg-layer" aria-hidden="true">
-    <div class="auth-bg-ambient-backdrop"></div>
-  </div>
+  <!-- Dynamic GradientWaves Raymarched Interactive Background (Azul Difuminado) -->
+  <app-gradient-waves
+    class="auth-gradient-waves-layer"
+    horizonColor="#001d4a"
+    waveColor="#0052cc"
+    crestColor="#38bdf8"
+    [speed]="0.35"
+    [amplitude]="2.5"
+    [waveScale]="0.6"
+    [waveRatio]="0.9"
+    [swell]="35"
+    [turbulence]="20"
+    [tilt]="1.11"
+    [zoom]="1"
+    [height]="5.5"
+    [fogDepth]="15"
+    detail="medium"
+    [brightness]="1"
+    [opacity]="0.95"
+    [mouseInteraction]="true"
+    [parallaxStrength]="0.5"
+    [grain]="true"
+    [grainIntensity]="0.04">
+  </app-gradient-waves>
 
   <!-- Dynamic Crowd Canvas: Personajes Caminando en Escala Mayor (Fondo Blanco) -->
   <app-crowd-canvas src="/openpeeps-crowd.png" [rows]="15" [cols]="7" [inverted]="false" class="auth-crowd-layer">
@@ -38,14 +58,20 @@
         README AND <span class="headline-blue">READLINE</span>
       </h1>
 
-      <p class="hero-slogan">
-        Lee, aprende y avanza hacia el éxito.
-      </p>
+      <!-- Slogan Animado ScrollVelocity (Frase única con desplazamiento e inercia) -->
+      <app-scroll-velocity
+        text="Lee, aprende y avanza hacia el éxito."
+        [velocity]="65"
+        className="hero-scroll-slogan">
+      </app-scroll-velocity>
     </section>
 
-    <!-- Login Form Card (Minimalist, Clean & Strong) -->
+    <!-- Login Form Card (Estilo Libro Abierto & Glassmorphism) -->
     <section class="auth-form-section">
       <div class="auth-card">
+        <!-- Cinta marcapáginas superior decorativa del libro -->
+        <div class="book-ribbon" aria-hidden="true" title="Separador de lectura"></div>
+
         <header class="auth-header">
           <h2 class="auth-title">Iniciar Sesión</h2>
           <p class="auth-description">Ingrese con sus credenciales</p>
@@ -141,12 +167,7 @@
           </button>
         </form>
 
-        <!-- Separador visual -->
-        <div class="auth-divider">
-          <span>O CONTINÚA CON</span>
-        </div>
-
-        <!-- Botón de Google OAuth -->
+        <!-- Botón de Google OAuth (Sin línea de separación) -->
         <div class="google-section">
           <div #googleButtonContainer class="google-slot" [class.slot-hidden]="!googleReady"></div>
           <div *ngIf="!googleReady" class="google-loading-slot">
