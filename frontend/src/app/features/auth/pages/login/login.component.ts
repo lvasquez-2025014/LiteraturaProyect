@@ -256,34 +256,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
       this.auth.loginWithGoogle(response.credential).subscribe({
         next: (res) => {
           this.loading = false;
-          const isStudent = res.user.role === 'STUDENT_ROLE';
-          const isProfileIncomplete =
-            !res.user.institutionalEmail ||
-            !res.user.carnet ||
-            !res.user.grade ||
-            !res.user.section;
-
-          if (isStudent && isProfileIncomplete) {
-            this.pendingGoogleUser = res.user;
-            const googleEmail = res.user.email || '';
-            const isGoogleInstEmail =
-              googleEmail.toLowerCase().endsWith('@kinal.edu.gt') ||
-              googleEmail.toLowerCase().endsWith('@kinal.org.gt');
-
-            this.inputInstitutionalEmail =
-              res.user.institutionalEmail || (isGoogleInstEmail ? googleEmail : '');
-            this.inputCarnet = res.user.carnet || '';
-            
-            const parsed = parseGradeLevelAndCareer(res.user.grade);
-            this.selectedGradeLevel = parsed.level || '';
-            this.selectedCareer = parsed.career || '';
-            this.selectedSection = res.user.section || '';
-            this.onboardingError = '';
-            this.showAcademicOnboardingModal = true;
-            this.cdr.detectChanges();
-            return;
-          }
-          this.auth.redirectByRole(res.user.role);
+          this.checkProfileAndProceed(res.user);
         },
         error: (err) => {
           this.loading = false;
@@ -292,6 +265,38 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
         },
       });
     });
+  }
+
+  private checkProfileAndProceed(user: User) {
+    const isStudent = user.role === 'STUDENT_ROLE';
+    const isProfileIncomplete =
+      !user.institutionalEmail ||
+      !user.carnet ||
+      !user.grade ||
+      !user.section;
+
+    if (isStudent && isProfileIncomplete) {
+      this.pendingGoogleUser = user;
+      const userEmail = user.institutionalEmail || user.email || '';
+      const isInstitutional =
+        userEmail.toLowerCase().endsWith('@kinal.edu.gt') ||
+        userEmail.toLowerCase().endsWith('@kinal.org.gt');
+
+      this.inputInstitutionalEmail =
+        user.institutionalEmail || (isInstitutional ? userEmail : '');
+      this.inputCarnet = user.carnet || '';
+
+      const parsed = parseGradeLevelAndCareer(user.grade);
+      this.selectedGradeLevel = parsed.level || '';
+      this.selectedCareer = parsed.career || '';
+      this.selectedSection = user.section || '';
+      this.onboardingError = '';
+      this.showAcademicOnboardingModal = true;
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.auth.redirectByRole(user.role);
   }
 
   submitAcademicOnboarding() {
@@ -367,7 +372,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
     this.auth.login(email!, password!).subscribe({
       next: (res) => {
         this.loading = false;
-        this.auth.redirectByRole(res.user.role);
+        this.checkProfileAndProceed(res.user);
       },
       error: (err) => {
         this.loading = false;

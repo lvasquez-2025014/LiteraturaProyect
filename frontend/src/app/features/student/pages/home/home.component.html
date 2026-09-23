@@ -165,18 +165,71 @@
         <span>{{ onboardingError }}</span>
       </div>
 
-      <!-- Paso 1: Grado (Primero, Segundo, Tercero Básico y Cuarto, Quinto, Sexto Perito) -->
+      <!-- Paso 1 y Paso 2: Correo Institucional y Número de Carnet -->
+      <div class="onboarding-grid-2col">
+        <div class="onboarding-group">
+          <label for="home-onboarding-email" class="onboarding-label">
+            <span class="step-circle">1</span>
+            <span>Correo Institucional *</span>
+          </label>
+          <div class="onboarding-input-wrap">
+            <span class="onboarding-input-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+            </span>
+            <input 
+              id="home-onboarding-email" 
+              type="email" 
+              [(ngModel)]="onboardingInstitutionalEmail" 
+              name="onboardingInstitutionalEmail"
+              placeholder="2025014@institucion.edu" 
+              class="onboarding-input" 
+              required />
+          </div>
+        </div>
+
+        <div class="onboarding-group">
+          <label for="home-onboarding-carnet" class="onboarding-label">
+            <span class="step-circle">2</span>
+            <span>No. de Carnet *</span>
+          </label>
+          <div class="onboarding-input-wrap">
+            <span class="onboarding-input-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                <line x1="2" y1="10" x2="22" y2="10"></line>
+              </svg>
+            </span>
+            <input 
+              id="home-onboarding-carnet" 
+              type="text" 
+              [(ngModel)]="onboardingCarnet" 
+              name="onboardingCarnet"
+              placeholder="2025014" 
+              class="onboarding-input" 
+              required />
+          </div>
+        </div>
+      </div>
+
+      <!-- Paso 3: Grado Escolar -->
       <div class="onboarding-group">
         <label for="home-onboarding-grade" class="onboarding-label">
-          <span class="step-circle">1</span>
-          <span>¿Qué grado o carrera cursas actualmente? *</span>
+          <span class="step-circle">3</span>
+          <span>Grado Escolar *</span>
         </label>
         <div class="select-wrapper">
-          <select id="home-onboarding-grade" [(ngModel)]="onboardingGrade" name="onboardingGrade" class="onboarding-select" required>
-            <option value="" disabled selected>Selecciona tu grado o carrera técnica...</option>
-            <optgroup *ngFor="let g of gradeGroups" [label]="g.group">
-              <option *ngFor="let gr of g.grades" [value]="gr">{{ gr }}</option>
-            </optgroup>
+          <select 
+            id="home-onboarding-grade" 
+            [(ngModel)]="onboardingGradeLevel" 
+            (ngModelChange)="onGradeLevelChange()"
+            name="onboardingGradeLevel" 
+            class="onboarding-select" 
+            required>
+            <option value="" disabled selected>Selecciona tu grado escolar...</option>
+            <option *ngFor="let g of gradeLevels" [value]="g">{{ g }}</option>
           </select>
           <div class="select-arrow">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -184,26 +237,55 @@
         </div>
       </div>
 
-      <!-- Paso 2: Sección (De la A hasta la J) -->
-      <div class="onboarding-group">
-        <label class="onboarding-label">
-          <span class="step-circle">2</span>
-          <span>¿Cuál es tu sección? (A a la J) *</span>
+      <!-- Paso 4: Carrera Técnica (Condicional si es Perito) -->
+      <div class="onboarding-group" *ngIf="isPeritoSelected">
+        <label for="home-onboarding-career" class="onboarding-label">
+          <span class="step-circle">4</span>
+          <span>Carrera Técnica (Especialidad) *</span>
         </label>
-        <div class="sections-pills-grid">
-          <button 
-            type="button" 
-            *ngFor="let sec of sections" 
-            class="section-pill-btn"
-            [class.section-selected]="onboardingSection === sec"
-            (click)="onboardingSection = sec">
-            {{ sec }}
-          </button>
+        <div class="select-wrapper">
+          <select 
+            id="home-onboarding-career" 
+            [(ngModel)]="onboardingCareer" 
+            name="onboardingCareer" 
+            class="onboarding-select" 
+            required>
+            <option value="" disabled selected>Selecciona tu especialidad...</option>
+            <option *ngFor="let c of careers" [value]="c">Perito en {{ c }}</option>
+          </select>
+          <div class="select-arrow">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selector de Sección -->
+      <div class="onboarding-group">
+        <label for="home-onboarding-section" class="onboarding-label">
+          <span class="step-circle">{{ isPeritoSelected ? '5' : '4' }}</span>
+          <span>Sección *</span>
+        </label>
+        <div class="select-wrapper">
+          <select 
+            id="home-onboarding-section" 
+            [(ngModel)]="onboardingSection" 
+            name="onboardingSection" 
+            class="onboarding-select" 
+            required>
+            <option value="" disabled selected>Selecciona tu sección (A a la J)...</option>
+            <option *ngFor="let sec of sections" [value]="sec">Sección "{{ sec }}"</option>
+          </select>
+          <div class="select-arrow">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
         </div>
       </div>
 
       <div class="onboarding-footer-actions">
-        <button type="submit" class="btn-onboarding-submit" [disabled]="onboardingLoading || !onboardingGrade || !onboardingSection">
+        <button 
+          type="submit" 
+          class="btn-onboarding-submit" 
+          [disabled]="onboardingLoading || !onboardingInstitutionalEmail || !onboardingCarnet || !onboardingGradeLevel || (isPeritoSelected && !onboardingCareer) || !onboardingSection">
           <span *ngIf="!onboardingLoading">Completar y Acceder al Mapa de Desafíos</span>
           <span *ngIf="onboardingLoading">Sincronizando Aula...</span>
           <svg *ngIf="!onboardingLoading" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>

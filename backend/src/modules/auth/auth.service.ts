@@ -47,7 +47,7 @@ export class AuthService {
   }
 
   private formatUserResponse(user: UserDocument, token: string) {
-    const rawAdminEmail = process.env.ADMIN_EMAIL ? process.env.ADMIN_EMAIL.trim() : '';
+    const rawAdminEmail = (process.env.ADMIN_EMAIL || process.env.ADMIN_GMAIL || '').trim();
     const adminEmailConfig = rawAdminEmail
       ? rawAdminEmail
           .toLowerCase()

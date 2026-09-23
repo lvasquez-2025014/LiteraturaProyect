@@ -14,7 +14,14 @@ import { LeaderboardViewComponent } from '../../components/leaderboard-view/lead
 import { LevelUpModalComponent } from '../../components/level-up-modal/level-up-modal.component';
 import { KINAL_READINGS } from '../../../../core/data/kinal-readings';
 import { Reading, ReadingAttemptResult } from '../../../../core/models/reading.model';
-import { KINAL_GRADE_GROUPS, KINAL_SECTIONS } from '../../../../core/models/user.model';
+import {
+  KINAL_GRADE_LEVELS,
+  KINAL_CAREERS,
+  KINAL_SECTIONS,
+  isPeritoGrade,
+  formatFullGrade,
+  parseGradeLevelAndCareer,
+} from '../../../../core/models/user.model';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -46,23 +53,73 @@ export class StudentHomeComponent implements OnInit {
   activeTab = signal<'roadmap' | 'rewards' | 'achievements' | 'leaderboard'>('roadmap');
   levelUpModalData = signal<{ level: number; xp: number; coins: number } | null>(null);
 
-  // Academic Onboarding check for Google registered students
+  // Academic Onboarding check para estudiantes sin perfil académico completo (carnet, correo institucional, grado o sección)
   get needsAcademicOnboarding(): boolean {
     const u = this.user;
-    return !!u && u.role === 'STUDENT_ROLE' && (!u.grade || !u.section);
+    return (
+      !!u &&
+      u.role === 'STUDENT_ROLE' &&
+      (!u.institutionalEmail || !u.carnet || !u.grade || !u.section)
+    );
   }
 
-  onboardingGrade = '';
+  readonly gradeLevels = KINAL_GRADE_LEVELS;
+  readonly careers = KINAL_CAREERS;
+  readonly sections = KINAL_SECTIONS;
+
+  onboardingInstitutionalEmail = '';
+  onboardingCarnet = '';
+  onboardingGradeLevel = '';
+  onboardingCareer = '';
   onboardingSection = '';
   onboardingLoading = false;
   onboardingError = '';
 
-  readonly gradeGroups = KINAL_GRADE_GROUPS;
-  readonly sections = KINAL_SECTIONS;
+  get isPeritoSelected(): boolean {
+    return isPeritoGrade(this.onboardingGradeLevel);
+  }
+
+  onGradeLevelChange(): void {
+    if (!this.isPeritoSelected) {
+      this.onboardingCareer = '';
+    }
+  }
+
+  initOnboardingFields(): void {
+    const u = this.user;
+    if (u) {
+      this.onboardingInstitutionalEmail = u.institutionalEmail || '';
+      this.onboardingCarnet = u.carnet || '';
+      const parsed = parseGradeLevelAndCareer(u.grade);
+      this.onboardingGradeLevel = parsed.level || '';
+      this.onboardingCareer = parsed.career || '';
+      this.onboardingSection = u.section || '';
+    }
+  }
 
   submitAcademicOnboarding() {
-    if (!this.onboardingGrade) {
-      this.onboardingError = 'Por favor, selecciona tu grado o carrera técnica.';
+    const cleanEmail = this.onboardingInstitutionalEmail ? this.onboardingInstitutionalEmail.trim().toLowerCase() : '';
+    const cleanCarnet = this.onboardingCarnet ? this.onboardingCarnet.trim() : '';
+
+    if (!cleanEmail) {
+      this.onboardingError = 'Por favor, ingresa tu correo institucional.';
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      this.onboardingError = 'Por favor, ingresa un correo institucional válido (ej. 2025014@institucion.edu).';
+      return;
+    }
+    if (!cleanCarnet) {
+      this.onboardingError = 'Por favor, ingresa tu número de carnet de estudiante.';
+      return;
+    }
+    if (!this.onboardingGradeLevel) {
+      this.onboardingError = 'Por favor, selecciona tu grado educativo.';
+      return;
+    }
+    if (this.isPeritoSelected && !this.onboardingCareer) {
+      this.onboardingError = 'Por favor, selecciona tu carrera técnica.';
       return;
     }
     if (!this.onboardingSection) {
@@ -72,20 +129,30 @@ export class StudentHomeComponent implements OnInit {
     const userId = this.user?.id;
     if (!userId) return;
 
+    const finalGrade = formatFullGrade(this.onboardingGradeLevel, this.onboardingCareer);
+
     this.onboardingLoading = true;
     this.onboardingError = '';
 
-    this.auth.updateAcademicProfile(userId, this.onboardingGrade, this.onboardingSection).subscribe({
-      next: () => {
-        this.onboardingLoading = false;
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        this.onboardingLoading = false;
-        this.onboardingError = err.error?.message || 'Error al guardar tu grado y sección. Intenta nuevamente.';
-        this.cdr.markForCheck();
-      },
-    });
+    this.auth
+      .updateAcademicProfile(
+        userId,
+        finalGrade,
+        this.onboardingSection,
+        cleanEmail,
+        cleanCarnet,
+      )
+      .subscribe({
+        next: () => {
+          this.onboardingLoading = false;
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          this.onboardingLoading = false;
+          this.onboardingError = err.error?.message || 'Error al guardar tus datos institucionales. Intenta nuevamente.';
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   get user() {
@@ -117,6 +184,7 @@ export class StudentHomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.initOnboardingFields();
     this.syncReadingsWithLevel();
     this.readingsService.getReadings().subscribe({
       next: (dbReadings) => {

@@ -280,11 +280,12 @@ export class UsersController {
   @Roles('STUDENT_ROLE', 'TEACHER_ROLE', 'ADMIN_ROLE')
   async updateAcademicProfile(
     @Param('id') id: string,
-    @Body() body: { grade: string; section: string; institutionalEmail?: string; carnet?: string },
+    @Body() body: { grade?: string; section?: string; institutionalEmail?: string; carnet?: string },
     @CurrentUser() requester: any,
   ) {
-    if (!body.grade || !body.section) {
-      throw new BadRequestException('El grado y la sección son obligatorios');
+    const user = await this.usersService.findById(id);
+    if (!user) {
+      throw new BadRequestException('Usuario no encontrado');
     }
 
     const requesterId = requester?.id || requester?._id;
@@ -293,16 +294,23 @@ export class UsersController {
       throw new ForbiddenException('Solo un administrador tiene permiso para modificar el perfil de otros usuarios');
     }
 
+    const finalGrade = (body.grade || user.grade || '').trim();
+    const finalSection = (body.section || user.section || '').trim().toUpperCase();
+
+    if (!finalGrade || !finalSection) {
+      throw new BadRequestException('El grado y la sección son obligatorios');
+    }
+
     const updates: any = {
-      grade: body.grade.trim(),
-      section: body.section.trim().toUpperCase(),
+      grade: finalGrade,
+      section: finalSection,
     };
 
-    if (body.institutionalEmail) {
-      updates.institutionalEmail = body.institutionalEmail.trim().toLowerCase();
+    if (body.institutionalEmail !== undefined) {
+      updates.institutionalEmail = body.institutionalEmail ? body.institutionalEmail.trim().toLowerCase() : '';
     }
-    if (body.carnet) {
-      updates.carnet = body.carnet.trim();
+    if (body.carnet !== undefined) {
+      updates.carnet = body.carnet ? body.carnet.trim() : '';
     }
 
     await this.usersService.updateProfile(id, updates);

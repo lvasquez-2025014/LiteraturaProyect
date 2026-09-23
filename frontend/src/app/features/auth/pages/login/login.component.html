@@ -1,27 +1,9 @@
 <div class="auth-page">
   <!-- Dynamic GradientWaves Raymarched Interactive Background (Azul Difuminado) -->
-  <app-gradient-waves
-    class="auth-gradient-waves-layer"
-    horizonColor="#001d4a"
-    waveColor="#0052cc"
-    crestColor="#38bdf8"
-    [speed]="0.35"
-    [amplitude]="2.5"
-    [waveScale]="0.6"
-    [waveRatio]="0.9"
-    [swell]="35"
-    [turbulence]="20"
-    [tilt]="1.11"
-    [zoom]="1"
-    [height]="5.5"
-    [fogDepth]="15"
-    detail="medium"
-    [brightness]="1"
-    [opacity]="0.95"
-    [mouseInteraction]="true"
-    [parallaxStrength]="0.5"
-    [grain]="true"
-    [grainIntensity]="0.04">
+  <app-gradient-waves class="auth-gradient-waves-layer" horizonColor="#001d4a" waveColor="#0052cc" crestColor="#38bdf8"
+    [speed]="0.35" [amplitude]="2.5" [waveScale]="0.6" [waveRatio]="0.9" [swell]="35" [turbulence]="20" [tilt]="1.11"
+    [zoom]="1" [height]="5.5" [fogDepth]="15" detail="medium" [brightness]="1" [opacity]="0.95"
+    [mouseInteraction]="true" [parallaxStrength]="0.5" [grain]="true" [grainIntensity]="0.04">
   </app-gradient-waves>
 
   <!-- Dynamic Crowd Canvas: Personajes Caminando en Escala Mayor (Fondo Blanco) -->
@@ -59,10 +41,7 @@
       </h1>
 
       <!-- Slogan Animado ScrollVelocity (Frase única con desplazamiento e inercia) -->
-      <app-scroll-velocity
-        text="Lee, aprende y avanza hacia el éxito."
-        [velocity]="65"
-        className="hero-scroll-slogan">
+      <app-scroll-velocity text="Lee, aprende y avanza hacia el éxito." [velocity]="65" className="hero-scroll-slogan">
       </app-scroll-velocity>
     </section>
 
@@ -112,7 +91,8 @@
                   <polyline points="22,6 12,13 2,6"></polyline>
                 </svg>
               </span>
-              <input id="email" type="text" formControlName="email" placeholder="ejemplo" class="text-input has-icon"
+              <input id="email" type="text" formControlName="email" placeholder="ejemplo"
+                class="text-input has-icon"
                 [class.has-error]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid"
                 autocomplete="username" />
             </div>
@@ -231,13 +211,8 @@
                   <polyline points="22,6 12,13 2,6"></polyline>
                 </svg>
               </span>
-              <input 
-                id="onboarding-email" 
-                type="email" 
-                [(ngModel)]="inputInstitutionalEmail" 
-                name="inputInstitutionalEmail"
-                placeholder="2025014@institucion.edu" 
-                class="onboarding-input" 
+              <input id="onboarding-email" type="email" [(ngModel)]="inputInstitutionalEmail"
+                name="inputInstitutionalEmail" placeholder="2025014@institucion.edu" class="onboarding-input"
                 required />
             </div>
           </div>
@@ -255,14 +230,8 @@
                   <line x1="2" y1="10" x2="22" y2="10"></line>
                 </svg>
               </span>
-              <input 
-                id="onboarding-carnet" 
-                type="text" 
-                [(ngModel)]="inputCarnet" 
-                name="inputCarnet"
-                placeholder="2025014" 
-                class="onboarding-input" 
-                required />
+              <input id="onboarding-carnet" type="text" [(ngModel)]="inputCarnet" name="inputCarnet"
+                placeholder="2025014" class="onboarding-input" required />
             </div>
           </div>
         </div>
@@ -274,13 +243,8 @@
             <span>Grado *</span>
           </label>
           <div class="select-wrapper">
-            <select 
-              id="onboarding-grade-level" 
-              [(ngModel)]="selectedGradeLevel" 
-              (ngModelChange)="onGradeLevelChange()"
-              name="selectedGradeLevel" 
-              class="onboarding-select"
-              required>
+            <select id="onboarding-grade-level" [(ngModel)]="selectedGradeLevel" (ngModelChange)="onGradeLevelChange()"
+              name="selectedGradeLevel" class="onboarding-select" required>
               <option value="" disabled selected>Selecciona tu grado...</option>
               <option *ngFor="let g of gradeLevels" [value]="g">{{ g }}</option>
             </select>
@@ -300,11 +264,7 @@
             <span>Carrera Técnica (Especialidad) *</span>
           </label>
           <div class="select-wrapper">
-            <select 
-              id="onboarding-career" 
-              [(ngModel)]="selectedCareer" 
-              name="selectedCareer" 
-              class="onboarding-select"
+            <select id="onboarding-career" [(ngModel)]="selectedCareer" name="selectedCareer" class="onboarding-select"
               required>
               <option value="" disabled selected>Selecciona tu carrera técnica...</option>
               <option *ngFor="let c of careers" [value]="c">Perito en {{ c }}</option>
@@ -325,12 +285,8 @@
             <span>Sección *</span>
           </label>
           <div class="select-wrapper">
-            <select 
-              id="onboarding-section" 
-              [(ngModel)]="selectedSection" 
-              name="selectedSection" 
-              class="onboarding-select"
-              required>
+            <select id="onboarding-section" [(ngModel)]="selectedSection" name="selectedSection"
+              class="onboarding-select" required>
               <option value="" disabled selected>Selecciona tu sección (A a la J)...</option>
               <option *ngFor="let s of sections" [value]="s">Sección {{ s }}</option>
             </select>
