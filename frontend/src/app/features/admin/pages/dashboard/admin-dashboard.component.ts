@@ -33,11 +33,45 @@ export class AdminDashboardComponent implements OnInit {
   readonly sections = KINAL_SECTIONS;
 
   users: User[] = [];
+  selectedRoleFilter: 'ALL' | 'STUDENT_ROLE' | 'TEACHER_ROLE' | 'ADMIN_ROLE' = 'ALL';
+  searchQuery = '';
   loading = false;
   creatingUser = false;
   showCreateModal = false;
   successMessage = '';
   errorMessage = '';
+
+  get filteredUsers(): User[] {
+    let result = this.users;
+
+    if (this.selectedRoleFilter !== 'ALL') {
+      result = result.filter((u) => u.role === this.selectedRoleFilter);
+    }
+
+    if (this.searchQuery && this.searchQuery.trim()) {
+      const q = this.searchQuery.trim().toLowerCase();
+      result = result.filter(
+        (u) =>
+          u.name?.toLowerCase().includes(q) ||
+          u.email?.toLowerCase().includes(q) ||
+          u.institutionalEmail?.toLowerCase().includes(q) ||
+          u.carnet?.toLowerCase().includes(q) ||
+          u.grade?.toLowerCase().includes(q) ||
+          u.section?.toLowerCase().includes(q),
+      );
+    }
+
+    return result;
+  }
+
+  setRoleFilter(role: 'ALL' | 'STUDENT_ROLE' | 'TEACHER_ROLE' | 'ADMIN_ROLE') {
+    this.selectedRoleFilter = role;
+    this.cdr.markForCheck();
+  }
+
+  countByRole(role: 'STUDENT_ROLE' | 'TEACHER_ROLE' | 'ADMIN_ROLE'): number {
+    return this.users.filter((u) => u.role === role).length;
+  }
 
   // Estado para creación de estudiante con grado y carrera separados
   newStudentGradeLevel = '';

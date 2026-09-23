@@ -30,13 +30,71 @@
         <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><polyline points="20 6 9 17 4 12"/></svg> {{ successMessage }}</span>
       </div>
 
+      <!-- Barra de Filtros por Rol y Búsqueda Rápida -->
+      <div class="admin-filters-bar">
+        <div class="role-filter-pills" role="tablist" aria-label="Filtrar por rol">
+          <button 
+            type="button" 
+            class="filter-pill-btn" 
+            [class.active]="selectedRoleFilter === 'ALL'"
+            (click)="setRoleFilter('ALL')">
+            <span class="pill-dot dot-all"></span>
+            <span>Todos</span>
+            <span class="pill-counter">{{ users.length }}</span>
+          </button>
+          
+          <button 
+            type="button" 
+            class="filter-pill-btn btn-role-student" 
+            [class.active]="selectedRoleFilter === 'STUDENT_ROLE'"
+            (click)="setRoleFilter('STUDENT_ROLE')">
+            <span class="pill-dot dot-student"></span>
+            <span>Estudiantes</span>
+            <span class="pill-counter">{{ countByRole('STUDENT_ROLE') }}</span>
+          </button>
+          
+          <button 
+            type="button" 
+            class="filter-pill-btn btn-role-teacher" 
+            [class.active]="selectedRoleFilter === 'TEACHER_ROLE'"
+            (click)="setRoleFilter('TEACHER_ROLE')">
+            <span class="pill-dot dot-teacher"></span>
+            <span>Docentes</span>
+            <span class="pill-counter">{{ countByRole('TEACHER_ROLE') }}</span>
+          </button>
+          
+          <button 
+            type="button" 
+            class="filter-pill-btn btn-role-admin" 
+            [class.active]="selectedRoleFilter === 'ADMIN_ROLE'"
+            (click)="setRoleFilter('ADMIN_ROLE')">
+            <span class="pill-dot dot-admin"></span>
+            <span>Administradores</span>
+            <span class="pill-counter">{{ countByRole('ADMIN_ROLE') }}</span>
+          </button>
+        </div>
+
+        <div class="search-box-wrap">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input 
+            type="text" 
+            [(ngModel)]="searchQuery" 
+            placeholder="Buscar por nombre, correo, carnet o grado..." 
+            class="search-input" />
+          <button *ngIf="searchQuery" (click)="searchQuery = ''" class="btn-clear-search" title="Limpiar búsqueda">✕</button>
+        </div>
+      </div>
+
       <div *ngIf="loading" class="loading-state">
         <span class="mini-spinner"></span>
         <p>Cargando información de estudiantes y docentes...</p>
       </div>
 
       <div class="table-responsive" *ngIf="!loading">
-        <table class="data-table">
+        <table class="data-table" *ngIf="filteredUsers.length > 0; else noFilteredUsers">
           <thead>
             <tr>
               <th>Estudiante / Docente</th>
@@ -47,7 +105,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let u of users">
+            <tr *ngFor="let u of filteredUsers">
               <td class="user-cell">
                 <div class="avatar-sm">
                   <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" [alt]="u.name" />
@@ -104,6 +162,20 @@
             </tr>
           </tbody>
         </table>
+
+        <ng-template #noFilteredUsers>
+          <div class="empty-filter-state">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <p class="empty-title">No se encontraron usuarios</p>
+            <p class="empty-desc">No hay cuentas que coincidan con el rol o la búsqueda actual.</p>
+            <button *ngIf="selectedRoleFilter !== 'ALL' || searchQuery" (click)="setRoleFilter('ALL'); searchQuery = ''" class="btn btn-secondary btn-sm" style="margin-top: 6px;">
+              Restablecer Filtros
+            </button>
+          </div>
+        </ng-template>
       </div>
 
     </div>
