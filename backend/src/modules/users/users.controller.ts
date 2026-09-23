@@ -9,7 +9,7 @@ import { UserRole } from './schemas/user.schema.js';
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Get()
   @Roles('ADMIN_ROLE', 'TEACHER_ROLE')
@@ -18,10 +18,10 @@ export class UsersController {
     const rawAdminEmail = process.env.ADMIN_EMAIL ? process.env.ADMIN_EMAIL.trim() : '';
     const rootAdminEmails = rawAdminEmail
       ? rawAdminEmail
-          .toLowerCase()
-          .split(',')
-          .map((e) => e.trim())
-          .filter((e) => e.length > 0)
+        .toLowerCase()
+        .split(',')
+        .map((e) => e.trim())
+        .filter((e) => e.length > 0)
       : [];
 
     // Remove hashed passwords before sending y normalizar id + flag isSuperAdmin
@@ -100,10 +100,10 @@ export class UsersController {
     const rawAdminEmail = process.env.ADMIN_EMAIL ? process.env.ADMIN_EMAIL.trim() : '';
     const rootAdminEmails = rawAdminEmail
       ? rawAdminEmail
-          .toLowerCase()
-          .split(',')
-          .map((e) => e.trim())
-          .filter((e) => e.length > 0)
+        .toLowerCase()
+        .split(',')
+        .map((e) => e.trim())
+        .filter((e) => e.length > 0)
       : [];
 
     const requesterEmail = (requester?.email || '').toLowerCase().trim();
@@ -156,10 +156,10 @@ export class UsersController {
     const rawAdminEmail = process.env.ADMIN_EMAIL ? process.env.ADMIN_EMAIL.trim() : '';
     const rootAdminEmails = rawAdminEmail
       ? rawAdminEmail
-          .toLowerCase()
-          .split(',')
-          .map((e) => e.trim())
-          .filter((e) => e.length > 0)
+        .toLowerCase()
+        .split(',')
+        .map((e) => e.trim())
+        .filter((e) => e.length > 0)
       : [];
 
     const requesterEmail = (requester?.email || '').toLowerCase().trim();

@@ -1,12 +1,41 @@
 <div class="auth-page">
+  <!-- Dynamic Atmospheric Background & Video / Ambient Layer -->
+  <div class="auth-bg-layer" aria-hidden="true">
+    <div class="auth-bg-ambient-backdrop"></div>
+    <div class="auth-bg-book-watermark"></div>
+    <div class="auth-glow-orb orb-primary"></div>
+    <div class="auth-glow-orb orb-accent"></div>
+  </div>
+
+  <!-- Dynamic Crowd Canvas: Estudiantes y Personajes Caminando en Vivo (Skiper39) -->
+  <app-crowd-canvas 
+    src="/openpeeps-crowd.png" 
+    [rows]="15" 
+    [cols]="7" 
+    [inverted]="true"
+    class="auth-crowd-layer">
+  </app-crowd-canvas>
+
+  <!-- Walkway / Promenade Light Baseline -->
+  <div class="auth-promenade-glow" aria-hidden="true">
+    <div class="promenade-line"></div>
+    <div class="promenade-reflection"></div>
+  </div>
+
   <div class="auth-layout-container">
 
     <!-- Hero Showcase Panel (Engagement for Students) -->
     <section class="auth-hero-showcase">
-      <!-- Badge de Plataforma -->
-      <div class="hero-brand-badge">
-        <span class="badge-dot"></span>
-        <span>Fundación Kinal · Proyecto Literatura</span>
+      <!-- Badge de Plataforma y Comunidad Activa -->
+      <div class="hero-badges-row">
+        <div class="hero-brand-badge">
+          <span class="badge-dot"></span>
+          <span>Fundación Kinal · Proyecto Literatura</span>
+        </div>
+        <div class="crowd-community-pill" title="Estudiantes y lectores entrenando en la plataforma">
+          <span class="crowd-pulse-dot"></span>
+          <span>Comunidad Activa</span>
+        </div>
       </div>
 
       <h1 class="hero-headline">

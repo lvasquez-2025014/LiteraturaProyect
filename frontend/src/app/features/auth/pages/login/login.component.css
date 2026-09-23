@@ -7,17 +7,124 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
+  padding: 40px 20px 60px;
   position: relative;
   overflow-x: hidden;
-  background-color: #14100c;
-  background-image: 
-    linear-gradient(135deg, rgba(12, 10, 8, 0.55) 0%, rgba(15, 23, 42, 0.45) 50%, rgba(10, 8, 6, 0.65) 100%),
-    url('/fondo.png');
-  background-size: cover;
-  background-position: center center;
+  background-color: #070c18;
+}
+
+/* --------------------------------------------------------------------------
+   Dynamic Atmospheric Background & Ambient Layers
+   -------------------------------------------------------------------------- */
+.auth-bg-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.auth-bg-ambient-backdrop {
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 18% 22%, rgba(0, 74, 173, 0.42) 0%, transparent 55%),
+    radial-gradient(circle at 82% 78%, rgba(243, 111, 33, 0.28) 0%, transparent 55%),
+    radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.7) 0%, transparent 80%),
+    linear-gradient(155deg, #070c18 0%, #0c1527 45%, #050811 100%);
+}
+
+.auth-bg-book-watermark {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(100%, 1100px);
+  height: 65vh;
+  background-image: url('/fondo.png');
   background-repeat: no-repeat;
-  background-attachment: fixed;
+  background-position: center bottom;
+  background-size: contain;
+  opacity: 0.16;
+  filter: blur(0.4px) drop-shadow(0 0 40px rgba(0, 74, 173, 0.3));
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+/* Orbes de luz ambientales en movimiento suave */
+.auth-glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(85px);
+  pointer-events: none;
+}
+
+.orb-primary {
+  width: 480px;
+  height: 480px;
+  background: rgba(0, 74, 173, 0.32);
+  top: 8%;
+  left: -4%;
+  animation: orbFloat 14s ease-in-out infinite alternate;
+}
+
+.orb-accent {
+  width: 420px;
+  height: 420px;
+  background: rgba(243, 111, 33, 0.22);
+  bottom: 8%;
+  right: -2%;
+  animation: orbFloat 12s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes orbFloat {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(35px, -30px) scale(1.1);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Crowd Canvas Layer (Estudiantes y Personajes Caminando de Fondo)
+   -------------------------------------------------------------------------- */
+.auth-crowd-layer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 85vh;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Paseo / Línea de luz en la base del piso */
+.auth-promenade-glow {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.promenade-line {
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 74, 173, 0.6) 20%,
+    rgba(243, 111, 33, 0.85) 50%,
+    rgba(0, 74, 173, 0.6) 80%,
+    transparent 100%
+  );
+  box-shadow: 0 0 16px rgba(243, 111, 33, 0.6), 0 -2px 10px rgba(0, 74, 173, 0.4);
+}
+
+.promenade-reflection {
+  height: 50px;
+  background: linear-gradient(to top, rgba(0, 74, 173, 0.16) 0%, transparent 100%);
 }
 
 .auth-layout-container {
@@ -28,6 +135,8 @@
   gap: 52px;
   align-items: center;
   margin: 0 auto;
+  position: relative;
+  z-index: 5;
 }
 
 /* --------------------------------------------------------------------------
@@ -39,11 +148,17 @@
   gap: 20px;
 }
 
+.hero-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .hero-brand-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  align-self: flex-start;
   padding: 6px 14px;
   background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.25);
@@ -56,6 +171,44 @@
   color: #f8fafc;
   letter-spacing: 0.02em;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.crowd-community-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(0, 74, 173, 0.28);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 999px;
+  font-family: var(--font-heading);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #93c5fd;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 14px rgba(0, 74, 173, 0.25);
+}
+
+.crowd-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981, 0 0 4px #34d399;
+  animation: pulseDot 2s ease-in-out infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 0.65;
+  }
 }
 
 .badge-dot {
