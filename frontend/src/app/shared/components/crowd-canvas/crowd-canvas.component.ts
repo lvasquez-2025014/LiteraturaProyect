@@ -46,9 +46,9 @@ interface Peep {
         bottom: 0;
         left: 0;
         width: 100%;
-        height: 330px;
+        height: 100%;
         pointer-events: none;
-        overflow: hidden;
+        overflow: visible;
         z-index: 1;
       }
 
@@ -58,6 +58,7 @@ interface Peep {
         width: 100%;
         height: 100%;
         pointer-events: none;
+        overflow: visible;
       }
 
       .crowd-canvas {
@@ -209,10 +210,10 @@ export class CrowdCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private calculateScale(width: number): number {
-    if (width < 640) return 0.58;
-    if (width < 1024) return 0.72;
-    if (width < 1440) return 0.85;
-    return 0.95;
+    if (width < 640) return 0.49;
+    if (width < 1024) return 0.68;
+    if (width < 1440) return 0.82;
+    return 0.92;
   }
 
   private resetPeep(stage: { width: number; height: number; scale: number }, peep: Peep) {

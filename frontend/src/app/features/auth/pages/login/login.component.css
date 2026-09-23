@@ -268,28 +268,28 @@ app-scroll-velocity {
 .auth-card {
   width: 100%;
   max-width: 440px;
-  /* Fondo translúcido uniforme de alta legibilidad y efecto cristal (sin línea en medio) */
-  background: rgba(255, 255, 255, 0.78);
+  /* Fondo translúcido uniforme de alta legibilidad y efecto cristal */
+  background: rgba(255, 255, 255, 0.58);
   backdrop-filter: blur(14px) saturate(180%);
   -webkit-backdrop-filter: blur(14px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 20px 20px 16px 16px;
   padding: 38px 34px 34px;
   position: relative;
   /* Efecto de páginas apiladas y sombra 3D del libro abierto */
   box-shadow:
-    0 24px 50px -12px rgba(15, 23, 42, 0.14),
-    0 10px 24px -4px rgba(0, 74, 173, 0.08),
+    0 24px 50px -12px rgba(15, 23, 42, 0.12),
+    0 10px 24px -4px rgba(0, 74, 173, 0.07),
     /* Grosor de páginas apiladas (lado izquierdo) */
-    -4px 4px 0 -1px rgba(255, 255, 255, 0.85),
-    -5px 5px 3px -1px rgba(0, 74, 173, 0.06),
-    -8px 8px 0 -2px rgba(248, 250, 252, 0.7),
-    -9px 9px 4px -2px rgba(0, 74, 173, 0.04),
+    -4px 4px 0 -1px rgba(255, 255, 255, 0.7),
+    -5px 5px 3px -1px rgba(0, 74, 173, 0.05),
+    -8px 8px 0 -2px rgba(248, 250, 252, 0.5),
+    -9px 9px 4px -2px rgba(0, 74, 173, 0.03),
     /* Grosor de páginas apiladas (lado derecho) */
-    4px 4px 0 -1px rgba(255, 255, 255, 0.85),
-    5px 5px 3px -1px rgba(0, 74, 173, 0.06),
-    8px 8px 0 -2px rgba(248, 250, 252, 0.7),
-    9px 9px 4px -2px rgba(0, 74, 173, 0.04),
+    4px 4px 0 -1px rgba(255, 255, 255, 0.7),
+    5px 5px 3px -1px rgba(0, 74, 173, 0.05),
+    8px 8px 0 -2px rgba(248, 250, 252, 0.5),
+    9px 9px 4px -2px rgba(0, 74, 173, 0.03),
     inset 0 1px 1px rgba(255, 255, 255, 0.95);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -471,10 +471,10 @@ app-scroll-velocity {
 .text-input {
   width: 100%;
   padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.58);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(203, 213, 225, 0.75);
+  border: 1px solid rgba(203, 213, 225, 0.65);
   border-radius: 10px;
   color: var(--text-primary);
   font-size: 0.95rem;
@@ -614,7 +614,7 @@ app-scroll-velocity {
   width: 100%;
   max-width: 340px;
   height: 44px;
-  background: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.58);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(203, 213, 225, 0.75);
@@ -708,8 +708,8 @@ app-scroll-velocity {
   }
 
   .auth-crowd-layer {
-    height: 160px;
-    opacity: 0.45;
+    height: 250px;
+    opacity: 0.9;
   }
 }
 
@@ -748,15 +748,16 @@ app-scroll-velocity {
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
-    background: rgba(255, 255, 255, 0.88);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.52);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.75);
     box-shadow:
-      0 12px 32px rgba(0, 74, 173, 0.1),
-      -2px 2px 0 -1px rgba(255, 255, 255, 0.85),
-      2px 2px 0 -1px rgba(255, 255, 255, 0.85),
-      -4px 4px 0 -2px rgba(248, 250, 252, 0.7),
-      4px 4px 0 -2px rgba(248, 250, 252, 0.7);
+      0 12px 32px rgba(0, 74, 173, 0.08),
+      -2px 2px 0 -1px rgba(255, 255, 255, 0.7),
+      2px 2px 0 -1px rgba(255, 255, 255, 0.7),
+      -4px 4px 0 -2px rgba(248, 250, 252, 0.5),
+      4px 4px 0 -2px rgba(248, 250, 252, 0.5);
   }
 
   .book-ribbon {
@@ -778,8 +779,8 @@ app-scroll-velocity {
   }
 
   .auth-crowd-layer {
-    height: 120px;
-    opacity: 0.35;
+    height: 210px;
+    opacity: 0.92;
   }
 
   .google-slot {
