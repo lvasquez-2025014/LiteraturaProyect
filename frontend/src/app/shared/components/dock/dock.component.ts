@@ -15,8 +15,10 @@ import {
   ChangeDetectionStrategy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 export interface DockItemConfig {
   id?: string;
@@ -44,7 +46,7 @@ interface ItemState {
 @Component({
   selector: 'app-dock',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './dock.component.html',
   styleUrl: './dock.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -80,9 +82,16 @@ export class DockComponent implements OnInit, AfterViewInit, OnChanges, OnDestro
   private lastTime = 0;
   private isDestroyed = false;
   private svgCache = new Map<string, SafeHtml>();
+  private routerSub?: Subscription;
 
   ngOnInit(): void {
     this.syncItemStates();
+    this.routerSub = this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.hoveredIndex = null;
+        this.cdr.markForCheck();
+      });
   }
 
   ngAfterViewInit(): void {
@@ -95,6 +104,7 @@ export class DockComponent implements OnInit, AfterViewInit, OnChanges, OnDestro
 
   ngOnDestroy(): void {
     this.isDestroyed = true;
+    this.routerSub?.unsubscribe();
     if (this.rafId !== null) {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
@@ -196,21 +206,26 @@ export class DockComponent implements OnInit, AfterViewInit, OnChanges, OnDestro
   }
 
   onItemClick(item: DockItemConfig, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
     this.hoveredIndex = null;
     this.cdr.markForCheck();
 
     if (item.onClick) {
-      event.preventDefault();
       item.onClick();
     } else if (item.route) {
-      // Navegación nativa con router
-      this.router.navigateByUrl(item.route);
+      this.ngZone.run(() => {
+        this.router.navigate([item.route]).then(() => {
+          this.cdr.markForCheck();
+        });
+      });
     }
   }
 
   onItemKeyDown(event: KeyboardEvent, item: DockItemConfig): void {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
+      event.stopPropagation();
       this.onItemClick(item, event);
     }
   }

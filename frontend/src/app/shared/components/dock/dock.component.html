@@ -16,7 +16,7 @@
     <a
       #dockItemRef
       *ngFor="let item of items; let i = index"
-      [routerLink]="item.route || null"
+      [attr.href]="item.route || null"
       (click)="onItemClick(item, $event)"
       class="dock-item"
       [ngClass]="[
