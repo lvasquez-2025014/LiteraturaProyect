@@ -1,14 +1,18 @@
-<div class="auth-page">
-  <!-- Dynamic Atmospheric Background Layer (Clean White) -->
-  <div class="auth-bg-layer" aria-hidden="true">
-    <div class="auth-bg-ambient-backdrop"></div>
-  </div>
+<div class="book-auth-page">
+  <!-- Desk Ambient Overlay with warm lamp glow -->
+  <div class="desk-ambient-overlay" aria-hidden="true"></div>
 
-  <!-- Dynamic Crowd Canvas: Personajes Caminando en Escala Mayor (Fondo Blanco) -->
-  <app-crowd-canvas src="/openpeeps-crowd.png" [rows]="15" [cols]="7" [inverted]="false" class="auth-crowd-layer">
-  </app-crowd-canvas>
+  <!-- Top Institutional Brand Tag -->
+  <header class="book-top-bar">
+    <div class="book-brand-tag">
+      <span class="brand-dot"></span>
+      <span class="brand-name">README AND READLINE</span>
+      <span class="brand-sep">·</span>
+      <span class="brand-sub">Fundación Kinal</span>
+    </div>
+  </header>
 
-  <!-- Notificación Flotante de Cierre de Sesión -->
+  <!-- Notificación Flotante de Cierre de Sesión / Inactividad -->
   <aside class="auth-floating-notice" *ngIf="sessionExpiredMessage" role="alert" aria-live="assertive">
     <div class="notice-icon">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -29,45 +33,39 @@
     </button>
   </aside>
 
-  <div class="auth-layout-container">
+  <!-- Open Book Stage -->
+  <main class="open-book-stage">
+    <div class="open-book-wrapper">
 
-    <!-- Hero Showcase Panel (Clean, Prestigious & Editorial) -->
-    <section class="auth-hero-showcase">
+      <!-- Realistic Clean Open Book (book-desk-clean.jpg) -->
+      <img 
+        src="/book-desk-clean.jpg" 
+        alt="Libro de Lectura Fundación Kinal" 
+        class="open-book-image" />
 
-      <h1 class="hero-headline">
-        README AND <span class="headline-blue">READLINE</span>
-      </h1>
-
-      <p class="hero-slogan">
-        Lee, aprende y avanza hacia el éxito.
-      </p>
-    </section>
-
-    <!-- Login Form Card (Minimalist, Clean & Strong) -->
-    <section class="auth-form-section">
-      <div class="auth-card">
-        <header class="auth-header">
-          <h2 class="auth-title">Iniciar Sesión</h2>
-          <p class="auth-description">Ingrese con sus credenciales</p>
-        </header>
-
-        <!-- Mensaje de Sesión Expirada / Inactiva -->
-        <div class="auth-alert auth-alert-warning" *ngIf="sessionExpiredMessage">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <polyline points="12 6 12 12 16 14"></polyline>
+      <!-- Interactive Right Page Form Overlay -->
+      <section class="book-form-overlay" aria-label="Formulario de Acceso">
+        
+        <!-- Book rays icon matching uploaded design -->
+        <div class="book-form-icon" aria-hidden="true">
+          <svg width="44" height="44" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M24 4V9" stroke="#0c2a5e" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M14 8L17 12" stroke="#0c2a5e" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M34 8L31 12" stroke="#0c2a5e" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M7 15L12 17" stroke="#0c2a5e" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M41 15L36 17" stroke="#0c2a5e" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M24 20C19.5 16.5 11.5 16.5 5 20V37C11.5 33.5 19.5 33.5 24 37C28.5 33.5 36.5 33.5 43 37V20C36.5 16.5 28.5 16.5 24 20Z" fill="#0c2a5e" stroke="#0c2a5e" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M24 20V37" stroke="#fcf7ee" stroke-width="2" stroke-linecap="round"/>
+            <path d="M24 22.5C20 19.5 13 19.5 7 22.5V34C13 31 20 31 24 34C28 31 35 31 41 34V22.5C35 19.5 28 19.5 24 22.5Z" stroke="#fcf7ee" stroke-width="1.2"/>
           </svg>
-          <div class="auth-alert-content">
-            <strong>{{ sessionExpiredTitle || 'Sesión Finalizada' }}</strong>
-            <span>{{ sessionExpiredMessage }}</span>
-          </div>
         </div>
 
-        <!-- Mensaje de Error -->
-        <div class="auth-alert" *ngIf="errorMessage">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
+        <h1 class="book-form-heading">Iniciar Sesión</h1>
+        <p class="book-form-subtext">Accede a tu cuenta y continúa tu progreso lector.</p>
+
+        <!-- Error Message -->
+        <div class="book-form-alert alert-error" *ngIf="errorMessage" role="alert">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="12" y1="8" x2="12" y2="12"></line>
             <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -75,98 +73,122 @@
           <span>{{ errorMessage }}</span>
         </div>
 
-        <!-- Formulario de credenciales -->
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form" novalidate>
-          <div class="field-group">
-            <label for="email" class="field-label">Credenciales</label>
-            <div class="input-wrapper">
-              <span class="input-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                  <polyline points="22,6 12,13 2,6"></polyline>
-                </svg>
-              </span>
-              <input id="email" type="text" formControlName="email" placeholder="ejemplo" class="text-input has-icon"
-                [class.has-error]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid"
-                autocomplete="username" />
-            </div>
-            <span *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.errors?.['required']"
-              class="field-error">
-              Por favor ingresa tu correo institucional
+        <!-- Session Expired Alert -->
+        <div class="book-form-alert alert-warning" *ngIf="sessionExpiredMessage" role="alert">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <div class="alert-content">
+            <strong>{{ sessionExpiredTitle || 'Sesión Cerrada' }}</strong>
+            <span>{{ sessionExpiredMessage }}</span>
+          </div>
+        </div>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="book-fields-form" novalidate>
+          
+          <!-- Email / Credenciales -->
+          <div class="book-field-wrap">
+            <span class="field-icon" aria-hidden="true">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4a5568" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
             </span>
+            <input 
+              id="email" 
+              type="text" 
+              formControlName="email" 
+              placeholder="Correo institucional" 
+              class="book-input"
+              [class.has-error]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid"
+              autocomplete="username" />
+          </div>
+          <span *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.errors?.['required']" class="book-field-error">
+            Ingresa tu correo o usuario institucional
+          </span>
+
+          <!-- Contraseña -->
+          <div class="book-field-wrap">
+            <span class="field-icon" aria-hidden="true">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4a5568" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </span>
+            <input 
+              id="password" 
+              [type]="showPassword ? 'text' : 'password'" 
+              formControlName="password" 
+              placeholder="Contraseña" 
+              class="book-input has-toggle"
+              [class.has-error]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid"
+              autocomplete="current-password" />
+            
+            <button 
+              type="button" 
+              (click)="toggleShowPassword()" 
+              class="book-btn-toggle"
+              [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Ver contraseña'">
+              <svg *ngIf="!showPassword" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4a5568" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg *ngIf="showPassword" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4a5568" stroke-width="2">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            </button>
+          </div>
+          <span *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.errors?.['required']" class="book-field-error">
+            Ingresa tu contraseña
+          </span>
+
+          <!-- Opciones: Recordarme & Olvidaste contraseña -->
+          <div class="book-options-row">
+            <label class="book-checkbox-label">
+              <input type="checkbox" formControlName="rememberMe" class="book-checkbox" />
+              <span>Recordarme</span>
+            </label>
+            <span class="book-forgot-text">¿Olvidaste tu contraseña?</span>
           </div>
 
-          <div class="field-group">
-            <div class="label-row">
-              <label for="password" class="field-label">Contraseña</label>
-            </div>
-            <div class="input-wrapper">
-              <span class="input-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                </svg>
-              </span>
-              <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password"
-                placeholder="••••••••" class="text-input text-input-pass has-icon"
-                [class.has-error]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid"
-                autocomplete="current-password" />
-              <button type="button" (click)="toggleShowPassword()" class="btn-toggle-pass"
-                [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Ver contraseña'">
-                <svg *ngIf="!showPassword" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                  <circle cx="12" cy="12" r="3"></circle>
-                </svg>
-                <svg *ngIf="showPassword" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2">
-                  <path
-                    d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
-                  </path>
-                  <line x1="1" y1="1" x2="23" y2="23"></line>
-                </svg>
-              </button>
-            </div>
-            <span *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.errors?.['required']"
-              class="field-error">
-              Por favor ingresa tu contraseña
-            </span>
-          </div>
-
-          <button type="submit" [disabled]="loading" class="btn-submit">
-            <span *ngIf="!loading">Iniciar Sesión</span>
-            <span *ngIf="loading" class="spinner-inline">
-              <span class="dot-loader"></span> Verificando credenciales...
+          <!-- Botón Iniciar Sesión Principal -->
+          <button type="submit" class="book-btn-login" [disabled]="loading">
+            <span *ngIf="!loading">Iniciar sesión →</span>
+            <span *ngIf="loading" class="book-spinner-row">
+              <span class="book-spinner"></span>
+              <span>Accediendo...</span>
             </span>
           </button>
         </form>
 
-        <!-- Separador visual -->
-        <div class="auth-divider">
-          <span>O CONTINÚA CON</span>
+        <!-- Separador -->
+        <div class="book-sep-row">
+          <span class="sep-line"></span>
+          <span class="sep-text">o</span>
+          <span class="sep-line"></span>
         </div>
 
-        <!-- Botón de Google OAuth -->
-        <div class="google-section">
+        <!-- Google OAuth Button -->
+        <div class="book-google-zone">
           <div #googleButtonContainer class="google-slot" [class.slot-hidden]="!googleReady"></div>
-          <div *ngIf="!googleReady" class="google-loading-slot">
+          
+          <div *ngIf="!googleReady" class="book-btn-google-fallback">
             <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18">
-              <path fill="#4285F4"
-                d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z" />
-              <path fill="#34A853"
-                d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24Z" />
-              <path fill="#FBBC05"
-                d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15Z" />
-              <path fill="#EA4335"
-                d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98Z" />
+              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z" />
+              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24Z" />
+              <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15Z" />
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98Z" />
             </svg>
-            <span>Conectando con Google...</span>
+            <span>Iniciar con Google</span>
           </div>
         </div>
-      </div>
-    </section>
 
-  </div>
+      </section>
+
+    </div>
+  </main>
 
   <!-- Modal de Selección de Grado y Sección (Onboarding para registro con Google) -->
   <div *ngIf="showAcademicOnboardingModal" class="academic-onboarding-backdrop">

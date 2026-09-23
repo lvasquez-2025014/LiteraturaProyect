@@ -4,13 +4,12 @@ import { FormBuilder, ReactiveFormsModule, FormsModule, Validators } from '@angu
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { User, KINAL_GRADE_GROUPS, KINAL_SECTIONS } from '../../../../core/models/user.model';
-import { CrowdCanvasComponent } from '../../../../shared/components/crowd-canvas/crowd-canvas.component';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, CrowdCanvasComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
@@ -27,6 +26,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   loginForm = this.fb.group({
     email: ['', [Validators.required]],
     password: ['', [Validators.required]],
+    rememberMe: [true],
   });
 
   loading = false;
