@@ -73,6 +73,7 @@
     opacity: 0;
     transform: translate(-50%, -18px);
   }
+
   to {
     opacity: 1;
     transform: translate(-50%, 0);
@@ -178,12 +179,13 @@
   font-size: clamp(2.4rem, 4.2vw, 3.6rem);
   font-weight: 800;
   line-height: 1.12;
-  color: var(--kinal-blue, #004aad);
+  color: #000000;
   letter-spacing: -0.025em;
   margin: 0;
   text-shadow: none;
 }
 
+.headline-blue,
 .highlight-text {
   color: var(--kinal-blue, #004aad);
   background: none;
@@ -195,7 +197,7 @@
   font-family: var(--font-heading);
   font-size: clamp(1.2rem, 2vw, 1.55rem);
   font-weight: 600;
-  color: #475569;
+  color: var(--kinal-orange, #f36f21);
   line-height: 1.45;
   margin: 0;
   letter-spacing: -0.01em;
@@ -315,6 +317,7 @@
     opacity: 0;
     transform: translateY(-6px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -466,7 +469,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Divider */
@@ -481,7 +486,8 @@
   letter-spacing: 0.08em;
 }
 
-.auth-divider::before, .auth-divider::after {
+.auth-divider::before,
+.auth-divider::after {
   content: '';
   flex: 1;
   border-bottom: 1px solid var(--border-subtle);
@@ -540,8 +546,17 @@
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.6; transform: scale(0.96); }
-  50% { opacity: 1; transform: scale(1.04); }
+
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(0.96);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
 }
 
 .auth-card-footer {
@@ -644,7 +659,8 @@
   }
 
   .hero-visual-card {
-    display: none; /* Mantener interfaz limpia y enfocada en celulares */
+    display: none;
+    /* Mantener interfaz limpia y enfocada en celulares */
   }
 
   .google-slot {
@@ -700,13 +716,25 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.94); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .onboarding-header {
@@ -915,4 +943,3 @@
   transform: none;
   box-shadow: none;
 }
-
