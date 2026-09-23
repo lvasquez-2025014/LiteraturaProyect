@@ -41,13 +41,64 @@ export class AdminDashboardComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
 
+  // Filtros académicos específicos para Estudiantes (Grado, Carrera técnica si es perito, Sección)
+  studentGradeFilter = '';
+  studentCareerFilter = '';
+  studentSectionFilter = '';
+
+  get isPeritoFilterActive(): boolean {
+    return isPeritoGrade(this.studentGradeFilter);
+  }
+
+  onStudentGradeFilterChange() {
+    if (!this.isPeritoFilterActive) {
+      this.studentCareerFilter = '';
+    }
+    this.cdr.markForCheck();
+  }
+
+  clearAcademicFilters() {
+    this.studentGradeFilter = '';
+    this.studentCareerFilter = '';
+    this.studentSectionFilter = '';
+    this.cdr.markForCheck();
+  }
+
+  get hasActiveAcademicFilters(): boolean {
+    return !!(this.studentGradeFilter || this.studentCareerFilter || this.studentSectionFilter);
+  }
+
   get filteredUsers(): User[] {
     let result = this.users;
 
     if (this.selectedRoleFilter !== 'ALL') {
       result = result.filter((u) => u.role === this.selectedRoleFilter);
+    } else if (this.hasActiveAcademicFilters) {
+      result = result.filter((u) => u.role === 'STUDENT_ROLE');
     }
 
+    // Filtro por Grado
+    if (this.studentGradeFilter) {
+      const g = this.studentGradeFilter.toLowerCase();
+      result = result.filter((u) => u.grade?.toLowerCase().includes(g));
+    }
+
+    // Filtro por Carrera Técnica (para 4to, 5to y 6to Perito)
+    if (this.isPeritoFilterActive && this.studentCareerFilter) {
+      const c = this.studentCareerFilter.toLowerCase();
+      result = result.filter((u) => u.grade?.toLowerCase().includes(c));
+    }
+
+    // Filtro por Sección (A - J)
+    if (this.studentSectionFilter) {
+      const s = this.studentSectionFilter.trim().toUpperCase();
+      result = result.filter((u) => {
+        const userSec = (u.section || 'A').trim().toUpperCase();
+        return userSec === s;
+      });
+    }
+
+    // Búsqueda por texto (nombre, correo, carnet, grado)
     if (this.searchQuery && this.searchQuery.trim()) {
       const q = this.searchQuery.trim().toLowerCase();
       result = result.filter(

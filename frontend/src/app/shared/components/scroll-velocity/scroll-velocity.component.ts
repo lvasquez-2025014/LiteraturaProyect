@@ -39,14 +39,20 @@ import { CommonModule } from '@angular/common';
       :host {
         display: block;
         width: 100%;
+        max-width: 100%;
+        min-width: 0;
         overflow: hidden;
+        contain: paint;
       }
 
       .scroll-velocity-parallax {
         position: relative;
         overflow: hidden;
         width: 100%;
-        padding: 8px 0;
+        max-width: 100%;
+        padding: 6px 0;
+        mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
       }
 
       .scroll-velocity-scroller {
@@ -73,6 +79,43 @@ import { CommonModule } from '@angular/common';
         flex-shrink: 0;
         width: 480px;
         min-width: 320px;
+      }
+
+      @media (max-width: 768px) {
+        .scroll-velocity-parallax {
+          mask-image: none;
+          -webkit-mask-image: none;
+          padding: 2px 0;
+        }
+
+        .scroll-velocity-scroller {
+          display: flex;
+          justify-content: center;
+          width: 100% !important;
+          transform: none !important;
+          white-space: normal;
+        }
+
+        .velocity-item {
+          display: none;
+        }
+
+        .velocity-item[data-first="true"] {
+          display: block;
+          text-align: center;
+          width: 100%;
+        }
+
+        .velocity-text {
+          white-space: normal;
+          text-align: center;
+          display: block;
+          width: 100%;
+        }
+
+        .velocity-spacer {
+          display: none !important;
+        }
       }
     `,
   ],
@@ -140,12 +183,13 @@ export class ScrollVelocityComponent implements OnInit, AfterViewInit, OnDestroy
 
   private calculateWidth(): void {
     if (!this.scrollerRef || !this.containerRef) return;
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
     const containerWidth = this.containerRef.nativeElement.clientWidth || 500;
 
     // Ajustar el espaciador al ancho del contenedor para que la siguiente copia espere hasta que la primera salga
     const spacers = this.scrollerRef.nativeElement.querySelectorAll('.velocity-spacer') as NodeListOf<HTMLElement>;
     spacers.forEach((s) => {
-      s.style.width = `${Math.max(containerWidth + 80, 480)}px`;
+      s.style.width = isMobile ? '0px' : `${Math.max(containerWidth + 40, 320)}px`;
     });
 
     const firstItem = this.scrollerRef.nativeElement.querySelector(
