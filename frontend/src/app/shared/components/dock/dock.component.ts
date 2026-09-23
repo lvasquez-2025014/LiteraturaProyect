@@ -3,6 +3,7 @@ import {
   Input,
   ElementRef,
   ViewChildren,
+  ViewChild,
   QueryList,
   NgZone,
   ChangeDetectorRef,
@@ -14,7 +15,7 @@ import {
   ChangeDetectionStrategy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 export interface DockItemConfig {
@@ -38,13 +39,12 @@ interface ItemState {
   size: number;
   targetSize: number;
   velocity: number;
-  isHovered: boolean;
 }
 
 @Component({
   selector: 'app-dock',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './dock.component.html',
   styleUrl: './dock.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,17 +52,18 @@ interface ItemState {
 export class DockComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   @Input() items: DockItemConfig[] = [];
   @Input() className = '';
-  @Input() spring: DockSpringConfig = { mass: 0.1, stiffness: 150, damping: 12 };
-  @Input() magnification = 52;
-  @Input() distance = 130;
+  @Input() spring: DockSpringConfig = { mass: 0.1, stiffness: 160, damping: 22 };
+  @Input() magnification = 50;
+  @Input() distance = 110;
   @Input() panelHeight = 44;
   @Input() dockHeight = 256;
-  @Input() baseItemSize = 38;
+  @Input() baseItemSize = 36;
   @Input() layout: 'inline' | 'floating' = 'inline';
   @Input() labelPosition: 'top' | 'bottom' | 'auto' = 'auto';
   @Input() theme: 'auto' | 'light' | 'dark' | 'glass' = 'auto';
   @Input() ariaLabel = 'Application dock';
 
+  @ViewChild('panelRef') panelRef!: ElementRef<HTMLElement>;
   @ViewChildren('dockItemRef') itemRefs!: QueryList<ElementRef<HTMLElement>>;
 
   private router = inject(Router);
@@ -72,6 +73,7 @@ export class DockComponent implements OnInit, AfterViewInit, OnChanges, OnDestro
 
   mouseX = Infinity;
   isHovered = false;
+  hoveredIndex: number | null = null;
   itemStates: ItemState[] = [];
 
   private rafId: number | null = null;
@@ -105,7 +107,6 @@ export class DockComponent implements OnInit, AfterViewInit, OnChanges, OnDestro
         size: this.baseItemSize,
         targetSize: this.baseItemSize,
         velocity: 0,
-        isHovered: false,
       });
     }
     while (this.itemStates.length > this.items.length) {
@@ -153,30 +154,30 @@ export class DockComponent implements OnInit, AfterViewInit, OnChanges, OnDestro
 
   onPanelMouseLeave(): void {
     this.isHovered = false;
+    this.hoveredIndex = null;
     this.mouseX = Infinity;
     for (const state of this.itemStates) {
       state.targetSize = this.baseItemSize;
     }
     this.startAnimationLoop();
+    this.cdr.markForCheck();
   }
 
   onItemMouseEnter(index: number): void {
-    if (this.itemStates[index]) {
-      this.itemStates[index].isHovered = true;
-      this.cdr.markForCheck();
-    }
+    this.hoveredIndex = index;
+    this.cdr.markForCheck();
   }
 
   onItemMouseLeave(index: number): void {
-    if (this.itemStates[index]) {
-      this.itemStates[index].isHovered = false;
-      this.cdr.markForCheck();
+    if (this.hoveredIndex === index) {
+      this.hoveredIndex = null;
     }
+    this.cdr.markForCheck();
   }
 
   onItemFocus(index: number): void {
+    this.hoveredIndex = index;
     if (this.itemStates[index]) {
-      this.itemStates[index].isHovered = true;
       this.itemStates[index].targetSize = this.magnification;
       this.startAnimationLoop();
       this.cdr.markForCheck();
@@ -184,8 +185,10 @@ export class DockComponent implements OnInit, AfterViewInit, OnChanges, OnDestro
   }
 
   onItemBlur(index: number): void {
+    if (this.hoveredIndex === index) {
+      this.hoveredIndex = null;
+    }
     if (this.itemStates[index]) {
-      this.itemStates[index].isHovered = false;
       this.itemStates[index].targetSize = this.baseItemSize;
       this.startAnimationLoop();
       this.cdr.markForCheck();
@@ -193,9 +196,14 @@ export class DockComponent implements OnInit, AfterViewInit, OnChanges, OnDestro
   }
 
   onItemClick(item: DockItemConfig, event: Event): void {
+    this.hoveredIndex = null;
+    this.cdr.markForCheck();
+
     if (item.onClick) {
+      event.preventDefault();
       item.onClick();
     } else if (item.route) {
+      // Navegación nativa con router
       this.router.navigateByUrl(item.route);
     }
   }
@@ -224,14 +232,21 @@ export class DockComponent implements OnInit, AfterViewInit, OnChanges, OnDestro
     const dt = Math.min((now - this.lastTime) * 0.001, 0.033) || 0.016;
     this.lastTime = now;
 
-    // 1. Calcular tamaños objetivos basados en distancia al cursor
-    if (this.isHovered && Number.isFinite(this.mouseX) && this.itemRefs) {
-      const elements = this.itemRefs.toArray();
-      for (let i = 0; i < elements.length; i++) {
+    // 1. Calcular centros estáticos basados en el contenedor fijo del dock
+    // Esto es CRUCIAL: al usar centros estáticos, los ítems nunca tiemblan ni se desestabilizan mutuamente
+    if (this.isHovered && Number.isFinite(this.mouseX) && this.panelRef) {
+      const panelEl = this.panelRef.nativeElement;
+      const panelRect = panelEl.getBoundingClientRect();
+      const itemCount = this.items.length;
+      const gap = 6;
+      const totalContentWidth = itemCount * this.baseItemSize + (itemCount - 1) * gap;
+      const paddingLeft = Math.max(0, (panelRect.width - totalContentWidth) / 2);
+
+      for (let i = 0; i < itemCount; i++) {
         if (!this.itemStates[i]) continue;
-        const rect = elements[i].nativeElement.getBoundingClientRect();
-        const itemCenterX = rect.left + rect.width / 2;
-        const distanceToMouse = Math.abs(this.mouseX - itemCenterX);
+        const staticItemCenterX =
+          panelRect.left + paddingLeft + i * (this.baseItemSize + gap) + this.baseItemSize / 2;
+        const distanceToMouse = Math.abs(this.mouseX - staticItemCenterX);
 
         if (distanceToMouse < this.distance) {
           const factor = Math.cos((distanceToMouse / this.distance) * (Math.PI / 2));
@@ -241,13 +256,13 @@ export class DockComponent implements OnInit, AfterViewInit, OnChanges, OnDestro
           this.itemStates[i].targetSize = this.baseItemSize;
         }
       }
-    } else if (!this.isHovered) {
+    } else {
       for (const state of this.itemStates) {
         state.targetSize = this.baseItemSize;
       }
     }
 
-    // 2. Simulación de física de resorte (Spring Physics)
+    // 2. Simulación de física amortiguada suave sin oscilación ni rebote
     let hasSignificantMotion = false;
     const { mass, stiffness, damping } = this.spring;
 
@@ -262,7 +277,7 @@ export class DockComponent implements OnInit, AfterViewInit, OnChanges, OnDestro
       state.velocity += acceleration * dt;
       state.size += state.velocity * dt;
 
-      if (Math.abs(displacement) > 0.08 || Math.abs(state.velocity) > 0.08) {
+      if (Math.abs(displacement) > 0.05 || Math.abs(state.velocity) > 0.05) {
         hasSignificantMotion = true;
       } else {
         state.size = state.targetSize;

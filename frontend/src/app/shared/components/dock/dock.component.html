@@ -5,6 +5,7 @@
   [attr.aria-label]="ariaLabel"
 >
   <div
+    #panelRef
     class="dock-panel"
     [style.height.px]="panelHeight"
     (mousemove)="onPanelMouseMove($event)"
@@ -12,13 +13,15 @@
     role="toolbar"
     [attr.aria-label]="ariaLabel"
   >
-    <div
+    <a
       #dockItemRef
       *ngFor="let item of items; let i = index"
+      [routerLink]="item.route || null"
+      (click)="onItemClick(item, $event)"
       class="dock-item"
       [ngClass]="[
         item.className || '',
-        itemStates[i]?.isHovered ? 'hovered' : '',
+        hoveredIndex === i ? 'hovered' : '',
         isItemActive(item) ? 'active' : ''
       ]"
       [style.width.px]="itemStates[i]?.size || baseItemSize"
@@ -27,13 +30,10 @@
       (mouseleave)="onItemMouseLeave(i)"
       (focus)="onItemFocus(i)"
       (blur)="onItemBlur(i)"
-      (click)="onItemClick(item, $event)"
       (keydown)="onItemKeyDown($event, item)"
       tabindex="0"
       role="button"
       [attr.aria-label]="item.label"
-      [attr.aria-haspopup]="true"
-      [attr.title]="item.label"
     >
       <!-- Icon Container -->
       <div class="dock-icon">
@@ -48,19 +48,19 @@
       <!-- Active macOS-style Indicator Dot / Glow -->
       <span class="dock-active-dot" *ngIf="isItemActive(item)"></span>
 
-      <!-- Floating Animated Tooltip Label -->
+      <!-- Floating Animated Tooltip Label (Solo se muestra el tooltip para el item actualmente bajo el cursor) -->
       <div
         class="dock-label"
         [ngClass]="[
           'position-' + resolvedLabelPosition,
-          itemStates[i]?.isHovered ? 'visible' : ''
+          hoveredIndex === i ? 'visible' : ''
         ]"
         role="tooltip"
-        [attr.aria-hidden]="!itemStates[i]?.isHovered"
+        [attr.aria-hidden]="hoveredIndex !== i"
       >
         <span>{{ item.label }}</span>
         <span class="dock-label-badge" *ngIf="item.badge">{{ item.badge }}</span>
       </div>
-    </div>
+    </a>
   </div>
 </div>

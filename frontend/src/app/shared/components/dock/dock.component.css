@@ -36,7 +36,7 @@
   gap: 6px;
   padding: 3px 6px;
   border-radius: 12px;
-  background: rgba(241, 245, 249, 0.85);
+  background: rgba(241, 245, 249, 0.88);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(226, 232, 240, 0.9);
@@ -102,7 +102,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Dock Item (The spring-animated magnifiable button)
+   Dock Item (The spring-animated magnifiable button/link)
    -------------------------------------------------------------------------- */
 .dock-item {
   position: relative;
@@ -113,6 +113,7 @@
   background-color: #ffffff;
   border: 1px solid rgba(226, 232, 240, 0.9);
   color: #64748b;
+  text-decoration: none;
   box-shadow:
     0 1px 3px rgba(0, 0, 0, 0.04),
     0 1px 2px rgba(0, 0, 0, 0.02);
@@ -121,7 +122,7 @@
   user-select: none;
   -webkit-user-select: none;
   flex-shrink: 0;
-  will-change: width, height, transform;
+  will-change: width, height;
   transition:
     background-color 0.18s ease,
     border-color 0.18s ease,
@@ -185,8 +186,8 @@
 .icon-svg-wrapper ::ng-deep svg {
   width: 50%;
   height: 50%;
-  min-width: 15px;
-  min-height: 15px;
+  min-width: 16px;
+  min-height: 16px;
   max-width: 22px;
   max-height: 22px;
   display: block;
@@ -239,10 +240,10 @@
   position: absolute;
   left: 50%;
   width: fit-content;
-  white-space: pre;
+  white-space: nowrap;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(15, 23, 42, 0.92);
+  background: rgba(15, 23, 42, 0.94);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   padding: 4px 10px;
@@ -255,11 +256,13 @@
     0 10px 22px -3px rgba(0, 0, 0, 0.28),
     0 4px 8px -2px rgba(0, 0, 0, 0.12);
   pointer-events: none;
-  z-index: 120;
+  z-index: 150;
   opacity: 0;
+  visibility: hidden;
   transition:
-    opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 0.16s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.16s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0.16s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Caret Arrow */
@@ -279,12 +282,13 @@
 
 .dock-label.position-bottom::before {
   bottom: 100%;
-  border-bottom-color: rgba(15, 23, 42, 0.92);
+  border-bottom-color: rgba(15, 23, 42, 0.94);
 }
 
 .dock-label.position-bottom.visible {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateX(-50%) translateY(0) !important;
 }
 
 /* Label Position: Top (Best for Bottom Bars) */
@@ -295,12 +299,13 @@
 
 .dock-label.position-top::before {
   top: 100%;
-  border-top-color: rgba(15, 23, 42, 0.92);
+  border-top-color: rgba(15, 23, 42, 0.94);
 }
 
 .dock-label.position-top.visible {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateX(-50%) translateY(0) !important;
 }
 
 .dock-label-badge {
