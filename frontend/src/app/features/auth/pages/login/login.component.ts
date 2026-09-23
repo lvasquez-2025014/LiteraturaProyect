@@ -31,6 +31,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 
   loading = false;
   errorMessage = '';
+  sessionExpiredTitle = '';
   sessionExpiredMessage = '';
   showPassword = false;
   googleReady = false;
@@ -53,8 +54,14 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit() {
     const reason = this.route.snapshot.queryParams['reason'];
-    if (reason === 'expired') {
-      this.sessionExpiredMessage = 'Tu sesión ha expirado tras 2 horas por seguridad. Por favor, ingresa tus credenciales nuevamente.';
+    if (reason === 'inactive') {
+      this.sessionExpiredTitle = 'Sesión cerrada por inactividad';
+      this.sessionExpiredMessage =
+        'Tu sesión se ha cerrado automáticamente tras 1 hora sin actividad. Por favor, ingresa tus credenciales nuevamente para continuar.';
+    } else if (reason === 'expired') {
+      this.sessionExpiredTitle = 'Sesión Expirada';
+      this.sessionExpiredMessage =
+        'Tu sesión ha expirado por motivos de seguridad. Por favor, ingresa tus credenciales nuevamente.';
     }
 
     const isReset = this.route.snapshot.queryParams['reset'] !== undefined || this.route.snapshot.queryParams['logout'] !== undefined;
@@ -287,5 +294,10 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  dismissNotice(): void {
+    this.sessionExpiredMessage = '';
+    this.sessionExpiredTitle = '';
   }
 }

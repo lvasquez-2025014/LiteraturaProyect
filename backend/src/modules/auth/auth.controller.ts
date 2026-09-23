@@ -33,4 +33,10 @@ export class AuthController {
   async getProfile(@CurrentUser() user: any) {
     return this.authService.getProfile(user.id);
   }
+
+  @Post('renew')
+  @UseGuards(JwtAuthGuard)
+  async renewToken(@CurrentUser() user: any) {
+    return this.authService.renewToken(user.id);
+  }
 }

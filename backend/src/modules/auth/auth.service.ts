@@ -225,4 +225,13 @@ export class AuthService {
       isSuperAdmin,
     };
   }
+
+  async renewToken(userId: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('Cuenta no encontrada o no autorizada');
+    }
+    const token = this.generateToken(user);
+    return this.formatUserResponse(user, token);
+  }
 }

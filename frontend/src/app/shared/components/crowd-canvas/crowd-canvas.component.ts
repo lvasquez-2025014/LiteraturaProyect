@@ -44,7 +44,10 @@ interface Peep {
       :host {
         display: block;
         position: absolute;
-        inset: 0;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 200px;
         pointer-events: none;
         overflow: hidden;
         z-index: 1;
@@ -74,17 +77,17 @@ interface Peep {
         opacity: 0.78;
       }
 
-      /* Base difuminada para fundir los personajes con el piso */
+      /* Base difuminada sutil para fundir los personajes con el piso */
       .crowd-ground-gradient {
         position: absolute;
         bottom: 0;
         left: 0;
         right: 0;
-        height: 100px;
+        height: 40px;
         background: linear-gradient(
           to top,
-          rgba(7, 12, 24, 0.75) 0%,
-          rgba(7, 12, 24, 0.25) 50%,
+          rgba(7, 12, 24, 0.8) 0%,
+          rgba(7, 12, 24, 0.2) 60%,
           transparent 100%
         );
         pointer-events: none;
@@ -222,16 +225,16 @@ export class CrowdCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private calculateScale(width: number): number {
-    if (width < 640) return 0.52;
-    if (width < 1024) return 0.68;
-    if (width < 1440) return 0.82;
-    return 0.95;
+    if (width < 640) return 0.34;
+    if (width < 1024) return 0.40;
+    if (width < 1440) return 0.44;
+    return 0.48;
   }
 
   private resetPeep(stage: { width: number; height: number; scale: number }, peep: Peep) {
     const direction = Math.random() > 0.5 ? 1 : -1;
-    // Dispersión vertical sobre el horizonte inferior
-    const offsetY = (60 - 160 * gsap.parseEase('power2.in')(Math.random())) * stage.scale;
+    // Alineación precisa y estricta en el piso inferior de la pantalla
+    const offsetY = (4 - 12 * Math.random()) * stage.scale;
     const startY = stage.height - peep.height + offsetY;
     let startX: number;
     let endX: number;

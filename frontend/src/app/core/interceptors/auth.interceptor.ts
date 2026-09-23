@@ -9,6 +9,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const token = authService.getToken();
 
   const isApiRequest = req.url.startsWith(environment.apiUrl) || req.url.includes('/api/');
+  const isAuthRenew = req.url.includes('/auth/renew');
+
+  // Registrar actividad activa del usuario en cada petición auténtica a la API
+  if (token && isApiRequest && !isAuthRenew) {
+    authService.recordUserActivity();
+  }
 
   let finalReq = req;
   if (token && isApiRequest) {
@@ -21,11 +27,16 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(finalReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      // Si el backend responde 401 en peticiones autenticadas (token expirado tras 2h o inválido)
-      const isAuthEndpoint = req.url.includes('/auth/login') || req.url.includes('/auth/google');
+      // Si el backend responde 401 en peticiones autenticadas
+      const isAuthEndpoint =
+        req.url.includes('/auth/login') ||
+        req.url.includes('/auth/google') ||
+        req.url.includes('/auth/renew');
+
       if (error.status === 401 && !isAuthEndpoint) {
-        console.warn('[authInterceptor] 401 Unauthorized detectado en API. Cerrando sesión por expiración...');
-        authService.handleAutoLogout('expired');
+        console.warn('[authInterceptor] 401 Unauthorized detectado en API.');
+        const isInactive = authService.isUserInactive();
+        authService.handleAutoLogout(isInactive ? 'inactive' : 'expired');
       }
       return throwError(() => error);
     })

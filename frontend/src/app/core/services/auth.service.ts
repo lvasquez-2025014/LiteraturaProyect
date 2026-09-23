@@ -1,7 +1,7 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap, shareReplay } from 'rxjs';
+import { Observable, tap, shareReplay, catchError, of } from 'rxjs';
 import { User, AuthResponse, UserRole } from '../models/user.model';
 import { environment } from '../../../environments/environment';
 
@@ -24,12 +24,24 @@ export interface DecodedJwtPayload {
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private ngZone = inject(NgZone);
 
   private readonly API_URL = `${environment.apiUrl}/auth`;
   private readonly TOKEN_KEY = 'lectura_viva_token';
   private readonly USER_KEY = 'lectura_viva_user';
+  private readonly LAST_ACTIVITY_KEY = 'lectura_viva_last_activity';
+  private readonly LAST_RENEW_KEY = 'lectura_viva_last_renew';
+
+  // Configuración de inactividad (1 hora) y renovación
+  readonly INACTIVITY_TIMEOUT_MS = 60 * 60 * 1000; // 1 hora exacta de inactividad
+  private readonly MIN_RENEW_INTERVAL_MS = 15 * 60 * 1000; // Mínimo 15 minutos entre renovaciones activas
+  private readonly ACTIVITY_THROTTLE_MS = 3000; // 3 segundos para limitar el registro de eventos
 
   private sessionTimer: any = null;
+  private inactivityIntervalTimer: any = null;
+  private lastEventRecordTime = 0;
+  private isRenewing = false;
+  private activityListenersRegistered = false;
 
   // Reactive state with Signals
   currentUserSignal = signal<User | null>(this.getStoredUser());
@@ -49,29 +61,200 @@ export class AuthService {
     if (token) {
       if (this.isTokenExpired(token)) {
         this.clearSessionData();
+      } else if (this.isUserInactive()) {
+        console.warn('[AuthService] Tiempo de inactividad de 1 hora superado al inicializar. Cerrando sesión.');
+        this.handleAutoLogout('inactive');
       } else {
-        this.scheduleAutoLogout(token);
+        this.initSessionTracking(token);
         this.fetchProfile().subscribe({ error: () => {} });
       }
     }
+  }
 
-    // Monitorear foco de pestaña y reactivación del sistema (ej. laptop suspendida)
-    if (typeof window !== 'undefined') {
-      const checkSessionIntegrity = () => {
-        const currentToken = this.tokenSignal();
-        if (currentToken && this.isTokenExpired(currentToken)) {
-          this.handleAutoLogout('expired');
+  /**
+   * Inicializa el monitoreo de inactividad (1 hora), temporizadores y escucha de eventos de usuario
+   */
+  private initSessionTracking(token: string): void {
+    this.scheduleAutoLogout(token);
+    this.startInactivityMonitor();
+    this.registerActivityListeners();
+  }
+
+  /**
+   * Obtiene la marca de tiempo de la última actividad del usuario
+   */
+  getLastActivityTime(): number {
+    try {
+      const stored = localStorage.getItem(this.LAST_ACTIVITY_KEY);
+      if (stored) {
+        const val = Number(stored);
+        if (!isNaN(val) && val > 0) return val;
+      }
+    } catch {}
+    return Date.now();
+  }
+
+  /**
+   * Comprueba si el usuario ha estado inactivo durante 1 hora o más
+   */
+  isUserInactive(): boolean {
+    const token = this.tokenSignal();
+    if (!token) return false;
+    const lastActive = this.getLastActivityTime();
+    return Date.now() - lastActive >= this.INACTIVITY_TIMEOUT_MS;
+  }
+
+  /**
+   * Registra actividad interactiva del usuario (movimiento, teclado, clics, peticiones HTTP)
+   * Si el usuario está activo y ha transcurrido tiempo, renueva automáticamente el token para que nunca se venza.
+   */
+  recordUserActivity(): void {
+    const token = this.tokenSignal();
+    if (!token) return;
+
+    const now = Date.now();
+
+    // Si ya superó la hora de inactividad, forzar cierre de sesión inmediato
+    if (this.isUserInactive()) {
+      this.ngZone.run(() => {
+        this.handleAutoLogout('inactive');
+      });
+      return;
+    }
+
+    // Actualizar última actividad
+    try {
+      localStorage.setItem(this.LAST_ACTIVITY_KEY, now.toString());
+    } catch {}
+
+    // Restauración / Renovación automática del token por actividad continua:
+    // Si han pasado más de 15 minutos desde la última renovación o faltan menos de 60 minutos para que expire
+    const lastRenew = this.getLastRenewTime();
+    const remainingTime = this.getRemainingSessionTimeMs();
+
+    const shouldRenew =
+      !this.isRenewing &&
+      (now - lastRenew >= this.MIN_RENEW_INTERVAL_MS || remainingTime <= 60 * 60 * 1000);
+
+    if (shouldRenew && this.isAuthenticated()) {
+      this.renewSession();
+    }
+  }
+
+  /**
+   * Obtiene la marca de tiempo de la última renovación del token
+   */
+  private getLastRenewTime(): number {
+    try {
+      const stored = localStorage.getItem(this.LAST_RENEW_KEY);
+      if (stored) {
+        const val = Number(stored);
+        if (!isNaN(val) && val > 0) return val;
+      }
+    } catch {}
+    return 0;
+  }
+
+  /**
+   * Restaura y renueva el token JWT automáticamente en el backend
+   */
+  renewSession(): void {
+    if (this.isRenewing || !this.tokenSignal()) return;
+    this.isRenewing = true;
+
+    this.http.post<AuthResponse>(`${this.API_URL}/renew`, {}).pipe(
+      catchError((err) => {
+        console.warn('[AuthService] No se pudo renovar automáticamente el token:', err?.message);
+        if (err?.status === 401) {
+          this.ngZone.run(() => this.handleAutoLogout('expired'));
+        }
+        return of(null);
+      })
+    ).subscribe((res) => {
+      this.isRenewing = false;
+      if (res && res.token) {
+        const now = Date.now();
+        try {
+          localStorage.setItem(this.LAST_RENEW_KEY, now.toString());
+        } catch {}
+        this.saveSession(res);
+        console.log('[AuthService] Token de sesión renovado y restaurado exitosamente por actividad activa en la plataforma.');
+      }
+    });
+  }
+
+  /**
+   * Monitorea periódicamente si se ha alcanzado 1 hora de inactividad
+   */
+  private startInactivityMonitor(): void {
+    this.stopInactivityMonitor();
+
+    // Verificación cada 25 segundos fuera de la zona de Angular
+    this.ngZone.runOutsideAngular(() => {
+      this.inactivityIntervalTimer = setInterval(() => {
+        if (!this.tokenSignal()) {
+          this.stopInactivityMonitor();
+          return;
+        }
+
+        if (this.isUserInactive()) {
+          console.warn('[AuthService] 1 hora de inactividad detectada por el monitor. Cerrando sesión automáticamente.');
+          this.ngZone.run(() => {
+            this.handleAutoLogout('inactive');
+          });
+        }
+      }, 25000);
+    });
+  }
+
+  private stopInactivityMonitor(): void {
+    if (this.inactivityIntervalTimer) {
+      clearInterval(this.inactivityIntervalTimer);
+      this.inactivityIntervalTimer = null;
+    }
+  }
+
+  /**
+   * Registra eventos globales del usuario para detectar interacción
+   */
+  private registerActivityListeners(): void {
+    if (typeof window === 'undefined' || this.activityListenersRegistered) return;
+    this.activityListenersRegistered = true;
+
+    this.ngZone.runOutsideAngular(() => {
+      const events = ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll', 'click'];
+      const handleEvent = () => {
+        const now = Date.now();
+        if (now - this.lastEventRecordTime < this.ACTIVITY_THROTTLE_MS) return;
+        this.lastEventRecordTime = now;
+        this.recordUserActivity();
+      };
+
+      events.forEach((evt) => {
+        window.addEventListener(evt, handleEvent, { passive: true });
+      });
+
+      // Monitorear foco de pestaña y reactivación del sistema (ej. laptop suspendida)
+      const onFocusOrVisible = () => {
+        if (this.tokenSignal()) {
+          if (this.isUserInactive()) {
+            this.ngZone.run(() => this.handleAutoLogout('inactive'));
+          } else if (this.isTokenExpired()) {
+            this.ngZone.run(() => this.handleAutoLogout('expired'));
+          } else {
+            this.recordUserActivity();
+          }
         }
       };
 
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
-          checkSessionIntegrity();
+          onFocusOrVisible();
         }
       });
 
-      window.addEventListener('focus', checkSessionIntegrity);
-    }
+      window.addEventListener('focus', onFocusOrVisible);
+    });
   }
 
   /**
@@ -131,7 +314,7 @@ export class AuthService {
   }
 
   /**
-   * Programa el cierre automático de sesión al completarse el tiempo de vida (2 horas)
+   * Programa el temporizador para expirar sesión si no se ha renovado
    */
   private scheduleAutoLogout(token: string): void {
     this.clearSessionTimer();
@@ -144,17 +327,20 @@ export class AuthService {
 
     const remainingMs = expirationDate.getTime() - Date.now();
     if (remainingMs <= 0) {
-      console.warn('[AuthService] El token de sesión ya expiró. Forzando cierre.');
+      console.warn('[AuthService] El token de sesión ya expiró.');
       this.handleAutoLogout('expired');
       return;
     }
 
-    const minutesRemaining = Math.round(remainingMs / 1000 / 60);
-    console.log(`[AuthService] Temporizador de expiración (2 horas) activo. Cierre programado en ${minutesRemaining} minutos.`);
-
     this.sessionTimer = setTimeout(() => {
-      console.warn('[AuthService] Duración máxima de 2 horas alcanzada. Cerrando sesión automáticamente.');
-      this.handleAutoLogout('expired');
+      // Si el usuario sigue activo y el token estaba por vencer, intentamos renovarlo antes de expulsar
+      if (!this.isUserInactive()) {
+        console.log('[AuthService] Tiempo límite de token alcanzado con usuario activo. Restaurando sesión...');
+        this.renewSession();
+      } else {
+        console.warn('[AuthService] Tiempo máximo alcanzado con inactividad. Cerrando sesión.');
+        this.handleAutoLogout('inactive');
+      }
     }, remainingMs);
   }
 
@@ -190,15 +376,18 @@ export class AuthService {
   }
 
   saveSession(res: AuthResponse): void {
+    const now = Date.now();
     try {
       localStorage.setItem(this.TOKEN_KEY, res.token);
       localStorage.setItem(this.USER_KEY, JSON.stringify(res.user));
+      localStorage.setItem(this.LAST_ACTIVITY_KEY, now.toString());
+      localStorage.setItem(this.LAST_RENEW_KEY, now.toString());
     } catch (e) {
-      console.warn('[AuthService] No se pudo guardar la sesión en el navegador:', e);
+      console.warn('[AuthService] No se pudo guardar la sesión en el almacenamiento local:', e);
     }
     this.tokenSignal.set(res.token);
     this.currentUserSignal.set(res.user);
-    this.scheduleAutoLogout(res.token);
+    this.initSessionTracking(res.token);
   }
 
   login(email: string, password: string): Observable<AuthResponse> {
@@ -263,15 +452,17 @@ export class AuthService {
 
   logout(): void {
     this.clearSessionTimer();
+    this.stopInactivityMonitor();
     this.clearSessionData();
     this.router.navigate(['/login']);
   }
 
   /**
-   * Cierra la sesión automáticamente y redirige al login con aviso de expiración
+   * Cierra la sesión automáticamente y redirige al login con notificación del motivo
    */
-  handleAutoLogout(reason: 'expired' | 'unauthorized' = 'expired'): void {
+  handleAutoLogout(reason: 'inactive' | 'expired' | 'unauthorized' = 'expired'): void {
     this.clearSessionTimer();
+    this.stopInactivityMonitor();
     this.clearSessionData();
     this.router.navigate(['/login'], {
       queryParams: { reason },
@@ -282,6 +473,8 @@ export class AuthService {
     try {
       localStorage.removeItem(this.TOKEN_KEY);
       localStorage.removeItem(this.USER_KEY);
+      localStorage.removeItem(this.LAST_ACTIVITY_KEY);
+      localStorage.removeItem(this.LAST_RENEW_KEY);
     } catch (e) {
       console.warn('[AuthService] Error al limpiar almacenamiento local:', e);
     }
@@ -308,9 +501,15 @@ export class AuthService {
 
   getToken(): string | null {
     const token = this.tokenSignal();
-    if (token && this.isTokenExpired(token)) {
-      this.handleAutoLogout('expired');
-      return null;
+    if (token) {
+      if (this.isUserInactive()) {
+        this.handleAutoLogout('inactive');
+        return null;
+      }
+      if (this.isTokenExpired(token)) {
+        this.handleAutoLogout('expired');
+        return null;
+      }
     }
     return token;
   }

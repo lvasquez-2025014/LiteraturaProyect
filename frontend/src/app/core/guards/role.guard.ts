@@ -7,6 +7,11 @@ export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
+  if (auth.isUserInactive()) {
+    auth.handleAutoLogout('inactive');
+    return false;
+  }
+
   if (auth.isTokenExpired()) {
     auth.handleAutoLogout('expired');
     return false;
