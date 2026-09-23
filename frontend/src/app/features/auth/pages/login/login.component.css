@@ -178,16 +178,17 @@
   font-size: clamp(2.4rem, 4.2vw, 3.6rem);
   font-weight: 800;
   line-height: 1.12;
-  color: #0f172a;
+  color: var(--kinal-blue, #004aad);
   letter-spacing: -0.025em;
   margin: 0;
   text-shadow: none;
 }
 
 .highlight-text {
-  background: linear-gradient(135deg, #004aad 0%, #2563eb 50%, #f36f21 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--kinal-blue, #004aad);
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: var(--kinal-blue, #004aad);
 }
 
 .hero-slogan {
