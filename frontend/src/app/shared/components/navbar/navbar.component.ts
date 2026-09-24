@@ -45,14 +45,35 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.navSub?.unsubscribe();
+    this.removeBodyScrollLock();
   }
 
   toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    this.updateBodyScrollLock();
   }
 
   closeMobileMenu(): void {
-    this.isMobileMenuOpen = false;
+    if (this.isMobileMenuOpen) {
+      this.isMobileMenuOpen = false;
+      this.updateBodyScrollLock();
+    }
+  }
+
+  private updateBodyScrollLock(): void {
+    if (typeof document !== 'undefined') {
+      if (this.isMobileMenuOpen) {
+        document.body.classList.add('mobile-nav-locked');
+      } else {
+        document.body.classList.remove('mobile-nav-locked');
+      }
+    }
+  }
+
+  private removeBodyScrollLock(): void {
+    if (typeof document !== 'undefined') {
+      document.body.classList.remove('mobile-nav-locked');
+    }
   }
 
   @HostListener('document:keydown.escape')
