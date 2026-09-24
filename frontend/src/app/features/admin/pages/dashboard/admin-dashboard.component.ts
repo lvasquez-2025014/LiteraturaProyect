@@ -15,6 +15,8 @@ import {
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { environment } from '../../../../../environments/environment';
 
+import { ActivatedRoute, Router } from '@angular/router';
+
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
@@ -26,7 +28,11 @@ export class AdminDashboardComponent implements OnInit {
   private http = inject(HttpClient);
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
   auth = inject(AuthService);
+
+  activeTab: 'overview' | 'users' = 'overview';
 
   readonly gradeLevels = KINAL_GRADE_LEVELS;
   readonly careers = KINAL_CAREERS;
@@ -207,10 +213,48 @@ export class AdminDashboardComponent implements OnInit {
   });
 
   ngOnInit() {
+    this.route.queryParams.subscribe((params) => {
+      const tab = params['tab'];
+      if (tab === 'users') {
+        this.activeTab = 'users';
+      } else {
+        this.activeTab = 'overview';
+      }
+      this.cdr.markForCheck();
+    });
+
     this.loadUsers();
     this.userForm.get('role')?.valueChanges.subscribe((role) => {
       this.onRoleChanged(role || '');
     });
+  }
+
+  switchTab(tab: 'overview' | 'users', filterRole?: 'ALL' | 'STUDENT_ROLE' | 'TEACHER_ROLE' | 'ADMIN_ROLE') {
+    this.activeTab = tab;
+    if (filterRole) {
+      this.selectedRoleFilter = filterRole;
+    }
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: tab === 'users' ? { tab: 'users' } : {},
+      queryParamsHandling: 'replace',
+    });
+    this.cdr.markForCheck();
+  }
+
+  get studentPercentage(): number {
+    if (!this.totalUsersCount) return 0;
+    return Math.round((this.studentCount / this.totalUsersCount) * 100);
+  }
+
+  get teacherPercentage(): number {
+    if (!this.totalUsersCount) return 0;
+    return Math.round((this.teacherCount / this.totalUsersCount) * 100);
+  }
+
+  get adminPercentage(): number {
+    if (!this.totalUsersCount) return 0;
+    return Math.round((this.adminCount / this.totalUsersCount) * 100);
   }
 
   openCreateModal() {

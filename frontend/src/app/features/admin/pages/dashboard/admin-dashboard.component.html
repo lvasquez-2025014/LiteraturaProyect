@@ -3,574 +3,900 @@
 <main class="admin-dashboard">
   <div class="dashboard-container">
 
-    <!-- Hero Header -->
-    <header class="dashboard-hero">
-      <div class="hero-left">
-        <div class="hero-tag-row">
-          <span class="kinal-pill">
-            <span class="pulsing-live-dot"></span>
-            Panel de Control Institucional
-          </span>
-          <span class="hero-date-chip">Gestión Escolar Kinal</span>
+    <!-- Top View Switcher Navigation Tabs -->
+    <nav class="admin-view-switcher" aria-label="Secciones del panel de administración">
+      <button 
+        type="button" 
+        class="switch-tab-btn" 
+        [class.active-tab]="activeTab === 'overview'" 
+        (click)="switchTab('overview')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        <span>Panel Administrador</span>
+        <span class="tab-chip-status" *ngIf="activeTab === 'overview'">Centro de Control</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="switch-tab-btn" 
+        [class.active-tab]="activeTab === 'users'" 
+        (click)="switchTab('users')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <span>Cuentas &amp; Roles</span>
+        <span class="tab-counter-badge">{{ totalUsersCount }}</span>
+      </button>
+    </nav>
+
+    <!-- =====================================================================
+         VIEW 1: PANEL ADMINISTRADOR (CENTRO DE CONTROL & OVERVIEW)
+         ===================================================================== -->
+    <ng-container *ngIf="activeTab === 'overview'">
+      <!-- Hero Header for Overview -->
+      <header class="dashboard-hero">
+        <div class="hero-left">
+          <div class="hero-tag-row">
+            <span class="kinal-pill">
+              <span class="pulsing-live-dot"></span>
+              Panel de Administración
+            </span>
+            <span class="hero-date-chip">Centro de Mando Institucional</span>
+          </div>
+          <h1 class="hero-title">Centro de Control Global</h1>
+          <p class="hero-subtitle">
+            Monitoreo en tiempo real de la comunidad escolar Kinal, portales de acceso pedagógico y estado operativo del sistema.
+          </p>
         </div>
-        <h1 class="hero-title">Control Global de Cuentas y Roles</h1>
-        <p class="hero-subtitle">
-          Supervisión de la comunidad educativa: estudiantes, docentes y permisos de administración del sistema.
-        </p>
-      </div>
 
-      <div class="hero-actions">
-        <button (click)="openCreateModal()" class="btn-create-account" id="btn-create-user-modal">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"/>
-            <line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          <span>Nuevo Estudiante / Docente</span>
-        </button>
-      </div>
-    </header>
-
-    <!-- KPI / Stat Cards Grid -->
-    <section class="kpi-grid" aria-label="Métricas de cuentas">
-      <!-- Card 1: Total Cuentas -->
-      <div 
-        class="kpi-card kpi-all" 
-        [class.active-kpi]="selectedRoleFilter === 'ALL'" 
-        (click)="setRoleFilter('ALL')" 
-        title="Ver todas las cuentas"
-        role="button"
-        tabindex="0">
-        <div class="kpi-header">
-          <div class="kpi-icon-wrap icon-all">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <div class="hero-actions">
+          <button (click)="switchTab('users')" class="btn-secondary-action">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
               <circle cx="9" cy="7" r="4"/>
               <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
               <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
             </svg>
-          </div>
-          <span class="kpi-pill-badge badge-all">Directorio Total</span>
-        </div>
-        <div class="kpi-body">
-          <div class="kpi-number">{{ totalUsersCount }}</div>
-          <div class="kpi-label">Cuentas Registradas</div>
-          <div class="kpi-meta">Comunidad escolar activa</div>
-        </div>
-        <div class="kpi-accent-bar"></div>
-      </div>
-
-      <!-- Card 2: Estudiantes -->
-      <div 
-        class="kpi-card kpi-students" 
-        [class.active-kpi]="selectedRoleFilter === 'STUDENT_ROLE'" 
-        (click)="setRoleFilter('STUDENT_ROLE')" 
-        title="Filtrar por estudiantes"
-        role="button"
-        tabindex="0">
-        <div class="kpi-header">
-          <div class="kpi-icon-wrap icon-students">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-              <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            <span>Ver Directorio Cuentas & Roles</span>
+          </button>
+          <button (click)="openCreateModal()" class="btn-create-account">
+            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
+            <span>+ Nuevo Registro</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- KPI / Stat Cards Grid (Clicking navigates to Cuentas & Roles with filter) -->
+      <section class="kpi-grid" aria-label="Métricas del sistema">
+        <!-- Card 1: Total Cuentas -->
+        <div class="kpi-card kpi-all" (click)="switchTab('users', 'ALL')" role="button" tabindex="0" title="Ver todas las cuentas en el directorio">
+          <div class="kpi-header">
+            <div class="kpi-icon-wrap icon-all">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <span class="kpi-pill-badge badge-all">Directorio Total</span>
           </div>
-          <span class="kpi-pill-badge badge-students">Alumnado</span>
-        </div>
-        <div class="kpi-body">
-          <div class="kpi-number">{{ studentCount }}</div>
-          <div class="kpi-label">Estudiantes Activos</div>
-          <div class="kpi-meta">Básicos y Carreras Perito</div>
-        </div>
-        <div class="kpi-accent-bar"></div>
-      </div>
-
-      <!-- Card 3: Docentes -->
-      <div 
-        class="kpi-card kpi-teachers" 
-        [class.active-kpi]="selectedRoleFilter === 'TEACHER_ROLE'" 
-        (click)="setRoleFilter('TEACHER_ROLE')" 
-        title="Filtrar por docentes"
-        role="button"
-        tabindex="0">
-        <div class="kpi-header">
-          <div class="kpi-icon-wrap icon-teachers">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-            </svg>
+          <div class="kpi-body">
+            <div class="kpi-number">{{ totalUsersCount }}</div>
+            <div class="kpi-label">Cuentas Registradas</div>
+            <div class="kpi-meta">Clic para ver directorio completo →</div>
           </div>
-          <span class="kpi-pill-badge badge-teachers">Claustro</span>
+          <div class="kpi-accent-bar"></div>
         </div>
-        <div class="kpi-body">
-          <div class="kpi-number">{{ teacherCount }}</div>
-          <div class="kpi-label">Docentes / Profesores</div>
-          <div class="kpi-meta">Catedráticos asignados</div>
-        </div>
-        <div class="kpi-accent-bar"></div>
-      </div>
 
-      <!-- Card 4: Administradores -->
-      <div 
-        class="kpi-card kpi-admins" 
-        [class.active-kpi]="selectedRoleFilter === 'ADMIN_ROLE'" 
-        (click)="setRoleFilter('ADMIN_ROLE')" 
-        title="Filtrar por administradores"
-        role="button"
-        tabindex="0">
-        <div class="kpi-header">
-          <div class="kpi-icon-wrap icon-admins">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
+        <!-- Card 2: Estudiantes -->
+        <div class="kpi-card kpi-students" (click)="switchTab('users', 'STUDENT_ROLE')" role="button" tabindex="0" title="Ver estudiantes en el directorio">
+          <div class="kpi-header">
+            <div class="kpi-icon-wrap icon-students">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+              </svg>
+            </div>
+            <span class="kpi-pill-badge badge-students">Alumnado</span>
           </div>
-          <span class="kpi-pill-badge badge-admins">Permisos Totales</span>
-        </div>
-        <div class="kpi-body">
-          <div class="kpi-number">{{ adminCount }}</div>
-          <div class="kpi-label">Administradores</div>
-          <div class="kpi-meta">Gestión institucional</div>
-        </div>
-        <div class="kpi-accent-bar"></div>
-      </div>
-    </section>
-
-    <!-- Main Table Card -->
-    <div class="table-card-container">
-
-      <!-- Toast Banner -->
-      <div *ngIf="successMessage" class="toast-success-banner" role="status">
-        <div class="toast-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-            <polyline points="22 4 12 14.01 9 11.01"/>
-          </svg>
-        </div>
-        <span class="toast-text">{{ successMessage }}</span>
-      </div>
-
-      <!-- Top Header of Card -->
-      <div class="card-top-bar">
-        <div class="top-bar-title-group">
-          <div class="section-icon-badge">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="7" height="7"/>
-              <rect x="14" y="3" width="7" height="7"/>
-              <rect x="14" y="14" width="7" height="7"/>
-              <rect x="3" y="14" width="7" height="7"/>
-            </svg>
+          <div class="kpi-body">
+            <div class="kpi-number">{{ studentCount }}</div>
+            <div class="kpi-label">Estudiantes Activos</div>
+            <div class="kpi-meta">Básicos y Diversificado Perito →</div>
           </div>
+          <div class="kpi-accent-bar"></div>
+        </div>
+
+        <!-- Card 3: Docentes -->
+        <div class="kpi-card kpi-teachers" (click)="switchTab('users', 'TEACHER_ROLE')" role="button" tabindex="0" title="Ver docentes en el directorio">
+          <div class="kpi-header">
+            <div class="kpi-icon-wrap icon-teachers">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+              </svg>
+            </div>
+            <span class="kpi-pill-badge badge-teachers">Claustro</span>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-number">{{ teacherCount }}</div>
+            <div class="kpi-label">Docentes / Profesores</div>
+            <div class="kpi-meta">Catedráticos de área →</div>
+          </div>
+          <div class="kpi-accent-bar"></div>
+        </div>
+
+        <!-- Card 4: Administradores -->
+        <div class="kpi-card kpi-admins" (click)="switchTab('users', 'ADMIN_ROLE')" role="button" tabindex="0" title="Ver administradores en el directorio">
+          <div class="kpi-header">
+            <div class="kpi-icon-wrap icon-admins">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <span class="kpi-pill-badge badge-admins">Permisos Totales</span>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-number">{{ adminCount }}</div>
+            <div class="kpi-label">Administradores</div>
+            <div class="kpi-meta">Gestión institucional →</div>
+          </div>
+          <div class="kpi-accent-bar"></div>
+        </div>
+      </section>
+
+      <!-- Portals Hub: Quick Direct Access to System Modules -->
+      <section class="portal-hub-section">
+        <div class="hub-header">
           <div>
-            <h2 class="card-title">Directorio de Estudiantes y Docentes</h2>
-            <p class="card-subtitle">
-              Mostrando <strong class="highlight-count">{{ filteredUsers.length }}</strong> de {{ users.length }} cuentas en la plataforma
-            </p>
+            <h2 class="hub-title">Portales de Acceso y Módulos Institucionales</h2>
+            <p class="hub-subtitle">Navega a los entornos especializados disponibles para tu rol de Administrador</p>
+          </div>
+          <button (click)="loadUsers()" class="btn-refresh" [disabled]="loading" title="Recargar datos">
+            <svg [class.spin]="loading" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"/>
+              <polyline points="1 20 1 14 7 14"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+            <span>{{ loading ? 'Actualizando...' : 'Recargar' }}</span>
+          </button>
+        </div>
+
+        <div class="hub-cards-grid">
+          <!-- Card 1: Cuentas & Roles -->
+          <div class="hub-card hub-card-users">
+            <div class="hub-card-top">
+              <div class="hub-card-icon icon-users-hub">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+              </div>
+              <span class="hub-card-tag">Gestión Institucional</span>
+            </div>
+            <div class="hub-card-body">
+              <h3 class="hub-card-title">Cuentas &amp; Roles</h3>
+              <p class="hub-card-desc">
+                Directorio completo de alumnos y profesores. Asigna grados escolares, especialidades Perito, secciones académicas y permisos del sistema.
+              </p>
+              <div class="hub-card-stats">
+                <span><strong>{{ totalUsersCount }}</strong> Cuentas</span>
+                <span>•</span>
+                <span><strong>{{ studentCount }}</strong> Estudiantes</span>
+                <span>•</span>
+                <span><strong>{{ teacherCount }}</strong> Docentes</span>
+              </div>
+            </div>
+            <div class="hub-card-footer">
+              <button (click)="switchTab('users')" class="btn-hub-action btn-hub-users">
+                <span>Administrar Cuentas &amp; Roles</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Card 2: Portal Docente -->
+          <div class="hub-card hub-card-teacher">
+            <div class="hub-card-top">
+              <div class="hub-card-icon icon-teacher-hub">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+                </svg>
+              </div>
+              <span class="hub-card-tag tag-teacher">Portal Docente</span>
+            </div>
+            <div class="hub-card-body">
+              <h3 class="hub-card-title">Portal Docente &amp; Cátedra</h3>
+              <p class="hub-card-desc">
+                Supervisa el catálogo de lecturas por grado, el rendimiento de velocidad y comprensión de los estudiantes y las etapas pedagógicas configuradas.
+              </p>
+              <div class="hub-card-stats">
+                <span>Rendimiento Alumnos</span>
+                <span>•</span>
+                <span>Catálogo Lecturas</span>
+              </div>
+            </div>
+            <div class="hub-card-footer">
+              <a routerLink="/profesor" class="btn-hub-action btn-hub-teacher">
+                <span>Ingresar a Portal Docente</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </a>
+            </div>
+          </div>
+
+          <!-- Card 3: Modo Aventura -->
+          <div class="hub-card hub-card-student">
+            <div class="hub-card-top">
+              <div class="hub-card-icon icon-student-hub">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
+                  <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
+                  <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/>
+                  <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+                </svg>
+              </div>
+              <span class="hub-card-tag tag-student">Modo Alumno</span>
+            </div>
+            <div class="hub-card-body">
+              <h3 class="hub-card-title">Aventura Estudiante</h3>
+              <p class="hub-card-desc">
+                Experimenta la plataforma tal como la viven los alumnos: mapa de rutas literarias, rachas de lectura, centro de recompensas, medallas y tablas de posiciones.
+              </p>
+              <div class="hub-card-stats">
+                <span>Ruta Literaria</span>
+                <span>•</span>
+                <span>Recompensas</span>
+                <span>•</span>
+                <span>Rango &amp; XP</span>
+              </div>
+            </div>
+            <div class="hub-card-footer">
+              <a routerLink="/estudiante" class="btn-hub-action btn-hub-student">
+                <span>Explorar Modo Alumno</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </a>
+            </div>
           </div>
         </div>
+      </section>
 
-        <button (click)="loadUsers()" class="btn-refresh" [disabled]="loading" title="Recargar directorio">
-          <svg [class.spin]="loading" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="23 4 23 10 17 10"/>
-            <polyline points="1 20 1 14 7 14"/>
-            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-          </svg>
-          <span>{{ loading ? 'Actualizando...' : 'Recargar' }}</span>
-        </button>
-      </div>
-
-      <!-- Filters & Search Toolbar -->
-      <div class="toolbar-section">
-        <!-- Segmented Role Pills -->
-        <div class="segmented-role-nav" role="tablist" aria-label="Filtrar por rol">
-          <button 
-            type="button" 
-            class="seg-pill-btn pill-all" 
-            [class.active]="selectedRoleFilter === 'ALL'"
-            (click)="setRoleFilter('ALL')">
-            <span class="seg-dot"></span>
-            <span>Todos</span>
-            <span class="seg-badge">{{ users.length }}</span>
-          </button>
-          
-          <button 
-            type="button" 
-            class="seg-pill-btn pill-student" 
-            [class.active]="selectedRoleFilter === 'STUDENT_ROLE'"
-            (click)="setRoleFilter('STUDENT_ROLE')">
-            <span class="seg-dot"></span>
-            <span>Estudiantes</span>
-            <span class="seg-badge">{{ studentCount }}</span>
-          </button>
-          
-          <button 
-            type="button" 
-            class="seg-pill-btn pill-teacher" 
-            [class.active]="selectedRoleFilter === 'TEACHER_ROLE'"
-            (click)="setRoleFilter('TEACHER_ROLE')">
-            <span class="seg-dot"></span>
-            <span>Docentes</span>
-            <span class="seg-badge">{{ teacherCount }}</span>
-          </button>
-          
-          <button 
-            type="button" 
-            class="seg-pill-btn pill-admin" 
-            [class.active]="selectedRoleFilter === 'ADMIN_ROLE'"
-            (click)="setRoleFilter('ADMIN_ROLE')">
-            <span class="seg-dot"></span>
-            <span>Administradores</span>
-            <span class="seg-badge">{{ adminCount }}</span>
-          </button>
+      <!-- Institutional Distribution & System Health Card -->
+      <section class="overview-analytics-card">
+        <div class="analytics-card-header">
+          <div>
+            <h3 class="analytics-card-title">Distribución de la Comunidad Escolar</h3>
+            <span class="analytics-card-sub">Proporción de cuentas por rol institucional en el sistema</span>
+          </div>
+          <span class="analytics-status-pill">
+            <span class="pulsing-live-dot"></span> Sistema Protegido con Concurrencia Regulada
+          </span>
         </div>
 
-        <!-- Search Input -->
-        <div class="search-field-wrapper">
-          <svg class="search-field-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"/>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-          <input 
-            type="text" 
-            [(ngModel)]="searchQuery" 
-            placeholder="Buscar por nombre, correo, carnet o grado..." 
-            class="search-field-input" 
-            aria-label="Buscar cuentas" />
-          <button 
-            *ngIf="searchQuery" 
-            (click)="searchQuery = ''" 
-            class="search-clear-btn" 
-            title="Borrar texto de búsqueda"
-            type="button">
-            ✕
+        <div class="distribution-bars-container">
+          <!-- Estudiantes -->
+          <div class="distrib-bar-item">
+            <div class="distrib-info">
+              <span class="distrib-name">Estudiantes (Alumnos)</span>
+              <span class="distrib-numbers"><strong>{{ studentCount }}</strong> cuentas ({{ studentPercentage }}%)</span>
+            </div>
+            <div class="distrib-track">
+              <div class="distrib-fill fill-students" [style.width.%]="studentPercentage"></div>
+            </div>
+          </div>
+
+          <!-- Docentes -->
+          <div class="distrib-bar-item">
+            <div class="distrib-info">
+              <span class="distrib-name">Docentes (Profesores)</span>
+              <span class="distrib-numbers"><strong>{{ teacherCount }}</strong> cuentas ({{ teacherPercentage }}%)</span>
+            </div>
+            <div class="distrib-track">
+              <div class="distrib-fill fill-teachers" [style.width.%]="teacherPercentage"></div>
+            </div>
+          </div>
+
+          <!-- Administradores -->
+          <div class="distrib-bar-item">
+            <div class="distrib-info">
+              <span class="distrib-name">Administradores del Sistema</span>
+              <span class="distrib-numbers"><strong>{{ adminCount }}</strong> cuentas ({{ adminPercentage }}%)</span>
+            </div>
+            <div class="distrib-track">
+              <div class="distrib-fill fill-admins" [style.width.%]="adminPercentage"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </ng-container>
+
+    <!-- =====================================================================
+         VIEW 2: CUENTAS & ROLES (DIRECTORIO COMPLETO DE ESTUDIANTES Y DOCENTES)
+         ===================================================================== -->
+    <ng-container *ngIf="activeTab === 'users'">
+      <!-- Hero Header for Cuentas & Roles -->
+      <header class="dashboard-hero">
+        <div class="hero-left">
+          <div class="hero-tag-row">
+            <span class="kinal-pill pill-users-tag">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Gestión Institucional
+            </span>
+            <span class="hero-date-chip">Directorio Escolar Kinal</span>
+          </div>
+          <h1 class="hero-title">Directorio de Cuentas &amp; Roles</h1>
+          <p class="hero-subtitle">
+            Administración de perfiles escolares, asignación de grado, especialidad técnica Perito, sección y permisos de acceso.
+          </p>
+        </div>
+
+        <div class="hero-actions">
+          <button (click)="switchTab('overview')" class="btn-secondary-action">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            <span>Volver a Centro de Control</span>
+          </button>
+          <button (click)="openCreateModal()" class="btn-create-account" id="btn-create-user-modal">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            <span>Nuevo Estudiante / Docente</span>
           </button>
         </div>
-      </div>
+      </header>
 
-      <!-- Academic Filters Box for Students -->
-      <div class="academic-panel" *ngIf="selectedRoleFilter === 'STUDENT_ROLE' || hasActiveAcademicFilters">
-        <div class="academic-panel-header">
-          <div class="academic-title-wrap">
-            <div class="academic-icon-circle">
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+      <!-- KPI Filter Cards (Live Filtering) -->
+      <section class="kpi-grid" aria-label="Filtro rápido por rol">
+        <!-- Card 1: Total Cuentas -->
+        <div 
+          class="kpi-card kpi-all" 
+          [class.active-kpi]="selectedRoleFilter === 'ALL'" 
+          (click)="setRoleFilter('ALL')" 
+          title="Ver todas las cuentas"
+          role="button"
+          tabindex="0">
+          <div class="kpi-header">
+            <div class="kpi-icon-wrap icon-all">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <span class="kpi-pill-badge badge-all">Directorio Total</span>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-number">{{ totalUsersCount }}</div>
+            <div class="kpi-label">Cuentas Registradas</div>
+            <div class="kpi-meta">Comunidad escolar activa</div>
+          </div>
+          <div class="kpi-accent-bar"></div>
+        </div>
+
+        <!-- Card 2: Estudiantes -->
+        <div 
+          class="kpi-card kpi-students" 
+          [class.active-kpi]="selectedRoleFilter === 'STUDENT_ROLE'" 
+          (click)="setRoleFilter('STUDENT_ROLE')" 
+          title="Filtrar por estudiantes"
+          role="button"
+          tabindex="0">
+          <div class="kpi-header">
+            <div class="kpi-icon-wrap icon-students">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+              </svg>
+            </div>
+            <span class="kpi-pill-badge badge-students">Alumnado</span>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-number">{{ studentCount }}</div>
+            <div class="kpi-label">Estudiantes Activos</div>
+            <div class="kpi-meta">Básicos y Carreras Perito</div>
+          </div>
+          <div class="kpi-accent-bar"></div>
+        </div>
+
+        <!-- Card 3: Docentes -->
+        <div 
+          class="kpi-card kpi-teachers" 
+          [class.active-kpi]="selectedRoleFilter === 'TEACHER_ROLE'" 
+          (click)="setRoleFilter('TEACHER_ROLE')" 
+          title="Filtrar por docentes"
+          role="button"
+          tabindex="0">
+          <div class="kpi-header">
+            <div class="kpi-icon-wrap icon-teachers">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+              </svg>
+            </div>
+            <span class="kpi-pill-badge badge-teachers">Claustro</span>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-number">{{ teacherCount }}</div>
+            <div class="kpi-label">Docentes / Profesores</div>
+            <div class="kpi-meta">Catedráticos asignados</div>
+          </div>
+          <div class="kpi-accent-bar"></div>
+        </div>
+
+        <!-- Card 4: Administradores -->
+        <div 
+          class="kpi-card kpi-admins" 
+          [class.active-kpi]="selectedRoleFilter === 'ADMIN_ROLE'" 
+          (click)="setRoleFilter('ADMIN_ROLE')" 
+          title="Filtrar por administradores"
+          role="button"
+          tabindex="0">
+          <div class="kpi-header">
+            <div class="kpi-icon-wrap icon-admins">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <span class="kpi-pill-badge badge-admins">Permisos Totales</span>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-number">{{ adminCount }}</div>
+            <div class="kpi-label">Administradores</div>
+            <div class="kpi-meta">Gestión institucional</div>
+          </div>
+          <div class="kpi-accent-bar"></div>
+        </div>
+      </section>
+
+      <!-- Main Directory Table Card -->
+      <div class="table-card-container">
+
+        <!-- Toast Banner -->
+        <div *ngIf="successMessage" class="toast-success-banner" role="status">
+          <div class="toast-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <span class="toast-text">{{ successMessage }}</span>
+        </div>
+
+        <!-- Top Header of Card -->
+        <div class="card-top-bar">
+          <div class="top-bar-title-group">
+            <div class="section-icon-badge">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7"/>
+                <rect x="14" y="3" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/>
               </svg>
             </div>
             <div>
-              <span class="academic-title">Filtros Académicos Kinal</span>
-              <span class="academic-subtitle">Filtrado por nivel educativo, especialidad técnica y sección</span>
+              <h2 class="card-title">Cuentas Registradas en la Plataforma</h2>
+              <p class="card-subtitle">
+                Mostrando <strong class="highlight-count">{{ filteredUsers.length }}</strong> de {{ users.length }} cuentas en la plataforma
+              </p>
             </div>
           </div>
 
-          <div class="academic-meta-wrap">
-            <span class="academic-results-pill">
-              <strong>{{ filteredUsers.length }}</strong> estudiante{{ filteredUsers.length === 1 ? '' : 's' }} encontrado{{ filteredUsers.length === 1 ? '' : 's' }}
-            </span>
+          <button (click)="loadUsers()" class="btn-refresh" [disabled]="loading" title="Recargar directorio">
+            <svg [class.spin]="loading" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"/>
+              <polyline points="1 20 1 14 7 14"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+            <span>{{ loading ? 'Actualizando...' : 'Recargar' }}</span>
+          </button>
+        </div>
+
+        <!-- Filters & Search Toolbar -->
+        <div class="toolbar-section">
+          <!-- Segmented Role Pills -->
+          <div class="segmented-role-nav" role="tablist" aria-label="Filtrar por rol">
             <button 
               type="button" 
-              *ngIf="hasActiveAcademicFilters" 
-              (click)="clearAcademicFilters()" 
-              class="btn-reset-academic" 
-              title="Restablecer filtros">
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"/>
-                <line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
-              <span>Restablecer</span>
+              class="seg-pill-btn pill-all" 
+              [class.active]="selectedRoleFilter === 'ALL'"
+              (click)="setRoleFilter('ALL')">
+              <span class="seg-dot"></span>
+              <span>Todos</span>
+              <span class="seg-badge">{{ users.length }}</span>
+            </button>
+            
+            <button 
+              type="button" 
+              class="seg-pill-btn pill-student" 
+              [class.active]="selectedRoleFilter === 'STUDENT_ROLE'"
+              (click)="setRoleFilter('STUDENT_ROLE')">
+              <span class="seg-dot"></span>
+              <span>Estudiantes</span>
+              <span class="seg-badge">{{ studentCount }}</span>
+            </button>
+            
+            <button 
+              type="button" 
+              class="seg-pill-btn pill-teacher" 
+              [class.active]="selectedRoleFilter === 'TEACHER_ROLE'"
+              (click)="setRoleFilter('TEACHER_ROLE')">
+              <span class="seg-dot"></span>
+              <span>Docentes</span>
+              <span class="seg-badge">{{ teacherCount }}</span>
+            </button>
+            
+            <button 
+              type="button" 
+              class="seg-pill-btn pill-admin" 
+              [class.active]="selectedRoleFilter === 'ADMIN_ROLE'"
+              (click)="setRoleFilter('ADMIN_ROLE')">
+              <span class="seg-dot"></span>
+              <span>Administradores</span>
+              <span class="seg-badge">{{ adminCount }}</span>
+            </button>
+          </div>
+
+          <!-- Search Input -->
+          <div class="search-field-wrapper">
+            <svg class="search-field-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input 
+              type="text" 
+              [(ngModel)]="searchQuery" 
+              placeholder="Buscar por nombre, correo, carnet o grado..." 
+              class="search-field-input" 
+              aria-label="Buscar cuentas" />
+            <button 
+              *ngIf="searchQuery" 
+              (click)="searchQuery = ''" 
+              class="search-clear-btn" 
+              title="Borrar texto de búsqueda"
+              type="button">
+              ✕
             </button>
           </div>
         </div>
 
-        <div class="academic-controls-row">
-          <!-- Grado Escolar -->
-          <div class="academic-input-box">
-            <label for="filter-grade" class="academic-label">
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
-              </svg>
-              <span>Grado Escolar</span>
-            </label>
-            <div class="custom-select-box">
-              <select 
-                id="filter-grade" 
-                [(ngModel)]="studentGradeFilter" 
-                (ngModelChange)="onStudentGradeFilterChange()" 
-                class="academic-select">
-                <option value="">Todos los Grados</option>
-                <option *ngFor="let g of gradeLevels" [value]="g">{{ g }}</option>
-              </select>
-              <svg class="select-arrow" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        <!-- Academic Filters Box for Students -->
+        <div class="academic-panel" *ngIf="selectedRoleFilter === 'STUDENT_ROLE' || hasActiveAcademicFilters">
+          <div class="academic-panel-header">
+            <div class="academic-title-wrap">
+              <div class="academic-icon-circle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                </svg>
+              </div>
+              <div>
+                <span class="academic-title">Filtros Académicos Kinal</span>
+                <span class="academic-subtitle">Filtrado por nivel educativo, especialidad técnica y sección</span>
+              </div>
+            </div>
+
+            <div class="academic-meta-wrap">
+              <span class="academic-results-pill">
+                <strong>{{ filteredUsers.length }}</strong> estudiante{{ filteredUsers.length === 1 ? '' : 's' }} encontrado{{ filteredUsers.length === 1 ? '' : 's' }}
+              </span>
+              <button 
+                type="button" 
+                *ngIf="hasActiveAcademicFilters" 
+                (click)="clearAcademicFilters()" 
+                class="btn-reset-academic" 
+                title="Restablecer filtros">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+                <span>Restablecer</span>
+              </button>
             </div>
           </div>
 
-          <!-- Carrera Técnica Perito -->
-          <div class="academic-input-box" *ngIf="isPeritoFilterActive">
-            <label for="filter-career" class="academic-label">
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-              </svg>
-              <span>Carrera Técnica</span>
-              <span class="tag-perito-badge">Perito</span>
-            </label>
-            <div class="custom-select-box">
-              <select 
-                id="filter-career" 
-                [(ngModel)]="studentCareerFilter" 
-                class="academic-select select-perito-career">
-                <option value="">Todas las Especialidades</option>
-                <option *ngFor="let c of careers" [value]="c">Perito en {{ c }}</option>
-              </select>
-              <svg class="select-arrow" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          <div class="academic-controls-row">
+            <!-- Grado Escolar -->
+            <div class="academic-input-box">
+              <label for="filter-grade" class="academic-label">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+                </svg>
+                <span>Grado Escolar</span>
+              </label>
+              <div class="custom-select-box">
+                <select 
+                  id="filter-grade" 
+                  [(ngModel)]="studentGradeFilter" 
+                  (ngModelChange)="onStudentGradeFilterChange()" 
+                  class="academic-select">
+                  <option value="">Todos los Grados</option>
+                  <option *ngFor="let g of gradeLevels" [value]="g">{{ g }}</option>
+                </select>
+                <svg class="select-arrow" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
             </div>
-          </div>
 
-          <!-- Sección -->
-          <div class="academic-input-box">
-            <label for="filter-section" class="academic-label">
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                <line x1="9" y1="3" x2="9" y2="21"/>
-              </svg>
-              <span>Sección</span>
-            </label>
-            <div class="custom-select-box">
-              <select 
-                id="filter-section" 
-                [(ngModel)]="studentSectionFilter" 
-                class="academic-select">
-                <option value="">Todas las Secciones</option>
-                <option *ngFor="let s of sections" [value]="s">Sección "{{ s }}"</option>
-              </select>
-              <svg class="select-arrow" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            <!-- Carrera Técnica Perito -->
+            <div class="academic-input-box" *ngIf="isPeritoFilterActive">
+              <label for="filter-career" class="academic-label">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                </svg>
+                <span>Carrera Técnica</span>
+                <span class="tag-perito-badge">Perito</span>
+              </label>
+              <div class="custom-select-box">
+                <select 
+                  id="filter-career" 
+                  [(ngModel)]="studentCareerFilter" 
+                  class="academic-select select-perito-career">
+                  <option value="">Todas las Especialidades</option>
+                  <option *ngFor="let c of careers" [value]="c">Perito en {{ c }}</option>
+                </select>
+                <svg class="select-arrow" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+
+            <!-- Sección -->
+            <div class="academic-input-box">
+              <label for="filter-section" class="academic-label">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="9" y1="3" x2="9" y2="21"/>
+                </svg>
+                <span>Sección</span>
+              </label>
+              <div class="custom-select-box">
+                <select 
+                  id="filter-section" 
+                  [(ngModel)]="studentSectionFilter" 
+                  class="academic-select">
+                  <option value="">Todas las Secciones</option>
+                  <option *ngFor="let s of sections" [value]="s">Sección "{{ s }}"</option>
+                </select>
+                <svg class="select-arrow" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Loading State -->
-      <div *ngIf="loading" class="state-loading-box">
-        <div class="loading-ring-spinner"></div>
-        <span class="loading-text">Cargando directorio de estudiantes y docentes...</span>
-      </div>
+        <!-- Loading State -->
+        <div *ngIf="loading" class="state-loading-box">
+          <div class="loading-ring-spinner"></div>
+          <span class="loading-text">Cargando directorio de estudiantes y docentes...</span>
+        </div>
 
-      <!-- Users Table -->
-      <div class="table-scroll-container" *ngIf="!loading">
-        <table class="saas-table" *ngIf="filteredUsers.length > 0; else noFilteredUsersTemplate">
-          <thead>
-            <tr>
-              <th scope="col" class="th-user">
-                <div class="th-content">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                  <span>Estudiante / Docente</span>
-                </div>
-              </th>
-              <th scope="col" class="th-email">
-                <div class="th-content">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                  <span>Correo Institucional</span>
-                </div>
-              </th>
-              <th scope="col" class="th-role">
-                <div class="th-content">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                  <span>Rol Asignado</span>
-                </div>
-              </th>
-              <th scope="col" class="th-grade">
-                <div class="th-content">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-                  <span>Grado / Especialidad</span>
-                </div>
-              </th>
-              <th scope="col" class="th-actions">
-                <div class="th-content">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-                  <span>Acciones</span>
-                </div>
-              </th>
-            </tr>
-          </thead>
-
-          <tbody>
-            <tr *ngFor="let u of filteredUsers" class="table-row">
-              <!-- Column 1: User Identity -->
-              <td class="td-user">
-                <div class="user-profile-flex">
-                  <div class="avatar-container" [ngClass]="{
-                    'avatar-student': u.role === 'STUDENT_ROLE',
-                    'avatar-teacher': u.role === 'TEACHER_ROLE',
-                    'avatar-admin': u.role === 'ADMIN_ROLE'
-                  }">
-                    <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" [alt]="u.name" class="avatar-img" />
-                    <span *ngIf="!u.avatarUrl" class="avatar-initials">{{ u.name.charAt(0) }}</span>
-                    <span class="user-status-dot" title="Cuenta escolar activa"></span>
+        <!-- Users Table -->
+        <div class="table-scroll-container" *ngIf="!loading">
+          <table class="saas-table" *ngIf="filteredUsers.length > 0; else noFilteredUsersTemplate">
+            <thead>
+              <tr>
+                <th scope="col" class="th-user">
+                  <div class="th-content">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span>Estudiante / Docente</span>
                   </div>
+                </th>
+                <th scope="col" class="th-email">
+                  <div class="th-content">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    <span>Correo Institucional</span>
+                  </div>
+                </th>
+                <th scope="col" class="th-role">
+                  <div class="th-content">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span>Rol Asignado</span>
+                  </div>
+                </th>
+                <th scope="col" class="th-grade">
+                  <div class="th-content">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                    <span>Grado / Especialidad</span>
+                  </div>
+                </th>
+                <th scope="col" class="th-actions">
+                  <div class="th-content">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                    <span>Acciones</span>
+                  </div>
+                </th>
+              </tr>
+            </thead>
 
-                  <div class="user-meta-stack">
-                    <span class="user-fullname">{{ u.name }}</span>
-                    <div class="user-badges-subline">
-                      <span *ngIf="u.isSuperAdmin" class="micro-badge badge-superadmin">
-                        Administrador Principal
-                      </span>
-                      <span *ngIf="u.carnet" class="micro-badge badge-carnet">
-                        Carnet {{ u.carnet }}
-                      </span>
+            <tbody>
+              <tr *ngFor="let u of filteredUsers" class="table-row">
+                <!-- Column 1: User Identity -->
+                <td class="td-user">
+                  <div class="user-profile-flex">
+                    <div class="avatar-container" [ngClass]="{
+                      'avatar-student': u.role === 'STUDENT_ROLE',
+                      'avatar-teacher': u.role === 'TEACHER_ROLE',
+                      'avatar-admin': u.role === 'ADMIN_ROLE'
+                    }">
+                      <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" [alt]="u.name" class="avatar-img" />
+                      <span *ngIf="!u.avatarUrl" class="avatar-initials">{{ u.name.charAt(0) }}</span>
+                      <span class="user-status-dot" title="Cuenta escolar activa"></span>
+                    </div>
+
+                    <div class="user-meta-stack">
+                      <span class="user-fullname">{{ u.name }}</span>
+                      <div class="user-badges-subline">
+                        <span *ngIf="u.isSuperAdmin" class="micro-badge badge-superadmin">
+                          Administrador Principal
+                        </span>
+                        <span *ngIf="u.carnet" class="micro-badge badge-carnet">
+                          Carnet {{ u.carnet }}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </td>
+                </td>
 
-              <!-- Column 2: Email & Copy -->
-              <td class="td-email">
-                <div class="email-wrapper">
-                  <span class="email-address">{{ u.institutionalEmail || u.email }}</span>
-                  <button 
-                    (click)="copyEmail(u.institutionalEmail || u.email)" 
-                    class="btn-copy-email" 
-                    [title]="copiedEmail === (u.institutionalEmail || u.email) ? '¡Copiado!' : 'Copiar correo'">
-                    <svg *ngIf="copiedEmail !== (u.institutionalEmail || u.email)" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                    </svg>
-                    <svg *ngIf="copiedEmail === (u.institutionalEmail || u.email)" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                  </button>
-                </div>
-                <div *ngIf="u.institutionalEmail && u.institutionalEmail !== u.email" class="email-google-alt">
-                  Google: {{ u.email }}
-                </div>
-              </td>
+                <!-- Column 2: Email & Copy -->
+                <td class="td-email">
+                  <div class="email-wrapper">
+                    <span class="email-address">{{ u.institutionalEmail || u.email }}</span>
+                    <button 
+                      (click)="copyEmail(u.institutionalEmail || u.email)" 
+                      class="btn-copy-email" 
+                      [title]="copiedEmail === (u.institutionalEmail || u.email) ? '¡Copiado!' : 'Copiar correo'">
+                      <svg *ngIf="copiedEmail !== (u.institutionalEmail || u.email)" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                      </svg>
+                      <svg *ngIf="copiedEmail === (u.institutionalEmail || u.email)" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <div *ngIf="u.institutionalEmail && u.institutionalEmail !== u.email" class="email-google-alt">
+                    Google: {{ u.email }}
+                  </div>
+                </td>
 
-              <!-- Column 3: Role Selector Dropdown -->
-              <td class="td-role">
-                <div class="role-selector-pill" [ngClass]="{
-                  'role-is-student': u.role === 'STUDENT_ROLE',
-                  'role-is-teacher': u.role === 'TEACHER_ROLE',
-                  'role-is-admin': u.role === 'ADMIN_ROLE'
-                }">
-                  <span class="role-symbol">
-                    <!-- Student Icon -->
-                    <svg *ngIf="u.role === 'STUDENT_ROLE'" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-                    <!-- Teacher Icon -->
-                    <svg *ngIf="u.role === 'TEACHER_ROLE'" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                    <!-- Admin Icon -->
-                    <svg *ngIf="u.role === 'ADMIN_ROLE'" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                  </span>
-
-                  <select 
-                    [value]="u.role" 
-                    (change)="onRoleChange(u, $any($event.target).value)" 
-                    class="role-dropdown-select"
-                    [disabled]="!canChangeRole(u)"
-                    [title]="!canChangeRole(u) ? 'No tienes permiso para modificar este rol' : 'Cambiar rol'">
-                    <option value="STUDENT_ROLE">Alumno (Estudiante)</option>
-                    <option value="TEACHER_ROLE">Profesor (Docente)</option>
-                    <option value="ADMIN_ROLE">Administrador</option>
-                  </select>
-
-                  <svg *ngIf="canChangeRole(u)" class="role-arrow" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-                </div>
-              </td>
-
-              <!-- Column 4: Grade & Section -->
-              <td class="td-grade">
-                <div *ngIf="u.role === 'STUDENT_ROLE'" class="grade-capsule-wrap">
-                  <div class="grade-chip" [class.unassigned-grade]="!u.grade">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-                    <span class="grade-label">
-                      {{ u.grade ? u.grade + ' "' + (u.section || 'A') + '"' : 'Sin grado asignado' }}
+                <!-- Column 3: Role Selector Dropdown -->
+                <td class="td-role">
+                  <div class="role-selector-pill" [ngClass]="{
+                    'role-is-student': u.role === 'STUDENT_ROLE',
+                    'role-is-teacher': u.role === 'TEACHER_ROLE',
+                    'role-is-admin': u.role === 'ADMIN_ROLE'
+                  }">
+                    <span class="role-symbol">
+                      <svg *ngIf="u.role === 'STUDENT_ROLE'" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                      <svg *ngIf="u.role === 'TEACHER_ROLE'" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                      <svg *ngIf="u.role === 'ADMIN_ROLE'" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                     </span>
+
+                    <select 
+                      [value]="u.role" 
+                      (change)="onRoleChange(u, $any($event.target).value)" 
+                      class="role-dropdown-select"
+                      [disabled]="!canChangeRole(u)"
+                      [title]="!canChangeRole(u) ? 'No tienes permiso para modificar este rol' : 'Cambiar rol'">
+                      <option value="STUDENT_ROLE">Alumno (Estudiante)</option>
+                      <option value="TEACHER_ROLE">Profesor (Docente)</option>
+                      <option value="ADMIN_ROLE">Administrador</option>
+                    </select>
+
+                    <svg *ngIf="canChangeRole(u)" class="role-arrow" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                  </div>
+                </td>
+
+                <!-- Column 4: Grade & Section -->
+                <td class="td-grade">
+                  <div *ngIf="u.role === 'STUDENT_ROLE'" class="grade-capsule-wrap">
+                    <div class="grade-chip" [class.unassigned-grade]="!u.grade">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                      <span class="grade-label">
+                        {{ u.grade ? u.grade + ' "' + (u.section || 'A') + '"' : 'Sin grado asignado' }}
+                      </span>
+                    </div>
+
+                    <button 
+                      *ngIf="isAdmin" 
+                      (click)="openEditGradeModal(u)" 
+                      class="btn-quick-edit-grade" 
+                      title="Editar grado escolar y sección">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                      <span>Editar</span>
+                    </button>
                   </div>
 
-                  <button 
-                    *ngIf="isAdmin" 
-                    (click)="openEditGradeModal(u)" 
-                    class="btn-quick-edit-grade" 
-                    title="Editar grado escolar y sección">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                    <span>Editar</span>
-                  </button>
-                </div>
+                  <div *ngIf="u.role !== 'STUDENT_ROLE'" class="grade-na-placeholder" title="No aplica para docentes ni administradores">
+                    <span class="na-dash">—</span>
+                    <span class="na-note">No aplica</span>
+                  </div>
+                </td>
 
-                <div *ngIf="u.role !== 'STUDENT_ROLE'" class="grade-na-placeholder" title="No aplica para docentes ni administradores">
-                  <span class="na-dash">—</span>
-                  <span class="na-note">No aplica</span>
-                </div>
-              </td>
+                <!-- Column 5: Actions -->
+                <td class="td-actions">
+                  <div class="row-actions-group">
+                    <!-- Edit Grade (Student Only) -->
+                    <button 
+                      *ngIf="isAdmin && u.role === 'STUDENT_ROLE'" 
+                      (click)="openEditGradeModal(u)" 
+                      class="btn-action-pill btn-edit-academic" 
+                      title="Editar asignación académica">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                      <span>Grado</span>
+                    </button>
 
-              <!-- Column 5: Actions -->
-              <td class="td-actions">
-                <div class="row-actions-group">
-                  <!-- Edit Grade (Student Only) -->
-                  <button 
-                    *ngIf="isAdmin && u.role === 'STUDENT_ROLE'" 
-                    (click)="openEditGradeModal(u)" 
-                    class="btn-action-pill btn-edit-academic" 
-                    title="Editar asignación académica">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                    <span>Grado</span>
-                  </button>
+                    <!-- Delete Button -->
+                    <button 
+                      *ngIf="canDeleteUser(u)" 
+                      (click)="onDeleteUser(u)" 
+                      class="btn-action-pill btn-delete-account"
+                      [title]="u.role === 'ADMIN_ROLE' ? 'Dar de baja cuenta de Administrador' : 'Dar de baja esta cuenta'">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                      <span>Eliminar</span>
+                    </button>
 
-                  <!-- Delete Button -->
-                  <button 
-                    *ngIf="canDeleteUser(u)" 
-                    (click)="onDeleteUser(u)" 
-                    class="btn-action-pill btn-delete-account"
-                    [title]="u.role === 'ADMIN_ROLE' ? 'Dar de baja cuenta de Administrador' : 'Dar de baja esta cuenta'">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                    <span>Eliminar</span>
-                  </button>
+                    <!-- Protected Tag -->
+                    <span 
+                      *ngIf="!canDeleteUser(u) && (u.id || u._id) !== auth.currentUserSignal()?.id" 
+                      class="badge-account-protected"
+                      title="Cuenta del Administrador Principal o con privilegios protegidos">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                      <span>Protegido</span>
+                    </span>
 
-                  <!-- Protected Tag -->
-                  <span 
-                    *ngIf="!canDeleteUser(u) && (u.id || u._id) !== auth.currentUserSignal()?.id" 
-                    class="badge-account-protected"
-                    title="Cuenta del Administrador Principal o con privilegios protegidos">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                    <span>Protegido</span>
-                  </span>
+                    <!-- Self Badge -->
+                    <span 
+                      *ngIf="(u.id || u._id) === auth.currentUserSignal()?.id" 
+                      class="badge-account-self"
+                      title="Esta es tu sesión actual">
+                      <span>Tú</span>
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
 
-                  <!-- Self Badge -->
-                  <span 
-                    *ngIf="(u.id || u._id) === auth.currentUserSignal()?.id" 
-                    class="badge-account-self"
-                    title="Esta es tu sesión actual">
-                    <span>Tú</span>
-                  </span>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <!-- Empty State -->
-        <ng-template #noFilteredUsersTemplate>
-          <div class="empty-state-panel">
-            <div class="empty-icon-ring">
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="8"/>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-              </svg>
+          <!-- Empty State -->
+          <ng-template #noFilteredUsersTemplate>
+            <div class="empty-state-panel">
+              <div class="empty-icon-ring">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"/>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+              </div>
+              <h3 class="empty-state-title">No se encontraron cuentas</h3>
+              <p class="empty-state-desc">
+                No hay estudiantes ni docentes que coincidan con los filtros o el texto de búsqueda actual.
+              </p>
+              <div class="empty-state-actions">
+                <button 
+                  *ngIf="selectedRoleFilter !== 'ALL' || searchQuery || hasActiveAcademicFilters" 
+                  (click)="setRoleFilter('ALL'); searchQuery = ''; clearAcademicFilters()" 
+                  class="btn-reset-filters">
+                  Restablecer Filtros
+                </button>
+                <button (click)="openCreateModal()" class="btn-create-empty">
+                  + Registrar Estudiante o Docente
+                </button>
+              </div>
             </div>
-            <h3 class="empty-state-title">No se encontraron cuentas</h3>
-            <p class="empty-state-desc">
-              No hay estudiantes ni docentes que coincidan con los filtros o el texto de búsqueda actual.
-            </p>
-            <div class="empty-state-actions">
-              <button 
-                *ngIf="selectedRoleFilter !== 'ALL' || searchQuery || hasActiveAcademicFilters" 
-                (click)="setRoleFilter('ALL'); searchQuery = ''; clearAcademicFilters()" 
-                class="btn-reset-filters">
-                Restablecer Filtros
-              </button>
-              <button (click)="openCreateModal()" class="btn-create-empty">
-                + Registrar Estudiante o Docente
-              </button>
-            </div>
-          </div>
-        </ng-template>
+          </ng-template>
+        </div>
+
       </div>
+    </ng-container>
 
-    </div>
   </div>
 </main>
 
