@@ -21,10 +21,10 @@ export class RequestQueueService {
   private totalProcessed = 0;
 
   constructor() {
-    // Máximo de peticiones procesadas concurrentemente a la vez (10 por defecto)
-    this.maxConcurrency = parseInt(process.env.MAX_CONCURRENT_REQUESTS || '10', 10);
+    // Máximo de peticiones procesadas concurrentemente a la vez (50 por defecto)
+    this.maxConcurrency = parseInt(process.env.MAX_CONCURRENT_REQUESTS || '50', 10);
     // Capacidad máxima de amortiguación en cola antes de responder con 503
-    this.maxQueueSize = parseInt(process.env.MAX_QUEUE_SIZE || '1500', 10);
+    this.maxQueueSize = parseInt(process.env.MAX_QUEUE_SIZE || '5000', 10);
     // Tiempo límite que una petición puede esperar en cola sin ser atendida
     this.timeoutMs = parseInt(process.env.QUEUE_TIMEOUT_MS || '30000', 10);
 

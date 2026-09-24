@@ -96,12 +96,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
           label: 'Gestión Institucional',
           children: [
             {
-              value: 'users',
-              label: 'Cuentas & Roles',
-              icon: UserGroupIcon,
-              route: '/admin',
-            },
-            {
               value: 'readings',
               label: 'Catálogo de Lecturas',
               icon: Book02Icon,
