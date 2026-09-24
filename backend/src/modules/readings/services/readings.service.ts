@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
 import { Collection, ObjectId } from 'mongodb';
 import { DatabaseService } from '../../../core/database/database.service.js';
 import { ReadingDocument } from '../schemas/reading.schema.js';
@@ -7,7 +7,7 @@ import { ReadingDocument } from '../schemas/reading.schema.js';
 export class ReadingsService implements OnModuleInit {
   private collection!: Collection<ReadingDocument>;
 
-  constructor(private readonly dbService: DatabaseService) {}
+  constructor(@Inject(DatabaseService) private readonly dbService: DatabaseService) {}
 
   onModuleInit() {
     this.collection = this.dbService.getCollection<ReadingDocument>('readings');
