@@ -124,6 +124,40 @@ export class AdminDashboardComponent implements OnInit {
     return this.users.filter((u) => u.role === role).length;
   }
 
+  get studentCount(): number {
+    return this.countByRole('STUDENT_ROLE');
+  }
+
+  get teacherCount(): number {
+    return this.countByRole('TEACHER_ROLE');
+  }
+
+  get adminCount(): number {
+    return this.countByRole('ADMIN_ROLE');
+  }
+
+  get totalUsersCount(): number {
+    return this.users.length;
+  }
+
+  copiedEmail: string | null = null;
+
+  copyEmail(email: string) {
+    if (!email) return;
+    if (navigator?.clipboard) {
+      navigator.clipboard.writeText(email).then(() => {
+        this.copiedEmail = email;
+        this.cdr.markForCheck();
+        setTimeout(() => {
+          if (this.copiedEmail === email) {
+            this.copiedEmail = null;
+            this.cdr.markForCheck();
+          }
+        }, 2000);
+      });
+    }
+  }
+
   // Estado para creación de estudiante con grado y carrera separados
   newStudentGradeLevel = '';
   newStudentCareer = '';
