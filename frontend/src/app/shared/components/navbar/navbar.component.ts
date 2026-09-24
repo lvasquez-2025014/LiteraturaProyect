@@ -99,7 +99,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
               value: 'users',
               label: 'Cuentas & Roles',
               icon: UserGroupIcon,
-              route: '/admin?tab=users',
+              route: '/admin',
             },
             {
               value: 'readings',
@@ -187,11 +187,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   private updateActiveItemFromUrl(url: string) {
     if (url.startsWith('/admin')) {
-      if (url.includes('tab=users')) {
-        this.currentActiveItem = 'users';
-      } else {
-        this.currentActiveItem = 'admin';
-      }
+      this.currentActiveItem = 'admin';
     } else if (url.startsWith('/profesor')) {
       if (url.includes('tab=readings')) {
         this.currentActiveItem = 'readings';
