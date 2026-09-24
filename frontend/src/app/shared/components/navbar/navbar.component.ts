@@ -16,7 +16,7 @@ import {
   StarIcon,
   CrownIcon,
   Award01Icon,
-} from '@hugeicons/core-free-icons';
+} from './navbar-icons';
 
 @Component({
   selector: 'app-navbar',
