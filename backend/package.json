@@ -4,7 +4,7 @@
   "description": "API REST para Plataforma de Lectura y Comprensión Gamificada",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/main.ts",
+    "dev": "tsc && node --watch dist/main.js",
     "build": "tsc",
     "start": "node dist/main.js",
     "typecheck": "tsc --noEmit"
