@@ -1,4 +1,11 @@
-<div class="class-activity-container">
+<div class="class-activity-container" [class.is-blackout-shield]="isBlackoutActive()">
+
+  <!-- Escudo Total Anti-Captura (Pantalla Negra Pura) -->
+  <div 
+    *ngIf="isBlackoutActive()" 
+    class="anti-screenshot-blackout"
+    aria-hidden="true"
+  ></div>
 
   <!-- Alerta flotante de seguridad anti-trampas -->
   <div *ngIf="securityNotice()" class="security-floating-alert animate-shake">
@@ -196,19 +203,6 @@
           </div>
         </div>
 
-        <!-- Aviso Anti-IA y Seguridad -->
-        <div class="anti-cheat-notice">
-          <div class="notice-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
-          </div>
-          <div class="notice-text">
-            <strong>Protección Anti-Copia & Anti-IA Activa:</strong>
-            <span>Durante esta actividad el texto no puede ser copiado, seleccionado ni capturado. La pérdida de foco o cambio de pestaña será registrada como infracción académica.</span>
-          </div>
-        </div>
-
         <!-- Botón de Inicio -->
         <div class="lobby-actions">
           <button (click)="startActivity()" class="btn-start-activity">
@@ -342,7 +336,7 @@
 
         <!-- Texto principal con estilo de libro y protección anti-selección -->
         <div class="reading-content-body unselectable">
-          <p *ngFor="let paragraph of act.content.split('\n\n')" class="reading-paragraph unselectable">
+          <p *ngFor="let paragraph of act.content.split('\n\n')" class="reading-paragraph unselectable" draggable="false">
             {{ paragraph }}
           </p>
         </div>
