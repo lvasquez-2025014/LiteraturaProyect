@@ -91,6 +91,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
         { id: 'roadmap', label: 'APRENDER', route: '/estudiante?tab=roadmap', icon: 'learn' },
         { id: 'class-activity', label: 'SONIDOS', route: '/estudiante?tab=class-activity', icon: 'sounds' },
         { id: 'leaderboard', label: 'LIGAS', route: '/estudiante?tab=leaderboard', icon: 'leagues' },
+        { id: 'achievements', label: 'DESAFÍOS', route: '/estudiante?tab=achievements', icon: 'quests' },
+        { id: 'rewards', label: 'TIENDA', route: '/estudiante?tab=rewards', icon: 'shop' },
         { id: 'profile', label: 'PERFIL', route: '', icon: 'profile' },
         { id: 'more', label: 'MÁS', route: '', icon: 'more' },
       ];
@@ -98,17 +100,19 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     if (role === 'TEACHER_ROLE') {
       return [
+        { id: 'teacher', label: 'PORTAL DOCENTE', route: '/profesor', icon: 'teacher' },
         { id: 'students', label: 'ALUMNOS', route: '/profesor?tab=students', icon: 'students' },
         { id: 'class-activities', label: 'SONIDOS', route: '/profesor?tab=class-activities', icon: 'sounds' },
         { id: 'readings', label: 'CATÁLOGO', route: '/profesor?tab=readings', icon: 'readings' },
         { id: 'stages', label: 'ETAPAS', route: '/profesor?tab=stages', icon: 'stages' },
-        { id: 'roadmap', label: 'MODO ALUMNO', route: '/estudiante?tab=roadmap', icon: 'learn' },
+        { id: 'roadmap', label: 'APRENDER', route: '/estudiante?tab=roadmap', icon: 'learn' },
+        { id: 'leaderboard', label: 'LIGAS', route: '/estudiante?tab=leaderboard', icon: 'leagues' },
         { id: 'profile', label: 'PERFIL', route: '', icon: 'profile' },
         { id: 'more', label: 'MÁS', route: '', icon: 'more' },
       ];
     }
 
-    // STUDENT_ROLE (Exactamente los 7 ítems de la imagen de Duolingo)
+    // STUDENT_ROLE (Secciones completas de Duolingo)
     return [
       { id: 'roadmap', label: 'APRENDER', route: '/estudiante?tab=roadmap', icon: 'learn' },
       { id: 'class-activity', label: 'SONIDOS', route: '/estudiante?tab=class-activity', icon: 'sounds' },
@@ -130,8 +134,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.currentActiveItem = 'readings';
       } else if (url.includes('tab=stages')) {
         this.currentActiveItem = 'stages';
-      } else {
+      } else if (url.includes('tab=students')) {
         this.currentActiveItem = 'students';
+      } else {
+        this.currentActiveItem = 'teacher';
       }
     } else if (url.startsWith('/estudiante')) {
       if (url.includes('tab=class-activity')) {
@@ -142,10 +148,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.currentActiveItem = 'leaderboard';
       } else if (url.includes('tab=achievements')) {
         this.currentActiveItem = 'achievements';
-      } else if (url.includes('tab=roadmap')) {
-        this.currentActiveItem = 'roadmap';
       } else {
-        this.currentActiveItem = 'class-activity';
+        this.currentActiveItem = 'roadmap';
       }
     }
   }

@@ -15,7 +15,11 @@
   </button>
 
   <a routerLink="/" class="mobile-brand" (click)="closeMobileMenu()">
-    <span class="duo-brand-title">duolingo</span>
+    <span class="duo-brand-title">
+      <span class="brand-word-readme">README</span>
+      <span class="brand-word-and">AND</span>
+      <span class="brand-word-readline">READLINE</span>
+    </span>
   </a>
 
   <div class="mobile-user-avatar" (click)="toggleProfileModal()">
@@ -38,13 +42,17 @@
   aria-hidden="true"
 ></div>
 
-<!-- Sidebar Principal Estilo Duolingo (Exacto a la imagen) -->
+<!-- Sidebar Principal Estilo Duolingo -->
 <aside class="duo-sidebar" [class.is-open]="isMobileMenuOpen" aria-label="Navegación principal">
   
-  <!-- Logo Top Duolingo Style -->
+  <!-- Logo Top: README AND READLINE -->
   <div class="duo-brand-box">
     <a routerLink="/" class="duo-brand-link" (click)="closeMobileMenu()">
-      <span class="duo-brand-title">duolingo</span>
+      <span class="duo-brand-title">
+        <span class="brand-word-readme">README</span>
+        <span class="brand-word-and">AND</span>
+        <span class="brand-word-readline">READLINE</span>
+      </span>
     </a>
 
     <!-- Botón de Cerrar para Móvil -->
@@ -61,7 +69,7 @@
     </button>
   </div>
 
-  <!-- Botones de Navegación Verticales (Iconos y tipografía exacta de la imagen) -->
+  <!-- Botones de Navegación Verticales (Iconos Ilustrados Estilo Duolingo) -->
   <nav class="duo-nav-list">
     <button 
       *ngFor="let item of navItems" 
@@ -75,6 +83,33 @@
       <span class="nav-icon-box">
         <ng-container [ngSwitch]="item.icon">
           
+          <!-- ADMINISTRADOR: Terminal/Consola 3D de comando con pantalla brillante, prompt >_ y luces LED -->
+          <svg *ngSwitchCase="'admin'" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <path d="M11 25H21V27H11V25Z" fill="#0C4A6E"/>
+            <rect x="14" y="22" width="4" height="4" fill="#0284C7"/>
+            <rect x="3" y="5" width="26" height="18" rx="3.5" fill="#0284C7"/>
+            <rect x="3" y="19" width="26" height="4" rx="1" fill="#0369A1"/>
+            <rect x="5" y="7" width="22" height="13" rx="2" fill="#082F49"/>
+            <path d="M8 10.5L11.5 13.5L8 16.5" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="14" y1="16.5" x2="19" y2="16.5" stroke="#38BDF8" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="21" cy="10" r="1.2" fill="#4ADE80"/>
+            <circle cx="24" cy="10" r="1.2" fill="#FBBF24"/>
+          </svg>
+
+          <!-- PORTAL DOCENTE: Birrete académico verde esmeralda con borla dorada sobre libro -->
+          <svg *ngSwitchCase="'teacher'" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <path d="M7 21C7 20 8.5 19 11 19H16V26H11C8.5 26 7 25 7 24V21Z" fill="#047857"/>
+            <path d="M25 21C25 20 23.5 19 21 19H16V26H21C23.5 26 25 25 25 24V21Z" fill="#10B981"/>
+            <path d="M10 26.5H22V28H10V26.5Z" fill="#064E3B"/>
+            <path d="M16 19V26" stroke="#065F46" stroke-width="1.5"/>
+            <path d="M11 15C11 17.5 13.2 19 16 19C18.8 19 21 17.5 21 15H11Z" fill="#065F46"/>
+            <polygon points="16,6 28,11.5 16,16.5 4,11.5" fill="#10B981"/>
+            <polygon points="16,6.8 26.5,11.5 16,15.8 5.5,11.5" fill="#34D399"/>
+            <circle cx="16" cy="11.5" r="1.6" fill="#FBBF24"/>
+            <path d="M16 11.5L25 14.5V19.5" stroke="#F59E0B" stroke-width="1.8" stroke-linecap="round"/>
+            <circle cx="25" cy="20.5" r="1.3" fill="#D97706"/>
+          </svg>
+
           <!-- APRENDER: Casita nido roja con frontal amarillo y agujero de entrada -->
           <svg *ngSwitchCase="'learn'" width="32" height="32" viewBox="0 0 32 32" fill="none">
             <path d="M16 2.5L3 13H29L16 2.5Z" fill="#D32F2F"/>
@@ -130,6 +165,30 @@
             <path d="M20 8.5L21.5 16C22.2 16 23 15.8 24 15.8L22.5 8.5H20Z" fill="#FFFFFF"/>
           </svg>
 
+          <!-- ALUMNOS: Dos estudiantes ilustrados en azul y naranja -->
+          <svg *ngSwitchCase="'students'" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle cx="12" cy="11.5" r="5" fill="#38BDF8"/>
+            <path d="M5 25.5C5 21 8.2 18.5 12 18.5C15.8 18.5 19 21 19 25.5H5Z" fill="#0284C7"/>
+            <circle cx="21" cy="11" r="4.2" fill="#F59E0B"/>
+            <path d="M16 25.5C16.2 22.5 18.5 20.2 21.5 20.2C24.5 20.2 27 22.2 27 25.5H16Z" fill="#D97706"/>
+          </svg>
+
+          <!-- CATÁLOGO: Libro abierto con cinta y páginas -->
+          <svg *ngSwitchCase="'readings'" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <path d="M5 8C5 6.5 6.5 5 8.5 5H15V24H8.5C6.5 24 5 24.8 5 26V8Z" fill="#0284C7"/>
+            <path d="M27 8C27 6.5 25.5 5 23.5 5H17V24H23.5C25.5 24 27 24.8 27 26V8Z" fill="#38BDF8"/>
+            <path d="M15 5V15L16 14L17 15V5H15Z" fill="#F59E0B"/>
+            <path d="M5 26C6.5 25 8 24.5 10 24.5H22C24 24.5 25.5 25 27 26H5Z" fill="#0C4A6E"/>
+          </svg>
+
+          <!-- ETAPAS: Banderín dorado de desafío en poste -->
+          <svg *ngSwitchCase="'stages'" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <rect x="7" y="4" width="3" height="24" rx="1.5" fill="#64748B"/>
+            <path d="M10 6L25 11L10 16V6Z" fill="#F59E0B"/>
+            <polygon points="17 9.5 18 11.5 20.5 11.8 18.5 13.5 19 16 17 14.8 15 16 15.5 13.5 13.5 11.8 16 11.5 17 9.5" fill="#FFFFFF"/>
+            <ellipse cx="8.5" cy="27.5" rx="5" ry="2" fill="#334155"/>
+          </svg>
+
           <!-- PERFIL: Avatar con cabello morado y punto rosa de notificación -->
           <svg *ngSwitchCase="'profile'" width="32" height="32" viewBox="0 0 32 32" fill="none">
             <circle cx="16" cy="16" r="11" fill="#9333EA"/>
@@ -152,17 +211,6 @@
             <circle cx="22" cy="16" r="2" fill="#FFFFFF"/>
           </svg>
 
-          <!-- Administrador / Docente fallback icons -->
-          <svg *ngSwitchCase="'admin'" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round">
-            <rect width="18" height="18" x="3" y="3" rx="2"/>
-            <path d="M9 3v18"/>
-            <path d="m14 9 3 3-3 3"/>
-          </svg>
-
-          <svg *ngSwitchCase="'teacher'" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round">
-            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
-          </svg>
-
           <svg *ngSwitchDefault width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
             <circle cx="12" cy="12" r="10"/>
           </svg>
@@ -173,16 +221,48 @@
     </button>
   </nav>
 
+  <!-- Pie del Sidebar: Perfil de Usuario y Botón Directo de Cerrar Sesión -->
+  <div class="duo-sidebar-footer">
+    <div class="duo-user-mini-row" *ngIf="user as u" (click)="toggleProfileModal()" title="Ver detalles de perfil">
+      <div class="user-mini-avatar">
+        <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="14" fill="#9333EA"/>
+          <ellipse cx="16" cy="17.5" rx="8" ry="7.5" fill="#FED7AA"/>
+          <path d="M13.5 19C13.5 20.8 14.6 22 16 22C17.4 22 18.5 20.8 18.5 19H13.5Z" fill="#FFFFFF"/>
+        </svg>
+      </div>
+      <div class="user-mini-meta">
+        <span class="user-mini-name" [title]="u.name">{{ u.name }}</span>
+        <span class="user-mini-role">{{ u.role === 'ADMIN_ROLE' ? 'Administrador' : (u.role === 'TEACHER_ROLE' ? 'Profesor' : (u.grade ? u.grade + ' "' + (u.section || 'A') + '"' : 'Estudiante')) }}</span>
+      </div>
+    </div>
+
+    <!-- Botón Visible de Cerrar Sesión (Siempre accesible en el sidebar) -->
+    <button type="button" (click)="logout()" class="duo-logout-btn" title="Cerrar sesión">
+      <span class="logout-icon-box">
+        <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+          <rect x="4" y="4" width="18" height="24" rx="3" fill="#991B1B"/>
+          <rect x="5.5" y="5.5" width="15" height="21" rx="2" fill="#DC2626"/>
+          <rect x="7.5" y="7.5" width="11" height="8" rx="1.5" fill="#EF4444"/>
+          <rect x="7.5" y="17" width="11" height="8" rx="1.5" fill="#EF4444"/>
+          <circle cx="16.5" cy="16" r="1.5" fill="#FEF08A"/>
+          <path d="M19 16H29M29 16L25 12M29 16L25 20" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="logout-btn-label">CERRAR SESIÓN</span>
+    </button>
+  </div>
+
   <!-- Menú Flotante "MÁS" (Estilo Tarjeta Duolingo) -->
   <div class="duo-more-popover" *ngIf="isMoreMenuOpen" (click)="$event.stopPropagation()">
     <div class="popover-arrow"></div>
     <div class="popover-links">
       <a *ngIf="auth.isAdmin()" routerLink="/admin" (click)="isMoreMenuOpen = false" class="popover-item">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1CB0F6" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
         <span>Panel Administrador</span>
       </a>
       <a *ngIf="auth.isTeacher() || auth.isAdmin()" routerLink="/profesor" (click)="isMoreMenuOpen = false" class="popover-item">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
         <span>Portal Docente</span>
       </a>
       <button type="button" (click)="logout()" class="popover-item popover-logout">
