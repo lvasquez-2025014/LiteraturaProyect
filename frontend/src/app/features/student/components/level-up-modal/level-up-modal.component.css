@@ -20,14 +20,14 @@
   position: relative;
   width: 100%;
   max-width: 440px;
-  background: linear-gradient(120deg, var(--secondary) 0%, var(--secondary) 45%, var(--accent) 100%);
+  background: #1c2d5a;
   border-radius: 28px;
   padding: 36px 28px;
   text-align: center;
-  color: #FFF6EA;
+  color: #ffffff;
   overflow: hidden;
-  box-shadow: 0 25px 60px rgba(107, 66, 38, 0.5);
-  border: 2px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 25px 60px rgba(0, 74, 173, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -58,13 +58,13 @@
   width: 100px;
   height: 100px;
   border-radius: 28px;
-  background: var(--accent, #E08E3E);
-  border: 4px solid #FFF6EA;
+  background: #d97706;
+  border: 4px solid #fef3c7;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 10px 30px rgba(224, 142, 62, 0.5);
+  box-shadow: 0 10px 30px rgba(217, 119, 6, 0.5);
   animation: floatEmblem 3s infinite ease-in-out;
 }
 
@@ -87,7 +87,7 @@
   font-size: 0.72rem;
   font-weight: 900;
   letter-spacing: 0.1em;
-  color: #FFF6EA;
+  color: #78350f;
 }
 
 .levelup-stars {
@@ -97,9 +97,9 @@
 
 .levelup-tag {
   display: inline-block;
-  background: rgba(255, 246, 234, 0.25);
-  color: #FFF6EA;
-  border: 1px solid rgba(255, 246, 234, 0.5);
+  background: rgba(243, 111, 33, 0.3);
+  color: #fdba74;
+  border: 1px solid rgba(243, 111, 33, 0.6);
   padding: 4px 14px;
   border-radius: 999px;
   font-family: var(--font-heading);
@@ -113,14 +113,14 @@
   font-family: var(--font-heading);
   font-size: 1.6rem;
   font-weight: 800;
-  color: #FFF6EA;
+  color: #ffffff;
   margin: 0 0 8px 0;
   letter-spacing: -0.02em;
 }
 
 .levelup-sub {
   font-size: 0.9rem;
-  color: #F5EBE1;
+  color: #cbd5e1;
   margin: 0 0 24px 0;
   line-height: 1.45;
 }
@@ -173,8 +173,8 @@
 .btn-levelup-continue {
   width: 100%;
   padding: 13px 24px;
-  background: #FFF6EA;
-  color: var(--secondary, #6B4226);
+  background: var(--kinal-orange);
+  color: #ffffff;
   border: none;
   border-radius: 14px;
   font-family: var(--font-heading);
@@ -185,15 +185,13 @@
   justify-content: center;
   gap: 8px;
   cursor: pointer;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 8px 24px rgba(243, 111, 33, 0.4);
   transition: all 0.2s ease;
 }
 
 .btn-levelup-continue:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-  background: #ffffff;
-  color: var(--primary-active, #101728);
+  box-shadow: 0 10px 30px rgba(243, 111, 33, 0.6);
 }
 
 /* ==========================================================

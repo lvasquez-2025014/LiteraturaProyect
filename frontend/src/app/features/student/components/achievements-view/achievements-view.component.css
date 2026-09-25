@@ -17,29 +17,15 @@
   justify-content: space-between;
   gap: 24px;
   box-shadow: var(--shadow-sm);
-  position: relative;
-  overflow: hidden;
-}
-
-.achievements-banner::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--accent) 0%, var(--secondary) 100%);
-  border-radius: 20px 20px 0 0;
-  z-index: 1;
 }
 
 .heading-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(31, 42, 68, 0.06);
-  border: 1px solid var(--border-subtle, #E7DFD2);
-  color: var(--primary, #1F2A44);
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  color: var(--kinal-blue);
   padding: 3px 10px;
   border-radius: 999px;
   font-size: 0.72rem;
@@ -53,7 +39,7 @@
   font-family: var(--font-heading);
   font-size: 1.4rem;
   font-weight: 800;
-  color: var(--primary-active, #101728);
+  color: var(--kinal-dark-blue);
   margin: 0 0 6px 0;
   letter-spacing: -0.02em;
 }
@@ -89,7 +75,7 @@
 }
 
 .meter-val {
-  color: var(--primary, #1F2A44);
+  color: var(--kinal-blue);
 }
 
 .meter-bar-wrap {
@@ -102,7 +88,7 @@
 
 .meter-bar {
   height: 100%;
-  background: var(--primary, #1F2A44);
+  background: var(--kinal-blue);
   border-radius: 999px;
   transition: width 0.4s ease;
 }
@@ -135,10 +121,10 @@
 }
 
 .filter-btn.filter-active {
-  background: var(--primary, #1F2A44);
+  background: var(--kinal-blue);
   color: #ffffff;
-  border-color: var(--primary, #1F2A44);
-  box-shadow: 0 4px 12px rgba(31, 42, 68, 0.25);
+  border-color: var(--kinal-blue);
+  box-shadow: 0 4px 12px rgba(0, 74, 173, 0.25);
 }
 
 /* ==========================================================
@@ -167,29 +153,8 @@
 }
 
 .card-unlocked {
-  border-color: var(--accent);
-  background: linear-gradient(120deg, var(--secondary) 0%, var(--secondary) 45%, var(--accent) 100%);
-  color: #FFF6EA;
-}
-
-.card-unlocked .achievement-title {
-  color: #FFF6EA;
-}
-
-.card-unlocked .achievement-desc {
-  color: #F5EBE1;
-}
-
-.card-unlocked .reward-tag {
-  background: rgba(255, 246, 234, 0.2);
-  color: #FFF6EA;
-  border-color: rgba(255, 246, 234, 0.35);
-}
-
-.card-unlocked .badge-pill-unlocked {
-  background: #FFF6EA;
-  color: var(--secondary, #6B4226);
-  border-color: #FFF6EA;
+  border-color: #fde68a;
+  background: #fffdf5;
 }
 
 .card-locked {
@@ -270,7 +235,7 @@
   font-family: var(--font-heading);
   font-size: 0.95rem;
   font-weight: 800;
-  color: var(--primary-active, #101728);
+  color: var(--kinal-dark-blue);
   margin: 0;
   line-height: 1.3;
 }
@@ -310,7 +275,7 @@
 
 .progress-bar {
   height: 100%;
-  background: var(--primary, #1F2A44);
+  background: var(--kinal-blue);
   border-radius: 999px;
   transition: width 0.3s ease;
 }
