@@ -3,29 +3,29 @@
    ========================================================== */
 
 :root {
-  /* Paleta Oficial Requerida */
+  /* Paleta Oficial Requerida: 0A58CA, FFFFFF, F0F4F8, E2E8F0, 1E293B */
   --primary: #0A58CA;            /* 0A58CA: Azul Real Principal */
   --primary-hover: #084298;
   --primary-active: #052c65;
-  --primary-light: #e7f1ff;
-  --primary-glow: rgba(10, 88, 202, 0.25);
+  --primary-light: rgba(10, 88, 202, 0.18);
+  --primary-glow: rgba(10, 88, 202, 0.35);
 
-  --bg-page: #F0F4F8;            /* F0F4F8: Fondo Hielo / Slate Claro */
-  --bg-surface: #FFFFFF;         /* FFFFFF: Superficie Blanca */
-  --border-subtle: #E2E8F0;      /* E2E8F0: Borde Pizarra Suave */
+  --bg-page: #0f172a;            /* Fondo Pizarra Profundo (Duolingo Dark Mode) */
+  --bg-surface: #1E293B;         /* 1E293B: Superficie Pizarra Oscura */
+  --border-subtle: #334155;      /* Borde Pizarra */
   --border-focus: #0A58CA;
 
-  --text-primary: #1E293B;       /* 1E293B: Texto Pizarra Oscuro */
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-  --text-light: #94a3b8;
+  --text-primary: #FFFFFF;       /* FFFFFF: Texto Blanco Puro */
+  --text-secondary: #F0F4F8;     /* F0F4F8: Texto Claro Hielo */
+  --text-muted: #94a3b8;
+  --text-light: #64748b;
 
   --accent-green: #10b981;
-  --accent-green-light: #d1fae5;
+  --accent-green-light: #064e3b;
   --accent-red: #ef4444;
-  --accent-red-light: #fee2e2;
+  --accent-red-light: #450a0a;
   --accent-gold: #f59e0b;
-  --accent-gold-light: #fef3c7;
+  --accent-gold-light: #451a03;
 
   /* Aliases para compatibilidad */
   --kinal-blue: var(--primary);

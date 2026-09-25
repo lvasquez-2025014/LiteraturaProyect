@@ -56,6 +56,7 @@ export class StudentHomeComponent implements OnInit {
   activeReading: Reading | null = null;
   activeTab = signal<'class-activity' | 'roadmap' | 'rewards' | 'achievements' | 'leaderboard'>('class-activity');
   levelUpModalData = signal<{ level: number; xp: number; coins: number } | null>(null);
+  readonly Math = Math;
 
   // Academic Onboarding check para estudiantes sin perfil académico completo (carnet, correo institucional, grado o sección)
   get needsAcademicOnboarding(): boolean {

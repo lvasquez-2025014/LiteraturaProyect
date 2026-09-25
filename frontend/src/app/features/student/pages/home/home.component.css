@@ -1,26 +1,337 @@
 .student-dashboard {
-  padding: 32px 24px 64px;
+  background: #0f172a;
+  min-height: 100vh;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  padding: 0 0 64px;
 }
 
 @media (min-width: 992px) {
   .student-dashboard {
-    margin-left: 260px;
-    padding: 36px 36px 64px;
+    margin-left: 264px;
   }
 }
 
 @media (max-width: 991px) {
   .student-dashboard {
-    padding-top: 84px;
+    padding-top: 70px;
   }
 }
 
+/* ==========================================================================
+   DUOLINGO 3-COLUMN LEARNING LAYOUT (APRENDER / ROADMAP)
+   ========================================================================== */
+.duo-layout-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 36px;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+  box-sizing: border-box;
+}
+
+.duo-center-col {
+  flex: 1;
+  max-width: 600px;
+  min-width: 0;
+}
+
+.duo-right-sidebar {
+  width: 350px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (max-width: 1080px) {
+  .duo-right-sidebar {
+    display: none;
+  }
+  .duo-layout-container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+/* 1. Stats Row Flotante */
+.duo-stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+  margin-bottom: 4px;
+}
+
+.duo-stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: transparent;
+  cursor: default;
+  transition: background 0.15s ease;
+}
+
+.duo-stat-pill:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.flag-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.stat-count {
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  font-size: 0.96rem;
+  font-weight: 900;
+}
+
+.stat-streak .stat-count { color: #f59e0b; }
+.stat-gems .stat-count { color: #38bdf8; }
+.stat-hearts .stat-count { color: #ef4444; }
+
+/* 2. Side Cards Estilo Duolingo Dark */
+.duo-side-card {
+  background: #1E293B;
+  border: 2px solid #334155;
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  color: #FFFFFF;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.duo-side-card.card-leagues {
+  cursor: pointer;
+}
+
+.duo-side-card.card-leagues:hover {
+  border-color: #0A58CA;
+  transform: translateY(-2px);
+}
+
+.card-leagues-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.shield-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.card-text h3 {
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #FFFFFF;
+  margin: 0 0 4px;
+}
+
+.card-text p {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.card-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-header-row h3 {
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+.btn-link-action {
+  background: transparent;
+  border: none;
+  color: #38bdf8;
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  padding: 0;
+}
+
+.btn-link-action:hover {
+  text-decoration: underline;
+}
+
+.quest-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-top: 4px;
+}
+
+.quest-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.quest-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.quest-title {
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.quest-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.quest-progress-bar {
+  flex: 1;
+  height: 14px;
+  background: #0f172a;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid #334155;
+  position: relative;
+}
+
+.quest-progress-fill {
+  height: 100%;
+  background: #f59e0b;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.quest-bar-val {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.card-action-banner h3 {
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #FFFFFF;
+  margin: 0 0 6px;
+  line-height: 1.35;
+}
+
+.btn-side-cta {
+  width: 100%;
+  height: 46px;
+  border-radius: 14px;
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  font-size: 0.88rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-side-cta.primary {
+  background: #0A58CA;
+  color: #FFFFFF;
+  box-shadow: 0 4px 0 #052c65;
+}
+
+.btn-side-cta.primary:hover {
+  filter: brightness(1.08);
+}
+
+.btn-side-cta.primary:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #052c65;
+}
+
+.btn-side-cta.secondary {
+  background: #38bdf8;
+  color: #0f172a;
+  box-shadow: 0 4px 0 #0284c7;
+}
+
+.btn-side-cta.secondary:hover {
+  filter: brightness(1.08);
+}
+
+.btn-side-cta.secondary:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #0284c7;
+}
+
+.duo-side-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  padding: 10px 4px;
+}
+
+.duo-side-footer a {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748b;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.15s ease;
+}
+
+.duo-side-footer a:hover {
+  color: #94a3b8;
+}
+
+/* ==========================================================================
+   VISTA DE OTRAS PESTAÑAS (ACTIVIDAD EN CLASE, TIENDA, LOGROS)
+   ========================================================================== */
 .dashboard-container {
   max-width: 1200px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 36px;
+  padding: 32px 24px 64px;
 }
 
 /* Welcome Card */

@@ -17,13 +17,13 @@
   left: 0;
   right: 0;
   height: 60px;
-  background: #FFFFFF;
-  border-bottom: 2px solid #E2E8F0;
+  background: #0f172a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   padding: 0 16px;
   align-items: center;
   justify-content: space-between;
   z-index: 990;
-  box-shadow: 0 2px 8px rgba(30, 41, 59, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .mobile-menu-btn {
@@ -33,17 +33,17 @@
   width: 42px;
   height: 42px;
   border-radius: 12px;
-  background: #F0F4F8;
-  border: 2px solid #E2E8F0;
-  color: #1E293B;
+  background: #1E293B;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .mobile-menu-btn:hover {
-  background: #e7f1ff;
+  background: rgba(10, 88, 202, 0.25);
   border-color: #0A58CA;
-  color: #0A58CA;
+  color: #38bdf8;
 }
 
 .mobile-brand {
@@ -54,7 +54,7 @@
   font-family: var(--font-heading, 'Outfit', sans-serif);
   font-size: 1.45rem;
   font-weight: 900;
-  color: #0A58CA;
+  color: #FFFFFF;
   letter-spacing: -0.04em;
 }
 
@@ -70,7 +70,7 @@
   font-weight: 800;
   font-size: 0.95rem;
   overflow: hidden;
-  border: 2px solid #E2E8F0;
+  border: 2px solid #334155;
 }
 
 .mini-avatar img {
@@ -83,7 +83,7 @@
 .sidebar-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(30, 41, 59, 0.45);
+  background: rgba(15, 23, 42, 0.7);
   backdrop-filter: blur(4px);
   z-index: 998;
   animation: fadeIn 0.2s ease forwards;
@@ -102,17 +102,17 @@
   top: 0;
   left: 0;
   bottom: 0;
-  width: 256px;
+  width: 264px;
   height: 100vh;
   height: 100dvh;
-  background: #FFFFFF;
-  border-right: 2px solid #E2E8F0;
+  background: #0f172a;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
   z-index: 1000;
   box-sizing: border-box;
-  padding: 24px 16px 20px;
-  box-shadow: 2px 0 12px rgba(30, 41, 59, 0.03);
+  padding: 24px 14px 20px;
+  box-shadow: 2px 0 16px rgba(0, 0, 0, 0.25);
   transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -121,7 +121,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 8px 24px;
+  padding: 0 6px 24px;
 }
 
 .duo-brand-link {
@@ -135,8 +135,8 @@
   width: 42px;
   height: 42px;
   border-radius: 12px;
-  background: #e7f1ff;
-  border: 2px solid rgba(10, 88, 202, 0.2);
+  background: rgba(10, 88, 202, 0.22);
+  border: 2px solid #0A58CA;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -147,7 +147,7 @@
   font-family: var(--font-heading, 'Outfit', sans-serif);
   font-size: 1.65rem;
   font-weight: 900;
-  color: #0A58CA;
+  color: #FFFFFF;
   letter-spacing: -0.04em;
   line-height: 1;
 }
@@ -156,15 +156,15 @@
   display: none;
   background: transparent;
   border: none;
-  color: #64748b;
+  color: #94a3b8;
   cursor: pointer;
   padding: 6px;
   border-radius: 8px;
 }
 
 .sidebar-close-btn:hover {
-  background: #F0F4F8;
-  color: #1E293B;
+  background: #1E293B;
+  color: #FFFFFF;
 }
 
 /* Navigation List */
@@ -182,7 +182,7 @@
   width: 4px;
 }
 .duo-nav-list::-webkit-scrollbar-thumb {
-  background: #E2E8F0;
+  background: #334155;
   border-radius: 4px;
 }
 
@@ -190,54 +190,56 @@
 .duo-nav-btn {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
-  height: 52px;
-  padding: 0 16px;
-  border-radius: 16px;
+  height: 48px;
+  padding: 0 14px;
+  border-radius: 14px;
   background: transparent;
   border: 2px solid transparent;
-  color: #475569;
+  color: #94a3b8;
   font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 0.88rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   text-align: left;
   cursor: pointer;
   user-select: none;
   transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .duo-nav-btn:hover:not(.is-active) {
-  background: #F0F4F8;
-  color: #0A58CA;
+  background: rgba(255, 255, 255, 0.06);
+  color: #FFFFFF;
 }
 
 .duo-nav-btn:hover:not(.is-active) .nav-icon-box {
-  color: #0A58CA;
+  color: #FFFFFF;
   transform: scale(1.05);
 }
 
 /* Active State (Duolingo Style: Solid outline, highlighted tint) */
 .duo-nav-btn.is-active {
-  background: #e7f1ff;
+  background: rgba(10, 88, 202, 0.22);
   border: 2px solid #0A58CA;
-  color: #0A58CA;
-  font-weight: 800;
+  color: #FFFFFF;
+  font-weight: 900;
+  box-shadow: 0 0 14px rgba(10, 88, 202, 0.25);
 }
 
 .duo-nav-btn.is-active .nav-icon-box {
-  color: #0A58CA;
+  color: #38bdf8;
 }
 
 .nav-icon-box {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  color: #64748b;
+  width: 26px;
+  height: 26px;
+  color: #94a3b8;
   flex-shrink: 0;
   transition: transform 0.15s ease, color 0.15s ease;
 }
@@ -255,7 +257,7 @@
   flex-direction: column;
   gap: 12px;
   padding-top: 16px;
-  border-top: 2px solid #E2E8F0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   margin-top: auto;
 }
 
@@ -264,15 +266,15 @@
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
-  background: #F0F4F8;
-  border: 1px solid #E2E8F0;
+  background: #1E293B;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
 }
 
 .user-avatar-duo {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
   border-radius: 50%;
   background: #0A58CA;
   color: #FFFFFF;
@@ -282,7 +284,7 @@
   font-weight: 800;
   font-size: 0.95rem;
   overflow: hidden;
-  box-shadow: 0 2px 6px rgba(10, 88, 202, 0.2);
+  box-shadow: 0 2px 6px rgba(10, 88, 202, 0.3);
 }
 
 .user-avatar-duo img {
@@ -299,9 +301,9 @@
 }
 
 .u-name {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: #1E293B;
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: #FFFFFF;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -309,7 +311,7 @@
 
 .u-grade {
   font-size: 0.72rem;
-  color: #64748b;
+  color: #94a3b8;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -322,20 +324,20 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
-  height: 42px;
-  background: #FFFFFF;
-  border: 2px solid #E2E8F0;
+  height: 40px;
+  background: #1E293B;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
-  color: #64748b;
+  color: #94a3b8;
   font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .duo-logout-btn:hover {
-  background: #fee2e2;
+  background: rgba(239, 68, 68, 0.15);
   border-color: #ef4444;
   color: #ef4444;
 }

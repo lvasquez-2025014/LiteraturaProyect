@@ -142,35 +142,48 @@ export class ReadingRoadmapComponent implements OnInit, OnChanges {
     };
   }
 
+  get effectiveCurrentLevel(): number {
+    if (this.isAdmin) {
+      // Para admin, activa visualmente el nivel de inicio de la etapa para apreciar el diseño Duolingo
+      return this.activeStage.startLevel;
+    }
+    return this.currentLevel || 1;
+  }
+
   isCompleted(reading: Reading): boolean {
-    if (this.isAdmin) return true;
+    if (this.isAdmin) {
+      return reading.level < this.effectiveCurrentLevel;
+    }
     return !!reading.completed || reading.level < this.currentLevel;
   }
 
   isCurrent(reading: Reading): boolean {
-    if (this.isAdmin) return false;
-    return reading.level === this.currentLevel;
+    return reading.level === this.effectiveCurrentLevel;
   }
 
   isLocked(reading: Reading): boolean {
-    if (this.isAdmin) return false;
+    if (this.isAdmin) {
+      return reading.level > this.effectiveCurrentLevel;
+    }
     return !this.isCompleted(reading) && !this.isCurrent(reading);
   }
 
   getNodeXOffset(index: number): number {
-    const offsets = [0, -48, 0, 48, 0, -48, 0, 48];
+    // Sinuosidad suave inspirada exactamente en Duolingo
+    const offsets = [0, -45, -35, 35, 45, 0, -40, 40];
     return offsets[index % offsets.length];
   }
 
   isChestNode(index: number): boolean {
-    return index > 0 && index % 4 === 2;
+    return index > 0 && (index === 2 || index % 5 === 2);
   }
 
   isHeadphonesNode(index: number): boolean {
-    return index > 0 && index % 4 === 3;
+    return index > 0 && (index === 3 || index % 5 === 4);
   }
 
   onNodeClick(reading: Reading): void {
+    // El administrador puede explorar e iniciar cualquier lectura; los estudiantes las desbloqueadas
     if (this.isAdmin || !this.isLocked(reading)) {
       this.activePopoverReading.set(reading);
     }

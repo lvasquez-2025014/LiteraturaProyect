@@ -58,11 +58,14 @@
     
     <div *ngFor="let reading of displayedReadings; let i = index" class="duo-step-row" [style.transform]="'translateX(' + getNodeXOffset(i) + 'px)'">
       
-      <!-- Conector vertical/curvo hacia el siguiente nodo -->
+      <!-- Conector vertical punteado de stepping stones hacia el siguiente nodo -->
       <div 
         *ngIf="i < displayedReadings.length - 1" 
         class="duo-path-connector"
         [class.is-completed]="isCompleted(reading)">
+        <span class="path-step-dot"></span>
+        <span class="path-step-dot"></span>
+        <span class="path-step-dot"></span>
       </div>
 
       <!-- Globo Bouncing "EMPEZAR" encima del nivel activo -->
