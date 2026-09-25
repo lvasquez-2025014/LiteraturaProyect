@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal, ChangeDetectorRef } from '@angular/c
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NavbarComponent } from '../../../../shared/components/navbar/navbar.component';
 import { AuthService } from '../../../../core/services/auth.service';
 import { GamificationService } from '../../../../core/services/gamification.service';
@@ -51,10 +51,11 @@ export class StudentHomeComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   readings: Reading[] = [...KINAL_READINGS];
   activeReading: Reading | null = null;
-  activeTab = signal<'class-activity' | 'roadmap' | 'rewards' | 'achievements' | 'leaderboard'>('class-activity');
+  activeTab = signal<'class-activity' | 'roadmap' | 'rewards' | 'achievements' | 'leaderboard'>('roadmap');
   levelUpModalData = signal<{ level: number; xp: number; coins: number } | null>(null);
   readonly Math = Math;
 
@@ -243,6 +244,7 @@ export class StudentHomeComponent implements OnInit {
 
   setTab(tab: 'class-activity' | 'roadmap' | 'rewards' | 'achievements' | 'leaderboard'): void {
     this.activeTab.set(tab);
+    this.router.navigate([], { relativeTo: this.route, queryParams: { tab } });
   }
 
   onAttemptCompleted(result: ReadingAttemptResult): void {

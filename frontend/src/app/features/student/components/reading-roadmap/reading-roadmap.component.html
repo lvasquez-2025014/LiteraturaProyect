@@ -153,8 +153,11 @@
         <div *ngIf="isCurrent(reading)" class="duo-pulse-ring"></div>
       </button>
 
-      <!-- Etiqueta debajo del nodo -->
-      <span class="duo-node-level-tag">Nivel {{ reading.level }}</span>
+      <!-- Etiqueta debajo del nodo con Nivel y Título -->
+      <div class="duo-node-meta-box">
+        <span class="duo-node-level-tag">Nivel {{ reading.level }}</span>
+        <span class="duo-node-title-tag" [title]="reading.title">{{ reading.title }}</span>
+      </div>
 
     </div>
 
@@ -173,55 +176,15 @@
 
   </div>
 
-  <!-- Popover / Modal Interactivo de Reto (Al dar clic en cualquier nodo) -->
-  <div class="duo-popover-backdrop" *ngIf="activePopoverReading() as pReading" (click)="closePopover()">
-    <div class="duo-popover-card" (click)="$event.stopPropagation()">
-      <div class="popover-header">
-        <span class="popover-level-badge">NIVEL {{ pReading.level }} · {{ pReading.genre }}</span>
-        <button type="button" class="popover-close-btn" (click)="closePopover()" aria-label="Cerrar">✕</button>
-      </div>
-
-      <h2 class="popover-title">{{ pReading.title }}</h2>
-
-      <div class="popover-source" *ngIf="pReading.pedagogicalSource">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0A58CA" stroke-width="2.2">
-          <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
-        </svg>
-        <span>{{ pReading.pedagogicalSource }}</span>
-      </div>
-
-      <div class="popover-specs-grid">
-        <div class="spec-mini-box">
-          <span class="spec-mini-val">{{ pReading.targetWpm }} PPM</span>
-          <span class="spec-mini-lbl">Meta Fluidez</span>
-        </div>
-        <div class="spec-mini-box">
-          <span class="spec-mini-val">+{{ pReading.xpReward }} XP</span>
-          <span class="spec-mini-lbl">Recompensa</span>
-        </div>
-        <div class="spec-mini-box">
-          <span class="spec-mini-val">{{ pReading.wordCount }}</span>
-          <span class="spec-mini-lbl">Palabras</span>
-        </div>
-      </div>
-
-      <div class="popover-actions">
-        <button (click)="startReading(pReading)" class="btn-duo-cta">
-          <span>{{ isCompleted(pReading) ? 'PRACTICAR DE NUEVO' : '¡EMPEZAR LECTURA!' }}</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Guía de Etapa -->
+  <!-- Modal Guía Pedagógica de Etapa -->
   <div class="duo-guide-backdrop" *ngIf="showStageGuide()" (click)="toggleStageGuide()">
     <div class="duo-guide-card" (click)="$event.stopPropagation()">
       <div class="guide-header">
         <h2>Guía Pedagógica · Etapa {{ activeStage.id }}</h2>
-        <button type="button" class="popover-close-btn" (click)="toggleStageGuide()">✕</button>
+        <button type="button" class="popover-close-btn" (click)="toggleStageGuide()" aria-label="Cerrar guía">✕</button>
       </div>
       <h3 class="guide-stage-title">{{ activeStage.title }}</h3>
-      <p class="guide-stage-desc">{{ activeStage.description }}</p>
+      <p class="guide-stage-desc">{{ activeStage.description || 'Lecturas guiadas para entrenar velocidad oral y comprensión lectora.' }}</p>
       
       <div class="guide-metrics-row">
         <div class="guide-stat">

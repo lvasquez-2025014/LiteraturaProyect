@@ -1,132 +1,7 @@
 <app-navbar *ngIf="!activeReading"></app-navbar>
 
 <main class="student-dashboard" *ngIf="!activeReading">
-  
-  <!-- VISTA DUOLINGO APRENDER (ROADMAP 3 COLUMNAS) -->
-  <div class="duo-layout-container" *ngIf="activeTab() === 'roadmap'">
-    
-    <!-- COLUMNA CENTRAL: MAPA DE RETOS -->
-    <div class="duo-center-col">
-      <app-reading-roadmap 
-        [readings]="readings" 
-        [currentLevel]="stats.currentLevel" 
-        (selectReading)="onSelectReading($event)">
-      </app-reading-roadmap>
-    </div>
-
-    <!-- COLUMNA DERECHA: SIDEBAR DE GAMIFICACIÓN DUOLINGO -->
-    <aside class="duo-right-sidebar">
-      
-      <!-- 1. Barra de Estadísticas Superiores Flotantes -->
-      <div class="duo-stats-row">
-        <!-- Bandera / Curso -->
-        <div class="duo-stat-pill" title="Curso: Literatura">
-          <span class="flag-icon">🇬🇹</span>
-        </div>
-        
-        <!-- Racha de Días (Fuego) -->
-        <div class="duo-stat-pill stat-streak" title="Racha de días">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="#f59e0b">
-            <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
-          </svg>
-          <span class="stat-count">{{ stats.streakDays }}</span>
-        </div>
-
-        <!-- Gemas / Monedas (Diamante) -->
-        <div class="duo-stat-pill stat-gems" title="Gemas / Monedas">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="#38bdf8">
-            <polygon points="12 2 2 8.5 12 22 22 8.5 12 2"/>
-            <polygon points="12 2 12 22 22 8.5 12 2" fill="rgba(255,255,255,0.2)"/>
-          </svg>
-          <span class="stat-count">{{ user?.coins ?? 500 }}</span>
-        </div>
-
-        <!-- Vidas / Precisión (Corazón) -->
-        <div class="duo-stat-pill stat-hearts" title="Vidas de lectura">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="#ef4444">
-            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-          </svg>
-          <span class="stat-count">5</span>
-        </div>
-      </div>
-
-      <!-- 2. Card: ¡Compite en las Ligas! -->
-      <div class="duo-side-card card-leagues" (click)="setTab('leaderboard')">
-        <div class="card-leagues-content">
-          <div class="shield-icon-box">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              <rect x="10" y="10" width="4" height="4" rx="1" fill="#64748b"/>
-            </svg>
-          </div>
-          <div class="card-text">
-            <h3>¡Compite en las Ligas!</h3>
-            <p>Completa 3 lecciones más para empezar a competir</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3. Card: Desafíos del día -->
-      <div class="duo-side-card card-quests">
-        <div class="card-header-row">
-          <h3>Desafíos del día</h3>
-          <button type="button" class="btn-link-action" (click)="setTab('achievements')">VER TODOS</button>
-        </div>
-        
-        <div class="quest-item">
-          <div class="quest-icon">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="#f59e0b">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-            </svg>
-          </div>
-          <div class="quest-info">
-            <span class="quest-title">Gana 10 EXP</span>
-            <div class="quest-bar-wrap">
-              <div class="quest-progress-bar">
-                <div class="quest-progress-fill" [style.width.%]="Math.min(100, ((stats.totalXp % 10) * 10 || 40))"></div>
-              </div>
-              <span class="quest-bar-val">{{ (stats.totalXp % 10) || 4 }}/10</span>
-              <div class="quest-chest-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
-                  <path d="M20 12V8H4v4"/>
-                  <path d="M2 12h20v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8z"/>
-                  <path d="M12 15v3"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 4. Card: ¡Crea un perfil para guardar tu progreso! -->
-      <div class="duo-side-card card-action-banner">
-        <h3>¡Crea un perfil para guardar tu progreso!</h3>
-        <button type="button" class="btn-side-cta primary" (click)="setTab('class-activity')">
-          ACTIVIDAD EN CLASE
-        </button>
-        <button type="button" class="btn-side-cta secondary" (click)="setTab('rewards')">
-          INGRESAR
-        </button>
-      </div>
-
-      <!-- 5. Footer Links sutiles estilo Duolingo -->
-      <footer class="duo-side-footer">
-        <a href="javascript:void(0)">ACERCA DE</a>
-        <a href="javascript:void(0)">BLOG</a>
-        <a href="javascript:void(0)">TIENDA</a>
-        <a href="javascript:void(0)">EFICACIA</a>
-        <a href="javascript:void(0)">EMPLEO</a>
-        <a href="javascript:void(0)">INVERSIONISTAS</a>
-        <a href="javascript:void(0)">TÉRMINOS</a>
-        <a href="javascript:void(0)">PRIVACIDAD</a>
-      </footer>
-
-    </aside>
-
-  </div>
-
-  <!-- VISTAS DE OTRAS PESTAÑAS (ACTIVIDAD EN CLASE, TIENDA, LOGROS, CUADRO DE HONOR) -->
-  <div class="dashboard-container" *ngIf="activeTab() !== 'roadmap'">
+  <div class="dashboard-container">
     
     <!-- Hero / Welcome Banner -->
     <section class="welcome-card glass-panel">
@@ -242,6 +117,15 @@
         [currentUserSection]="user?.section"
         [currentUserCareer]="user?.career"
       ></app-class-activity-view>
+    </section>
+
+    <!-- Tab 1: Roadmap -->
+    <section class="tab-pane" *ngIf="activeTab() === 'roadmap'">
+      <app-reading-roadmap 
+        [readings]="readings" 
+        [currentLevel]="stats.currentLevel" 
+        (selectReading)="onSelectReading($event)">
+      </app-reading-roadmap>
     </section>
 
     <!-- Tab 2: Rewards Center (Cofres, Misiones, Boutique) -->

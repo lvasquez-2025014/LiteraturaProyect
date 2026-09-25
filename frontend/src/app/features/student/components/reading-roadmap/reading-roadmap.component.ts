@@ -31,8 +31,11 @@ export class ReadingRoadmapComponent implements OnInit, OnChanges {
 
   selectedStageId = signal<number>(1);
   viewMode = signal<'stage' | 'all'>('stage');
-  activePopoverReading = signal<Reading | null>(null);
   showStageGuide = signal<boolean>(false);
+
+  toggleStageGuide(): void {
+    this.showStageGuide.update((v) => !v);
+  }
 
   get stages(): RoadmapStage[] {
     return this.stagesService.stagesSignal();
@@ -86,26 +89,22 @@ export class ReadingRoadmapComponent implements OnInit, OnChanges {
 
   setStage(stageId: number): void {
     this.selectedStageId.set(stageId);
-    this.closePopover();
   }
 
   prevStage(): void {
     if (this.selectedStageId() > 1) {
       this.selectedStageId.update((id) => id - 1);
-      this.closePopover();
     }
   }
 
   nextStage(): void {
     if (this.selectedStageId() < this.stages.length) {
       this.selectedStageId.update((id) => id + 1);
-      this.closePopover();
     }
   }
 
   setViewMode(mode: 'stage' | 'all'): void {
     this.viewMode.set(mode);
-    this.closePopover();
   }
 
   getStageProgress(stage: RoadmapStage): {
@@ -142,34 +141,28 @@ export class ReadingRoadmapComponent implements OnInit, OnChanges {
     };
   }
 
-  get effectiveCurrentLevel(): number {
-    if (this.isAdmin) {
-      // Para admin, activa visualmente el nivel de inicio de la etapa para apreciar el diseño Duolingo
-      return this.activeStage.startLevel;
-    }
-    return this.currentLevel || 1;
-  }
-
   isCompleted(reading: Reading): boolean {
     if (this.isAdmin) {
-      return reading.level < this.effectiveCurrentLevel;
+      return true;
     }
     return !!reading.completed || reading.level < this.currentLevel;
   }
 
   isCurrent(reading: Reading): boolean {
-    return reading.level === this.effectiveCurrentLevel;
+    if (this.isAdmin) {
+      return reading.level === this.activeStage.startLevel;
+    }
+    return reading.level === this.currentLevel;
   }
 
   isLocked(reading: Reading): boolean {
     if (this.isAdmin) {
-      return reading.level > this.effectiveCurrentLevel;
+      return false;
     }
     return !this.isCompleted(reading) && !this.isCurrent(reading);
   }
 
   getNodeXOffset(index: number): number {
-    // Sinuosidad suave inspirada exactamente en Duolingo
     const offsets = [0, -45, -35, 35, 45, 0, -40, 40];
     return offsets[index % offsets.length];
   }
@@ -183,22 +176,8 @@ export class ReadingRoadmapComponent implements OnInit, OnChanges {
   }
 
   onNodeClick(reading: Reading): void {
-    // El administrador puede explorar e iniciar cualquier lectura; los estudiantes las desbloqueadas
     if (this.isAdmin || !this.isLocked(reading)) {
-      this.activePopoverReading.set(reading);
+      this.selectReading.emit(reading);
     }
-  }
-
-  closePopover(): void {
-    this.activePopoverReading.set(null);
-  }
-
-  startReading(reading: Reading): void {
-    this.closePopover();
-    this.selectReading.emit(reading);
-  }
-
-  toggleStageGuide(): void {
-    this.showStageGuide.update((v) => !v);
   }
 }

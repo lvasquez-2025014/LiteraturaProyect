@@ -167,6 +167,69 @@
   color: #FFFFFF;
 }
 
+/* Gamification Stats Strip in Sidebar */
+.duo-sidebar-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  padding: 0 4px 16px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.duo-stat-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 2px;
+  border-radius: 12px;
+  background: #1E293B;
+  border: 1px solid #334155;
+  transition: all 0.15s ease;
+}
+
+.duo-stat-pill:hover {
+  border-color: #0A58CA;
+  transform: translateY(-2px);
+}
+
+.duo-stat-pill .stat-count {
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  white-space: nowrap;
+}
+
+.duo-stat-pill.stat-streak .stat-count { color: #f59e0b; }
+.duo-stat-pill.stat-coins .stat-count { color: #38bdf8; }
+.duo-stat-pill.stat-xp .stat-count { color: #10b981; }
+.duo-stat-pill.stat-level .stat-count { color: #eab308; }
+
+/* Mobile stats row */
+.mobile-stats-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.m-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #1E293B;
+  border: 1px solid #334155;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.m-pill.streak { color: #f59e0b; }
+.m-pill.coins { color: #38bdf8; }
+
 /* Navigation List */
 .duo-nav-list {
   display: flex;
