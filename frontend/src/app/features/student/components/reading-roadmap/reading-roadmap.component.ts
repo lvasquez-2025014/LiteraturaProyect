@@ -1,4 +1,14 @@
-import { Component, Input, Output, EventEmitter, inject, signal, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  inject,
+  signal,
+  OnInit,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Reading, RoadmapStage } from '../../../../core/models/reading.model';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -21,6 +31,8 @@ export class ReadingRoadmapComponent implements OnInit, OnChanges {
 
   selectedStageId = signal<number>(1);
   viewMode = signal<'stage' | 'all'>('stage');
+  activePopoverReading = signal<Reading | null>(null);
+  showStageGuide = signal<boolean>(false);
 
   get stages(): RoadmapStage[] {
     return this.stagesService.stagesSignal();
@@ -74,13 +86,35 @@ export class ReadingRoadmapComponent implements OnInit, OnChanges {
 
   setStage(stageId: number): void {
     this.selectedStageId.set(stageId);
+    this.closePopover();
+  }
+
+  prevStage(): void {
+    if (this.selectedStageId() > 1) {
+      this.selectedStageId.update((id) => id - 1);
+      this.closePopover();
+    }
+  }
+
+  nextStage(): void {
+    if (this.selectedStageId() < this.stages.length) {
+      this.selectedStageId.update((id) => id + 1);
+      this.closePopover();
+    }
   }
 
   setViewMode(mode: 'stage' | 'all'): void {
     this.viewMode.set(mode);
+    this.closePopover();
   }
 
-  getStageProgress(stage: RoadmapStage): { completed: number; total: number; percentage: number; isUnlocked: boolean; isCompleted: boolean } {
+  getStageProgress(stage: RoadmapStage): {
+    completed: number;
+    total: number;
+    percentage: number;
+    isUnlocked: boolean;
+    isCompleted: boolean;
+  } {
     if (this.isAdmin) {
       return {
         completed: stage.totalLevels,
@@ -109,34 +143,49 @@ export class ReadingRoadmapComponent implements OnInit, OnChanges {
   }
 
   isCompleted(reading: Reading): boolean {
-    if (this.isAdmin) {
-      return true;
-    }
+    if (this.isAdmin) return true;
     return !!reading.completed || reading.level < this.currentLevel;
   }
 
   isCurrent(reading: Reading): boolean {
-    if (this.isAdmin) {
-      return false;
-    }
+    if (this.isAdmin) return false;
     return reading.level === this.currentLevel;
   }
 
   isLocked(reading: Reading): boolean {
-    if (this.isAdmin) {
-      return false;
-    }
+    if (this.isAdmin) return false;
     return !this.isCompleted(reading) && !this.isCurrent(reading);
   }
 
-  getAlignmentClass(index: number): string {
-    const alignments = ['align-left', 'align-center', 'align-right', 'align-center'];
-    return alignments[index % alignments.length];
+  getNodeXOffset(index: number): number {
+    const offsets = [0, -48, 0, 48, 0, -48, 0, 48];
+    return offsets[index % offsets.length];
+  }
+
+  isChestNode(index: number): boolean {
+    return index > 0 && index % 4 === 2;
+  }
+
+  isHeadphonesNode(index: number): boolean {
+    return index > 0 && index % 4 === 3;
   }
 
   onNodeClick(reading: Reading): void {
     if (this.isAdmin || !this.isLocked(reading)) {
-      this.selectReading.emit(reading);
+      this.activePopoverReading.set(reading);
     }
+  }
+
+  closePopover(): void {
+    this.activePopoverReading.set(null);
+  }
+
+  startReading(reading: Reading): void {
+    this.closePopover();
+    this.selectReading.emit(reading);
+  }
+
+  toggleStageGuide(): void {
+    this.showStageGuide.update((v) => !v);
   }
 }

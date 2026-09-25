@@ -1,4 +1,4 @@
-<!-- Barra Superior Móvil (Pantallas pequeñas < 992px) -->
+<!-- Barra Superior Móvil (< 992px) -->
 <header class="mobile-top-bar">
   <button
     type="button"
@@ -7,7 +7,7 @@
     aria-label="Abrir menú de navegación"
     [attr.aria-expanded]="isMobileMenuOpen"
   >
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
       <line x1="3" y1="12" x2="21" y2="12"></line>
       <line x1="3" y1="6" x2="21" y2="6"></line>
       <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -15,18 +15,14 @@
   </button>
 
   <a routerLink="/" class="mobile-brand" (click)="closeMobileMenu()">
-    <img src="/logo.png" alt="Proyecto Literatura" class="mobile-brand-logo" />
-    <span class="mobile-brand-title">Proyecto <span class="accent">Literatura</span></span>
+    <span class="mobile-brand-title">literatura</span>
   </a>
 
-  <div class="mobile-user-actions" *ngIf="user as u">
-    <button (click)="logout()" class="mobile-logout-btn" title="Cerrar sesión" aria-label="Cerrar sesión">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-        <polyline points="16 17 21 12 16 7"></polyline>
-        <line x1="21" y1="12" x2="9" y2="12"></line>
-      </svg>
-    </button>
+  <div class="mobile-user-avatar" *ngIf="user as u">
+    <div class="mini-avatar">
+      <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" alt="" />
+      <span *ngIf="!u.avatarUrl">{{ u.name ? u.name.charAt(0).toUpperCase() : 'U' }}</span>
+    </div>
   </div>
 </header>
 
@@ -38,110 +34,133 @@
   aria-hidden="true"
 ></div>
 
-<!-- Barra de Navegación Lateral Izquierda (Sidebar) -->
-<aside class="app-sidebar" [class.is-open]="isMobileMenuOpen" aria-label="Navegación principal">
+<!-- Sidebar Principal Estilo Duolingo -->
+<aside class="duo-sidebar" [class.is-open]="isMobileMenuOpen" aria-label="Navegación principal">
   
-  <!-- Botón de Cerrar para Móvil (Oculto en desktop) -->
-  <div class="sidebar-mobile-close-bar">
+  <!-- Logo Top Duolingo Style -->
+  <div class="duo-brand-box">
+    <a routerLink="/" class="duo-brand-link" (click)="closeMobileMenu()">
+      <div class="duo-mascot-logo">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#0A58CA" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+          <polyline points="10 2 10 10 13 7 16 10 16 2"/>
+        </svg>
+      </div>
+      <span class="duo-brand-title">literatura</span>
+    </a>
+
+    <!-- Botón de Cerrar para Móvil -->
     <button
       type="button"
       class="sidebar-close-btn"
       (click)="closeMobileMenu()"
       aria-label="Cerrar menú"
     >
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
         <line x1="18" y1="6" x2="6" y2="18"></line>
         <line x1="6" y1="6" x2="18" y2="18"></line>
       </svg>
     </button>
   </div>
 
-  <!-- Menú Ramificado Interactivo (BranchedMenu de React Bits) -->
-  <div class="sidebar-nav-scroll">
-    <app-branched-menu
-      [items]="branchedMenuItems"
-      [defaultOpen]="[0, 1]"
-      [defaultActive]="currentActiveItem"
-      [color]="'#f1f5f9'"
-      [accentColor]="'#f36f21'"
-      [lineColor]="'#334155'"
-      [width]="236"
-      [rowHeight]="38"
-      [indent]="36"
-      [trunk]="14"
-      [radius]="10"
-      [lineWidth]="1.5"
-      [fontSize]="13.5"
-      [drawDuration]="400"
-      [foldDuration]="300"
-      (selectItem)="onMenuSelect($event)"
-    ></app-branched-menu>
-  </div>
+  <!-- Botones de Navegación Verticales Grandes -->
+  <nav class="duo-nav-list">
+    <button 
+      *ngFor="let item of navItems" 
+      type="button"
+      class="duo-nav-btn"
+      [class.is-active]="currentActiveItem === item.id"
+      (click)="navigateTo(item)">
+      
+      <span class="nav-icon-box">
+        <!-- Iconos SVG según el tipo -->
+        <ng-container [ngSwitch]="item.icon">
+          <!-- Learn / Roadmap -->
+          <svg *ngSwitchCase="'learn'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          <!-- Activity -->
+          <svg *ngSwitchCase="'activity'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          <!-- Leagues / Leaderboard -->
+          <svg *ngSwitchCase="'leagues'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+            <path d="M4 22h16"/>
+            <path d="M10 14.66V17c0 .55-.45 1-1 1H7v4h10v-4h-2c-.55 0-1-.45-1-1v-2.34c3.08-.62 5-3.32 5-6.66V4H6v4c0 3.34 1.92 6.04 5 6.66Z"/>
+          </svg>
+          <!-- Quests / Achievements -->
+          <svg *ngSwitchCase="'quests'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="6"/>
+            <circle cx="12" cy="12" r="2"/>
+          </svg>
+          <!-- Shop / Rewards -->
+          <svg *ngSwitchCase="'shop'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+            <path d="M3 6h18"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          <!-- Students / Teachers -->
+          <svg *ngSwitchCase="'students'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          <!-- Readings -->
+          <svg *ngSwitchCase="'readings'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+          </svg>
+          <!-- Stages -->
+          <svg *ngSwitchCase="'stages'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
+            <line x1="9" y1="3" x2="9" y2="18"/>
+            <line x1="15" y1="6" x2="15" y2="21"/>
+          </svg>
+          <!-- Teacher Portal -->
+          <svg *ngSwitchCase="'teacher'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+          </svg>
+          <!-- Admin -->
+          <svg *ngSwitchCase="'admin'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="3" rx="2"/>
+            <path d="M9 3v18"/>
+            <path d="m14 9 3 3-3 3"/>
+          </svg>
+          <svg *ngSwitchDefault width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <circle cx="12" cy="12" r="10"/>
+          </svg>
+        </ng-container>
+      </span>
 
-  <!-- Métricas Rápidas de Gamificación -->
-  <div class="sidebar-gamification" *ngIf="user as u">
-    <div class="gamification-grid">
-      <!-- Racha -->
-      <div class="metric-item metric-streak" title="Racha de lectura">
-        <div class="metric-meta">
-          <span class="metric-val">{{ streakDays }}</span>
-          <span class="metric-lbl">Días racha</span>
-        </div>
-        <div class="metric-bottom-bar"></div>
+      <span class="nav-label">{{ item.label }}</span>
+    </button>
+  </nav>
+
+  <!-- Sidebar Footer: Usuario y Logout -->
+  <div class="duo-sidebar-footer" *ngIf="user as u">
+    <div class="user-row-card">
+      <div class="user-avatar-duo">
+        <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" [alt]="u.name" />
+        <span *ngIf="!u.avatarUrl">{{ u.name ? u.name.charAt(0).toUpperCase() : 'U' }}</span>
       </div>
-
-      <!-- XP -->
-      <div class="metric-item metric-xp" title="Puntos de Experiencia">
-        <div class="metric-meta">
-          <span class="metric-val">{{ formatStat(totalXp) }}</span>
-          <span class="metric-lbl">Puntos XP</span>
-        </div>
-        <div class="metric-bottom-bar"></div>
-      </div>
-
-      <!-- Nivel -->
-      <div class="metric-item metric-level" title="Nivel del lector">
-        <div class="metric-meta">
-          <span class="metric-val">Nvl {{ currentLevel }}</span>
-          <span class="metric-lbl">Rango</span>
-        </div>
-        <div class="metric-bottom-bar"></div>
-      </div>
-
-      <!-- Monedas -->
-      <div class="metric-item metric-coins" title="Monedas de sabiduría">
-        <div class="metric-meta">
-          <span class="metric-val">{{ formatStat(coins) }}</span>
-          <span class="metric-lbl">Monedas</span>
-        </div>
-        <div class="metric-bottom-bar"></div>
+      <div class="user-meta-duo">
+        <span class="u-name" [title]="u.name">{{ u.name }}</span>
+        <span class="u-grade">{{ u.grade ? u.grade + ' "' + (u.section || 'A') + '"' : (u.role === 'TEACHER_ROLE' ? 'Profesor' : (u.role === 'ADMIN_ROLE' ? 'Administrador' : 'Estudiante')) }}</span>
       </div>
     </div>
-  </div>
 
-  <!-- Pie de Sidebar: Perfil de Usuario y Logout -->
-  <div class="sidebar-footer" *ngIf="user as u">
-    <div class="user-profile-row">
-      <div class="avatar-circle" [ngClass]="equippedFrame">
-        <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" [alt]="u.name" class="avatar-img" />
-        <span *ngIf="!u.avatarUrl" class="avatar-initial">{{ u.name ? u.name.charAt(0).toUpperCase() : 'U' }}</span>
-      </div>
-
-      <div class="user-info">
-        <span class="user-name" [title]="u.name">{{ u.name }}</span>
-        <span class="user-sub">{{ u.grade ? u.grade + ' "' + (u.section || 'A') + '"' : u.email }}</span>
-      </div>
-    </div>
-
-    <!-- Botón de Cerrar Sesión -->
-    <button (click)="logout()" class="sidebar-logout-btn" title="Cerrar sesión actual">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <button (click)="logout()" class="duo-logout-btn" title="Cerrar sesión">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
         <polyline points="16 17 21 12 16 7"></polyline>
         <line x1="21" y1="12" x2="9" y2="12"></line>
       </svg>
-      <span>Cerrar Sesión</span>
+      <span>Salir</span>
     </button>
   </div>
-
 </aside>

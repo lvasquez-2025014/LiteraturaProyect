@@ -25,34 +25,41 @@
 
 /* Welcome Card */
 .welcome-card {
-  padding: 36px;
+  padding: 32px;
   display: grid;
   grid-template-columns: 1.2fr 1fr;
   gap: 32px;
   align-items: center;
-  background: #ffffff;
+  background: #FFFFFF;
+  border: 2px solid #E2E8F0;
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(30, 41, 59, 0.04);
 }
 
 .welcome-badge {
   display: inline-block;
-  background: #e0e7ff;
-  color: var(--primary);
-  padding: 4px 12px;
-  border-radius: var(--radius-full);
+  background: #e7f1ff;
+  color: #0A58CA;
+  border: 1px solid rgba(10, 88, 202, 0.2);
+  padding: 4px 14px;
+  border-radius: 9999px;
   font-size: 0.82rem;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 12px;
 }
 
 .welcome-content h1 {
-  font-size: 2.2rem;
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  font-size: 2.1rem;
+  font-weight: 900;
   margin-bottom: 12px;
-  color: #0f172a;
+  color: #1E293B;
+  letter-spacing: -0.02em;
 }
 
 .welcome-content p {
-  color: var(--text-muted);
-  font-size: 1rem;
+  color: #64748b;
+  font-size: 0.98rem;
   line-height: 1.6;
   margin-bottom: 24px;
 }
@@ -60,6 +67,57 @@
 .btn-cta {
   padding: 14px 28px;
   font-size: 1rem;
+  background: #0A58CA;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 5px 0 #052c65;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+.btn-cta:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #052c65;
+}
+
+/* Gamified Navigation Tabs (Duolingo Pill Buttons) */
+.dashboard-tabs {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 4px 2px 14px;
+}
+.dash-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 48px;
+  padding: 0 20px;
+  border-radius: 16px;
+  background: #FFFFFF;
+  border: 2px solid #E2E8F0;
+  color: #475569;
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.dash-tab-btn:hover {
+  background: #F0F4F8;
+  border-color: #0A58CA;
+  color: #0A58CA;
+}
+.dash-tab-btn.tab-selected {
+  background: #e7f1ff;
+  border-color: #0A58CA;
+  color: #0A58CA;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(10, 88, 202, 0.15);
 }
 
 /* Metrics Grid */
