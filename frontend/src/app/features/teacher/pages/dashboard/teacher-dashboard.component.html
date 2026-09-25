@@ -46,7 +46,18 @@
           <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
           <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
         </svg>
-        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg> Monitoreo de Alumnos ({{ students.length }})</span>
+        <span>Monitoreo de Alumnos ({{ students.length }})</span>
+      </button>
+
+      <button 
+        type="button"
+        class="tab-btn" 
+        [class.active]="activeTab === 'class-activities'" 
+        (click)="setTab('class-activities')">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+        </svg>
+        <span>Actividad en Clase</span>
       </button>
 
       <button 
@@ -58,7 +69,7 @@
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
         </svg>
-        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg> Gestor de Lecturas ({{ readings.length }})</span>
+        <span>Gestor de Lecturas ({{ readings.length }})</span>
       </button>
 
       <button 
@@ -71,7 +82,7 @@
           <line x1="9" y1="3" x2="9" y2="18"></line>
           <line x1="15" y1="6" x2="15" y2="21"></line>
         </svg>
-        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg> Gestor de Etapas Literarias ({{ stages.length }})</span>
+        <span>Gestor de Etapas Literarias ({{ stages.length }})</span>
       </button>
     </div>
 
@@ -371,6 +382,178 @@
             </div>
           </ng-template>
         </div>
+      </div>
+    </ng-container>
+
+    <!-- TAB ACTIVIDADES EN CLASE -->
+    <ng-container *ngIf="activeTab === 'class-activities'">
+      <div class="activity-manager-card">
+        <div class="activity-manager-header">
+          <div>
+            <h2 class="readings-title">Actividades en Clase & Evaluaciones en Tiempo Real</h2>
+            <p class="readings-subtitle">
+              Asigna lecturas con tiempo límite, decide si los alumnos leen con micrófono o lectura silenciosa, y evalúa en vivo con ranking y protección anti-copia / anti-IA.
+            </p>
+          </div>
+          <button type="button" class="btn-primary-action" (click)="openCreateActivityModal()">
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            <span>Lanzar Nueva Actividad</span>
+          </button>
+        </div>
+
+        <!-- Panel de Actividad Activa -->
+        <div *ngIf="activeClassActivity as activeAct" class="active-activity-panel">
+          <div class="active-panel-top">
+            <div class="active-badge-indicator">
+              <span class="pulse-dot"></span>
+              <span>ACTIVIDAD EN CURSO</span>
+            </div>
+            <div class="active-panel-actions">
+              <button (click)="loadActivityRanking(activeAct.id)" class="btn-secondary-action">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                </svg>
+                <span>Actualizar Resultados</span>
+              </button>
+              <button (click)="toggleActivityStatus(activeAct, 'FINISHED')" class="btn-finish-live">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align: -2px; margin-right: 4px;">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                </svg>
+                <span>Finalizar Sesión</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="active-details-row">
+            <div class="act-detail-main">
+              <h3>{{ activeAct.title }}</h3>
+              <p class="reading-assigned-name">Lectura: <strong>{{ activeAct.readingTitle }}</strong> ({{ activeAct.wordCount }} palabras)</p>
+            </div>
+            <div class="act-detail-pills">
+              <span class="pill-spec">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align: -2px; margin-right: 4px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Límite: {{ activeAct.timeLimitMinutes }} min
+              </span>
+              <span class="pill-spec" [class.pill-mic]="activeAct.allowMic">
+                <svg *ngIf="activeAct.allowMic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align: -2px; margin-right: 4px;"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+                <svg *ngIf="!activeAct.allowMic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align: -2px; margin-right: 4px;"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                {{ activeAct.allowMic ? 'Micrófono Habilitado' : 'Solo Lectura' }}
+              </span>
+              <span class="pill-spec">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align: -2px; margin-right: 4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                {{ activeAct.questions.length }} preguntas
+              </span>
+              <span class="pill-spec">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align: -2px; margin-right: 4px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                {{ activeActivitySubmissions.length }} entregas
+              </span>
+            </div>
+          </div>
+
+          <!-- Tabla de Resultados en Vivo del Profesor -->
+          <div class="live-submissions-card">
+            <h4>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.2" style="vertical-align: -3px; margin-right: 6px;">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+              Cuadro de Honor y Calificaciones de la Sesión
+            </h4>
+
+            <div *ngIf="activeActivitySubmissions.length === 0" class="no-submissions-yet">
+              <p>Esperando entregas de los estudiantes... Los resultados de los más de 50 alumnos aparecerán automáticamente aquí conforme completen la lectura y el cuestionario.</p>
+            </div>
+
+            <div class="table-responsive" *ngIf="activeActivitySubmissions.length > 0">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Puesto</th>
+                    <th>Estudiante</th>
+                    <th>Grado y Sección</th>
+                    <th class="text-center">Calificación</th>
+                    <th class="text-center">Tiempo</th>
+                    <th class="text-center">Velocidad</th>
+                    <th class="text-center">Micrófono</th>
+                    <th class="text-center">Infracciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let s of activeActivitySubmissions; let i = index">
+                    <td class="col-rank">
+                      <span class="rank-number-tag" [class.gold-tag]="i === 0" [class.silver-tag]="i === 1" [class.bronze-tag]="i === 2">
+                        #{{ i + 1 }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="student-cell">
+                        <div class="student-info">
+                          <span class="student-name">{{ s.studentName }}</span>
+                          <span class="student-email">{{ s.studentEmail }}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>{{ s.grade || 'Kinal' }} {{ s.section ? '"' + s.section + '"' : '' }}</td>
+                    <td class="text-center">
+                      <span class="score-pill" [class.score-perfect]="s.score === 100">{{ s.score }}/100</span>
+                    </td>
+                    <td class="text-center">{{ formatTime(s.timeSpentSeconds) }}</td>
+                    <td class="text-center">{{ s.wpm }} WPM</td>
+                    <td class="text-center">{{ s.micUsed ? 'Sí' : 'No' }}</td>
+                    <td class="text-center">
+                      <span [class.badge-infraction-warn]="s.infractionsCount && s.infractionsCount > 0">
+                        {{ s.infractionsCount || 0 }}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sin Actividad Activa -->
+        <div *ngIf="!activeClassActivity" class="no-active-banner">
+          <div class="no-active-info">
+            <h3>No hay ninguna actividad en clase en curso</h3>
+            <p>Lanza una nueva actividad para que los alumnos la vean en su portal de inmediato.</p>
+          </div>
+          <button (click)="openCreateActivityModal()" class="btn-primary-action">
+            Lanzar Actividad Ahora
+          </button>
+        </div>
+
+        <!-- Historial de Actividades -->
+        <div *ngIf="classActivities.length > 0" class="activities-history-section">
+          <h3 class="history-title">Historial de Actividades en Clase</h3>
+          <div class="activities-history-grid">
+            <div *ngFor="let a of classActivities" class="activity-history-card" [class.is-active-card]="a.status === 'ACTIVE'">
+              <div class="hist-card-top">
+                <span class="hist-status-badge" [class.badge-active]="a.status === 'ACTIVE'">
+                  {{ a.status === 'ACTIVE' ? 'ACTIVA' : 'FINALIZADA' }}
+                </span>
+                <span class="hist-date">{{ a.createdAt | date:'short' }}</span>
+              </div>
+              <h4 class="hist-title">{{ a.title }}</h4>
+              <p class="hist-reading">Lectura: {{ a.readingTitle }}</p>
+              <div class="hist-meta-row">
+                <span>{{ a.timeLimitMinutes }} min</span>
+                <span>{{ a.allowMic ? 'Micrófono' : 'Silenciosa' }}</span>
+                <span>{{ a.submissions.length }} entregas</span>
+              </div>
+              <div class="hist-card-actions">
+                <button *ngIf="a.status !== 'ACTIVE'" (click)="toggleActivityStatus(a, 'ACTIVE')" class="btn-reactivate">
+                  Reactivar
+                </button>
+                <button *ngIf="a.status === 'ACTIVE'" (click)="toggleActivityStatus(a, 'FINISHED')" class="btn-finish-small">
+                  Finalizar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </ng-container>
 
@@ -740,6 +923,196 @@
               {{ stageModalLoading ? 'Guardando...' : (isEditingStage ? 'Actualizar Etapa' : 'Guardar Nueva Etapa') }}
             </button>
           </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Crear Actividad en Clase -->
+  <div class="modal-backdrop" *ngIf="isActivityModalOpen" (click)="closeActivityModal()">
+    <div class="modal-dialog-large glass-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-header-info">
+          <div class="modal-header-badge">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+          </div>
+          <div>
+            <h3>Lanzar Nueva Actividad en Clase</h3>
+            <p class="modal-subtitle">Asigna una lectura, tiempo límite, modalidad de voz y preguntas de evaluación para la sesión.</p>
+          </div>
+        </div>
+        <button type="button" class="btn-modal-close" (click)="closeActivityModal()" title="Cerrar ventana">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form (ngSubmit)="saveAndLaunchActivity()" class="activity-form-flow">
+          
+          <!-- Seleccionar de lecturas existentes para autocompletar -->
+          <div class="form-card-autofill">
+            <div class="autofill-label">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              </svg>
+              <span>Cargar desde Biblioteca de Lecturas (Opcional)</span>
+            </div>
+            <select (change)="onSelectExistingReadingForActivity($any($event.target).value)" class="form-input form-select-custom">
+              <option value="">-- Redactar lectura personalizada o elegir de la biblioteca --</option>
+              <option *ngFor="let r of readings" [value]="r.id">
+                Nivel {{ r.level }} - {{ r.title }} ({{ r.genre }})
+              </option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-2">
+              <label>Título de la Actividad en Clase *</label>
+              <input type="text" [(ngModel)]="activityFormData.title" name="actTitle" required placeholder="Ej: Actividad Evaluativa: Popol Vuh" class="form-input" />
+            </div>
+
+            <div class="form-group flex-1">
+              <label>Tiempo Límite (Minutos) *</label>
+              <select [(ngModel)]="activityFormData.timeLimitMinutes" name="actTimeLimit" class="form-input form-select-custom">
+                <option [ngValue]="2">2 minutos (Rápida)</option>
+                <option [ngValue]="3">3 minutos</option>
+                <option [ngValue]="4">4 minutos</option>
+                <option [ngValue]="5">5 minutos (Estándar)</option>
+                <option [ngValue]="8">8 minutos</option>
+                <option [ngValue]="10">10 minutos</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Switch Micrófono vs Solo Lectura -->
+          <div class="form-group">
+            <label>Modalidad de Lectura (Elige si los alumnos usan micrófono o solo lectura)</label>
+            <div class="mic-toggle-cards">
+              <label class="toggle-card" [class.toggle-selected]="activityFormData.allowMic">
+                <input type="radio" [(ngModel)]="activityFormData.allowMic" [value]="true" name="allowMic" class="toggle-radio-hidden" />
+                <div class="toggle-icon-wrap toggle-icon-mic">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                  </svg>
+                </div>
+                <div class="toggle-card-text">
+                  <strong>Con Micrófono & Voz</strong>
+                  <p>Evalúa pronunciación, ritmo y palabras por minuto con el micrófono del alumno.</p>
+                </div>
+                <span class="toggle-check-indicator" *ngIf="activityFormData.allowMic">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+              </label>
+
+              <label class="toggle-card" [class.toggle-selected]="!activityFormData.allowMic">
+                <input type="radio" [(ngModel)]="activityFormData.allowMic" [value]="false" name="allowMic" class="toggle-radio-hidden" />
+                <div class="toggle-icon-wrap toggle-icon-read">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+                  </svg>
+                </div>
+                <div class="toggle-card-text">
+                  <strong>Solo Lectura (Silenciosa)</strong>
+                  <p>El estudiante lee a su propio ritmo en pantalla sin requerir micrófono.</p>
+                </div>
+                <span class="toggle-check-indicator" *ngIf="!activityFormData.allowMic">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label>Grado Objetivo</label>
+              <select [(ngModel)]="activityFormData.gradeLevel" name="actGrade" class="form-input form-select-custom">
+                <option value="all">Todos los Grados</option>
+                <option *ngFor="let g of gradeLevels" [value]="g">{{ g }}</option>
+              </select>
+            </div>
+
+            <div class="form-group flex-1">
+              <label>Sección</label>
+              <select [(ngModel)]="activityFormData.section" name="actSection" class="form-input form-select-custom">
+                <option value="all">Todas las Secciones</option>
+                <option *ngFor="let s of sections" [value]="s">Sección {{ s }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="textarea-header-row">
+              <label>Contenido del Texto de Lectura *</label>
+              <span class="word-counter-hint">{{ activityFormData.content ? (activityFormData.content.split(' ').length) + ' palabras aprox.' : '0 palabras' }}</span>
+            </div>
+            <textarea [(ngModel)]="activityFormData.content" name="actContent" rows="6" required placeholder="Pega o redacta aquí el texto que leerán los alumnos..." class="form-textarea"></textarea>
+          </div>
+
+          <!-- Preguntas de Comprensión -->
+          <div class="questions-section">
+            <div class="questions-header">
+              <div class="q-header-title-box">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+                <span>Preguntas de Comprensión Lectora ({{ activityFormData.questions.length }})</span>
+              </div>
+              <button type="button" (click)="addQuestionToActivity()" class="btn-add-q">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Agregar Pregunta</span>
+              </button>
+            </div>
+
+            <div *ngFor="let q of activityFormData.questions; let qIdx = index" class="question-builder-card">
+              <div class="q-card-top">
+                <span class="q-badge">Pregunta #{{ qIdx + 1 }}</span>
+                <button *ngIf="activityFormData.questions.length > 1" type="button" (click)="removeQuestionFromActivity(qIdx)" class="btn-remove-q">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                  <span>Eliminar</span>
+                </button>
+              </div>
+
+              <div class="form-group">
+                <input type="text" [(ngModel)]="q.prompt" [name]="'q_prompt_' + qIdx" placeholder="Escribe el enunciado de la pregunta..." required class="form-input" />
+              </div>
+
+              <div class="options-grid">
+                <div *ngFor="let opt of q.options; let optIdx = index; trackBy: trackByFn" class="option-row" [class.is-correct-opt]="q.correctIndex === optIdx">
+                  <label class="radio-correct-label" [title]="'Marcar opción ' + ['A', 'B', 'C', 'D'][optIdx] + ' como respuesta correcta'">
+                    <input type="radio" [name]="'correct_' + qIdx" [value]="optIdx" [(ngModel)]="q.correctIndex" />
+                    <span class="opt-badge-letter">{{ ['A', 'B', 'C', 'D'][optIdx] }}</span>
+                  </label>
+                  <input type="text" [(ngModel)]="q.options[optIdx]" [name]="'opt_' + qIdx + '_' + optIdx" placeholder="Opción {{ ['A', 'B', 'C', 'D'][optIdx] }}" required class="form-input form-input-sm" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-actions-sticky">
+            <button type="button" class="btn-cancel" (click)="closeActivityModal()">Cancelar</button>
+            <button type="submit" class="btn-launch-activity" [disabled]="activityModalLoading">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span>{{ activityModalLoading ? 'Lanzando Actividad...' : 'Lanzar Actividad para Alumnos' }}</span>
+            </button>
+          </div>
+
         </form>
       </div>
     </div>

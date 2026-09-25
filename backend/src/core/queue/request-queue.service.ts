@@ -21,12 +21,12 @@ export class RequestQueueService {
   private totalProcessed = 0;
 
   constructor() {
-    // Máximo de peticiones procesadas concurrentemente a la vez (50 por defecto)
-    this.maxConcurrency = parseInt(process.env.MAX_CONCURRENT_REQUESTS || '50', 10);
+    // Máximo de peticiones procesadas concurrentemente a la vez (200 por defecto para alta concurrencia)
+    this.maxConcurrency = parseInt(process.env.MAX_CONCURRENT_REQUESTS || '200', 10);
     // Capacidad máxima de amortiguación en cola antes de responder con 503
     this.maxQueueSize = parseInt(process.env.MAX_QUEUE_SIZE || '5000', 10);
-    // Tiempo límite que una petición puede esperar en cola sin ser atendida
-    this.timeoutMs = parseInt(process.env.QUEUE_TIMEOUT_MS || '30000', 10);
+    // Tiempo límite que una petición puede esperar en cola sin ser atendida (60s)
+    this.timeoutMs = parseInt(process.env.QUEUE_TIMEOUT_MS || '60000', 10);
 
     this.logger.log(
       `[RequestQueue] Cola de peticiones activa: concurrencia máxima ${this.maxConcurrency} paralelas, buffer máx ${this.maxQueueSize}`
@@ -45,7 +45,7 @@ export class RequestQueueService {
         const idx = this.queue.findIndex((item) => item.timeoutId === timeoutId);
         if (idx !== -1) {
           this.queue.splice(idx, 1);
-          reject(new Error('Tiempo límite de espera en cola excedido (Timeout 30s)'));
+          reject(new Error('Tiempo límite de espera en cola excedido'));
         }
       }, this.timeoutMs);
 
@@ -62,43 +62,41 @@ export class RequestQueueService {
   }
 
   private dispatchNext(): void {
-    if (this.activeCount >= this.maxConcurrency || this.queue.length === 0) {
-      return;
-    }
+    while (this.activeCount < this.maxConcurrency && this.queue.length > 0) {
+      const item = this.queue.shift();
+      if (!item) break;
 
-    const item = this.queue.shift();
-    if (!item) return;
+      clearTimeout(item.timeoutId);
+      this.activeCount++;
 
-    clearTimeout(item.timeoutId);
-    this.activeCount++;
+      if (this.queue.length > 20) {
+        this.logger.warn(
+          `[RequestQueue] Alta concurrencia: ${this.activeCount} activas, ${this.queue.length} en espera en cola FIFO.`
+        );
+      }
 
-    if (this.queue.length > 5) {
-      this.logger.warn(
-        `[RequestQueue] Alta concurrencia: ${this.activeCount} activas, ${this.queue.length} en espera en cola FIFO.`
-      );
-    }
+      const wrapped$ = new Observable((subscriber) => {
+        const sub = item.execute().subscribe({
+          next: (val) => subscriber.next(val),
+          error: (err) => {
+            this.activeCount--;
+            this.totalProcessed++;
+            this.dispatchNext();
+            subscriber.error(err);
+          },
+          complete: () => {
+            this.activeCount--;
+            this.totalProcessed++;
+            this.dispatchNext();
+            subscriber.complete();
+          },
+        });
 
-    const wrapped$ = new Observable((subscriber) => {
-      const sub = item.execute().subscribe({
-        next: (val) => subscriber.next(val),
-        error: (err) => {
-          this.activeCount--;
-          this.totalProcessed++;
-          this.dispatchNext();
-          subscriber.error(err);
-        },
-        complete: () => {
-          this.activeCount--;
-          this.totalProcessed++;
-          this.dispatchNext();
-          subscriber.complete();
-        },
+        return () => sub.unsubscribe();
       });
 
-      return () => sub.unsubscribe();
-    });
-
-    item.resolve(wrapped$);
+      item.resolve(wrapped$);
+    }
   }
 
   getMetrics() {

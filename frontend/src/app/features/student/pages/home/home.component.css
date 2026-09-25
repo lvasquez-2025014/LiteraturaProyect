@@ -419,6 +419,31 @@
   box-shadow: 0 4px 14px rgba(0, 74, 173, 0.12);
 }
 
+.dash-tab-btn.tab-btn-activity.tab-selected {
+  color: var(--kinal-orange, #f36f21);
+  box-shadow: 0 4px 14px rgba(243, 111, 33, 0.16);
+}
+
+.tab-live-pulse-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #ef4444;
+  padding: 2px 7px;
+  border-radius: 999px;
+  margin-left: 2px;
+  animation: livePulse 2s infinite ease-in-out;
+}
+
+@keyframes livePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(0.96); }
+}
+
 .tab-icon {
   font-size: 1.15rem;
 }

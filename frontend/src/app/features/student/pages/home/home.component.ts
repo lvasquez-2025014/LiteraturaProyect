@@ -13,6 +13,7 @@ import { RewardsCenterComponent } from '../../components/rewards-center/rewards-
 import { AchievementsViewComponent } from '../../components/achievements-view/achievements-view.component';
 import { LeaderboardViewComponent } from '../../components/leaderboard-view/leaderboard-view.component';
 import { LevelUpModalComponent } from '../../components/level-up-modal/level-up-modal.component';
+import { ClassActivityViewComponent } from '../../components/class-activity-view/class-activity-view.component';
 import { KINAL_READINGS } from '../../../../core/data/kinal-readings';
 import { Reading, ReadingAttemptResult } from '../../../../core/models/reading.model';
 import {
@@ -32,6 +33,7 @@ import { environment } from '../../../../../environments/environment';
     CommonModule,
     FormsModule,
     NavbarComponent,
+    ClassActivityViewComponent,
     ReadingRoadmapComponent,
     ReadingReaderComponent,
     RewardsCenterComponent,
@@ -52,7 +54,7 @@ export class StudentHomeComponent implements OnInit {
 
   readings: Reading[] = [...KINAL_READINGS];
   activeReading: Reading | null = null;
-  activeTab = signal<'roadmap' | 'rewards' | 'achievements' | 'leaderboard'>('roadmap');
+  activeTab = signal<'class-activity' | 'roadmap' | 'rewards' | 'achievements' | 'leaderboard'>('class-activity');
   levelUpModalData = signal<{ level: number; xp: number; coins: number } | null>(null);
 
   // Academic Onboarding check para estudiantes sin perfil académico completo (carnet, correo institucional, grado o sección)
@@ -191,8 +193,8 @@ export class StudentHomeComponent implements OnInit {
 
     this.route.queryParams.subscribe((params) => {
       const tab = params['tab'];
-      if (tab && ['roadmap', 'rewards', 'achievements', 'leaderboard'].includes(tab)) {
-        this.activeTab.set(tab as 'roadmap' | 'rewards' | 'achievements' | 'leaderboard');
+      if (tab && ['class-activity', 'roadmap', 'rewards', 'achievements', 'leaderboard'].includes(tab)) {
+        this.activeTab.set(tab as 'class-activity' | 'roadmap' | 'rewards' | 'achievements' | 'leaderboard');
         this.cdr.markForCheck();
       }
     });
@@ -238,7 +240,7 @@ export class StudentHomeComponent implements OnInit {
     this.activeReading = reading;
   }
 
-  setTab(tab: 'roadmap' | 'rewards' | 'achievements' | 'leaderboard'): void {
+  setTab(tab: 'class-activity' | 'roadmap' | 'rewards' | 'achievements' | 'leaderboard'): void {
     this.activeTab.set(tab);
   }
 

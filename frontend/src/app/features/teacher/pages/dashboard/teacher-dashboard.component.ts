@@ -10,6 +10,8 @@ import { StudentPerformance, Reading, Question, RoadmapStage } from '../../../..
 import { StudentDetailModalComponent } from '../../components/student-detail-modal/student-detail-modal.component';
 import { ReadingsService } from '../../../../core/services/readings.service';
 import { StagesService } from '../../../../core/services/stages.service';
+import { ClassroomActivitiesService } from '../../../../core/services/classroom-activities.service';
+import { ClassroomActivity, ClassroomActivitySubmission } from '../../../../core/models/classroom-activity.model';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -31,8 +33,41 @@ export class TeacherDashboardComponent implements OnInit {
   auth = inject(AuthService);
   readingsService = inject(ReadingsService);
   stagesService = inject(StagesService);
+  classActivitiesService = inject(ClassroomActivitiesService);
 
-  activeTab: 'students' | 'readings' | 'stages' = 'students';
+  activeTab: 'students' | 'class-activities' | 'readings' | 'stages' = 'students';
+
+  // Actividades en Clase State
+  classActivities: ClassroomActivity[] = [];
+  activeClassActivity: ClassroomActivity | null = null;
+  activeActivitySubmissions: ClassroomActivitySubmission[] = [];
+  isActivityModalOpen = false;
+  activityModalLoading = false;
+
+  activityFormData = {
+    title: '',
+    readingId: '',
+    readingTitle: '',
+    content: '',
+    timeLimitMinutes: 5,
+    allowMic: true,
+    gradeLevel: 'all',
+    section: 'all',
+    questions: [
+      {
+        id: 'q1',
+        prompt: '',
+        options: ['', '', '', ''],
+        correctIndex: 0,
+      },
+      {
+        id: 'q2',
+        prompt: '',
+        options: ['', '', '', ''],
+        correctIndex: 0,
+      },
+    ],
+  };
 
   students: User[] = [];
   loading = false;
@@ -102,8 +137,8 @@ export class TeacherDashboardComponent implements OnInit {
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
       const tab = params['tab'];
-      if (tab && ['students', 'readings', 'stages'].includes(tab)) {
-        this.activeTab = tab as 'students' | 'readings' | 'stages';
+      if (tab && ['students', 'class-activities', 'readings', 'stages'].includes(tab)) {
+        this.activeTab = tab as 'students' | 'class-activities' | 'readings' | 'stages';
         this.cdr.markForCheck();
       }
     });
@@ -111,10 +146,14 @@ export class TeacherDashboardComponent implements OnInit {
     this.loadStudents();
     this.loadReadings();
     this.loadStages();
+    this.loadClassActivities();
   }
 
-  setTab(tab: 'students' | 'readings' | 'stages') {
+  setTab(tab: 'students' | 'class-activities' | 'readings' | 'stages') {
     this.activeTab = tab;
+    if (tab === 'class-activities') {
+      this.loadClassActivities();
+    }
     this.cdr.markForCheck();
   }
 
@@ -677,6 +716,174 @@ export class TeacherDashboardComponent implements OnInit {
       error: (err) => {
         console.error('Error eliminando etapa:', err);
         this.showToast('Error al eliminar la etapa en el servidor', 'error');
+      },
+    });
+  }
+
+  formatTime(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}m ${secs}s`;
+  }
+
+  loadClassActivities() {
+    this.classActivitiesService.getAll().subscribe({
+      next: (list) => {
+        this.classActivities = list || [];
+        const active = list.find((a) => a.status === 'ACTIVE');
+        this.activeClassActivity = active || null;
+        if (active?.id) {
+          this.loadActivityRanking(active.id);
+        }
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.warn('Error cargando actividades en clase:', err);
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  loadActivityRanking(activityId: string) {
+    this.classActivitiesService.getRanking(activityId).subscribe({
+      next: (submissions) => {
+        this.activeActivitySubmissions = submissions || [];
+        this.cdr.markForCheck();
+      },
+      error: (err) => console.warn('Error ranking actividad:', err),
+    });
+  }
+
+  openCreateActivityModal() {
+    this.activityFormData = {
+      title: '',
+      readingId: '',
+      readingTitle: '',
+      content: '',
+      timeLimitMinutes: 5,
+      allowMic: true,
+      gradeLevel: 'all',
+      section: 'all',
+      questions: [
+        {
+          id: 'q1',
+          prompt: '',
+          options: ['', '', '', ''],
+          correctIndex: 0,
+        },
+        {
+          id: 'q2',
+          prompt: '',
+          options: ['', '', '', ''],
+          correctIndex: 0,
+        },
+      ],
+    };
+    this.isActivityModalOpen = true;
+    this.cdr.markForCheck();
+  }
+
+  closeActivityModal() {
+    this.isActivityModalOpen = false;
+    this.activityModalLoading = false;
+    this.cdr.markForCheck();
+  }
+
+  onSelectExistingReadingForActivity(readingId: string) {
+    if (!readingId) return;
+    const found = this.readings.find((r) => (r.id === readingId || (r as any)._id === readingId));
+    if (found) {
+      this.activityFormData.readingId = found.id;
+      this.activityFormData.readingTitle = found.title;
+      this.activityFormData.title = `Actividad en Clase: ${found.title}`;
+      this.activityFormData.content = found.content;
+      this.activityFormData.timeLimitMinutes = Math.max(3, Math.ceil((found.wordCount || 200) / 75)); // Tiempo pedagógico
+      if (found.questions && found.questions.length > 0) {
+        this.activityFormData.questions = found.questions.map((q, idx) => ({
+          id: q.id || `q${idx + 1}`,
+          prompt: q.prompt,
+          options: [...q.options],
+          correctIndex: q.correctIndex,
+        }));
+      }
+      this.cdr.markForCheck();
+    }
+  }
+
+  addQuestionToActivity() {
+    const nextIdx = this.activityFormData.questions.length + 1;
+    this.activityFormData.questions.push({
+      id: `q${nextIdx}`,
+      prompt: '',
+      options: ['', '', '', ''],
+      correctIndex: 0,
+    });
+    this.cdr.markForCheck();
+  }
+
+  removeQuestionFromActivity(index: number) {
+    if (this.activityFormData.questions.length > 1) {
+      this.activityFormData.questions.splice(index, 1);
+      this.cdr.markForCheck();
+    }
+  }
+
+  saveAndLaunchActivity() {
+    if (!this.activityFormData.title.trim() || !this.activityFormData.content.trim()) {
+      this.showToast('Por favor completa el título y el contenido de la lectura', 'error');
+      return;
+    }
+
+    if (this.activityFormData.questions.length === 0) {
+      this.showToast('Agrega al menos una pregunta de comprensión', 'error');
+      return;
+    }
+
+    this.activityModalLoading = true;
+
+    const payload: Partial<ClassroomActivity> = {
+      title: this.activityFormData.title.trim(),
+      readingTitle: this.activityFormData.readingTitle.trim() || this.activityFormData.title.trim(),
+      readingId: this.activityFormData.readingId || undefined,
+      content: this.activityFormData.content.trim(),
+      timeLimitMinutes: Number(this.activityFormData.timeLimitMinutes) || 5,
+      allowMic: Boolean(this.activityFormData.allowMic),
+      gradeLevel: this.activityFormData.gradeLevel,
+      section: this.activityFormData.section,
+      questions: this.activityFormData.questions,
+      status: 'ACTIVE',
+    };
+
+    this.classActivitiesService.create(payload).subscribe({
+      next: (created) => {
+        this.activityModalLoading = false;
+        this.closeActivityModal();
+        this.showToast('¡Actividad en clase lanzada en vivo exitosamente!', 'success');
+        this.loadClassActivities();
+      },
+      error: (err) => {
+        console.error('Error lanzando actividad en clase:', err);
+        this.activityModalLoading = false;
+        this.showToast('Error al lanzar la actividad en el servidor', 'error');
+      },
+    });
+  }
+
+  toggleActivityStatus(activity: ClassroomActivity, newStatus: 'ACTIVE' | 'FINISHED') {
+    const id = activity.id || (activity as any)._id;
+    this.classActivitiesService.updateStatus(id, newStatus).subscribe({
+      next: () => {
+        this.showToast(
+          newStatus === 'ACTIVE'
+            ? 'Actividad reactivada en vivo para los alumnos'
+            : 'Actividad en clase finalizada correctamente',
+          'success'
+        );
+        this.loadClassActivities();
+      },
+      error: (err) => {
+        console.error('Error actualizando estado de actividad:', err);
+        this.showToast('Error al actualizar el estado de la actividad', 'error');
       },
     });
   }

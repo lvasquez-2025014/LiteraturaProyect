@@ -63,6 +63,19 @@
 
     <!-- Gamified Navigation Tabs -->
     <nav class="dashboard-tabs">
+      <!-- Tab 0: Actividad en Clase (Principal) -->
+      <button 
+        (click)="setTab('class-activity')" 
+        class="dash-tab-btn tab-btn-activity" 
+        [class.tab-selected]="activeTab() === 'class-activity'">
+        <span class="tab-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </span>
+        <span class="tab-title">Actividad en Clase</span>
+      </button>
+
       <button 
         (click)="setTab('roadmap')" 
         class="dash-tab-btn" 
@@ -96,6 +109,14 @@
         <span class="tab-title">Cuadro de Honor</span>
       </button>
     </nav>
+
+    <!-- Tab 0: Actividad en Clase (Principal) -->
+    <section class="tab-pane" *ngIf="activeTab() === 'class-activity'">
+      <app-class-activity-view
+        [currentUserGrade]="user?.grade"
+        [currentUserSection]="user?.section"
+      ></app-class-activity-view>
+    </section>
 
     <!-- Tab 1: Roadmap -->
     <section class="tab-pane" *ngIf="activeTab() === 'roadmap'">

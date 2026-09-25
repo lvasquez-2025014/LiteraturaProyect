@@ -8,9 +8,12 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
 
   constructor() {
     const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost:27017';
+    const maxPoolSize = parseInt(process.env.MONGO_MAX_POOL_SIZE || '100', 10);
+    const minPoolSize = parseInt(process.env.MONGO_MIN_POOL_SIZE || '10', 10);
+
     this.client = new MongoClient(mongoUrl, {
-      maxPoolSize: 50,
-      minPoolSize: 5,
+      maxPoolSize,
+      minPoolSize,
       maxIdleTimeMS: 30000,
       serverSelectionTimeoutMS: 8000,
       connectTimeoutMS: 10000,
