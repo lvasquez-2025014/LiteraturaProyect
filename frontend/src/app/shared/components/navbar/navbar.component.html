@@ -15,24 +15,17 @@
   </button>
 
   <a routerLink="/" class="mobile-brand" (click)="closeMobileMenu()">
-    <span class="mobile-brand-title">literatura</span>
+    <span class="duo-brand-title">duolingo</span>
   </a>
 
-  <div class="mobile-stats-row" *ngIf="user">
-    <span class="m-pill streak" title="Racha">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="1"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
-      {{ streakDays }}
-    </span>
-    <span class="m-pill coins" title="Monedas">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="#38bdf8" stroke="#38bdf8" stroke-width="1"><circle cx="12" cy="12" r="9"/></svg>
-      {{ formatStat(coins) }}
-    </span>
-  </div>
-
-  <div class="mobile-user-avatar" *ngIf="user as u">
+  <div class="mobile-user-avatar" (click)="toggleProfileModal()">
     <div class="mini-avatar">
-      <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" alt="" />
-      <span *ngIf="!u.avatarUrl">{{ u.name ? u.name.charAt(0).toUpperCase() : 'U' }}</span>
+      <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+        <circle cx="16" cy="16" r="14" fill="#9333EA"/>
+        <ellipse cx="16" cy="17.5" rx="8" ry="7.5" fill="#FED7AA"/>
+        <path d="M13.5 19C13.5 20.8 14.6 22 16 22C17.4 22 18.5 20.8 18.5 19H13.5Z" fill="#FFFFFF"/>
+        <circle cx="23" cy="9" r="3" fill="#FF4B4B"/>
+      </svg>
     </div>
   </div>
 </header>
@@ -45,19 +38,13 @@
   aria-hidden="true"
 ></div>
 
-<!-- Sidebar Principal Estilo Duolingo -->
+<!-- Sidebar Principal Estilo Duolingo (Exacto a la imagen) -->
 <aside class="duo-sidebar" [class.is-open]="isMobileMenuOpen" aria-label="Navegación principal">
   
   <!-- Logo Top Duolingo Style -->
   <div class="duo-brand-box">
     <a routerLink="/" class="duo-brand-link" (click)="closeMobileMenu()">
-      <div class="duo-mascot-logo">
-        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#0A58CA" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
-          <polyline points="10 2 10 10 13 7 16 10 16 2"/>
-        </svg>
-      </div>
-      <span class="duo-brand-title">literatura</span>
+      <span class="duo-brand-title">duolingo</span>
     </a>
 
     <!-- Botón de Cerrar para Móvil -->
@@ -74,106 +61,109 @@
     </button>
   </div>
 
-  <!-- Métricas Rápidas Estilo Duolingo Dark -->
-  <div class="duo-sidebar-stats" *ngIf="user">
-    <div class="duo-stat-pill stat-streak" title="Días de racha de lectura">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="1">
-        <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
-      </svg>
-      <span class="stat-count">{{ streakDays }}</span>
-    </div>
-
-    <div class="duo-stat-pill stat-coins" title="Monedas de sabiduría">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="#38bdf8" stroke="#38bdf8" stroke-width="1">
-        <circle cx="12" cy="12" r="9"/>
-      </svg>
-      <span class="stat-count">{{ formatStat(coins) }}</span>
-    </div>
-
-    <div class="duo-stat-pill stat-xp" title="Puntos de Experiencia">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="#10b981" stroke="#10b981" stroke-width="1">
-        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-      </svg>
-      <span class="stat-count">{{ formatStat(totalXp) }}</span>
-    </div>
-
-    <div class="duo-stat-pill stat-level" title="Rango de nivel del lector">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="#eab308" stroke="#eab308" stroke-width="1">
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-      </svg>
-      <span class="stat-count">Nv.{{ currentLevel }}</span>
-    </div>
-  </div>
-
-  <!-- Botones de Navegación Verticales Grandes -->
+  <!-- Botones de Navegación Verticales (Iconos y tipografía exacta de la imagen) -->
   <nav class="duo-nav-list">
     <button 
       *ngFor="let item of navItems" 
       type="button"
       class="duo-nav-btn"
       [class.is-active]="currentActiveItem === item.id"
-      (click)="navigateTo(item)">
+      [class.nav-item-more]="item.id === 'more'"
+      [class.nav-item-profile]="item.id === 'profile'"
+      (click)="handleItemClick(item)">
       
       <span class="nav-icon-box">
-        <!-- Iconos SVG según el tipo -->
         <ng-container [ngSwitch]="item.icon">
-          <!-- Learn / Roadmap -->
-          <svg *ngSwitchCase="'learn'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-            <polyline points="9 22 9 12 15 12 15 22"/>
+          
+          <!-- APRENDER: Casita nido roja con frontal amarillo y agujero de entrada -->
+          <svg *ngSwitchCase="'learn'" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <path d="M16 2.5L3 13H29L16 2.5Z" fill="#D32F2F"/>
+            <path d="M16 2.2L3.5 12H28.5L16 2.2Z" fill="#FF4B4B"/>
+            <path d="M16 2.2L28.5 12H26.8L16 3.4L5.2 12H3.5L16 2.2Z" fill="#FF7878" opacity="0.6"/>
+            <rect x="7" y="11.5" width="18" height="15.5" rx="2" fill="#FFC800"/>
+            <path d="M7 24.5H25V27H7V24.5Z" fill="#E5A500"/>
+            <circle cx="16" cy="17" r="3.6" fill="#4E1500"/>
+            <circle cx="16" cy="16.5" r="3" fill="#2E0C00"/>
+            <circle cx="16" cy="22.5" r="1.2" fill="#8D3000"/>
           </svg>
-          <!-- Activity -->
-          <svg *ngSwitchCase="'activity'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+
+          <!-- SONIDOS: Boca abierta sonriente con dientes y lengua -->
+          <svg *ngSwitchCase="'sounds'" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <ellipse cx="16" cy="16" rx="14" ry="10" fill="#FF4B4B"/>
+            <path d="M3 16C3 21 8.5 25 16 25C23.5 25 29 21 29 16C26 21 21 23 16 23C11 23 6 21 3 16Z" fill="#D32F2F"/>
+            <path d="M5 16C5 13 9 10 16 10C23 10 27 13 27 16C27 21 22 23 16 23C10 23 5 21 5 16Z" fill="#3D0C0C"/>
+            <path d="M7.5 14.5C8 12 11.5 10.5 16 10.5C20.5 10.5 24 12 24.5 14.5C22 14.8 19 15 16 15C13 15 10 14.8 7.5 14.5Z" fill="#FFFFFF"/>
+            <path d="M10 18C10.5 16.5 13 15.5 16 15.5C19 15.5 21.5 16.5 22 18C21.5 20.8 19 22.5 16 22.5C13 22.5 10.5 20.8 10 18Z" fill="#FF7878"/>
+            <path d="M13 18C13.5 17 14.7 16.2 16 16.2C17.3 16.2 18.5 17 19 18C18.5 20 17.3 21.2 16 21.2C14.7 21.2 13.5 20 13 18Z" fill="#FFA4A4"/>
           </svg>
-          <!-- Leagues / Leaderboard -->
-          <svg *ngSwitchCase="'leagues'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
-            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
-            <path d="M4 22h16"/>
-            <path d="M10 14.66V17c0 .55-.45 1-1 1H7v4h10v-4h-2c-.55 0-1-.45-1-1v-2.34c3.08-.62 5-3.32 5-6.66V4H6v4c0 3.34 1.92 6.04 5 6.66Z"/>
+
+          <!-- LIGAS: Escudo dorado 3D facetado -->
+          <svg *ngSwitchCase="'leagues'" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <path d="M16 3L5 6.5V15.5C5 22.5 9.8 27.5 16 29V3Z" fill="#FFD83D"/>
+            <path d="M16 3L27 6.5V15.5C27 22.5 22.2 27.5 16 29V3Z" fill="#E5A500"/>
+            <path d="M16 4.5L7 7.5V15C7 20.5 10.8 24.8 16 26.8V4.5Z" fill="#FFE866" opacity="0.6"/>
           </svg>
-          <!-- Quests / Achievements -->
-          <svg *ngSwitchCase="'quests'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <circle cx="12" cy="12" r="6"/>
-            <circle cx="12" cy="12" r="2"/>
+
+          <!-- DESAFÍOS: Cofre dorado 3D con cerradura -->
+          <svg *ngSwitchCase="'quests'" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <path d="M4 14H28V24C28 25.5 26.8 26.7 25.3 26.7H6.7C5.2 26.7 4 25.5 4 24V14Z" fill="#E5A500"/>
+            <rect x="5.5" y="14" width="21" height="11.5" fill="#FFC800"/>
+            <path d="M3 13.5C3 8 7 5.5 16 5.5C25 5.5 29 8 29 13.5H3Z" fill="#FFD83D"/>
+            <path d="M3 12H29V14H3V12Z" fill="#E5A500"/>
+            <rect x="8" y="6" width="3" height="19.5" fill="#B45309" opacity="0.75"/>
+            <rect x="21" y="6" width="3" height="19.5" fill="#B45309" opacity="0.75"/>
+            <rect x="13.5" y="12" width="5" height="6.5" rx="1.5" fill="#FFED85"/>
+            <circle cx="16" cy="14.5" r="1.1" fill="#78350F"/>
+            <path d="M15.5 14.5L15.2 16.8H16.8L16.5 14.5Z" fill="#78350F"/>
           </svg>
-          <!-- Shop / Rewards -->
-          <svg *ngSwitchCase="'shop'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
-            <path d="M3 6h18"/>
-            <path d="M16 10a4 4 0 0 1-8 0"/>
+
+          <!-- TIENDA: Tiendita con toldo a rayas rojas y blancas -->
+          <svg *ngSwitchCase="'shop'" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <rect x="6" y="15" width="20" height="12" rx="1" fill="#D4A373"/>
+            <path d="M6 25.5H26V27H6V25.5Z" fill="#A97142"/>
+            <rect x="8.5" y="18" width="5.5" height="9" rx="1" fill="#78350F"/>
+            <rect x="16.5" y="18" width="7" height="6.5" rx="1" fill="#7DD3FC"/>
+            <path d="M17.5 19L22.5 19L17.5 23.5Z" fill="#BAE6FD" opacity="0.7"/>
+            <path d="M4 14C4 16 6 16.5 7.5 16.5C9 16.5 9.5 15.8 10.5 15.8C11.5 15.8 12 16.5 13.5 16.5C15 16.5 15.5 15.8 16.5 15.8C17.5 15.8 18 16.5 19.5 16.5C21 16.5 21.5 15.8 22.5 15.8C23.5 15.8 24 16.5 25.5 16.5C27 16.5 28 15.5 28 14L26 8H6L4 14Z" fill="#FF4B4B"/>
+            <path d="M8 8.5L9.8 16C10.5 16 11 15.8 12 15.8L10.5 8.5H8Z" fill="#FFFFFF"/>
+            <path d="M14 8.5L15.5 16C16 16 16.8 15.8 17.8 15.8L16.5 8.5H14Z" fill="#FFFFFF"/>
+            <path d="M20 8.5L21.5 16C22.2 16 23 15.8 24 15.8L22.5 8.5H20Z" fill="#FFFFFF"/>
           </svg>
-          <!-- Students / Teachers -->
-          <svg *ngSwitchCase="'students'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-            <circle cx="9" cy="7" r="4"/>
-            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+
+          <!-- PERFIL: Avatar con cabello morado y punto rosa de notificación -->
+          <svg *ngSwitchCase="'profile'" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="11" fill="#9333EA"/>
+            <ellipse cx="16" cy="18" rx="12" ry="9" fill="#A855F7"/>
+            <ellipse cx="16" cy="17.5" rx="8" ry="7.5" fill="#FED7AA"/>
+            <path d="M8.5 14C8 17 10 19 11.5 17.5C13 16 12 13 11 12C9.5 12.5 8.8 13.2 8.5 14Z" fill="#9333EA"/>
+            <circle cx="13" cy="16.5" r="1.1" fill="#451A03"/>
+            <circle cx="19" cy="16.5" r="1.1" fill="#451A03"/>
+            <path d="M13.5 19C13.5 20.8 14.6 22 16 22C17.4 22 18.5 20.8 18.5 19H13.5Z" fill="#FFFFFF"/>
+            <circle cx="23" cy="9" r="3" fill="#FF4B4B"/>
+            <circle cx="23" cy="9" r="1.8" fill="#FF7878"/>
           </svg>
-          <!-- Readings -->
-          <svg *ngSwitchCase="'readings'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+
+          <!-- MÁS: Círculo morado con tres puntos blancos -->
+          <svg *ngSwitchCase="'more'" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="12" fill="#C084FC"/>
+            <circle cx="16" cy="15.5" r="11.5" fill="#CE82FF"/>
+            <circle cx="10" cy="16" r="2" fill="#FFFFFF"/>
+            <circle cx="16" cy="16" r="2" fill="#FFFFFF"/>
+            <circle cx="22" cy="16" r="2" fill="#FFFFFF"/>
           </svg>
-          <!-- Stages -->
-          <svg *ngSwitchCase="'stages'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
-            <line x1="9" y1="3" x2="9" y2="18"/>
-            <line x1="15" y1="6" x2="15" y2="21"/>
-          </svg>
-          <!-- Teacher Portal -->
-          <svg *ngSwitchCase="'teacher'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
-          </svg>
-          <!-- Admin -->
-          <svg *ngSwitchCase="'admin'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+
+          <!-- Administrador / Docente fallback icons -->
+          <svg *ngSwitchCase="'admin'" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round">
             <rect width="18" height="18" x="3" y="3" rx="2"/>
             <path d="M9 3v18"/>
             <path d="m14 9 3 3-3 3"/>
           </svg>
-          <svg *ngSwitchDefault width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+
+          <svg *ngSwitchCase="'teacher'" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+          </svg>
+
+          <svg *ngSwitchDefault width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
             <circle cx="12" cy="12" r="10"/>
           </svg>
         </ng-container>
@@ -183,26 +173,72 @@
     </button>
   </nav>
 
-  <!-- Sidebar Footer: Usuario y Logout -->
-  <div class="duo-sidebar-footer" *ngIf="user as u">
-    <div class="user-row-card">
-      <div class="user-avatar-duo">
-        <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" [alt]="u.name" />
-        <span *ngIf="!u.avatarUrl">{{ u.name ? u.name.charAt(0).toUpperCase() : 'U' }}</span>
+  <!-- Menú Flotante "MÁS" (Estilo Tarjeta Duolingo) -->
+  <div class="duo-more-popover" *ngIf="isMoreMenuOpen" (click)="$event.stopPropagation()">
+    <div class="popover-arrow"></div>
+    <div class="popover-links">
+      <a *ngIf="auth.isAdmin()" routerLink="/admin" (click)="isMoreMenuOpen = false" class="popover-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+        <span>Panel Administrador</span>
+      </a>
+      <a *ngIf="auth.isTeacher() || auth.isAdmin()" routerLink="/profesor" (click)="isMoreMenuOpen = false" class="popover-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+        <span>Portal Docente</span>
+      </a>
+      <button type="button" (click)="logout()" class="popover-item popover-logout">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal/Tarjeta de "PERFIL" (Estilo Duolingo) -->
+  <div class="duo-profile-modal-backdrop" *ngIf="isProfileModalOpen" (click)="isProfileModalOpen = false">
+    <div class="duo-profile-card" (click)="$event.stopPropagation()">
+      <div class="profile-card-header">
+        <div class="profile-avatar-big">
+          <svg width="56" height="56" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="14" fill="#9333EA"/>
+            <ellipse cx="16" cy="17.5" rx="8" ry="7.5" fill="#FED7AA"/>
+            <path d="M8.5 14C8 17 10 19 11.5 17.5C13 16 12 13 11 12C9.5 12.5 8.8 13.2 8.5 14Z" fill="#9333EA"/>
+            <circle cx="13" cy="16.5" r="1.1" fill="#451A03"/>
+            <circle cx="19" cy="16.5" r="1.1" fill="#451A03"/>
+            <path d="M13.5 19C13.5 20.8 14.6 22 16 22C17.4 22 18.5 20.8 18.5 19H13.5Z" fill="#FFFFFF"/>
+            <circle cx="23" cy="9" r="3" fill="#FF4B4B"/>
+          </svg>
+        </div>
+        <div class="profile-meta">
+          <h3>{{ user?.name }}</h3>
+          <span class="profile-role-badge">{{ user?.role === 'ADMIN_ROLE' ? 'Administrador' : (user?.role === 'TEACHER_ROLE' ? 'Profesor' : (user?.grade ? user?.grade + ' "' + (user?.section || 'A') + '"' : 'Estudiante')) }}</span>
+        </div>
+        <button type="button" class="btn-close-profile" (click)="isProfileModalOpen = false" aria-label="Cerrar">✕</button>
       </div>
-      <div class="user-meta-duo">
-        <span class="u-name" [title]="u.name">{{ u.name }}</span>
-        <span class="u-grade">{{ u.grade ? u.grade + ' "' + (u.section || 'A') + '"' : (u.role === 'TEACHER_ROLE' ? 'Profesor' : (u.role === 'ADMIN_ROLE' ? 'Administrador' : 'Estudiante')) }}</span>
+
+      <div class="profile-stats-grid">
+        <div class="profile-stat-box">
+          <span class="p-stat-val">{{ streakDays }}</span>
+          <span class="p-stat-lbl">Días de Racha</span>
+        </div>
+        <div class="profile-stat-box">
+          <span class="p-stat-val">{{ formatStat(totalXp) }}</span>
+          <span class="p-stat-lbl">Puntos XP</span>
+        </div>
+        <div class="profile-stat-box">
+          <span class="p-stat-val">{{ formatStat(coins) }}</span>
+          <span class="p-stat-lbl">Monedas</span>
+        </div>
+        <div class="profile-stat-box">
+          <span class="p-stat-val">Nivel {{ currentLevel }}</span>
+          <span class="p-stat-lbl">Rango Actual</span>
+        </div>
+      </div>
+
+      <div class="profile-actions">
+        <button (click)="logout()" class="btn-profile-logout">
+          Cerrar Sesión
+        </button>
       </div>
     </div>
-
-    <button (click)="logout()" class="duo-logout-btn" title="Cerrar sesión">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-        <polyline points="16 17 21 12 16 7"></polyline>
-        <line x1="21" y1="12" x2="9" y2="12"></line>
-      </svg>
-      <span>Salir</span>
-    </button>
   </div>
+
 </aside>

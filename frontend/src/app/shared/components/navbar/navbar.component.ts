@@ -25,6 +25,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private navSub?: Subscription;
 
   isMobileMenuOpen = false;
+  isMoreMenuOpen = false;
+  isProfileModalOpen = false;
   currentActiveItem: string = 'roadmap';
 
   ngOnInit() {
@@ -34,6 +36,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       .subscribe((event) => {
         this.updateActiveItemFromUrl(event.urlAfterRedirects || event.url);
         this.closeMobileMenu();
+        this.isMoreMenuOpen = false;
       });
   }
 
@@ -49,9 +52,29 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.isMobileMenuOpen = false;
   }
 
+  toggleMoreMenu(): void {
+    this.isMoreMenuOpen = !this.isMoreMenuOpen;
+    this.isProfileModalOpen = false;
+  }
+
+  toggleProfileModal(): void {
+    this.isProfileModalOpen = !this.isProfileModalOpen;
+    this.isMoreMenuOpen = false;
+  }
+
   @HostListener('document:keydown.escape')
   onEscape(): void {
     this.closeMobileMenu();
+    this.isMoreMenuOpen = false;
+    this.isProfileModalOpen = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.duo-more-popover') && !target.closest('.nav-item-more')) {
+      this.isMoreMenuOpen = false;
+    }
   }
 
   get user() {
@@ -66,28 +89,34 @@ export class NavbarComponent implements OnInit, OnDestroy {
         { id: 'admin', label: 'ADMINISTRADOR', route: '/admin', icon: 'admin' },
         { id: 'teacher', label: 'PORTAL DOCENTE', route: '/profesor', icon: 'teacher' },
         { id: 'roadmap', label: 'APRENDER', route: '/estudiante?tab=roadmap', icon: 'learn' },
-        { id: 'class-activity', label: 'ACTIVIDAD EN CLASE', route: '/estudiante?tab=class-activity', icon: 'activity' },
+        { id: 'class-activity', label: 'SONIDOS', route: '/estudiante?tab=class-activity', icon: 'sounds' },
         { id: 'leaderboard', label: 'LIGAS', route: '/estudiante?tab=leaderboard', icon: 'leagues' },
+        { id: 'profile', label: 'PERFIL', route: '', icon: 'profile' },
+        { id: 'more', label: 'MÁS', route: '', icon: 'more' },
       ];
     }
 
     if (role === 'TEACHER_ROLE') {
       return [
         { id: 'students', label: 'ALUMNOS', route: '/profesor?tab=students', icon: 'students' },
-        { id: 'class-activities', label: 'ACTIVIDAD EN CLASE', route: '/profesor?tab=class-activities', icon: 'activity' },
+        { id: 'class-activities', label: 'SONIDOS', route: '/profesor?tab=class-activities', icon: 'sounds' },
         { id: 'readings', label: 'CATÁLOGO', route: '/profesor?tab=readings', icon: 'readings' },
         { id: 'stages', label: 'ETAPAS', route: '/profesor?tab=stages', icon: 'stages' },
         { id: 'roadmap', label: 'MODO ALUMNO', route: '/estudiante?tab=roadmap', icon: 'learn' },
+        { id: 'profile', label: 'PERFIL', route: '', icon: 'profile' },
+        { id: 'more', label: 'MÁS', route: '', icon: 'more' },
       ];
     }
 
-    // STUDENT_ROLE
+    // STUDENT_ROLE (Exactamente los 7 ítems de la imagen de Duolingo)
     return [
       { id: 'roadmap', label: 'APRENDER', route: '/estudiante?tab=roadmap', icon: 'learn' },
-      { id: 'class-activity', label: 'ACTIVIDAD EN CLASE', route: '/estudiante?tab=class-activity', icon: 'activity' },
+      { id: 'class-activity', label: 'SONIDOS', route: '/estudiante?tab=class-activity', icon: 'sounds' },
       { id: 'leaderboard', label: 'LIGAS', route: '/estudiante?tab=leaderboard', icon: 'leagues' },
       { id: 'achievements', label: 'DESAFÍOS', route: '/estudiante?tab=achievements', icon: 'quests' },
       { id: 'rewards', label: 'TIENDA', route: '/estudiante?tab=rewards', icon: 'shop' },
+      { id: 'profile', label: 'PERFIL', route: '', icon: 'profile' },
+      { id: 'more', label: 'MÁS', route: '', icon: 'more' },
     ];
   }
 
@@ -113,13 +142,25 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.currentActiveItem = 'leaderboard';
       } else if (url.includes('tab=achievements')) {
         this.currentActiveItem = 'achievements';
-      } else {
+      } else if (url.includes('tab=roadmap')) {
         this.currentActiveItem = 'roadmap';
+      } else {
+        this.currentActiveItem = 'class-activity';
       }
     }
   }
 
-  navigateTo(item: DuoNavItem): void {
+  handleItemClick(item: DuoNavItem): void {
+    if (item.id === 'profile') {
+      this.toggleProfileModal();
+      return;
+    }
+    if (item.id === 'more') {
+      this.toggleMoreMenu();
+      return;
+    }
+    this.isMoreMenuOpen = false;
+    this.isProfileModalOpen = false;
     this.currentActiveItem = item.id;
     this.router.navigateByUrl(item.route);
     this.closeMobileMenu();

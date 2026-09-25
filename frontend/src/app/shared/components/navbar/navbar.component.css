@@ -1,14 +1,22 @@
 /* ==========================================================================
    Duolingo-Style Sidebar Navigation (Navbar)
-   Paleta: 0A58CA, FFFFFF, F0F4F8, E2E8F0, 1E293B
+   Exact replica of Duolingo dark mode sidebar with font-display: swap
    ========================================================================== */
+
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 700 900;
+  font-display: swap;
+}
 
 :host {
   display: block;
+  font-family: 'Nunito', 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* --------------------------------------------------------------------------
-   Mobile Top Bar (Shown only on viewports < 992px)
+   1. Mobile Top Bar (< 992px)
    -------------------------------------------------------------------------- */
 .mobile-top-bar {
   display: none;
@@ -17,13 +25,13 @@
   left: 0;
   right: 0;
   height: 60px;
-  background: #0f172a;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: #131f24;
+  border-bottom: 2px solid #202f36;
   padding: 0 16px;
   align-items: center;
   justify-content: space-between;
   z-index: 990;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .mobile-menu-btn {
@@ -32,59 +40,51 @@
   justify-content: center;
   width: 42px;
   height: 42px;
-  border-radius: 12px;
-  background: #1E293B;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  background: #1b2a32;
+  border: 2px solid #202f36;
   color: #FFFFFF;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .mobile-menu-btn:hover {
-  background: rgba(10, 88, 202, 0.25);
-  border-color: #0A58CA;
-  color: #38bdf8;
+  background: #243843;
+  border-color: #58cc02;
 }
 
 .mobile-brand {
   text-decoration: none;
 }
 
-.mobile-brand-title {
-  font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 1.45rem;
-  font-weight: 900;
-  color: #FFFFFF;
-  letter-spacing: -0.04em;
+.mobile-user-avatar {
+  cursor: pointer;
 }
 
 .mini-avatar {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: #0A58CA;
-  color: #FFFFFF;
+  background: #1b2a32;
+  border: 2px solid #202f36;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  font-size: 0.95rem;
   overflow: hidden;
-  border: 2px solid #334155;
+  transition: transform 0.15s ease;
 }
 
-.mini-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.mini-avatar:hover {
+  transform: scale(1.06);
 }
 
 /* Backdrop para Móvil */
 .sidebar-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.7);
+  background: rgba(0, 0, 0, 0.72);
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   z-index: 998;
   animation: fadeIn 0.2s ease forwards;
 }
@@ -95,25 +95,26 @@
 }
 
 /* --------------------------------------------------------------------------
-   Sidebar Principal Estilo Duolingo
+   2. Sidebar Principal Estilo Duolingo (Exacto a la imagen)
    -------------------------------------------------------------------------- */
 .duo-sidebar {
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
-  width: 264px;
+  width: 256px;
   height: 100vh;
   height: 100dvh;
-  background: #0f172a;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background: #131f24;
+  border-right: 2px solid #202f36;
   display: flex;
   flex-direction: column;
   z-index: 1000;
   box-sizing: border-box;
-  padding: 24px 14px 20px;
-  box-shadow: 2px 0 16px rgba(0, 0, 0, 0.25);
+  padding: 24px 16px 20px;
   transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  font-family: 'Nunito', 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  user-select: none;
 }
 
 /* Brand Box Top */
@@ -121,35 +122,23 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 6px 24px;
+  padding: 4px 12px 26px;
 }
 
 .duo-brand-link {
-  display: flex;
-  align-items: center;
-  gap: 12px;
   text-decoration: none;
-}
-
-.duo-mascot-logo {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  background: rgba(10, 88, 202, 0.22);
-  border: 2px solid #0A58CA;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  display: inline-block;
 }
 
 .duo-brand-title {
-  font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 1.65rem;
+  font-family: 'Nunito', 'Outfit', sans-serif;
+  font-size: 2.15rem;
   font-weight: 900;
-  color: #FFFFFF;
+  color: #58cc02; /* Duolingo Green */
   letter-spacing: -0.04em;
+  text-transform: lowercase;
   line-height: 1;
+  display: block;
 }
 
 .sidebar-close-btn {
@@ -163,250 +152,301 @@
 }
 
 .sidebar-close-btn:hover {
-  background: #1E293B;
+  background: #1b2a32;
   color: #FFFFFF;
 }
-
-/* Gamification Stats Strip in Sidebar */
-.duo-sidebar-stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-  padding: 0 4px 16px;
-  margin-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.duo-stat-pill {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 2px;
-  border-radius: 12px;
-  background: #1E293B;
-  border: 1px solid #334155;
-  transition: all 0.15s ease;
-}
-
-.duo-stat-pill:hover {
-  border-color: #0A58CA;
-  transform: translateY(-2px);
-}
-
-.duo-stat-pill .stat-count {
-  font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 0.74rem;
-  font-weight: 800;
-  color: #FFFFFF;
-  white-space: nowrap;
-}
-
-.duo-stat-pill.stat-streak .stat-count { color: #f59e0b; }
-.duo-stat-pill.stat-coins .stat-count { color: #38bdf8; }
-.duo-stat-pill.stat-xp .stat-count { color: #10b981; }
-.duo-stat-pill.stat-level .stat-count { color: #eab308; }
-
-/* Mobile stats row */
-.mobile-stats-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.m-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: #1E293B;
-  border: 1px solid #334155;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 800;
-  color: #FFFFFF;
-}
-
-.m-pill.streak { color: #f59e0b; }
-.m-pill.coins { color: #38bdf8; }
 
 /* Navigation List */
 .duo-nav-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   flex: 1;
   overflow-y: auto;
-  padding-right: 4px;
+  overflow-x: hidden;
+  padding-right: 2px;
 }
 
-/* Scrollbar sutil */
 .duo-nav-list::-webkit-scrollbar {
   width: 4px;
 }
 .duo-nav-list::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #202f36;
   border-radius: 4px;
 }
 
-/* Duolingo Nav Button (Tactile 3D feel) */
+/* Duolingo Nav Button (Exacto a la imagen) */
 .duo-nav-btn {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   width: 100%;
-  height: 48px;
-  padding: 0 14px;
-  border-radius: 14px;
+  height: 52px;
+  padding: 0 16px;
+  border-radius: 16px;
   background: transparent;
   border: 2px solid transparent;
-  color: #94a3b8;
-  font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 0.82rem;
+  color: #FFFFFF;
+  font-family: 'Nunito', 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 0.94rem;
   font-weight: 800;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  text-align: left;
   cursor: pointer;
-  user-select: none;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.08s ease;
+  box-sizing: border-box;
   white-space: nowrap;
+  text-align: left;
 }
 
-.duo-nav-btn:hover:not(.is-active) {
-  background: rgba(255, 255, 255, 0.06);
-  color: #FFFFFF;
+.duo-nav-btn:hover {
+  background: #1b2a32;
 }
 
-.duo-nav-btn:hover:not(.is-active) .nav-icon-box {
-  color: #FFFFFF;
-  transform: scale(1.05);
+.duo-nav-btn:active {
+  transform: scale(0.98);
 }
 
-/* Active State (Duolingo Style: Solid outline, highlighted tint) */
+/* Selected State (Exacto al botón APRENDER de la imagen) */
 .duo-nav-btn.is-active {
-  background: rgba(10, 88, 202, 0.22);
-  border: 2px solid #0A58CA;
-  color: #FFFFFF;
-  font-weight: 900;
-  box-shadow: 0 0 14px rgba(10, 88, 202, 0.25);
+  background: #152c39;
+  border: 2px solid #1cb0f6;
+  color: #1cb0f6;
 }
 
-.duo-nav-btn.is-active .nav-icon-box {
-  color: #38bdf8;
+.duo-nav-btn.is-active:hover {
+  background: #193544;
 }
 
 .nav-icon-box {
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
-  color: #94a3b8;
   flex-shrink: 0;
-  transition: transform 0.15s ease, color 0.15s ease;
 }
 
 .nav-label {
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Sidebar Footer (Usuario y Logout) */
-.duo-sidebar-footer {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  margin-top: auto;
-}
-
-.user-row-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  background: #1E293B;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-}
-
-.user-avatar-duo {
-  width: 38px;
-  height: 38px;
-  min-width: 38px;
-  border-radius: 50%;
-  background: #0A58CA;
-  color: #FFFFFF;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 0.94rem;
   font-weight: 800;
-  font-size: 0.95rem;
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(10, 88, 202, 0.3);
-}
-
-.user-avatar-duo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.user-meta-duo {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  flex: 1;
-}
-
-.u-name {
-  font-size: 0.86rem;
-  font-weight: 800;
-  color: #FFFFFF;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.u-grade {
-  font-size: 0.72rem;
-  color: #94a3b8;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.duo-logout-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  height: 40px;
-  background: #1E293B;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  color: #94a3b8;
-  font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 0.84rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.duo-logout-btn:hover {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: #ef4444;
-  color: #ef4444;
+  letter-spacing: 0.08em;
+  line-height: 1;
 }
 
 /* --------------------------------------------------------------------------
-   Responsive (Mobile Drawer)
+   3. Popover Menú "MÁS" (Estilo Tarjeta Flotante Duolingo)
+   -------------------------------------------------------------------------- */
+.duo-more-popover {
+  position: absolute;
+  left: 268px;
+  bottom: 24px;
+  width: 230px;
+  background: #1b2a32;
+  border: 2px solid #283e49;
+  border-radius: 18px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 1050;
+  animation: popoverFadeIn 0.15s ease-out;
+}
+
+@keyframes popoverFadeIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.popover-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: transparent;
+  border: none;
+  color: #FFFFFF;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.popover-item:hover {
+  background: #243843;
+}
+
+.popover-item.popover-logout {
+  color: #ef4444;
+  border-top: 1px solid #283e49;
+  margin-top: 4px;
+  padding-top: 12px;
+}
+
+.popover-item.popover-logout:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+/* --------------------------------------------------------------------------
+   4. Modal / Tarjeta de "PERFIL" (Estilo Duolingo)
+   -------------------------------------------------------------------------- */
+.duo-profile-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.18s ease;
+}
+
+.duo-profile-card {
+  width: 100%;
+  max-width: 440px;
+  background: #131f24;
+  border: 2px solid #283e49;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6);
+  color: #FFFFFF;
+  box-sizing: border-box;
+}
+
+.profile-card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.profile-avatar-big {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #1b2a32;
+  border: 2px solid #283e49;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profile-meta {
+  flex: 1;
+}
+
+.profile-meta h3 {
+  font-size: 1.3rem;
+  font-weight: 900;
+  margin: 0 0 4px;
+  color: #FFFFFF;
+}
+
+.profile-role-badge {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #1cb0f6;
+  background: rgba(28, 176, 246, 0.15);
+  border: 1px solid rgba(28, 176, 246, 0.3);
+  padding: 3px 10px;
+  border-radius: 8px;
+}
+
+.btn-close-profile {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.btn-close-profile:hover {
+  background: #1b2a32;
+  color: #FFFFFF;
+}
+
+.profile-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.profile-stat-box {
+  background: #1b2a32;
+  border: 2px solid #283e49;
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.p-stat-val {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #FFFFFF;
+}
+
+.p-stat-lbl {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+
+.profile-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-profile-logout {
+  width: 100%;
+  height: 48px;
+  background: #ef4444;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 14px;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #b91c1c;
+  transition: all 0.1s ease;
+}
+
+.btn-profile-logout:hover {
+  filter: brightness(1.08);
+}
+
+.btn-profile-logout:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #b91c1c;
+}
+
+/* --------------------------------------------------------------------------
+   5. Responsive (< 992px)
    -------------------------------------------------------------------------- */
 @media (max-width: 991px) {
   .mobile-top-bar {
@@ -415,7 +455,7 @@
 
   .duo-sidebar {
     transform: translateX(-100%);
-    box-shadow: 4px 0 24px rgba(30, 41, 59, 0.15);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
   }
 
   .duo-sidebar.is-open {
@@ -423,6 +463,12 @@
   }
 
   .sidebar-close-btn {
-    display: inline-flex;
+    display: block;
+  }
+
+  .duo-more-popover {
+    left: 16px;
+    bottom: 80px;
+    width: calc(100% - 32px);
   }
 }
