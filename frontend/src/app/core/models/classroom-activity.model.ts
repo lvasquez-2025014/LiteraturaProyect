@@ -39,6 +39,7 @@ export interface ClassroomActivity {
   teacherId: string;
   teacherName: string;
   gradeLevel?: string;
+  career?: string;
   section?: string;
   status: 'ACTIVE' | 'FINISHED' | 'DRAFT';
   submissions: ClassroomActivitySubmission[];

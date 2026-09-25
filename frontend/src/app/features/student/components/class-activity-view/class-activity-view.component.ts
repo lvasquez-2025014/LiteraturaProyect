@@ -38,6 +38,7 @@ export class ClassActivityViewComponent implements OnInit, OnDestroy {
 
   @Input() currentUserGrade?: string;
   @Input() currentUserSection?: string;
+  @Input() currentUserCareer?: string;
 
   loading = signal<boolean>(true);
   activity = signal<ClassroomActivity | null>(null);

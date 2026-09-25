@@ -52,6 +52,7 @@ export class TeacherDashboardComponent implements OnInit {
     timeLimitMinutes: 5,
     allowMic: true,
     gradeLevel: 'all',
+    career: 'all',
     section: 'all',
     questions: [
       {
@@ -79,6 +80,17 @@ export class TeacherDashboardComponent implements OnInit {
 
   get isBasicoSelected(): boolean {
     return this.selectedGrade !== 'all' && !isPeritoGrade(this.selectedGrade);
+  }
+
+  isPerito(grade?: string): boolean {
+    return isPeritoGrade(grade);
+  }
+
+  onGradeChangeForActivity() {
+    if (!this.isPerito(this.activityFormData.gradeLevel)) {
+      this.activityFormData.career = 'all';
+    }
+    this.cdr.markForCheck();
   }
 
   onGradeFilterChange() {
@@ -763,6 +775,7 @@ export class TeacherDashboardComponent implements OnInit {
       timeLimitMinutes: 5,
       allowMic: true,
       gradeLevel: 'all',
+      career: 'all',
       section: 'all',
       questions: [
         {
@@ -849,6 +862,7 @@ export class TeacherDashboardComponent implements OnInit {
       timeLimitMinutes: Number(this.activityFormData.timeLimitMinutes) || 5,
       allowMic: Boolean(this.activityFormData.allowMic),
       gradeLevel: this.activityFormData.gradeLevel,
+      career: this.isPerito(this.activityFormData.gradeLevel) ? this.activityFormData.career : 'all',
       section: this.activityFormData.section,
       questions: this.activityFormData.questions,
       status: 'ACTIVE',

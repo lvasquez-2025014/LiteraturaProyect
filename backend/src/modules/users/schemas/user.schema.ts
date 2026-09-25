@@ -34,6 +34,7 @@ export interface UserDocument {
   avatarUrl?: string;
   role: UserRole;
   grade?: string;      // ej. "5to Perito", "4to Bachillerato"
+  career?: string;     // ej. "Informática", "Dibujo", "Electrónica"
   section?: string;    // ej. "A", "B"
   stats: UserStats;
   coins?: number;                    // Monedas de Sabiduría

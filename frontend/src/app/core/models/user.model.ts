@@ -31,6 +31,7 @@ export interface User {
   role: UserRole;
   avatarUrl?: string;
   grade?: string;
+  career?: string;
   section?: string;
   stats?: UserStats;
   coins?: number;

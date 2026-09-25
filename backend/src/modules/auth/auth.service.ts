@@ -38,6 +38,7 @@ export class AuthService {
       isSuperAdmin,
       avatarUrl: user.avatarUrl,
       grade: user.grade,
+      career: user.career,
       section: user.section,
     };
 
@@ -70,6 +71,7 @@ export class AuthService {
         isSuperAdmin,
         avatarUrl: user.avatarUrl || '',
         grade: user.grade,
+        career: user.career,
         section: user.section,
         stats: isAdmin
           ? {

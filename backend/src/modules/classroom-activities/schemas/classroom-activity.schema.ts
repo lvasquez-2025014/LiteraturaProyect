@@ -41,6 +41,7 @@ export interface ClassroomActivityDocument {
   teacherId: string;
   teacherName: string;
   gradeLevel?: string; // 'all' o '1ro Básico', etc.
+  career?: string; // 'all' o 'Informática', 'Dibujo', etc.
   section?: string; // 'all' o 'A', 'B', etc.
   status: 'ACTIVE' | 'FINISHED' | 'DRAFT';
   submissions: ClassroomActivitySubmission[];

@@ -19,7 +19,7 @@ export class ClassroomActivitiesService implements OnModuleInit {
     });
   }
 
-  async findActive(grade?: string, section?: string): Promise<ClassroomActivityDocument | null> {
+  async findActive(grade?: string, section?: string, career?: string): Promise<ClassroomActivityDocument | null> {
     // Buscar actividad con status ACTIVE
     const query: any = { status: 'ACTIVE' };
     
@@ -32,9 +32,31 @@ export class ClassroomActivitiesService implements OnModuleInit {
       ];
     }
 
+    if (section && section !== 'all') {
+      query.$and = query.$and || [];
+      query.$and.push({
+        $or: [
+          { section: 'all' },
+          { section: section },
+          { section: { $exists: false } },
+        ],
+      });
+    }
+
+    if (career && career !== 'all') {
+      query.$and = query.$and || [];
+      query.$and.push({
+        $or: [
+          { career: 'all' },
+          { career: career },
+          { career: { $exists: false } },
+        ],
+      });
+    }
+
     const activity = await this.collection.findOne(query, { sort: { createdAt: -1 } });
-    if (!activity) {
-      // Fallback: buscar la más reciente activa sin importar filtros
+    if (!activity && (!grade || grade === 'all')) {
+      // Fallback: buscar la más reciente activa solo si no se filtró por un grado específico
       return this.collection.findOne({ status: 'ACTIVE' }, { sort: { createdAt: -1 } });
     }
     return activity;
@@ -79,6 +101,7 @@ export class ClassroomActivitiesService implements OnModuleInit {
       teacherId,
       teacherName: teacherName || 'Profesor de Literatura',
       gradeLevel: data.gradeLevel || 'all',
+      career: data.career || 'all',
       section: data.section || 'all',
       status: data.status || 'ACTIVE',
       submissions: [],

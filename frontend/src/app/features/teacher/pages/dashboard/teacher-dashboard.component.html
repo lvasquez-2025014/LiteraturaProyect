@@ -432,6 +432,10 @@
               <p class="reading-assigned-name">Lectura: <strong>{{ activeAct.readingTitle }}</strong> ({{ activeAct.wordCount }} palabras)</p>
             </div>
             <div class="act-detail-pills">
+              <span class="pill-spec" *ngIf="activeAct.gradeLevel && activeAct.gradeLevel !== 'all'">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align: -2px; margin-right: 4px;"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                {{ activeAct.gradeLevel }}{{ activeAct.career && activeAct.career !== 'all' ? ' (' + activeAct.career + ')' : '' }}{{ activeAct.section && activeAct.section !== 'all' ? ' · Sec ' + activeAct.section : '' }}
+              </span>
               <span class="pill-spec">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align: -2px; margin-right: 4px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 Límite: {{ activeAct.timeLimitMinutes }} min
@@ -538,6 +542,9 @@
               <h4 class="hist-title">{{ a.title }}</h4>
               <p class="hist-reading">Lectura: {{ a.readingTitle }}</p>
               <div class="hist-meta-row">
+                <span *ngIf="a.gradeLevel && a.gradeLevel !== 'all'">
+                  {{ a.gradeLevel }}{{ a.career && a.career !== 'all' ? ' (' + a.career + ')' : '' }}
+                </span>
                 <span>{{ a.timeLimitMinutes }} min</span>
                 <span>{{ a.allowMic ? 'Micrófono' : 'Silenciosa' }}</span>
                 <span>{{ a.submissions.length }} entregas</span>
@@ -1034,9 +1041,17 @@
           <div class="form-row">
             <div class="form-group flex-1">
               <label>Grado Objetivo</label>
-              <select [(ngModel)]="activityFormData.gradeLevel" name="actGrade" class="form-input form-select-custom">
+              <select [(ngModel)]="activityFormData.gradeLevel" name="actGrade" class="form-input form-select-custom" (change)="onGradeChangeForActivity()">
                 <option value="all">Todos los Grados</option>
                 <option *ngFor="let g of gradeLevels" [value]="g">{{ g }}</option>
+              </select>
+            </div>
+
+            <div class="form-group flex-1" *ngIf="isPerito(activityFormData.gradeLevel)">
+              <label>Carrera Técnica (Perito) *</label>
+              <select [(ngModel)]="activityFormData.career" name="actCareer" class="form-input form-select-custom">
+                <option value="all">Todas las Carreras</option>
+                <option *ngFor="let c of careers" [value]="c">{{ c }}</option>
               </select>
             </div>
 
