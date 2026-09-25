@@ -1,14 +1,4 @@
-import {
-  Component,
-  Input,
-  Output,
-  EventEmitter,
-  inject,
-  signal,
-  OnInit,
-  OnChanges,
-  SimpleChanges,
-} from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject, signal, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Reading, RoadmapStage } from '../../../../core/models/reading.model';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -31,11 +21,6 @@ export class ReadingRoadmapComponent implements OnInit, OnChanges {
 
   selectedStageId = signal<number>(1);
   viewMode = signal<'stage' | 'all'>('stage');
-  showStageGuide = signal<boolean>(false);
-
-  toggleStageGuide(): void {
-    this.showStageGuide.update((v) => !v);
-  }
 
   get stages(): RoadmapStage[] {
     return this.stagesService.stagesSignal();
@@ -91,29 +76,11 @@ export class ReadingRoadmapComponent implements OnInit, OnChanges {
     this.selectedStageId.set(stageId);
   }
 
-  prevStage(): void {
-    if (this.selectedStageId() > 1) {
-      this.selectedStageId.update((id) => id - 1);
-    }
-  }
-
-  nextStage(): void {
-    if (this.selectedStageId() < this.stages.length) {
-      this.selectedStageId.update((id) => id + 1);
-    }
-  }
-
   setViewMode(mode: 'stage' | 'all'): void {
     this.viewMode.set(mode);
   }
 
-  getStageProgress(stage: RoadmapStage): {
-    completed: number;
-    total: number;
-    percentage: number;
-    isUnlocked: boolean;
-    isCompleted: boolean;
-  } {
+  getStageProgress(stage: RoadmapStage): { completed: number; total: number; percentage: number; isUnlocked: boolean; isCompleted: boolean } {
     if (this.isAdmin) {
       return {
         completed: stage.totalLevels,
@@ -150,7 +117,7 @@ export class ReadingRoadmapComponent implements OnInit, OnChanges {
 
   isCurrent(reading: Reading): boolean {
     if (this.isAdmin) {
-      return reading.level === this.activeStage.startLevel;
+      return false;
     }
     return reading.level === this.currentLevel;
   }
@@ -162,17 +129,9 @@ export class ReadingRoadmapComponent implements OnInit, OnChanges {
     return !this.isCompleted(reading) && !this.isCurrent(reading);
   }
 
-  getNodeXOffset(index: number): number {
-    const offsets = [0, -45, -35, 35, 45, 0, -40, 40];
-    return offsets[index % offsets.length];
-  }
-
-  isChestNode(index: number): boolean {
-    return index > 0 && (index === 2 || index % 5 === 2);
-  }
-
-  isHeadphonesNode(index: number): boolean {
-    return index > 0 && (index === 3 || index % 5 === 4);
+  getAlignmentClass(index: number): string {
+    const alignments = ['align-left', 'align-center', 'align-right', 'align-center'];
+    return alignments[index % alignments.length];
   }
 
   onNodeClick(reading: Reading): void {

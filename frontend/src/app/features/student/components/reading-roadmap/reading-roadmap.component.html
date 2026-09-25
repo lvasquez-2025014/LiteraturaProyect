@@ -1,208 +1,346 @@
-<div class="duo-roadmap-wrapper">
+<div class="roadmap-wrapper">
+  <!-- Ambient glow -->
+  <div class="ambient-glow glow-blue"></div>
+  <div class="ambient-glow glow-orange"></div>
 
-  <!-- 5-Stage Top Stepper / Selector -->
-  <div class="duo-stages-selector">
-    <div class="stages-pills-scroll">
-      <button 
-        *ngFor="let stage of stages"
-        type="button"
-        class="stage-pill-btn"
-        [class.is-selected]="selectedStageId() === stage.id && viewMode() === 'stage'"
-        [class.is-completed]="getStageProgress(stage).isCompleted"
-        (click)="setStage(stage.id)">
-        <span class="stage-num">Etapa {{ stage.id }}</span>
-        <span class="stage-dot" *ngIf="getStageProgress(stage).isCompleted">✓</span>
-      </button>
+  <!-- Header -->
+  <div class="roadmap-header">
+    <div class="header-main">
+      <div class="header-pill">
+        <span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+          </svg>
+        </span>
+        <span>Ruta Pedagógica de Fluidez · 5 Etapas de Maestría</span>
+      </div>
+      <h2 class="roadmap-title">Mapa de Desafíos Literarios</h2>
+      <p class="roadmap-sub">
+        Avanza nodo a nodo a través de las 5 etapas temáticas para fortalecer tu velocidad lectora, comprensión crítica y coronar la Cúspide de la Lectura.
+      </p>
+    </div>
 
-      <button 
-        type="button" 
-        class="stage-pill-btn toggle-all-btn"
-        [class.is-selected]="viewMode() === 'all'"
-        (click)="setViewMode(viewMode() === 'all' ? 'stage' : 'all')">
-        <span>{{ viewMode() === 'all' ? 'Ver por Etapa' : 'Ver Todas (38)' }}</span>
-      </button>
+    <!-- Legend -->
+    <div class="legend-box">
+      <div class="legend-item">
+        <span class="legend-dot dot-completed"></span>
+        <span>Completado</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot dot-active"></span>
+        <span>Activo</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot dot-locked"></span>
+        <span>Bloqueado</span>
+      </div>
     </div>
   </div>
 
-  <!-- Header Unit Banner (Estilo Duolingo: Tarjeta curva azul con Guía) -->
-  <div class="duo-unit-banner">
-    <div class="unit-banner-left">
-      <div class="unit-subtitle-row">
-        <button *ngIf="selectedStageId() > 1 && viewMode() === 'stage'" (click)="prevStage()" class="btn-stage-arrow" title="Etapa anterior">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+  <!-- 5-Stage Stepper / Navigator -->
+  <div class="stages-navigator">
+    <div class="stages-header-row">
+      <h3 class="stages-nav-title">Selecciona una Etapa Literaria:</h3>
+      <div class="view-mode-toggle">
+        <button 
+          (click)="setViewMode('stage')" 
+          class="toggle-btn" 
+          [class.toggle-active]="viewMode() === 'stage'">
+          <span>Ver por Etapa</span>
         </button>
-        <span class="unit-badge">ETAPA {{ activeStage.id }}, SECCIÓN {{ activeStage.id }}</span>
-        <button *ngIf="selectedStageId() < stages.length && viewMode() === 'stage'" (click)="nextStage()" class="btn-stage-arrow" title="Siguiente etapa">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
-      </div>
-
-      <h1 class="unit-title">{{ activeStage.title }}</h1>
-      <p class="unit-desc">{{ activeStage.description || 'Lecturas guiadas para fortalecer comprensión crítica y velocidad.' }}</p>
-    </div>
-
-    <div class="unit-banner-right">
-      <button type="button" class="btn-duo-guide" (click)="toggleStageGuide()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
-          <line x1="9" y1="9" x2="15" y2="9"/>
-          <line x1="9" y1="13" x2="13" y2="13"/>
-        </svg>
-        <span>GUÍA</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- Camino Sinuoso de Nodos 3D (Winding Stepping Stones Path) -->
-  <div class="duo-path-container">
-    
-    <div *ngFor="let reading of displayedReadings; let i = index" class="duo-step-row" [style.transform]="'translateX(' + getNodeXOffset(i) + 'px)'">
-      
-      <!-- Conector vertical punteado de stepping stones hacia el siguiente nodo -->
-      <div 
-        *ngIf="i < displayedReadings.length - 1" 
-        class="duo-path-connector"
-        [class.is-completed]="isCompleted(reading)">
-        <span class="path-step-dot"></span>
-        <span class="path-step-dot"></span>
-        <span class="path-step-dot"></span>
-      </div>
-
-      <!-- Globo Bouncing "EMPEZAR" encima del nivel activo -->
-      <div *ngIf="isCurrent(reading)" class="duo-bubble-start">
-        <span>EMPEZAR</span>
-        <div class="bubble-arrow"></div>
-      </div>
-
-      <!-- Mascota Guía parada al lado del nodo activo (Estilo Duo Búho) -->
-      <div 
-        *ngIf="isCurrent(reading)" 
-        class="duo-mascot-companion"
-        [class.pos-right]="getNodeXOffset(i) <= 0"
-        [class.pos-left]="getNodeXOffset(i) > 0">
-        
-        <svg width="78" height="78" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Cuerpo suave azul y ojos amigables -->
-          <ellipse cx="50" cy="54" rx="36" ry="38" fill="#0A58CA"/>
-          <!-- Vientre crema -->
-          <ellipse cx="50" cy="62" rx="24" ry="24" fill="#F0F4F8"/>
-          <!-- Ojo izquierdo -->
-          <circle cx="37" cy="42" r="14" fill="#FFFFFF"/>
-          <circle cx="39" cy="42" r="7" fill="#1E293B"/>
-          <circle cx="41" cy="39" r="2.5" fill="#FFFFFF"/>
-          <!-- Ojo derecho -->
-          <circle cx="63" cy="42" r="14" fill="#FFFFFF"/>
-          <circle cx="61" cy="42" r="7" fill="#1E293B"/>
-          <circle cx="63" cy="39" r="2.5" fill="#FFFFFF"/>
-          <!-- Pico dorado -->
-          <polygon points="50,47 44,56 56,56" fill="#f59e0b"/>
-          <!-- Libro en brazos -->
-          <path d="M30 72 Q50 68 70 72 L70 86 Q50 82 30 86 Z" fill="#FFFFFF" stroke="#084298" stroke-width="2.5"/>
-          <line x1="50" y1="70" x2="50" y2="84" stroke="#084298" stroke-width="2"/>
-          <!-- Patitas doradas -->
-          <ellipse cx="38" cy="90" rx="8" ry="4" fill="#f59e0b"/>
-          <ellipse cx="62" cy="90" rx="8" ry="4" fill="#f59e0b"/>
-        </svg>
-      </div>
-
-      <!-- Botón Circular 3D (Tactile Game Node) -->
-      <button 
-        type="button"
-        class="duo-node-btn"
-        [class.is-current]="isCurrent(reading)"
-        [class.is-completed]="isCompleted(reading)"
-        [class.is-locked]="isLocked(reading)"
-        [class.is-chest]="isChestNode(i) && !isCompleted(reading)"
-        [class.is-headphones]="isHeadphonesNode(i) && !isCompleted(reading)"
-        (click)="onNodeClick(reading)"
-        [attr.aria-label]="'Nivel ' + reading.level + ': ' + reading.title">
-        
-        <div class="duo-node-inner">
-          
-          <!-- Si es nodo completado: Checkmark dorado o estrella -->
-          <svg *ngIf="isCompleted(reading)" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-
-          <!-- Si es nodo actual: Estrella blanca radiante -->
-          <svg *ngIf="isCurrent(reading)" width="32" height="32" viewBox="0 0 24 24" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="1">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-          </svg>
-
-          <!-- Si es nodo de Cofre pendiente -->
-          <svg *ngIf="!isCompleted(reading) && !isCurrent(reading) && isChestNode(i)" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 12V8H4v4"/>
-            <path d="M2 12h20v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8z"/>
-            <path d="M12 15v3"/>
-          </svg>
-
-          <!-- Si es nodo de Audífonos/Micrófono -->
-          <svg *ngIf="!isCompleted(reading) && !isCurrent(reading) && isHeadphonesNode(i)" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/>
-          </svg>
-
-          <!-- Si es nodo bloqueado estándar: Candado -->
-          <svg *ngIf="isLocked(reading) && !isChestNode(i) && !isHeadphonesNode(i)" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-          </svg>
-
-        </div>
-        
-        <!-- Halo pulsante para el nodo en curso -->
-        <div *ngIf="isCurrent(reading)" class="duo-pulse-ring"></div>
-      </button>
-
-      <!-- Etiqueta debajo del nodo con Nivel y Título -->
-      <div class="duo-node-meta-box">
-        <span class="duo-node-level-tag">Nivel {{ reading.level }}</span>
-        <span class="duo-node-title-tag" [title]="reading.title">{{ reading.title }}</span>
-      </div>
-
-    </div>
-
-    <!-- Hito Final de Etapa: Trofeo Dorado -->
-    <div class="duo-step-row stage-trophy-row">
-      <div class="duo-trophy-btn" [class.is-achieved]="getStageProgress(activeStage).isCompleted">
-        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
-          <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
-          <path d="M4 22h16"/>
-          <path d="M10 14.66V17c0 .55-.45 1-1 1H7v4h10v-4h-2c-.55 0-1-.45-1-1v-2.34c3.08-.62 5-3.32 5-6.66V4H6v4c0 3.34 1.92 6.04 5 6.66Z"/>
-        </svg>
-      </div>
-      <span class="trophy-label">Meta de Etapa {{ activeStage.id }}</span>
-    </div>
-
-  </div>
-
-  <!-- Modal Guía Pedagógica de Etapa -->
-  <div class="duo-guide-backdrop" *ngIf="showStageGuide()" (click)="toggleStageGuide()">
-    <div class="duo-guide-card" (click)="$event.stopPropagation()">
-      <div class="guide-header">
-        <h2>Guía Pedagógica · Etapa {{ activeStage.id }}</h2>
-        <button type="button" class="popover-close-btn" (click)="toggleStageGuide()" aria-label="Cerrar guía">✕</button>
-      </div>
-      <h3 class="guide-stage-title">{{ activeStage.title }}</h3>
-      <p class="guide-stage-desc">{{ activeStage.description || 'Lecturas guiadas para entrenar velocidad oral y comprensión lectora.' }}</p>
-      
-      <div class="guide-metrics-row">
-        <div class="guide-stat">
-          <strong>Niveles {{ activeStage.startLevel }} al {{ activeStage.endLevel }}</strong>
-          <span>Secuencia curricular</span>
-        </div>
-        <div class="guide-stat">
-          <strong>{{ getStageProgress(activeStage).completed }} / {{ activeStage.totalLevels }}</strong>
-          <span>Lecturas superadas</span>
-        </div>
-      </div>
-
-      <div class="guide-footer">
-        <button type="button" class="btn-duo-cta" (click)="toggleStageGuide()">
-          <span>¡ENTENDIDO!</span>
+        <button 
+          (click)="setViewMode('all')" 
+          class="toggle-btn" 
+          [class.toggle-active]="viewMode() === 'all'">
+          <span>Ruta Completa (38 Retos)</span>
         </button>
       </div>
     </div>
+
+    <div class="stages-tabs-grid">
+      <button 
+        *ngFor="let stage of stages" 
+        (click)="setStage(stage.id)" 
+        class="stage-tab-card"
+        [class.tab-active]="selectedStageId() === stage.id && viewMode() === 'stage'"
+        [class.stage-completed]="getStageProgress(stage).isCompleted"
+        [class.stage-locked]="!getStageProgress(stage).isUnlocked">
+        
+        <div class="stage-tab-top">
+          <span class="stage-badge-tag">ETAPA {{ stage.id }}</span>
+          <span class="stage-levels-tag">Niveles {{ stage.startLevel }} - {{ stage.endLevel }}</span>
+        </div>
+
+        <div class="stage-tab-name">{{ stage.title.split(':')[1]?.trim() || stage.title }}</div>
+
+        <div class="stage-tab-progress-wrap">
+          <div class="stage-mini-bar">
+            <div class="stage-mini-fill" [style.width.%]="getStageProgress(stage).percentage"></div>
+          </div>
+          <div class="stage-tab-stats">
+            <span class="stage-ratio">{{ getStageProgress(stage).completed }} / {{ stage.totalLevels }} retos</span>
+            <span class="stage-pct" *ngIf="getStageProgress(stage).isCompleted">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px;"><polyline points="20 6 9 17 4 12"/></svg> 100%
+            </span>
+            <span class="stage-pct" *ngIf="!getStageProgress(stage).isCompleted">
+              {{ getStageProgress(stage).percentage }}%
+            </span>
+          </div>
+        </div>
+
+      </button>
+    </div>
   </div>
 
+  <!-- Active Stage Focus Banner (when in 'stage' view mode) -->
+  <div *ngIf="viewMode() === 'stage'" class="stage-overview-card">
+    <div class="stage-overview-header">
+      <div>
+        <div class="overview-pill">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span>{{ activeStage.subtitle }}</span>
+        </div>
+        <h3 class="overview-title">{{ activeStage.title }}</h3>
+        <p class="overview-desc">{{ activeStage.description }}</p>
+      </div>
+
+      <div class="stage-reward-box">
+        <span class="reward-box-label">Premio de Etapa:</span>
+        <div class="reward-box-pills">
+          <span class="box-pill-xp">+{{ activeStage.rewardXp }} XP</span>
+          <span class="box-pill-coins">+{{ activeStage.rewardCoins }} <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px;"><circle cx="12" cy="12" r="10"/></svg></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dynamic Node Network & Interconnected Roadmap Path -->
+  <div class="roadmap-path">
+
+    <!-- Card Template -->
+    <ng-template #cardTemplate let-reading="reading">
+      <div class="node-card" 
+        [class.card-current]="isCurrent(reading)"
+        [class.card-completed]="isCompleted(reading)"
+        [class.card-locked]="isLocked(reading)">
+        
+        <!-- Active Badge -->
+        <div *ngIf="isCurrent(reading)" class="current-badge">
+          <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+          <span>¡Tu siguiente reto!</span>
+        </div>
+
+        <div class="node-content">
+          <!-- Header Level and Genre -->
+          <div class="node-details">
+            <div class="level-meta">
+              <span class="level-tag">NIVEL {{ reading.level }}</span>
+              <span class="meta-separator">•</span>
+              <span class="genre-pill"
+                [class.pill-current]="isCurrent(reading)"
+                [class.pill-completed]="isCompleted(reading)"
+                [class.pill-locked]="isLocked(reading)">
+                {{ reading.genre }}
+              </span>
+              <span *ngIf="reading.difficulty" class="difficulty-tag">
+                {{ reading.difficulty }}
+              </span>
+            </div>
+
+            <h3 class="reading-title">{{ reading.title }}</h3>
+
+            <!-- Fuente Acreditada de Comprensión Lectora -->
+            <div *ngIf="reading.pedagogicalSource" class="pedagogical-source-badge">
+              <span class="source-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9h1"/><path d="M9 13h1"/><path d="M9 17h1"/></svg></span>
+              <span class="source-text">{{ reading.pedagogicalSource }}</span>
+            </div>
+
+            <!-- Metas de Lectura y Recompensa -->
+            <div class="reading-meta">
+              <span class="meta-goal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 
+                Meta: <strong>{{ reading.targetWpm }} PPM</strong>
+              </span>
+              <span class="meta-separator">•</span>
+              <span class="meta-xp">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> 
+                +{{ reading.xpReward }} XP
+              </span>
+              <span class="meta-separator">•</span>
+              <span class="meta-words">
+                {{ reading.wordCount }} palabras
+              </span>
+            </div>
+
+            <!-- Competencias Pedagógicas -->
+            <div *ngIf="reading.competencies && reading.competencies.length" class="competencies-row">
+              <span *ngFor="let comp of reading.competencies" class="comp-badge">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px;"><polyline points="20 6 9 17 4 12"/></svg> 
+                {{ comp }}
+              </span>
+            </div>
+
+            <!-- Best Score if Completed -->
+            <div *ngIf="isCompleted(reading) && reading.bestWpm" class="completed-stats">
+              <span class="best-wpm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px;"><polyline points="20 6 9 17 4 12"/></svg> 
+                Récord: {{ reading.bestWpm }} PPM
+              </span>
+              <span class="best-comp">Comprensión: {{ reading.bestComprehension || 100 }}%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="node-action">
+          <!-- Current Level (Active Blue CTA) -->
+          <button *ngIf="isCurrent(reading)" (click)="onNodeClick(reading)" class="btn-start">
+            <span>Comenzar Reto en Vivo</span>
+            <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+          </button>
+
+          <!-- Completed Level (Replay Gold Button) -->
+          <button *ngIf="isCompleted(reading)" (click)="onNodeClick(reading)" class="btn-replay">
+            <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
+            <span>{{ isAdmin ? 'Explorar y Practicar' : 'Releer y Mejorar' }}</span>
+          </button>
+
+          <!-- Locked Level (Locked Notice - clickable for Admin testing) -->
+          <div *ngIf="isLocked(reading)" (click)="onNodeClick(reading)" class="locked-notice" [class.admin-test-allowed]="isAdmin" [attr.title]="isAdmin ? 'Clic para probar este nivel (Admin)' : null">
+            <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+            <span>Requiere superar Nivel {{ reading.level - 1 }}</span>
+          </div>
+        </div>
+
+      </div>
+    </ng-template>
+
+    <!-- Continuous Adventure Timeline & Journey Path -->
+    <div class="roadmap-timeline">
+      <div *ngFor="let reading of displayedReadings; let i = index" 
+        class="timeline-checkpoint"
+        [class.checkpoint-current]="isCurrent(reading)"
+        [class.checkpoint-completed]="isCompleted(reading)"
+        [class.checkpoint-locked]="isLocked(reading)">
+
+        <!-- Left Spine Track: Waypoint Medallion + Continuous Trail Line -->
+        <div class="spine-column">
+          <!-- Waypoint Medallion Node -->
+          <div class="waypoint-medallion"
+            (click)="onNodeClick(reading)"
+            [class.medallion-completed]="isCompleted(reading)"
+            [class.medallion-current]="isCurrent(reading)"
+            [class.medallion-locked]="isLocked(reading)"
+            [attr.title]="'Nivel ' + reading.level + ': ' + reading.title">
+            
+            <div class="medallion-inner">
+              <span class="medallion-num">{{ reading.level }}</span>
+              <div class="medallion-status-icon">
+                <!-- Completed Icon -->
+                <svg *ngIf="isCompleted(reading)" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <!-- Current Play Icon -->
+                <svg *ngIf="isCurrent(reading)" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="6 4 20 12 6 20 6 4"/>
+                </svg>
+                <!-- Locked Padlock Icon -->
+                <svg *ngIf="isLocked(reading)" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Pulsing halo for active node -->
+            <div *ngIf="isCurrent(reading)" class="medallion-pulse-halo"></div>
+          </div>
+
+          <!-- Trail Line to Next Level -->
+          <div *ngIf="i < displayedReadings.length - 1" 
+            class="trail-line"
+            [class.trail-completed]="isCompleted(reading)"
+            [class.trail-active]="isCurrent(reading)"
+            [class.trail-locked]="isLocked(reading)">
+            <span class="trail-pip pip-1"></span>
+            <span class="trail-pip pip-2"></span>
+          </div>
+
+          <!-- Trail Line from last level to Stage Milestone -->
+          <div *ngIf="i === displayedReadings.length - 1"
+            class="trail-line trail-to-milestone"
+            [class.trail-completed]="getStageProgress(activeStage).isCompleted"
+            [class.trail-active]="!getStageProgress(activeStage).isCompleted && isCompleted(reading)"
+            [class.trail-locked]="!isCompleted(reading)">
+            <span class="trail-pip pip-1"></span>
+            <span class="trail-pip pip-2"></span>
+          </div>
+        </div>
+
+        <!-- Horizontal Bridge Arm directly linking Medallion to Challenge Card -->
+        <div class="bridge-arm"
+          [class.bridge-completed]="isCompleted(reading)"
+          [class.bridge-current]="isCurrent(reading)"
+          [class.bridge-locked]="isLocked(reading)">
+        </div>
+
+        <!-- Right Column: Challenge Card -->
+        <div class="card-column">
+          <ng-container *ngTemplateOutlet="cardTemplate; context: { reading: reading }"></ng-container>
+        </div>
+      </div>
+
+      <!-- Stage Milestone Destination Checkpoint (Grand Chest) -->
+      <div class="timeline-checkpoint milestone-checkpoint">
+        <div class="spine-column">
+          <div class="waypoint-medallion milestone-medallion"
+            [class.medallion-completed]="getStageProgress(activeStage).isCompleted"
+            [class.medallion-locked]="!getStageProgress(activeStage).isCompleted">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 12 20 22 4 22 4 12"/>
+              <rect x="2" y="7" width="20" height="5"/>
+              <line x1="12" y1="22" x2="12" y2="7"/>
+              <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+              <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="bridge-arm" [class.bridge-completed]="getStageProgress(activeStage).isCompleted"></div>
+
+        <div class="card-column">
+          <div class="stage-milestone-card" [class.milestone-unlocked]="getStageProgress(activeStage).isCompleted">
+            <div class="milestone-icon-box">
+              <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 12 20 22 4 22 4 12"/>
+                <rect x="2" y="7" width="20" height="5"/>
+                <line x1="12" y1="22" x2="12" y2="7"/>
+                <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+                <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+              </svg>
+            </div>
+
+            <div class="milestone-info">
+              <div class="milestone-badge">HITO DE ETAPA</div>
+              <h4 class="milestone-title">{{ activeStage.milestoneTitle }}</h4>
+              <p class="milestone-desc">
+                {{ getStageProgress(activeStage).isCompleted ? '¡Has superado con éxito todos los desafíos de esta etapa pedagógica!' : 'Completa todos los retos de esta etapa para desbloquear la insignia y el gran cofre de recompensas.' }}
+              </p>
+            </div>
+
+            <div class="milestone-status">
+              <span *ngIf="getStageProgress(activeStage).isCompleted" class="milestone-pill-done">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                ¡Etapa Superada!
+              </span>
+              <span *ngIf="!getStageProgress(activeStage).isCompleted" class="milestone-pill-pending">
+                En Progreso ({{ getStageProgress(activeStage).completed }}/{{ activeStage.totalLevels }})
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>

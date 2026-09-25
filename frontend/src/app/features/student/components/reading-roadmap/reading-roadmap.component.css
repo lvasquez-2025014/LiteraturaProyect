@@ -1,786 +1,1377 @@
 /* ==========================================================================
-   Duolingo-Style Learning Path (Mapa de Actividades)
-   Paleta: 0A58CA, FFFFFF, F0F4F8, E2E8F0, 1E293B
+   Reading Roadmap Component (Fundación Kinal - 5 Etapas Gamificadas con Nodos)
    ========================================================================== */
 
-:host {
-  display: block;
-}
-
-.duo-roadmap-wrapper {
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 10px 16px 80px;
+.roadmap-wrapper {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 36px 32px;
+  box-shadow: 0 10px 30px -5px rgba(0, 74, 173, 0.07);
+  border: 1px solid rgba(0, 74, 173, 0.1);
   position: relative;
+  overflow: hidden;
 }
 
-/* --------------------------------------------------------------------------
-   1. Stage Selector Pills (Top)
-   -------------------------------------------------------------------------- */
-.duo-stages-selector {
-  margin-bottom: 20px;
+/* Subtle Ambient Glows */
+.ambient-glow {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  opacity: 0.5;
 }
 
-.stages-pills-scroll {
+.glow-blue {
+  top: 20%;
+  right: -100px;
+  background: rgba(0, 74, 173, 0.06);
+}
+
+.glow-orange {
+  bottom: 20%;
+  left: -100px;
+  background: rgba(243, 111, 33, 0.05);
+}
+
+/* Header */
+.roadmap-header {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  overflow-x: auto;
-  padding: 4px 2px 10px;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #f1f5f9;
+  flex-wrap: wrap;
 }
 
-.stages-pills-scroll::-webkit-scrollbar {
-  height: 4px;
-}
-.stages-pills-scroll::-webkit-scrollbar-thumb {
-  background: #E2E8F0;
-  border-radius: 4px;
+.header-main {
+  max-width: 650px;
 }
 
-.stage-pill-btn {
+.header-pill {
   display: inline-flex;
   align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  background: var(--kinal-light-blue);
+  color: var(--kinal-blue);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.roadmap-title {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--kinal-dark-blue);
+  margin: 0 0 6px 0;
+  letter-spacing: -0.02em;
+}
+
+.roadmap-sub {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Legend */
+.legend-box {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
   gap: 6px;
-  height: 38px;
-  padding: 0 16px;
-  background: #1E293B;
-  border: 2px solid #334155;
-  border-radius: 12px;
-  color: #94a3b8;
-  font-family: var(--font-heading, 'Outfit', sans-serif);
+  color: #475569;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.dot-completed { background: #f59e0b; }
+.dot-active { background: var(--kinal-blue); box-shadow: 0 0 0 3px rgba(0, 74, 173, 0.2); }
+.dot-locked { background: #cbd5e1; }
+
+/* ==========================================================================
+   5 Stages Stepper / Navigator
+   ========================================================================== */
+.stages-navigator {
+  margin-top: 28px;
+  padding: 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+}
+
+.stages-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.stages-nav-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--kinal-dark-blue);
+  margin: 0;
+}
+
+.view-mode-toggle {
+  display: flex;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.toggle-btn {
+  border: none;
+  background: transparent;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggle-btn.toggle-active {
+  background: var(--kinal-blue);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 74, 173, 0.25);
+}
+
+.stages-tabs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.stage-tab-card {
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 12px 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stage-tab-card:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.stage-tab-card.tab-active {
+  border-color: var(--kinal-blue);
+  background: #ffffff;
+  box-shadow: 0 6px 16px rgba(0, 74, 173, 0.15);
+  transform: scale(1.02);
+}
+
+.stage-tab-card.stage-completed {
+  border-color: #fde68a;
+  background: #fffdf8;
+}
+
+.stage-tab-card.stage-completed.tab-active {
+  border-color: #d97706;
+  box-shadow: 0 6px 16px rgba(217, 119, 6, 0.2);
+}
+
+.stage-tab-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stage-badge-tag {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--kinal-blue);
+  letter-spacing: 0.04em;
+}
+
+.stage-levels-tag {
+  font-size: 0.68rem;
+  color: #64748b;
+  font-weight: 600;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.stage-tab-name {
   font-size: 0.85rem;
   font-weight: 700;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  user-select: none;
+  color: #1e293b;
+  line-height: 1.3;
+  min-height: 34px;
 }
 
-.stage-pill-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: #0A58CA;
-  color: #FFFFFF;
+.stage-tab-progress-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.stage-pill-btn.is-selected {
-  background: #0A58CA;
-  border-color: #0A58CA;
-  color: #FFFFFF;
-  box-shadow: 0 4px 14px rgba(10, 88, 202, 0.35);
+.stage-mini-bar {
+  width: 100%;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
 }
 
-.stage-pill-btn.is-completed:not(.is-selected) {
-  border-color: #10b981;
+.stage-mini-fill {
+  height: 100%;
+  background: var(--kinal-blue);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.stage-completed .stage-mini-fill {
+  background: #f59e0b;
+}
+
+.stage-tab-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.stage-pct {
+  color: var(--kinal-blue);
+  font-weight: 700;
+}
+
+.stage-completed .stage-pct {
   color: #10b981;
 }
 
-.stage-dot {
-  font-size: 0.8rem;
-  font-weight: 900;
+/* Stage Focus Overview Banner */
+.stage-overview-card {
+  margin-top: 24px;
+  background: #ffffff;
+  border: 1.5px solid rgba(0, 74, 173, 0.15);
+  border-left: 6px solid var(--kinal-blue);
+  border-radius: 16px;
+  padding: 18px 24px;
+  box-shadow: 0 4px 14px rgba(0, 74, 173, 0.06);
 }
 
-.toggle-all-btn {
-  margin-left: auto;
-  background: #1E293B;
-  border-color: #334155;
-  color: #94a3b8;
-}
-
-/* --------------------------------------------------------------------------
-   2. Unit Header Banner (Estilo Duolingo: Tarjeta azul vibrante con Guía)
-   -------------------------------------------------------------------------- */
-.duo-unit-banner {
-  background: #0A58CA;
-  border-radius: 20px;
-  padding: 24px 28px;
-  color: #FFFFFF;
+.stage-overview-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  box-shadow: 0 6px 0 #052c65, 0 12px 28px rgba(10, 88, 202, 0.32);
-  margin-bottom: 48px;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Patrón sutil decorativo */
-.duo-unit-banner::after {
-  content: '';
-  position: absolute;
-  top: -30px;
-  right: -30px;
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  pointer-events: none;
-}
-
-.unit-banner-left {
-  flex: 1;
-  min-width: 0;
-}
-
-.unit-subtitle-row {
-  display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.overview-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--kinal-light-blue);
+  color: var(--kinal-blue);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
   margin-bottom: 6px;
 }
 
-.btn-stage-arrow {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: #FFFFFF;
-  width: 28px;
-  height: 28px;
+.overview-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--kinal-dark-blue);
+  margin: 0 0 4px 0;
+}
+
+.overview-desc {
+  font-size: 0.85rem;
+  color: #475569;
+  margin: 0;
+  max-width: 600px;
+  line-height: 1.45;
+}
+
+.stage-reward-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.reward-box-label {
+  font-size: 0.74rem;
+  color: #64748b;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.reward-box-pills {
+  display: flex;
+  gap: 8px;
+}
+
+.box-pill-xp {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  padding: 4px 10px;
   border-radius: 8px;
+  font-weight: 800;
+  font-size: 0.8rem;
+}
+
+.box-pill-coins {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 0.8rem;
   display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ==========================================================================
+   Continuous Adventure Timeline & Journey Path
+   ========================================================================== */
+.roadmap-path {
+  padding: 36px 0 30px 0;
+  max-width: 840px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.roadmap-timeline {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.timeline-checkpoint {
+  display: grid;
+  grid-template-columns: 60px 24px minmax(0, 1fr);
+  align-items: flex-start;
+  position: relative;
+  margin-bottom: 28px;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Spine Column (Node + Vertical Continuous Trail) */
+.spine-column {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 60px;
+  height: 100%;
+  padding-top: 24px;
+  z-index: 2;
+}
+
+/* Waypoint Medallion Node */
+.waypoint-medallion {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2.5px solid #e2e8f0;
+  display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  z-index: 3;
 }
 
-.btn-stage-arrow:hover {
-  background: rgba(255, 255, 255, 0.35);
+.waypoint-medallion:hover {
+  transform: scale(1.08);
 }
 
-.unit-badge {
-  font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 0.8rem;
+.medallion-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+
+.medallion-num {
+  font-size: 0.95rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.85);
+  color: #334155;
+  line-height: 1;
 }
 
-.unit-title {
-  font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 1.55rem;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  margin-bottom: 4px;
-  line-height: 1.25;
+.medallion-status-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.unit-desc {
-  font-size: 0.88rem;
-  color: rgba(255, 255, 255, 0.82);
-  line-height: 1.4;
-  margin: 0;
+/* Medallion States */
+.medallion-completed {
+  border-color: #f59e0b;
+  background: #fffbeb;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
 }
 
-.btn-duo-guide {
-  display: inline-flex;
+.medallion-completed .medallion-num {
+  color: #b45309;
+}
+
+.medallion-completed .medallion-status-icon {
+  color: #10b981;
+}
+
+.medallion-current {
+  border-color: var(--kinal-blue);
+  background: var(--kinal-blue);
+  box-shadow: 0 4px 18px rgba(0, 74, 173, 0.4);
+}
+
+.medallion-current .medallion-num {
+  color: #ffffff;
+}
+
+.medallion-current .medallion-status-icon {
+  color: #ffffff;
+}
+
+.medallion-locked {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  opacity: 0.8;
+}
+
+.medallion-locked .medallion-num {
+  color: #94a3b8;
+}
+
+.medallion-locked .medallion-status-icon {
+  color: #94a3b8;
+}
+
+/* Pulsing Halo for Active Node */
+.medallion-pulse-halo {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid var(--kinal-blue);
+  animation: beacon-pulse 2s infinite ease-out;
+  pointer-events: none;
+}
+
+@keyframes beacon-pulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.85;
+  }
+  70% {
+    transform: scale(1.22);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.22);
+    opacity: 0;
+  }
+}
+
+/* Continuous Vertical Trail Line (Starts at bottom of current node, meets top of next node) */
+.trail-line {
+  position: absolute;
+  top: calc(24px + 54px);
+  bottom: -52px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  border-radius: 999px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.trail-completed {
+  background: #f59e0b;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.45);
+}
+
+.trail-active {
+  background: var(--kinal-blue);
+  box-shadow: 0 0 12px rgba(0, 74, 173, 0.5);
+}
+
+.trail-locked {
+  background: #e2e8f0;
+  border-left: 2.5px dashed #cbd5e1;
+  width: 0;
+}
+
+/* Stepping Stone Dots on Trail */
+.trail-pip {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2.5px solid #cbd5e1;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.trail-completed .trail-pip {
+  border-color: #d97706;
+  background: #fef3c7;
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+}
+
+.trail-active .trail-pip {
+  border-color: var(--kinal-blue);
+  background: var(--kinal-light-blue);
+  box-shadow: 0 0 8px rgba(0, 74, 173, 0.6);
+}
+
+/* Horizontal Bridge Arm Linking Medallion to Challenge Card */
+.bridge-arm {
+  position: relative;
+  margin-top: 50px;
+  height: 3px;
+  width: 100%;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.bridge-completed {
+  background: #f59e0b;
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.45);
+}
+
+.bridge-current {
+  background: var(--kinal-blue);
+  box-shadow: 0 0 8px rgba(0, 74, 173, 0.5);
+}
+
+.bridge-locked {
+  border-top: 2px dashed #cbd5e1;
+  height: 0;
+}
+
+/* Challenge Card Column */
+.card-column {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Stage Milestone Medallion (Chest at bottom) */
+.milestone-medallion {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.milestone-medallion.medallion-completed {
+  background: #fffbeb;
+  border-color: #f59e0b;
+  color: #d97706;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+}
+
+.milestone-medallion.medallion-locked {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #94a3b8;
+}
+
+/* Node Card */
+.node-card {
+  flex: 1;
+  border-radius: 20px;
+  padding: 20px;
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Card States */
+.card-current {
+  border: 2px solid var(--kinal-blue);
+  box-shadow: 0 14px 35px -5px rgba(0, 74, 173, 0.22);
+  transform: scale(1.01);
+}
+
+.card-completed {
+  background: #fffdf8;
+  border: 1px solid #fde68a;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.08);
+}
+
+.card-completed:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.15);
+}
+
+.card-locked {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  opacity: 0.75;
+}
+
+/* Active Badge */
+.current-badge {
+  position: absolute;
+  top: -12px;
+  left: 20px;
+  background: var(--kinal-blue);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 12px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 10px rgba(0, 74, 173, 0.3);
+  letter-spacing: 0.02em;
+}
+
+/* Card Content Details */
+.node-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.node-details {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+
+.level-meta {
+  display: flex;
   align-items: center;
   gap: 8px;
-  background: #FFFFFF;
-  border: 2px solid #FFFFFF;
-  color: #0A58CA;
-  font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 0.88rem;
+  font-size: 0.72rem;
   font-weight: 800;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.level-tag {
+  color: var(--kinal-blue);
   letter-spacing: 0.06em;
-  padding: 10px 18px;
-  border-radius: 14px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  cursor: pointer;
-  transition: all 0.15s ease;
+}
+
+.meta-separator {
+  color: #cbd5e1;
+}
+
+.genre-pill {
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.pill-completed {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.pill-current {
+  background: var(--kinal-light-blue);
+  color: var(--kinal-blue);
+}
+
+.pill-locked {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+
+.difficulty-tag {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  padding: 1px 8px;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.reading-title {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+  line-height: 1.35;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Pedagogical Source Badge */
+.pedagogical-source-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  font-size: 0.72rem;
+  color: #475569;
+  font-weight: 500;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.source-icon {
+  display: flex;
+  align-items: center;
+  color: var(--kinal-blue);
   flex-shrink: 0;
 }
 
-.btn-duo-guide:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-}
-
-/* --------------------------------------------------------------------------
-   3. Winding Stepping Stones Path (Camino Sinuoso de Nodos 3D)
-   -------------------------------------------------------------------------- */
-.duo-path-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 54px;
-  position: relative;
-  padding: 10px 0 40px;
-}
-
-.duo-step-row {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  transition: transform 0.3s ease;
-}
-
-/* Conector vertical punteado de stepping stones entre nodos */
-.duo-path-connector {
-  position: absolute;
-  top: 76px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  z-index: 1;
-}
-
-.path-step-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #334155;
-  transition: background 0.2s ease;
-}
-
-.duo-path-connector.is-completed .path-step-dot {
-  background: #0A58CA;
-}
-
-/* --------------------------------------------------------------------------
-   4. Tactile 3D Node Button (Botón Circular con Relieve 3D)
-   -------------------------------------------------------------------------- */
-.duo-node-btn {
-  position: relative;
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: #1E293B;
-  border: none;
-  box-shadow: 0 8px 0 #0f172a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 2;
-  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.15s ease;
-  user-select: none;
-  padding: 0;
-}
-
-.duo-node-btn:active {
-  transform: translateY(4px);
-  box-shadow: 0 4px 0 #0f172a;
-}
-
-.duo-node-inner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* NODO ACTUAL (Activo, radiante azul) */
-.duo-node-btn.is-current {
-  background: #0A58CA;
-  box-shadow: 0 8px 0 #052c65;
-  border-top: 2px solid rgba(255, 255, 255, 0.4);
-}
-
-.duo-node-btn.is-current:active {
-  transform: translateY(4px);
-  box-shadow: 0 4px 0 #052c65;
-}
-
-.duo-node-btn.is-current:hover {
-  filter: brightness(1.1);
-}
-
-/* NODO COMPLETADO */
-.duo-node-btn.is-completed {
-  background: #0A58CA;
-  box-shadow: 0 8px 0 #084298;
-}
-
-.duo-node-btn.is-completed:active {
-  transform: translateY(4px);
-  box-shadow: 0 4px 0 #084298;
-}
-
-.duo-node-btn.is-completed:hover {
-  filter: brightness(1.1);
-}
-
-/* NODO BLOQUEADO */
-.duo-node-btn.is-locked {
-  background: #1E293B;
-  border: 2px solid #334155;
-  box-shadow: 0 7px 0 #0f172a;
-  cursor: pointer;
-}
-
-.duo-node-btn.is-locked:hover {
-  filter: brightness(1.15);
-}
-
-/* Halo concéntrico pulsante para el nodo en curso */
-.duo-pulse-ring {
-  position: absolute;
-  inset: -9px;
-  border-radius: 50%;
-  border: 4px solid #0A58CA;
-  background: rgba(10, 88, 202, 0.22);
-  animation: duoPulse 1.8s infinite ease-in-out;
-  pointer-events: none;
-}
-
-@keyframes duoPulse {
-  0% { transform: scale(0.97); opacity: 0.9; }
-  50% { transform: scale(1.08); opacity: 0.35; }
-  100% { transform: scale(0.97); opacity: 0.9; }
-}
-
-/* Etiqueta Nivel y Título debajo del nodo */
-.duo-node-meta-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  margin-top: 10px;
-  max-width: 140px;
-  text-align: center;
-}
-
-.duo-node-level-tag {
-  font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 0.72rem;
-  font-weight: 800;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.duo-node-title-tag {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #cbd5e1;
+.source-text {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 130px;
+  min-width: 0;
+  flex: 1;
 }
 
-/* --------------------------------------------------------------------------
-   5. Floating Bouncing Speech Bubble "EMPEZAR"
-   -------------------------------------------------------------------------- */
-.duo-bubble-start {
-  position: absolute;
-  top: -48px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #1E293B;
-  border: 2px solid #0A58CA;
-  border-radius: 12px;
-  padding: 6px 14px;
-  color: #FFFFFF;
-  font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 0.8rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-  animation: duoBounce 1.5s infinite;
-  white-space: nowrap;
-  z-index: 5;
-  pointer-events: none;
-}
-
-.bubble-arrow {
-  position: absolute;
-  bottom: -7px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-top: 7px solid #0A58CA;
-}
-
-@keyframes duoBounce {
-  0%, 100% { transform: translate(-50%, 0); }
-  50% { transform: translate(-50%, -6px); }
-}
-
-/* --------------------------------------------------------------------------
-   6. Mascot Companion Guide (Estilo Duo Búho al lado del nodo)
-   -------------------------------------------------------------------------- */
-.duo-mascot-companion {
-  position: absolute;
-  top: -8px;
-  z-index: 4;
-  pointer-events: none;
-  animation: mascotWiggle 3s ease-in-out infinite;
-  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.4));
-}
-
-.duo-mascot-companion.pos-right {
-  left: 88px;
-}
-
-.duo-mascot-companion.pos-left {
-  right: 88px;
-}
-
-@keyframes mascotWiggle {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  25% { transform: translateY(-3px) rotate(-2deg); }
-  75% { transform: translateY(-2px) rotate(2deg); }
-}
-
-/* --------------------------------------------------------------------------
-   7. Final Stage Trophy Milestone
-   -------------------------------------------------------------------------- */
-.stage-trophy-row {
-  margin-top: 10px;
-}
-
-.duo-trophy-btn {
-  width: 84px;
-  height: 84px;
-  border-radius: 50%;
-  background: #1E293B;
-  border: 3px solid #f59e0b;
-  box-shadow: 0 8px 0 #b45309;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.duo-trophy-btn.is-achieved {
-  background: rgba(245, 158, 11, 0.2);
-}
-
-.trophy-label {
-  font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 0.8rem;
-  font-weight: 800;
-  color: #f59e0b;
-  margin-top: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* --------------------------------------------------------------------------
-   8. Popover Modal de Reto Interactivo
-   -------------------------------------------------------------------------- */
-.duo-popover-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(5px);
-  z-index: 1050;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  animation: popoverFadeIn 0.18s ease;
-}
-
-@keyframes popoverFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.duo-popover-card {
-  width: 100%;
-  max-width: 440px;
-  background: #1E293B;
-  border: 2px solid #334155;
-  border-radius: 24px;
-  padding: 28px;
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6);
-  animation: popoverScaleUp 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-@keyframes popoverScaleUp {
-  from { transform: scale(0.92); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-.popover-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.popover-level-badge {
-  font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 0.78rem;
-  font-weight: 800;
-  color: #38bdf8;
-  background: rgba(10, 88, 202, 0.22);
-  border: 1px solid #0A58CA;
-  padding: 4px 12px;
-  border-radius: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.popover-close-btn {
-  background: transparent;
-  border: none;
-  font-size: 1.1rem;
-  color: #94a3b8;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 8px;
-}
-
-.popover-close-btn:hover {
-  background: #334155;
-  color: #FFFFFF;
-}
-
-.popover-title {
-  font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 1.4rem;
-  font-weight: 900;
-  color: #FFFFFF;
-  letter-spacing: -0.02em;
-  margin-bottom: 10px;
-  line-height: 1.3;
-}
-
-.popover-source {
+/* Goals & Reading Meta */
+.reading-meta {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.82rem;
-  color: #38bdf8;
-  font-weight: 600;
-  margin-bottom: 20px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
-.popover-specs-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 24px;
+.meta-goal {
+  color: #334155;
 }
 
-.spec-mini-box {
-  background: #0f172a;
-  border: 1px solid #334155;
-  border-radius: 14px;
-  padding: 12px 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.spec-mini-val {
-  font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 1.05rem;
-  font-weight: 900;
-  color: #FFFFFF;
-}
-
-.spec-mini-lbl {
-  font-size: 0.68rem;
+.meta-xp {
+  color: #059669;
   font-weight: 700;
-  color: #94a3b8;
-  text-transform: uppercase;
-  margin-top: 2px;
 }
 
-/* Big 3D Duolingo CTA Button */
-.btn-duo-cta {
+.meta-words {
+  color: #64748b;
+}
+
+/* Competencies Pills */
+.competencies-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+  min-width: 0;
+}
+
+.comp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  background: #f1f5f9;
+  color: #475569;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+/* Completed Personal Record */
+.completed-stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  background: #fef3c7;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #92400e;
+  margin-top: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.best-wpm {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #d97706;
+}
+
+.best-comp {
+  color: #059669;
+}
+
+/* Action Buttons */
+.node-action {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
   width: 100%;
-  height: 52px;
-  background: #0A58CA;
+  min-width: 0;
+}
+
+.btn-start {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 12px;
   border: none;
-  border-radius: 16px;
-  box-shadow: 0 5px 0 #052c65;
-  color: #FFFFFF;
-  font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 0.95rem;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  background: var(--kinal-blue);
+  color: #ffffff;
+  font-family: var(--font-heading);
+  font-size: 0.86rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.1s ease;
-}
-
-.btn-duo-cta:hover {
-  filter: brightness(1.08);
-}
-
-.btn-duo-cta:active {
-  transform: translateY(3px);
-  box-shadow: 0 2px 0 #052c65;
-}
-
-/* --------------------------------------------------------------------------
-   9. Modal Guía Pedagógica
-   -------------------------------------------------------------------------- */
-.duo-guide-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(5px);
-  z-index: 1050;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(0, 74, 173, 0.3);
+  transition: all 0.2s ease;
+  min-width: 0;
+  box-sizing: border-box;
+  text-align: center;
 }
 
-.duo-guide-card {
+.btn-start:hover {
+  background: var(--kinal-dark-blue);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 74, 173, 0.4);
+}
+
+.btn-admin-test {
+  background: #7c3aed;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3);
+}
+
+.btn-admin-test:hover {
+  background: #6d28d9;
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.4);
+}
+
+.btn-replay {
   width: 100%;
-  max-width: 480px;
-  background: #1E293B;
-  border: 2px solid #334155;
-  border-radius: 24px;
-  padding: 28px;
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6);
-  color: #FFFFFF;
-}
-
-.guide-header {
+  padding: 8px 14px;
+  border-radius: 12px;
+  border: 1px solid #fde68a;
+  background: #fffbeb;
+  color: #b45309;
+  font-family: var(--font-heading);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  min-width: 0;
+  box-sizing: border-box;
+  text-align: center;
 }
 
-.guide-header h2 {
-  font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 1.15rem;
-  font-weight: 900;
-  color: #38bdf8;
-  margin: 0;
+.btn-replay:hover {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  color: #92400e;
 }
 
-.guide-stage-title {
-  font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 1.3rem;
-  font-weight: 900;
-  color: #FFFFFF;
-  margin-bottom: 10px;
-}
-
-.guide-stage-desc {
-  font-size: 0.9rem;
-  color: #cbd5e1;
-  line-height: 1.5;
-  margin-bottom: 20px;
-}
-
-.guide-metrics-row {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.guide-stat {
-  background: #0f172a;
-  border: 1px solid #334155;
-  border-radius: 14px;
-  padding: 14px;
+.locked-notice {
+  width: 100%;
   display: flex;
-  flex-direction: column;
-}
-
-.guide-stat strong {
-  font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 0.98rem;
-  font-weight: 800;
-  color: #FFFFFF;
-}
-
-.guide-stat span {
-  font-size: 0.72rem;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  background: #f1f5f9;
   color: #94a3b8;
-  margin-top: 2px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 10px;
+  min-width: 0;
+  box-sizing: border-box;
+  text-align: center;
 }
 
-.guide-header {
+.locked-notice.admin-test-allowed {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.locked-notice.admin-test-allowed:hover {
+  background: var(--kinal-light-blue);
+  color: var(--kinal-blue);
+}
+
+/* ==========================================================================
+   Stage Milestone Card (Grand Checkpoint)
+   ========================================================================== */
+.stage-milestone-card {
+  margin-top: 16px;
+  background: #ffffff;
+  border: 2px dashed #cbd5e1;
+  border-radius: 20px;
+  padding: 24px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
+  gap: 20px;
+  transition: all 0.25s ease;
 }
 
-.guide-header h2 {
-  font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 1.15rem;
-  font-weight: 900;
-  color: #0A58CA;
-  margin: 0;
+.milestone-unlocked {
+  border: 2px solid #f59e0b;
+  background: #fffdf5;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.12);
 }
 
-.guide-stage-title {
-  font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 1.3rem;
-  font-weight: 900;
-  color: #1E293B;
-  margin-bottom: 10px;
-}
-
-.guide-stage-desc {
-  font-size: 0.9rem;
-  color: #475569;
-  line-height: 1.5;
-  margin-bottom: 20px;
-}
-
-.guide-metrics-row {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.guide-stat {
-  background: #F0F4F8;
-  border: 1px solid #E2E8F0;
-  border-radius: 14px;
-  padding: 14px;
+.milestone-icon-box {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  color: #94a3b8;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.guide-stat strong {
-  font-family: var(--font-heading, 'Outfit', sans-serif);
-  font-size: 0.98rem;
+.milestone-unlocked .milestone-icon-box {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  color: #d97706;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
+}
+
+.milestone-info {
+  flex: 1;
+}
+
+.milestone-badge {
+  font-size: 0.68rem;
   font-weight: 800;
-  color: #1E293B;
+  color: #b45309;
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
 }
 
-.guide-stat span {
-  font-size: 0.72rem;
+.milestone-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--kinal-dark-blue);
+  margin: 0 0 4px 0;
+}
+
+.milestone-desc {
+  font-size: 0.84rem;
   color: #64748b;
-  margin-top: 2px;
+  margin: 0;
+  line-height: 1.4;
 }
 
-/* --------------------------------------------------------------------------
-   10. Responsive
-   -------------------------------------------------------------------------- */
+.milestone-status {
+  flex-shrink: 0;
+}
+
+.milestone-pill-done {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.milestone-pill-pending {
+  padding: 6px 14px;
+  background: #f1f5f9;
+  color: #64748b;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   Responsive Adaptations & Mobile Optimization
+   ========================================================================== */
 @media (max-width: 768px) {
-  .duo-unit-banner {
+  .roadmap-wrapper {
+    padding: 20px 14px;
+    border-radius: 20px;
+  }
+
+  .roadmap-header {
     flex-direction: column;
     align-items: flex-start;
-    padding: 20px;
-    gap: 16px;
+    gap: 14px;
   }
 
-  .btn-duo-guide {
-    align-self: flex-start;
+  .roadmap-title {
+    font-size: 1.35rem;
   }
 
-  .duo-mascot-companion {
-    display: none; /* Hide mascot on small screens to avoid overflow */
+  .roadmap-sub {
+    font-size: 0.84rem;
   }
 
-  .duo-step-row {
-    transform: none !important; /* Center path on small screens */
+  .legend-box {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 8px 12px;
+    font-size: 0.74rem;
+    box-sizing: border-box;
+  }
+
+  .admin-superaccess-banner {
+    padding: 12px 14px;
+    gap: 12px;
+    border-radius: 14px;
+  }
+
+  .admin-banner-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .admin-banner-title strong {
+    font-size: 0.85rem;
+  }
+
+  .admin-banner-text {
+    font-size: 0.78rem;
+  }
+
+  .stages-navigator {
+    padding: 14px;
+    border-radius: 16px;
+    margin-top: 20px;
+  }
+
+  .stages-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .view-mode-toggle {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .toggle-btn {
+    flex: 1;
+    text-align: center;
+    padding: 6px 8px;
+    font-size: 0.74rem;
+  }
+
+  .stages-tabs-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .stage-tab-card {
+    padding: 10px 12px;
+    border-radius: 12px;
+  }
+
+  .stage-tab-name {
+    font-size: 0.82rem;
+  }
+
+  .stage-overview-card {
+    padding: 14px 16px;
+    border-radius: 14px;
+    margin-top: 16px;
+  }
+
+  .stage-overview-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .stage-reward-box {
+    align-items: flex-start;
+  }
+
+  .overview-title {
+    font-size: 1.05rem;
+  }
+
+  .overview-desc {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .roadmap-wrapper {
+    padding: 14px 8px;
+    border-radius: 16px;
+  }
+
+  .roadmap-path {
+    padding: 16px 0 10px 0;
+  }
+
+  .timeline-checkpoint {
+    grid-template-columns: 42px 10px minmax(0, 1fr);
+    margin-bottom: 20px;
+  }
+
+  .spine-column {
+    width: 42px;
+    padding-top: 14px;
+  }
+
+  .waypoint-medallion {
+    width: 40px;
+    height: 40px;
+    border-width: 2px;
+  }
+
+  .medallion-num {
+    font-size: 0.8rem;
+  }
+
+  .medallion-status-icon svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  .trail-line {
+    top: calc(14px + 40px);
+    bottom: -34px;
+    width: 4.5px;
+  }
+
+  .trail-pip {
+    width: 7px;
+    height: 7px;
+    border-width: 2px;
+  }
+
+  .bridge-arm {
+    margin-top: 33px;
+    height: 2px;
+  }
+
+  .card-column {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .node-card {
+    padding: 12px 10px;
+    border-radius: 14px;
+  }
+
+  .current-badge {
+    top: -10px;
+    left: 10px;
+    font-size: 0.65rem;
+    padding: 2px 8px;
+  }
+
+  .reading-title {
+    font-size: 0.95rem;
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+
+  .level-meta {
+    font-size: 0.66rem;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+
+  .genre-pill {
+    padding: 1px 6px;
+    font-size: 0.64rem;
+  }
+
+  .difficulty-tag {
+    padding: 1px 5px;
+    font-size: 0.6rem;
+  }
+
+  .pedagogical-source-badge {
+    padding: 2px 6px;
+    font-size: 0.65rem;
+    margin-bottom: 6px;
+    max-width: 100%;
+  }
+
+  .reading-meta {
+    font-size: 0.7rem;
+    gap: 4px 6px;
+    margin-bottom: 6px;
+  }
+
+  .comp-badge {
+    font-size: 0.62rem;
+    padding: 1px 5px;
+  }
+
+  .completed-stats {
+    padding: 4px 8px;
+    font-size: 0.68rem;
+    gap: 6px;
+  }
+
+  .btn-start,
+  .btn-replay,
+  .btn-admin-test {
+    font-size: 0.78rem;
+    padding: 8px 10px;
+    border-radius: 10px;
+  }
+
+  .milestone-medallion {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+  }
+
+  .milestone-medallion svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .stage-milestone-card {
+    padding: 14px 12px;
+    border-radius: 14px;
+    gap: 12px;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .milestone-icon-box {
+    width: 44px;
+    height: 44px;
+  }
+
+  .milestone-icon-box svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .milestone-title {
+    font-size: 0.94rem;
+  }
+
+  .milestone-desc {
+    font-size: 0.74rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .stages-tabs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .timeline-checkpoint {
+    grid-template-columns: 34px 8px minmax(0, 1fr);
+  }
+
+  .spine-column {
+    width: 34px;
+    padding-top: 12px;
+  }
+
+  .waypoint-medallion {
+    width: 32px;
+    height: 32px;
+  }
+
+  .trail-line {
+    top: calc(12px + 32px);
+    bottom: -32px;
+    width: 3.5px;
+  }
+
+  .bridge-arm {
+    margin-top: 27px;
+  }
+
+  .node-card {
+    padding: 10px 8px;
   }
 }
