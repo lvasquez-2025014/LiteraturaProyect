@@ -3,14 +3,25 @@
    ========================================================================== */
 
 .roadmap-wrapper {
+  position: relative;
   width: 100%;
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: 28px;
   padding: 36px 32px;
-  box-shadow: 0 10px 30px -5px rgba(0, 74, 173, 0.07);
-  border: 1px solid rgba(0, 74, 173, 0.1);
-  position: relative;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-subtle);
   overflow: hidden;
+}
+
+.roadmap-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--secondary) 100%);
+  z-index: 2;
 }
 
 /* Subtle Ambient Glows */
@@ -27,13 +38,13 @@
 .glow-blue {
   top: 20%;
   right: -100px;
-  background: rgba(0, 74, 173, 0.06);
+  background: rgba(31, 42, 68, 0.08);
 }
 
 .glow-orange {
   bottom: 20%;
   left: -100px;
-  background: rgba(243, 111, 33, 0.05);
+  background: rgba(224, 142, 62, 0.08);
 }
 
 /* Header */
@@ -43,7 +54,7 @@
   align-items: flex-start;
   gap: 20px;
   padding-bottom: 24px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--border-subtle);
   flex-wrap: wrap;
 }
 
@@ -56,8 +67,9 @@
   align-items: center;
   gap: 8px;
   padding: 5px 14px;
-  background: var(--kinal-light-blue);
-  color: var(--kinal-blue);
+  background: rgba(224, 142, 62, 0.12);
+  color: var(--secondary);
+  border: 1px solid rgba(224, 142, 62, 0.28);
   border-radius: 999px;
   font-size: 0.78rem;
   font-weight: 700;
@@ -68,14 +80,14 @@
   font-family: var(--font-heading);
   font-size: 1.6rem;
   font-weight: 800;
-  color: var(--kinal-dark-blue);
+  color: var(--text-primary);
   margin: 0 0 6px 0;
   letter-spacing: -0.02em;
 }
 
 .roadmap-sub {
   font-size: 0.92rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   margin: 0;
   line-height: 1.5;
 }
@@ -86,8 +98,8 @@
   align-items: center;
   gap: 16px;
   padding: 8px 16px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
   border-radius: 16px;
   font-size: 0.8rem;
   font-weight: 600;
@@ -98,7 +110,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #475569;
+  color: var(--text-secondary);
 }
 
 .legend-dot {
@@ -107,9 +119,9 @@
   border-radius: 50%;
 }
 
-.dot-completed { background: #f59e0b; }
-.dot-active { background: var(--kinal-blue); box-shadow: 0 0 0 3px rgba(0, 74, 173, 0.2); }
-.dot-locked { background: #cbd5e1; }
+.dot-completed { background: var(--accent); }
+.dot-active { background: var(--primary); box-shadow: 0 0 0 3px rgba(31, 42, 68, 0.2); }
+.dot-locked { background: var(--border-subtle); }
 
 /* ==========================================================================
    5 Stages Stepper / Navigator
@@ -117,8 +129,8 @@
 .stages-navigator {
   margin-top: 28px;
   padding: 20px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
   border-radius: 20px;
 }
 
@@ -134,14 +146,14 @@
 .stages-nav-title {
   font-size: 0.95rem;
   font-weight: 800;
-  color: var(--kinal-dark-blue);
+  color: var(--text-primary);
   margin: 0;
 }
 
 .view-mode-toggle {
   display: flex;
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
   border-radius: 10px;
   padding: 2px;
   gap: 2px;
@@ -154,15 +166,15 @@
   border-radius: 8px;
   font-size: 0.78rem;
   font-weight: 700;
-  color: #64748b;
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .toggle-btn.toggle-active {
-  background: var(--kinal-blue);
+  background: var(--primary);
   color: #ffffff;
-  box-shadow: 0 2px 6px rgba(0, 74, 173, 0.25);
+  box-shadow: 0 2px 6px rgba(31, 42, 68, 0.25);
 }
 
 .stages-tabs-grid {
@@ -172,8 +184,8 @@
 }
 
 .stage-tab-card {
-  border: 1.5px solid #e2e8f0;
-  background: #ffffff;
+  border: 1.5px solid var(--border-subtle);
+  background: var(--bg-surface);
   border-radius: 14px;
   padding: 12px 14px;
   text-align: left;
@@ -185,15 +197,15 @@
 }
 
 .stage-tab-card:hover {
-  border-color: #cbd5e1;
+  border-color: var(--accent);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(31, 42, 68, 0.06);
 }
 
 .stage-tab-card.tab-active {
-  border-color: var(--kinal-blue);
-  background: #ffffff;
-  box-shadow: 0 6px 16px rgba(0, 74, 173, 0.15);
+  border-color: var(--accent);
+  background: var(--bg-card);
+  box-shadow: 0 6px 16px rgba(224, 142, 62, 0.16);
   transform: scale(1.02);
 }
 
@@ -283,12 +295,12 @@
 /* Stage Focus Overview Banner */
 .stage-overview-card {
   margin-top: 24px;
-  background: #ffffff;
-  border: 1.5px solid rgba(0, 74, 173, 0.15);
-  border-left: 6px solid var(--kinal-blue);
+  background: var(--bg-surface, #ffffff);
+  border: 1.5px solid var(--border-subtle, #E7DFD2);
+  border-left: 6px solid var(--accent, #E08E3E);
   border-radius: 16px;
   padding: 18px 24px;
-  box-shadow: 0 4px 14px rgba(0, 74, 173, 0.06);
+  box-shadow: 0 4px 14px rgba(31, 42, 68, 0.06);
 }
 
 .stage-overview-header {
@@ -452,23 +464,23 @@
 
 /* Medallion States */
 .medallion-completed {
-  border-color: #f59e0b;
-  background: #fffbeb;
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
+  border-color: var(--accent);
+  background: var(--bg-card);
+  box-shadow: 0 4px 14px rgba(224, 142, 62, 0.25);
 }
 
 .medallion-completed .medallion-num {
-  color: #b45309;
+  color: var(--secondary);
 }
 
 .medallion-completed .medallion-status-icon {
-  color: #10b981;
+  color: var(--success);
 }
 
 .medallion-current {
-  border-color: var(--kinal-blue);
-  background: var(--kinal-blue);
-  box-shadow: 0 4px 18px rgba(0, 74, 173, 0.4);
+  border-color: var(--accent);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  box-shadow: 0 4px 18px rgba(31, 42, 68, 0.4);
 }
 
 .medallion-current .medallion-num {
@@ -480,17 +492,17 @@
 }
 
 .medallion-locked {
-  border-color: #cbd5e1;
-  background: #f8fafc;
+  border-color: var(--border-subtle);
+  background: var(--bg-page);
   opacity: 0.8;
 }
 
 .medallion-locked .medallion-num {
-  color: #94a3b8;
+  color: var(--text-light);
 }
 
 .medallion-locked .medallion-status-icon {
-  color: #94a3b8;
+  color: var(--text-light);
 }
 
 /* Pulsing Halo for Active Node */
@@ -498,7 +510,7 @@
   position: absolute;
   inset: -6px;
   border-radius: 50%;
-  border: 2px solid var(--kinal-blue);
+  border: 2px solid var(--accent);
   animation: beacon-pulse 2s infinite ease-out;
   pointer-events: none;
 }
@@ -536,18 +548,18 @@
 }
 
 .trail-completed {
-  background: #f59e0b;
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.45);
+  background: var(--accent);
+  box-shadow: 0 0 10px rgba(224, 142, 62, 0.45);
 }
 
 .trail-active {
-  background: var(--kinal-blue);
-  box-shadow: 0 0 12px rgba(0, 74, 173, 0.5);
+  background: var(--primary);
+  box-shadow: 0 0 12px rgba(31, 42, 68, 0.5);
 }
 
 .trail-locked {
-  background: #e2e8f0;
-  border-left: 2.5px dashed #cbd5e1;
+  background: var(--border-subtle);
+  border-left: 2.5px dashed var(--border-subtle);
   width: 0;
 }
 
@@ -557,20 +569,20 @@
   height: 10px;
   border-radius: 50%;
   background: #ffffff;
-  border: 2.5px solid #cbd5e1;
+  border: 2.5px solid var(--border-subtle);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .trail-completed .trail-pip {
-  border-color: #d97706;
-  background: #fef3c7;
-  box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+  border-color: var(--accent);
+  background: var(--bg-card);
+  box-shadow: 0 0 6px rgba(224, 142, 62, 0.5);
 }
 
 .trail-active .trail-pip {
-  border-color: var(--kinal-blue);
-  background: var(--kinal-light-blue);
-  box-shadow: 0 0 8px rgba(0, 74, 173, 0.6);
+  border-color: var(--accent);
+  background: var(--primary);
+  box-shadow: 0 0 8px rgba(31, 42, 68, 0.6);
 }
 
 /* Horizontal Bridge Arm Linking Medallion to Challenge Card */
@@ -584,17 +596,17 @@
 }
 
 .bridge-completed {
-  background: #f59e0b;
-  box-shadow: 0 0 6px rgba(245, 158, 11, 0.45);
+  background: var(--accent);
+  box-shadow: 0 0 6px rgba(224, 142, 62, 0.45);
 }
 
 .bridge-current {
-  background: var(--kinal-blue);
-  box-shadow: 0 0 8px rgba(0, 74, 173, 0.5);
+  background: var(--primary);
+  box-shadow: 0 0 8px rgba(31, 42, 68, 0.5);
 }
 
 .bridge-locked {
-  border-top: 2px dashed #cbd5e1;
+  border-top: 2px dashed var(--border-subtle);
   height: 0;
 }
 
@@ -615,54 +627,65 @@
 }
 
 .milestone-medallion.medallion-completed {
-  background: #fffbeb;
-  border-color: #f59e0b;
-  color: #d97706;
-  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+  background: var(--bg-card);
+  border-color: var(--accent);
+  color: var(--secondary);
+  box-shadow: 0 4px 16px rgba(224, 142, 62, 0.3);
 }
 
 .milestone-medallion.medallion-locked {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  color: #94a3b8;
+  background: var(--bg-page);
+  border-color: var(--border-subtle);
+  color: var(--text-light);
 }
 
 /* Node Card */
 .node-card {
+  position: relative;
   flex: 1;
   border-radius: 20px;
   padding: 20px;
-  position: relative;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
   min-width: 0;
   width: 100%;
   box-sizing: border-box;
+  overflow: hidden;
+}
+
+.node-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--secondary) 100%);
 }
 
 /* Card States */
 .card-current {
-  border: 2px solid var(--kinal-blue);
-  box-shadow: 0 14px 35px -5px rgba(0, 74, 173, 0.22);
+  border: 2px solid var(--accent);
+  box-shadow: 0 14px 35px -5px rgba(224, 142, 62, 0.2);
   transform: scale(1.01);
 }
 
 .card-completed {
-  background: #fffdf8;
-  border: 1px solid #fde68a;
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.08);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
 }
 
 .card-completed:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .card-locked {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-page);
+  border: 1px solid var(--border-subtle);
   opacity: 0.75;
 }
 
@@ -671,7 +694,7 @@
   position: absolute;
   top: -12px;
   left: 20px;
-  background: var(--kinal-blue);
+  background: var(--primary);
   color: #ffffff;
   font-size: 0.72rem;
   font-weight: 800;
@@ -680,7 +703,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  box-shadow: 0 4px 10px rgba(0, 74, 173, 0.3);
+  box-shadow: 0 4px 10px rgba(31, 42, 68, 0.3);
   letter-spacing: 0.02em;
 }
 
@@ -897,7 +920,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 4px 14px rgba(0, 74, 173, 0.3);
+  box-shadow: 0 4px 14px rgba(31, 42, 68, 0.3);
   transition: all 0.2s ease;
   min-width: 0;
   box-sizing: border-box;
@@ -907,26 +930,26 @@
 .btn-start:hover {
   background: var(--kinal-dark-blue);
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(0, 74, 173, 0.4);
+  box-shadow: 0 6px 18px rgba(31, 42, 68, 0.4);
 }
 
 .btn-admin-test {
-  background: #7c3aed;
-  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3);
+  background: var(--secondary, #6B4226);
+  box-shadow: 0 4px 14px rgba(107, 66, 38, 0.3);
 }
 
 .btn-admin-test:hover {
-  background: #6d28d9;
-  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.4);
+  background: #54331D;
+  box-shadow: 0 6px 18px rgba(107, 66, 38, 0.4);
 }
 
 .btn-replay {
   width: 100%;
   padding: 8px 14px;
   border-radius: 12px;
-  border: 1px solid #fde68a;
-  background: #fffbeb;
-  color: #b45309;
+  border: 1px solid var(--border-subtle, #E7DFD2);
+  background: var(--bg-card, #FFF9F0);
+  color: var(--accent, #E08E3E);
   font-family: var(--font-heading);
   font-size: 0.82rem;
   font-weight: 700;
@@ -942,9 +965,9 @@
 }
 
 .btn-replay:hover {
-  background: #fef3c7;
-  border-color: #f59e0b;
-  color: #92400e;
+  background: rgba(224, 142, 62, 0.12);
+  border-color: var(--accent, #E08E3E);
+  color: var(--warning, #C97A1A);
 }
 
 .locked-notice {
@@ -954,8 +977,8 @@
   justify-content: center;
   gap: 6px;
   padding: 8px;
-  background: #f1f5f9;
-  color: #94a3b8;
+  background: #f5f0ea;
+  color: var(--text-muted, #8C8275);
   font-size: 0.78rem;
   font-weight: 600;
   border-radius: 10px;
@@ -970,8 +993,8 @@
 }
 
 .locked-notice.admin-test-allowed:hover {
-  background: var(--kinal-light-blue);
-  color: var(--kinal-blue);
+  background: rgba(31, 42, 68, 0.08);
+  color: var(--primary, #1F2A44);
 }
 
 /* ==========================================================================
@@ -979,8 +1002,8 @@
    ========================================================================== */
 .stage-milestone-card {
   margin-top: 16px;
-  background: #ffffff;
-  border: 2px dashed #cbd5e1;
+  background: var(--bg-surface, #FFFFFF);
+  border: 2px dashed var(--border-subtle, #E7DFD2);
   border-radius: 20px;
   padding: 24px;
   display: flex;
@@ -990,18 +1013,18 @@
 }
 
 .milestone-unlocked {
-  border: 2px solid #f59e0b;
-  background: #fffdf5;
-  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.12);
+  border: 2px solid var(--accent, #E08E3E);
+  background: var(--bg-card, #FFF9F0);
+  box-shadow: 0 6px 20px rgba(224, 142, 62, 0.15);
 }
 
 .milestone-icon-box {
   width: 64px;
   height: 64px;
   border-radius: 18px;
-  background: #f8fafc;
-  border: 1.5px solid #e2e8f0;
-  color: #94a3b8;
+  background: var(--bg-page, #FBF8F3);
+  border: 1.5px solid var(--border-subtle, #E7DFD2);
+  color: var(--text-muted, #8C8275);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1009,10 +1032,10 @@
 }
 
 .milestone-unlocked .milestone-icon-box {
-  background: #fef3c7;
-  border-color: #f59e0b;
-  color: #d97706;
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
+  background: rgba(224, 142, 62, 0.15);
+  border-color: var(--accent, #E08E3E);
+  color: var(--accent, #E08E3E);
+  box-shadow: 0 4px 14px rgba(224, 142, 62, 0.25);
 }
 
 .milestone-info {
@@ -1022,7 +1045,7 @@
 .milestone-badge {
   font-size: 0.68rem;
   font-weight: 800;
-  color: #b45309;
+  color: var(--accent, #E08E3E);
   letter-spacing: 0.08em;
   margin-bottom: 2px;
 }
@@ -1030,13 +1053,13 @@
 .milestone-title {
   font-size: 1.15rem;
   font-weight: 800;
-  color: var(--kinal-dark-blue);
+  color: var(--primary, #1F2A44);
   margin: 0 0 4px 0;
 }
 
 .milestone-desc {
   font-size: 0.84rem;
-  color: #64748b;
+  color: var(--text-secondary, #6B6255);
   margin: 0;
   line-height: 1.4;
 }
@@ -1050,9 +1073,9 @@
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
-  background: #ecfdf5;
-  color: #047857;
-  border: 1px solid #a7f3d0;
+  background: rgba(63, 125, 92, 0.12);
+  color: var(--success, #3F7D5C);
+  border: 1px solid rgba(63, 125, 92, 0.3);
   border-radius: 999px;
   font-size: 0.8rem;
   font-weight: 800;
@@ -1060,8 +1083,8 @@
 
 .milestone-pill-pending {
   padding: 6px 14px;
-  background: #f1f5f9;
-  color: #64748b;
+  background: #f5f0ea;
+  color: var(--text-secondary, #6B6255);
   border-radius: 999px;
   font-size: 0.78rem;
   font-weight: 600;

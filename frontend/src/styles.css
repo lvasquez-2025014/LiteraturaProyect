@@ -1,45 +1,64 @@
 /* ==========================================================
-   PALETA INSTITUCIONAL Y SISTEMA DE DISEÑO
+   PALETA OFICIAL Y SISTEMA DE DISEÑO — TINTA Y ÁMBAR
    ========================================================== */
 
 :root {
-  /* Colores Corporativos */
-  --kinal-blue: #004aad;          /* Azul Cobalto Institucional */
-  --kinal-blue-hover: #003b8a;
-  --kinal-dark-blue: #1c2d5a;     /* Azul Marino Profundo */
-  --kinal-light-blue: #e8eeff;
-  --kinal-blue-glow: rgba(0, 74, 173, 0.25);
+  /* Paleta Oficial Tinta y Ámbar */
+  --primary: #1F2A44;
+  --primary-hover: #172035;
+  --primary-active: #101728;
+  --secondary: #6B4226;
+  --accent: #E08E3E;
+  --accent-hover: #C97A1A;
+  --accent-light: rgba(224, 142, 62, 0.12);
+  --bg-page: #FBF8F3;
+  --bg-surface: #FFFFFF;
+  --bg-card: #FFF9F0;
+  --border-subtle: #E7DFD2;
+  --border-focus: #E08E3E;
 
-  --kinal-orange: #f36f21;        /* Naranja Fervor Institucional */
-  --kinal-orange-hover: #d8570c;
-  --kinal-orange-light: #fff4ed;
-  --kinal-orange-glow: rgba(243, 111, 33, 0.25);
+  --text-primary: #201A14;
+  --text-secondary: #6B6255;
+  --text-muted: #8C8275;
+  --text-light: #B4AA9C;
 
-  --accent-green: #10b981;
-  --accent-green-light: #d1fae5;
-  --accent-red: #ef4444;
-  --accent-red-light: #fee2e2;
+  --success: #3F7D5C;
+  --warning: #C97A1A;
+  --error: #B23A34;
+  --info: #3C6E8F;
 
-  /* Superficies y Neutros */
-  --bg-page: #f8fafc;
-  --bg-surface: #ffffff;
-  --border-subtle: #e2e8f0;
-  --border-focus: #004aad;
+  /* Aliases de Compatibilidad para el Proyecto */
+  --kinal-blue: var(--primary);
+  --kinal-blue-hover: var(--primary-hover);
+  --kinal-dark-blue: var(--primary-active);
+  --kinal-light-blue: #EAEFF8;
+  --kinal-blue-glow: rgba(31, 42, 68, 0.25);
 
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-  --text-light: #94a3b8;
+  --kinal-orange: var(--accent);
+  --kinal-orange-hover: var(--accent-hover);
+  --kinal-orange-light: var(--bg-card);
+  --kinal-orange-glow: rgba(224, 142, 62, 0.25);
+
+  --accent-green: var(--success);
+  --accent-green-light: #E2F0E8;
+  --accent-red: var(--error);
+  --accent-red-light: #FCE8E7;
+
+  /* Degradados Específicos */
+  --gradient-sidebar: linear-gradient(160deg, var(--primary) 0%, var(--primary) 48%, var(--secondary) 100%);
+  --gradient-bg-radial: radial-gradient(circle at 100% 0%, rgba(224, 142, 62, 0.10) 0%, rgba(224, 142, 62, 0) 45%), var(--bg-page);
+  --gradient-card-top: linear-gradient(90deg, var(--accent) 0%, var(--secondary) 100%);
+  --gradient-celebration: linear-gradient(120deg, var(--secondary) 0%, var(--secondary) 45%, var(--accent) 100%);
 
   /* Tipografía */
   --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   /* Sombras y Bordes */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 74, 173, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 25px -5px rgba(0, 74, 173, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-  --shadow-card: 0 4px 20px rgba(15, 23, 42, 0.06);
+  --shadow-sm: 0 1px 3px rgba(32, 26, 20, 0.05);
+  --shadow-md: 0 4px 12px rgba(31, 42, 68, 0.07), 0 2px 4px rgba(32, 26, 20, 0.04);
+  --shadow-lg: 0 12px 28px -5px rgba(31, 42, 68, 0.12), 0 6px 12px -4px rgba(32, 26, 20, 0.05);
+  --shadow-card: 0 4px 20px rgba(31, 42, 68, 0.06);
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -64,6 +83,7 @@ html {
 body {
   font-family: var(--font-body);
   color: var(--text-primary);
+  background: var(--gradient-bg-radial);
   background-color: var(--bg-page);
   min-height: 100vh;
   line-height: 1.5;
@@ -89,12 +109,26 @@ button, input, select, textarea {
   font-family: inherit;
 }
 
-/* Paneles y Tarjetas */
+/* Paneles y Tarjetas con Barra Superior de 4px en Degradado */
 .kinal-card {
-  background: var(--bg-surface);
+  position: relative;
+  background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.kinal-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-card-top);
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* Insignias de Rol */
@@ -110,21 +144,21 @@ button, input, select, textarea {
 }
 
 .badge-student {
-  background: var(--kinal-light-blue);
-  color: var(--kinal-blue);
-  border: 1px solid #bfdbfe;
+  background: rgba(31, 42, 68, 0.08);
+  color: var(--primary);
+  border: 1px solid rgba(31, 42, 68, 0.2);
 }
 
 .badge-teacher {
-  background: var(--kinal-orange-light);
-  color: var(--kinal-orange);
-  border: 1px solid #fed7aa;
+  background: rgba(224, 142, 62, 0.12);
+  color: var(--secondary);
+  border: 1px solid rgba(224, 142, 62, 0.3);
 }
 
 .badge-admin {
-  background: #f1f5f9;
-  color: var(--kinal-dark-blue);
-  border: 1px solid #cbd5e1;
+  background: rgba(107, 66, 38, 0.1);
+  color: var(--secondary);
+  border: 1px solid rgba(107, 66, 38, 0.25);
 }
 
 /* Botones Institucionales */
@@ -149,39 +183,39 @@ button, input, select, textarea {
 }
 
 .btn-kinal-primary {
-  background: var(--kinal-blue);
+  background: var(--primary);
   color: #ffffff;
-  box-shadow: 0 4px 12px var(--kinal-blue-glow);
+  box-shadow: 0 4px 12px rgba(31, 42, 68, 0.25);
 }
 
 .btn-kinal-primary:hover:not(:disabled) {
-  background: var(--kinal-blue-hover);
-  box-shadow: 0 6px 16px var(--kinal-blue-glow);
+  background: var(--primary-hover);
+  box-shadow: 0 6px 16px rgba(31, 42, 68, 0.35);
   transform: translateY(-1px);
 }
 
 .btn-kinal-orange {
-  background: var(--kinal-orange);
+  background: var(--accent);
   color: #ffffff;
-  box-shadow: 0 4px 12px var(--kinal-orange-glow);
+  box-shadow: 0 4px 12px rgba(224, 142, 62, 0.28);
 }
 
 .btn-kinal-orange:hover:not(:disabled) {
-  background: var(--kinal-orange-hover);
-  box-shadow: 0 6px 16px var(--kinal-orange-glow);
+  background: var(--accent-hover);
+  box-shadow: 0 6px 16px rgba(224, 142, 62, 0.38);
   transform: translateY(-1px);
 }
 
 .btn-secondary {
-  background: #ffffff;
+  background: var(--bg-surface);
   color: var(--text-primary);
   border: 1px solid var(--border-subtle);
   box-shadow: var(--shadow-sm);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  background: var(--bg-card);
+  border-color: var(--accent);
 }
 
 /* ==========================================================
