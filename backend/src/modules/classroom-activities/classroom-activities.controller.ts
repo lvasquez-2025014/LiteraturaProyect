@@ -24,7 +24,7 @@ export class ClassroomActivitiesController {
   @Roles('STUDENT_ROLE', 'TEACHER_ROLE', 'ADMIN_ROLE')
   async getActive(@Req() req: any) {
     const user = req.user;
-    const activity = await this.service.findActive(user?.grade, user?.section);
+    const activity = await this.service.findActive(user?.grade, user?.section, user?.career);
     if (!activity) {
       return null;
     }

@@ -1,22 +1,14 @@
 /* ==========================================================================
-   Duolingo-Style Sidebar Navigation (Navbar)
-   Paleta: README AND READLINE con font-display: swap e iconos ilustrados
+   Left Sidebar Navigation (Proyecto Literatura)
+   Modern, Dark Institutional SaaS Design featuring BranchedMenu
    ========================================================================== */
-
-@font-face {
-  font-family: 'Nunito';
-  font-style: normal;
-  font-weight: 700 900;
-  font-display: swap;
-}
 
 :host {
   display: block;
-  font-family: 'Nunito', 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* --------------------------------------------------------------------------
-   1. Mobile Top Bar (< 992px)
+   Mobile Top Bar (Shown only on viewports < 992px)
    -------------------------------------------------------------------------- */
 .mobile-top-bar {
   display: none;
@@ -25,582 +17,567 @@
   left: 0;
   right: 0;
   height: 60px;
-  background: #131f24;
-  border-bottom: 2px solid #202f36;
+  background: rgba(0, 29, 74, 0.96);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.18);
   padding: 0 16px;
   align-items: center;
   justify-content: space-between;
   z-index: 990;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
 }
 
 .mobile-menu-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
-  background: #1b2a32;
-  border: 2px solid #202f36;
-  color: #FFFFFF;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f1f5f9;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .mobile-menu-btn:hover {
-  background: #243843;
-  border-color: #58cc02;
+  background: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
 }
 
 .mobile-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   text-decoration: none;
 }
 
-.mobile-user-avatar {
-  cursor: pointer;
+.mobile-brand-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  object-fit: cover;
 }
 
-.mini-avatar {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: #1b2a32;
-  border: 2px solid #202f36;
-  display: flex;
+.mobile-brand-title {
+  font-family: var(--font-heading, inherit);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.mobile-brand-title .accent {
+  color: #38bdf8;
+}
+
+.mobile-logout-btn {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  transition: transform 0.15s ease;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(178, 58, 52, 0.18);
+  border: 1px solid rgba(178, 58, 52, 0.35);
+  color: #fca5a5;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.mini-avatar:hover {
-  transform: scale(1.06);
+.mobile-logout-btn:hover {
+  background: rgba(178, 58, 52, 0.3);
+  color: #ffffff;
 }
 
-/* Backdrop para Móvil */
+/* --------------------------------------------------------------------------
+   Mobile Backdrop
+   -------------------------------------------------------------------------- */
 .sidebar-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.72);
+  background: rgba(0, 29, 74, 0.72);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   z-index: 998;
-  animation: fadeIn 0.2s ease forwards;
+  animation: fadeInBackdrop 0.25s ease forwards;
 }
 
-@keyframes fadeIn {
+@keyframes fadeInBackdrop {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
 /* --------------------------------------------------------------------------
-   2. Sidebar Principal Estilo Duolingo
+   Main Sidebar Container (Left Navigation)
    -------------------------------------------------------------------------- */
-.duo-sidebar {
+.app-sidebar {
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
-  width: 256px;
+  height: 100%;
   height: 100vh;
   height: 100dvh;
-  background: #131f24; /* Duolingo Dark Slate */
-  border-right: 2px solid #202f36;
+  max-height: 100dvh;
+  width: 260px;
+  background: linear-gradient(160deg, #001d4a 0%, #002b66 50%, #003680 100%);
+  border-right: 1px solid rgba(56, 189, 248, 0.16);
   display: flex;
   flex-direction: column;
   z-index: 1000;
   box-sizing: border-box;
-  padding: 20px 14px 16px;
-  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
-  font-family: 'Nunito', 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  user-select: none;
+  color: #f8fafc;
+  box-shadow: 4px 0 24px rgba(0, 29, 74, 0.35);
+  transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform;
 }
 
-/* Brand Box Top: README AND READLINE */
-.duo-brand-box {
+/* Header / Brand */
+.sidebar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 4px 22px;
-  flex-shrink: 0;
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.14);
 }
 
-.duo-brand-link {
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-}
-
-.duo-brand-title {
-  font-family: 'Nunito', 'Outfit', sans-serif;
-  font-size: 1.2rem;
-  font-weight: 900;
-  letter-spacing: -0.01em;
-  line-height: 1;
-  display: inline-flex;
-  align-items: baseline;
-  gap: 6px;
-  text-transform: uppercase;
-}
-
-.brand-word-readme {
-  color: #58cc02; /* Duolingo Green */
-}
-
-.brand-word-and {
-  color: #8492a6;
-  font-size: 0.82rem;
-  font-weight: 800;
-}
-
-.brand-word-readline {
-  color: #1cb0f6; /* Duolingo Sky Blue */
-}
-
-.sidebar-close-btn {
-  display: none;
-  background: transparent;
-  border: none;
-  color: #94a3b8;
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 8px;
-}
-
-.sidebar-close-btn:hover {
-  background: #1b2a32;
-  color: #FFFFFF;
-}
-
-/* Navigation List */
-.duo-nav-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-right: 2px;
-}
-
-.duo-nav-list::-webkit-scrollbar {
-  width: 4px;
-}
-.duo-nav-list::-webkit-scrollbar-thumb {
-  background: #202f36;
-  border-radius: 4px;
-}
-
-/* Duolingo Nav Button (Exacto a la imagen) */
-.duo-nav-btn {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  width: 100%;
-  height: 50px;
-  padding: 0 14px;
-  border-radius: 16px;
-  background: transparent;
-  border: 2px solid transparent;
-  color: #FFFFFF;
-  font-family: 'Nunito', 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 0.92rem;
-  font-weight: 800;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.08s ease;
-  box-sizing: border-box;
-  white-space: nowrap;
-  text-align: left;
-}
-
-.duo-nav-btn:hover {
-  background: #1b2a32;
-}
-
-.duo-nav-btn:active {
-  transform: scale(0.98);
-}
-
-/* Selected State (Como ADMINISTRADOR / APRENDER en la imagen) */
-.duo-nav-btn.is-active {
-  background: #152c39;
-  border: 2px solid #1cb0f6;
-  color: #1cb0f6;
-}
-
-.duo-nav-btn.is-active:hover {
-  background: #193544;
-}
-
-.nav-icon-box {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.nav-label {
-  font-size: 0.92rem;
-  font-weight: 800;
-  letter-spacing: 0.07em;
-  line-height: 1;
-}
-
-/* --------------------------------------------------------------------------
-   3. Pie del Sidebar: Usuario y Botón Directo de Cerrar Sesión
-   -------------------------------------------------------------------------- */
-.duo-sidebar-footer {
-  margin-top: auto;
-  padding-top: 14px;
-  border-top: 2px solid #202f36;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
-.duo-user-mini-row {
+.sidebar-brand {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 10px;
-  border-radius: 14px;
-  cursor: pointer;
-  background: #18262c;
-  border: 1px solid #23353e;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  text-decoration: none;
+  min-width: 0;
 }
 
-.duo-user-mini-row:hover {
-  background: #1d2f38;
-  border-color: #2e4653;
-}
-
-.user-mini-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #253945;
+.brand-icon {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 74, 173, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
 }
 
-.user-mini-meta {
+.brand-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.brand-info {
   display: flex;
   flex-direction: column;
   min-width: 0;
 }
 
-.user-mini-name {
-  font-size: 0.88rem;
+.brand-title {
+  font-family: var(--font-heading, inherit);
+  font-size: 1.05rem;
   font-weight: 800;
   color: #ffffff;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.brand-accent {
+  color: #38bdf8;
+}
+
+.brand-tag {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: rgba(248, 250, 252, 0.7);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.sidebar-mobile-close-bar {
+  display: none;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 12px 14px 4px;
+}
+
+@media (max-width: 991px) {
+  .sidebar-mobile-close-bar {
+    display: flex;
+  }
+}
+
+.sidebar-close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: #d1d5db;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.sidebar-close-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.role-badge.badge-admin {
+  background: rgba(0, 74, 173, 0.3);
+  color: #bfdbfe;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+
+.role-badge.badge-admin .role-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 6px #38bdf8;
+}
+
+.role-badge.badge-teacher {
+  background: rgba(243, 111, 33, 0.22);
+  color: #fed7aa;
+  border: 1px solid rgba(243, 111, 33, 0.4);
+}
+
+.role-badge.badge-teacher .role-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--kinal-orange);
+  box-shadow: 0 0 6px var(--kinal-orange);
+}
+
+.role-badge.badge-student {
+  background: rgba(2, 132, 199, 0.2);
+  color: #bae6fd;
+  border: 1px solid rgba(2, 132, 199, 0.4);
+}
+
+.role-badge.badge-student .role-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 6px #38bdf8;
+}
+
+/* Nav Area with BranchedMenu */
+.sidebar-nav-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 20px 12px 16px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.sidebar-nav-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-nav-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+
+/* Gamification Stats Area */
+.sidebar-gamification {
+  flex-shrink: 0;
+  padding: 12px 14px;
+  background: rgba(15, 23, 42, 0.6);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.gamification-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.metric-item {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 10px 12px 14px;
+  border-radius: 10px;
+  transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.metric-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-2px);
+}
+
+.metric-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  width: 100%;
+}
+
+.metric-val {
+  font-family: var(--font-heading, inherit);
+  font-size: 0.96rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
+}
+
+.metric-lbl {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.user-mini-role {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #1cb0f6;
-  letter-spacing: 0.02em;
-}
-
-/* Botón Visible de Cerrar Sesión (Estilo Duolingo 3D Button) */
-.duo-logout-btn {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  width: 100%;
-  height: 48px;
-  padding: 0 14px;
-  border-radius: 16px;
-  background: #201317;
-  border: 2px solid #7f1d1d;
-  border-bottom: 4px solid #7f1d1d;
-  color: #f87171;
-  font-family: 'Nunito', 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 0.88rem;
-  font-weight: 800;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.12s ease;
-  box-sizing: border-box;
-}
-
-.duo-logout-btn:hover {
-  background: #32151b;
-  border-color: #ef4444;
-  border-bottom-color: #dc2626;
-  color: #ffffff;
-  transform: translateY(-1px);
-}
-
-.duo-logout-btn:active {
-  transform: translateY(2px);
-  border-bottom-width: 2px;
-}
-
-.logout-icon-box {
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.logout-btn-label {
-  font-size: 0.88rem;
-  font-weight: 800;
-  letter-spacing: 0.07em;
-  line-height: 1;
-}
-
-/* --------------------------------------------------------------------------
-   4. Popover Menú "MÁS" (Estilo Tarjeta Flotante Duolingo)
-   -------------------------------------------------------------------------- */
-.duo-more-popover {
+/* Barra inferior indicadora de métrica */
+.metric-bottom-bar {
   position: absolute;
-  left: 268px;
-  bottom: 24px;
-  width: 230px;
-  background: #1b2a32;
-  border: 2px solid #283e49;
-  border-radius: 18px;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55);
-  padding: 10px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3.5px;
+  border-radius: 0 0 10px 10px;
+  transition: height 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metric-item:hover .metric-bottom-bar {
+  height: 4.5px;
+}
+
+/* Racha: Naranja Fervor Kinal */
+.metric-streak .metric-bottom-bar {
+  background: linear-gradient(90deg, #f36f21 0%, #ea580c 100%);
+  box-shadow: 0 0 10px rgba(243, 111, 33, 0.55);
+}
+
+.metric-streak:hover {
+  border-color: rgba(243, 111, 33, 0.4);
+  box-shadow: 0 4px 14px rgba(243, 111, 33, 0.2);
+}
+
+/* XP: Salvia / Esmeralda */
+.metric-xp .metric-bottom-bar {
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.55);
+}
+
+.metric-xp:hover {
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.2);
+}
+
+/* Nivel: Azul y Celeste Login */
+.metric-level .metric-bottom-bar {
+  background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.55);
+}
+
+.metric-level:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.2);
+}
+
+/* Monedas: Oro / Ámbar Brillante */
+.metric-coins .metric-bottom-bar {
+  background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.55);
+}
+
+.metric-coins:hover {
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.2);
+}
+
+/* Footer & User Profile */
+.sidebar-footer {
+  flex-shrink: 0;
+  margin-top: auto;
+  padding: 14px 16px max(16px, env(safe-area-inset-bottom, 16px));
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  z-index: 1050;
-  animation: popoverFadeIn 0.15s ease-out;
-}
-
-@keyframes popoverFadeIn {
-  from { opacity: 0; transform: translateX(-8px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-.popover-item {
-  display: flex;
-  align-items: center;
   gap: 12px;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: transparent;
-  border: none;
-  color: #FFFFFF;
-  font-family: inherit;
-  font-size: 0.9rem;
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
-  transition: background 0.15s ease;
-  width: 100%;
-  box-sizing: border-box;
 }
 
-.popover-item:hover {
-  background: #243843;
-}
-
-.popover-item.popover-logout {
-  color: #ef4444;
-  border-top: 1px solid #283e49;
-  margin-top: 4px;
-  padding-top: 12px;
-}
-
-.popover-item.popover-logout:hover {
-  background: rgba(239, 68, 68, 0.15);
-}
-
-/* --------------------------------------------------------------------------
-   5. Modal / Tarjeta de "PERFIL" (Estilo Duolingo)
-   -------------------------------------------------------------------------- */
-.duo-profile-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(4px);
-  z-index: 2000;
+.user-profile-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 16px;
-  animation: fadeIn 0.18s ease;
+  gap: 10px;
+  min-width: 0;
 }
 
-.duo-profile-card {
-  width: 100%;
-  max-width: 440px;
-  background: #131f24;
-  border: 2px solid #283e49;
-  border-radius: 24px;
-  padding: 28px;
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6);
-  color: #FFFFFF;
-  box-sizing: border-box;
-}
-
-.profile-card-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
-  position: relative;
-}
-
-.profile-avatar-big {
-  width: 64px;
-  height: 64px;
+.avatar-circle {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
   border-radius: 50%;
-  background: #1b2a32;
-  border: 2px solid #283e49;
+  overflow: hidden;
+  background: #004aad;
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 8px rgba(0, 74, 173, 0.35);
+  border: 2px solid rgba(56, 189, 248, 0.35);
 }
 
-.profile-meta {
+.avatar-circle.frame-kinal {
+  border-color: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
   flex: 1;
 }
 
-.profile-meta h3 {
-  font-size: 1.3rem;
-  font-weight: 900;
-  margin: 0 0 4px;
-  color: #FFFFFF;
+.user-name {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #f8fafc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.profile-role-badge {
-  display: inline-block;
-  font-size: 0.78rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #1cb0f6;
-  background: rgba(28, 176, 246, 0.15);
-  border: 1px solid rgba(28, 176, 246, 0.3);
-  padding: 3px 10px;
-  border-radius: 8px;
-}
-
-.btn-close-profile {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background: transparent;
-  border: none;
-  font-size: 1.2rem;
+.user-sub {
+  font-size: 0.7rem;
   color: #94a3b8;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.btn-close-profile:hover {
-  background: #1b2a32;
-  color: #FFFFFF;
-}
-
-.profile-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.profile-stat-box {
-  background: #1b2a32;
-  border: 2px solid #283e49;
-  border-radius: 14px;
-  padding: 14px;
+.sidebar-logout-btn {
   display: flex;
-  flex-direction: column;
-}
-
-.p-stat-val {
-  font-size: 1.2rem;
-  font-weight: 900;
-  color: #FFFFFF;
-}
-
-.p-stat-lbl {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-top: 2px;
-}
-
-.profile-actions {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.btn-profile-logout {
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: 100%;
-  height: 48px;
-  background: #ef4444;
-  color: #FFFFFF;
-  border: none;
-  border-radius: 14px;
-  font-family: inherit;
-  font-size: 0.92rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  padding: 9px 12px;
+  border-radius: 9px;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  background: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
+  font-size: 0.82rem;
+  font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 4px 0 #b91c1c;
-  transition: all 0.1s ease;
+  transition: all 0.2s ease;
 }
 
-.btn-profile-logout:hover {
-  filter: brightness(1.08);
-}
-
-.btn-profile-logout:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 #b91c1c;
+.sidebar-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.22);
+  color: #ffffff;
+  border-color: rgba(239, 68, 68, 0.4);
+  transform: translateY(-1px);
 }
 
 /* --------------------------------------------------------------------------
-   6. Responsive (< 992px)
+   Responsive Adaptations
    -------------------------------------------------------------------------- */
 @media (max-width: 991px) {
   .mobile-top-bar {
     display: flex;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform;
   }
 
-  .duo-sidebar {
-    transform: translateX(-100%);
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+  .sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
   }
 
-  .duo-sidebar.is-open {
-    transform: translateX(0);
+  .app-sidebar {
+    width: min(300px, 86vw);
+    height: 100% !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    transform: translate3d(-100%, 0, 0);
+    -webkit-transform: translate3d(-100%, 0, 0);
+    box-shadow: none;
+    will-change: transform;
+  }
+
+  .app-sidebar.is-open {
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    box-shadow: 6px 0 30px rgba(0, 0, 0, 0.5);
   }
 
   .sidebar-close-btn {
-    display: block;
+    display: inline-flex;
+  }
+}
+
+@media (min-width: 992px) {
+  .app-sidebar {
+    transform: none !important;
   }
 
-  .duo-more-popover {
-    left: 16px;
-    bottom: 80px;
-    width: calc(100% - 32px);
+  .mobile-top-bar {
+    display: none !important;
+  }
+
+  .sidebar-backdrop {
+    display: none !important;
   }
 }

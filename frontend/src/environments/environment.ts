@@ -10,4 +10,6 @@ export const environment = {
   apiUrl: isLocalhost
     ? 'http://localhost:3000/api'
     : (typeof window !== 'undefined' && (window as any).__API_URL__) || 'https://literaturaproyect.onrender.com/api',
+  googleClientId: '968679340678-cjpl9gauolrps73cd16330ohmvqp9kvt.apps.googleusercontent.com',
 };
+

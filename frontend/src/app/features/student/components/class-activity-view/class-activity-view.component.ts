@@ -71,11 +71,8 @@ export class ClassActivityViewComponent implements OnInit, OnDestroy {
   // Anti-Cheat & Seguridad Anti-IA
   infractionsCount = signal<number>(0);
   isTabBlurred = signal<boolean>(false);
-  isBlackoutActive = signal<boolean>(false);
   securityNotice = signal<string | null>(null);
   private securityNoticeTimeout?: any;
-  private blackoutTimeout?: any;
-  private focusRestoreTimeout?: any;
 
   // Marca de agua dinámica para el estudiante
   watermarkText = computed(() => {
@@ -97,9 +94,6 @@ export class ClassActivityViewComponent implements OnInit, OnDestroy {
     this.stopTimer();
     this.stopSpeechRecognition();
     this.stopAutoPoll();
-    if (this.blackoutTimeout) clearTimeout(this.blackoutTimeout);
-    if (this.focusRestoreTimeout) clearTimeout(this.focusRestoreTimeout);
-    if (this.securityNoticeTimeout) clearTimeout(this.securityNoticeTimeout);
   }
 
   startAutoPoll() {
@@ -338,177 +332,51 @@ export class ClassActivityViewComponent implements OnInit, OnDestroy {
   }
 
   // ==========================================
-  // ESCUDO TOTAL ANTI-CAPTURA & ANTI-IA
+  // ANTI-CHEAT & SEGURIDAD ANTI-IA
   // ==========================================
 
   @HostListener('window:blur')
   onWindowBlur() {
-    if (this.activity() && this.phase() !== 'RESULTS') {
-      this.isBlackoutActive.set(true);
+    if (this.phase() === 'READING' || this.phase() === 'QUIZ') {
       this.isTabBlurred.set(true);
-      this.clearClipboard();
-      if (this.phase() === 'READING' || this.phase() === 'QUIZ') {
-        this.infractionsCount.update((c) => c + 1);
-      }
-      this.cdr.markForCheck();
+      this.infractionsCount.update((c) => c + 1);
+      this.triggerSecurityAlert('Cambio de ventana o pestaña detectado. La lectura se oculta por seguridad.');
     }
   }
 
   @HostListener('window:focus')
   onWindowFocus() {
-    if (this.focusRestoreTimeout) clearTimeout(this.focusRestoreTimeout);
-    this.focusRestoreTimeout = setTimeout(() => {
-      this.isBlackoutActive.set(false);
-      this.isTabBlurred.set(false);
-      this.cdr.markForCheck();
-    }, 350);
+    this.isTabBlurred.set(false);
   }
 
   @HostListener('document:visibilitychange')
   onVisibilityChange() {
-    if (this.activity() && this.phase() !== 'RESULTS') {
-      if (document.hidden) {
-        this.isBlackoutActive.set(true);
-        this.isTabBlurred.set(true);
-        this.clearClipboard();
-        if (this.phase() === 'READING' || this.phase() === 'QUIZ') {
-          this.infractionsCount.update((c) => c + 1);
-        }
-      } else {
-        if (this.focusRestoreTimeout) clearTimeout(this.focusRestoreTimeout);
-        this.focusRestoreTimeout = setTimeout(() => {
-          this.isBlackoutActive.set(false);
-          this.isTabBlurred.set(false);
-          this.cdr.markForCheck();
-        }, 350);
-      }
-      this.cdr.markForCheck();
+    if (document.hidden && (this.phase() === 'READING' || this.phase() === 'QUIZ')) {
+      this.isTabBlurred.set(true);
+      this.infractionsCount.update((c) => c + 1);
+      this.triggerSecurityAlert('Cambio de pestaña detectado. Modo seguro activo.');
+    } else {
+      this.isTabBlurred.set(false);
     }
   }
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
-    if (!this.activity() || this.phase() === 'RESULTS') return;
+    if (this.phase() !== 'READING' && this.phase() !== 'QUIZ') return;
 
+    // Bloquear Ctrl+C, Ctrl+V, Ctrl+A, Ctrl+P, Ctrl+U, Ctrl+Shift+I, F12
     const isCtrl = event.ctrlKey || event.metaKey;
-    const key = (event.key || '').toLowerCase();
-    const code = (event.code || '').toLowerCase();
-
-    // Detección inmediata de tecla ImprPant / PrintScreen
-    const isPrintScreen =
-      event.key === 'PrintScreen' ||
-      code === 'printscreen' ||
-      event.keyCode === 44;
-
-    // Detección de atajos de captura: Win+Shift+S, Cmd+Shift+3/4
-    const isScreenshotShortcut =
-      (isCtrl || event.metaKey) && event.shiftKey && (key === 's' || code === 'keys');
-
-    // Detección de atajos de copia o inspección
-    const isCopyShortcut =
-      isCtrl && ['c', 'v', 'a', 'p', 'u', 'x', 's'].includes(key);
-
-    const isDevToolsShortcut =
-      event.key === 'F12' ||
-      (isCtrl && event.shiftKey && ['i', 'j', 'c'].includes(key));
-
-    if (isPrintScreen || isScreenshotShortcut) {
-      event.preventDefault();
-      event.stopPropagation();
-      this.isBlackoutActive.set(true);
-      this.clearClipboard();
-      this.scheduleBlackoutReset(1800);
-      return;
-    }
-
-    if (isCopyShortcut || isDevToolsShortcut) {
-      event.preventDefault();
-      event.stopPropagation();
-      this.isBlackoutActive.set(true);
-      this.clearClipboard();
-      this.scheduleBlackoutReset(1000);
-      return;
-    }
-  }
-
-  @HostListener('window:keyup', ['$event'])
-  onKeyUp(event: KeyboardEvent) {
-    if (!this.activity() || this.phase() === 'RESULTS') return;
+    const key = event.key.toLowerCase();
 
     if (
+      (isCtrl && ['c', 'v', 'a', 'p', 'u', 'x', 's'].includes(key)) ||
       event.key === 'PrintScreen' ||
-      (event.code || '').toLowerCase() === 'printscreen' ||
-      event.keyCode === 44
+      event.key === 'F12'
     ) {
       event.preventDefault();
       event.stopPropagation();
-      this.isBlackoutActive.set(true);
-      this.clearClipboard();
-      this.scheduleBlackoutReset(1800);
+      this.triggerSecurityAlert('Acción bloqueada: No se permite copiar texto ni capturar durante la actividad.');
     }
-  }
-
-  @HostListener('window:copy', ['$event'])
-  onCopy(event: ClipboardEvent) {
-    if (this.activity() && this.phase() !== 'RESULTS') {
-      event.preventDefault();
-      event.clipboardData?.setData('text/plain', '');
-      this.clearClipboard();
-      this.isBlackoutActive.set(true);
-      this.scheduleBlackoutReset(1000);
-    }
-  }
-
-  @HostListener('window:cut', ['$event'])
-  onCut(event: ClipboardEvent) {
-    if (this.activity() && this.phase() !== 'RESULTS') {
-      event.preventDefault();
-      event.clipboardData?.setData('text/plain', '');
-      this.clearClipboard();
-      this.isBlackoutActive.set(true);
-      this.scheduleBlackoutReset(1000);
-    }
-  }
-
-  @HostListener('window:contextmenu', ['$event'])
-  onContextMenu(event: MouseEvent) {
-    if (this.activity() && this.phase() !== 'RESULTS') {
-      event.preventDefault();
-    }
-  }
-
-  @HostListener('window:selectstart', ['$event'])
-  onSelectStart(event: Event) {
-    if (this.activity() && this.phase() !== 'RESULTS') {
-      event.preventDefault();
-    }
-  }
-
-  @HostListener('window:dragstart', ['$event'])
-  onDragStart(event: DragEvent) {
-    if (this.activity() && this.phase() !== 'RESULTS') {
-      event.preventDefault();
-    }
-  }
-
-  clearClipboard() {
-    try {
-      window.getSelection()?.removeAllRanges();
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText('').catch(() => {});
-      }
-    } catch {}
-  }
-
-  scheduleBlackoutReset(ms = 1500) {
-    if (this.blackoutTimeout) clearTimeout(this.blackoutTimeout);
-    this.blackoutTimeout = setTimeout(() => {
-      if (document.hasFocus() && !document.hidden) {
-        this.isBlackoutActive.set(false);
-        this.cdr.markForCheck();
-      }
-    }, ms);
-    this.cdr.markForCheck();
   }
 
   triggerSecurityAlert(message: string) {

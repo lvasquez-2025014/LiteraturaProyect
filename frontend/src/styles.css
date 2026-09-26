@@ -1,16 +1,48 @@
 /* ==========================================================
-   PALETA INSTITUCIONAL Y SISTEMA DE DISEÑO
+   PALETA OFICIAL Y SISTEMA DE DISEÑO — INSPIRADO EN EL LOGIN
+   (Azul Cobalto #004aad, Azul Océano #001d4a/#003680, Celeste #38bdf8 y Naranja #f36f21)
    ========================================================== */
 
 :root {
-  /* Colores Corporativos */
-  --kinal-blue: #004aad;          /* Azul Cobalto Institucional */
+  /* Paleta Oficial del Login */
+  --primary: #004aad;
+  --primary-hover: #003b8a;
+  --primary-active: #001d4a;
+  --secondary: #003680;
+  --accent: #f36f21;
+  --accent-hover: #d8570c;
+  --accent-light: rgba(243, 111, 33, 0.12);
+  --accent-cyan: #38bdf8;
+  --accent-sky: #0284c7;
+  --accent-orange: #f36f21;
+  --accent-orange-hover: #d8570c;
+  --accent-orange-light: #fff4ed;
+  --accent-orange-glow: rgba(243, 111, 33, 0.25);
+
+  --bg-page: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-card: #ffffff;
+  --border-subtle: #e2e8f0;
+  --border-focus: #004aad;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #0284c7;
+
+  /* Aliases de Compatibilidad para el Proyecto */
+  --kinal-blue: #004aad;
   --kinal-blue-hover: #003b8a;
-  --kinal-dark-blue: #1c2d5a;     /* Azul Marino Profundo */
+  --kinal-dark-blue: #001d4a;
   --kinal-light-blue: #e8eeff;
   --kinal-blue-glow: rgba(0, 74, 173, 0.25);
 
-  --kinal-orange: #f36f21;        /* Naranja Fervor Institucional */
+  --kinal-orange: #f36f21;
   --kinal-orange-hover: #d8570c;
   --kinal-orange-light: #fff4ed;
   --kinal-orange-glow: rgba(243, 111, 33, 0.25);
@@ -20,26 +52,22 @@
   --accent-red: #ef4444;
   --accent-red-light: #fee2e2;
 
-  /* Superficies y Neutros */
-  --bg-page: #f8fafc;
-  --bg-surface: #ffffff;
-  --border-subtle: #e2e8f0;
-  --border-focus: #004aad;
-
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-  --text-light: #94a3b8;
+  /* Degradados Específicos del Login */
+  --gradient-sidebar: linear-gradient(160deg, #001d4a 0%, #002b66 50%, #003680 100%);
+  --gradient-bg-radial: radial-gradient(circle at 100% 0%, rgba(56, 189, 248, 0.08) 0%, rgba(0, 74, 173, 0.03) 45%, transparent 70%), #f8fafc;
+  --gradient-card-top: linear-gradient(90deg, #004aad 0%, #38bdf8 100%);
+  --gradient-celebration: linear-gradient(120deg, #004aad 0%, #0284c7 45%, #38bdf8 100%);
+  --gradient-login-hero: linear-gradient(135deg, #004aad 0%, #003680 100%);
 
   /* Tipografía */
   --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   /* Sombras y Bordes */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 74, 173, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 25px -5px rgba(0, 74, 173, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-  --shadow-card: 0 4px 20px rgba(15, 23, 42, 0.06);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 74, 173, 0.07), 0 2px 4px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 12px 28px -5px rgba(0, 74, 173, 0.14), 0 6px 12px -4px rgba(15, 23, 42, 0.05);
+  --shadow-card: 0 4px 20px rgba(0, 74, 173, 0.06);
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -64,6 +92,7 @@ html {
 body {
   font-family: var(--font-body);
   color: var(--text-primary);
+  background: var(--gradient-bg-radial);
   background-color: var(--bg-page);
   min-height: 100vh;
   line-height: 1.5;
@@ -89,12 +118,64 @@ button, input, select, textarea {
   font-family: inherit;
 }
 
-/* Paneles y Tarjetas */
+/* Paneles y Tarjetas con Barra Superior de 4px en Degradado */
 .kinal-card {
-  background: var(--bg-surface);
+  position: relative;
+  background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.kinal-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-card-top);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Jerarquía de Tarjetas (Luminoso, Limpio y Elegante) */
+.kinal-card-hero {
+  position: relative;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.kinal-card-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: var(--gradient-card-top);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.kinal-card-secondary {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.kinal-card-tertiary {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  box-shadow: none;
 }
 
 /* Insignias de Rol */
@@ -127,7 +208,7 @@ button, input, select, textarea {
   border: 1px solid #cbd5e1;
 }
 
-/* Botones Institucionales */
+/* Botones Institucionales con Estilo del Login */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -136,6 +217,7 @@ button, input, select, textarea {
   font-family: var(--font-heading);
   font-weight: 600;
   font-size: 0.95rem;
+  min-height: 44px;
   padding: 11px 22px;
   border-radius: var(--radius-md);
   border: none;
@@ -149,31 +231,31 @@ button, input, select, textarea {
 }
 
 .btn-kinal-primary {
-  background: var(--kinal-blue);
+  background: linear-gradient(135deg, #004aad 0%, #003680 100%);
   color: #ffffff;
-  box-shadow: 0 4px 12px var(--kinal-blue-glow);
+  box-shadow: 0 4px 14px rgba(0, 74, 173, 0.28);
 }
 
 .btn-kinal-primary:hover:not(:disabled) {
-  background: var(--kinal-blue-hover);
-  box-shadow: 0 6px 16px var(--kinal-blue-glow);
+  background: linear-gradient(135deg, #0052cc 0%, #003b8a 100%);
+  box-shadow: 0 6px 18px rgba(0, 74, 173, 0.38);
   transform: translateY(-1px);
 }
 
 .btn-kinal-orange {
-  background: var(--kinal-orange);
+  background: linear-gradient(135deg, #f36f21 0%, #d8570c 100%);
   color: #ffffff;
-  box-shadow: 0 4px 12px var(--kinal-orange-glow);
+  box-shadow: 0 4px 14px rgba(243, 111, 33, 0.28);
 }
 
 .btn-kinal-orange:hover:not(:disabled) {
-  background: var(--kinal-orange-hover);
-  box-shadow: 0 6px 16px var(--kinal-orange-glow);
+  background: linear-gradient(135deg, #ff7b00 0%, #e05e07 100%);
+  box-shadow: 0 6px 18px rgba(243, 111, 33, 0.38);
   transform: translateY(-1px);
 }
 
 .btn-secondary {
-  background: #ffffff;
+  background: var(--bg-surface);
   color: var(--text-primary);
   border: 1px solid var(--border-subtle);
   box-shadow: var(--shadow-sm);
