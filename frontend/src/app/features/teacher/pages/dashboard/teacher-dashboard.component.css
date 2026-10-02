@@ -2359,5 +2359,176 @@
   cursor: pointer;
 }
 
+/* ==========================================================================
+   Pedagogical Cognitive Levels (Literal, Inferencial, Crítico)
+   ========================================================================== */
+.q-card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.q-level-pill-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.q-level-pill-badge.lvl-literal {
+  background: #EFF6FF;
+  color: #004AAD;
+  border: 1px solid #BFDBFE;
+}
+
+.q-level-pill-badge.lvl-inferencial {
+  background: #FFF7ED;
+  color: #C2410C;
+  border: 1px solid #FED7AA;
+}
+
+.q-level-pill-badge.lvl-critico {
+  background: #FAF5FF;
+  color: #6B21A8;
+  border: 1px solid #E9D5FF;
+}
+
+.cognitive-pedagogy-guide {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-left: 4px solid #004AAD;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin: 0.6rem 0 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.guide-header-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #001D4A;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.guide-chips-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+@media (min-width: 768px) {
+  .guide-chips-preview {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+.guide-pill {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.guide-pill.guide-literal {
+  background: #EFF6FF;
+  color: #1E40AF;
+  border: 1px solid #DBEAFE;
+}
+
+.guide-pill.guide-inferencial {
+  background: #FFF7ED;
+  color: #9A3412;
+  border: 1px solid #FFEDD5;
+}
+
+.guide-pill.guide-critico {
+  background: #FAF5FF;
+  color: #6B21A8;
+  border: 1px solid #F3E8FF;
+}
+
+.cognitive-level-selector {
+  margin: 0.5rem 0 0.85rem 0;
+  padding: 0.65rem 0.85rem;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+}
+
+.selector-title {
+  display: block;
+  font-size: 0.73rem;
+  font-weight: 800;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.45rem;
+}
+
+.selector-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cognitive-chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cognitive-chip-btn:hover {
+  border-color: #94A3B8;
+  background: #F1F5F9;
+}
+
+.cognitive-chip-btn.is-selected-literal {
+  background: #004AAD !important;
+  border-color: #004AAD !important;
+  color: #FFFFFF !important;
+}
+
+.cognitive-chip-btn.is-selected-inferencial {
+  background: #F36F21 !important;
+  border-color: #F36F21 !important;
+  color: #FFFFFF !important;
+}
+
+.cognitive-chip-btn.is-selected-critico {
+  background: #7C3AED !important;
+  border-color: #7C3AED !important;
+  color: #FFFFFF !important;
+}
+
+.selector-explanation {
+  margin: 0.45rem 0 0 0;
+  font-size: 0.76rem;
+  color: #64748B;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+
 
 

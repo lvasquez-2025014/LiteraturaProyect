@@ -6,6 +6,7 @@ export interface QuestionDocument {
   options: string[];
   correctIndex: number;
   explanation?: string;
+  cognitiveLevel?: 'literal' | 'inferencial' | 'critico';
 }
 
 export interface ReadingDocument {

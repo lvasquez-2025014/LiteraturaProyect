@@ -1,11 +1,66 @@
 import { User } from './user.model';
 
+export type CognitiveLevel = 'literal' | 'inferencial' | 'critico';
+
+export interface CognitiveLevelInfo {
+  id: CognitiveLevel;
+  label: string;
+  shortLabel: string;
+  badgeClass: string;
+  color: string;
+  icon: string;
+  definition: string;
+  example: string;
+}
+
+export const COGNITIVE_LEVELS_META: Record<CognitiveLevel, CognitiveLevelInfo> = {
+  literal: {
+    id: 'literal',
+    label: 'Nivel Literal',
+    shortLabel: 'Literal',
+    badgeClass: 'badge-cognitive-literal',
+    color: '#004AAD',
+    icon: '📖',
+    definition: 'Pregunta directa y respuesta directa explícita en el texto.',
+    example: 'Identificar hechos, personajes, lugares o datos textuales específicos.',
+  },
+  inferencial: {
+    id: 'inferencial',
+    label: 'Nivel Inferencial',
+    shortLabel: 'Inferencial',
+    badgeClass: 'badge-cognitive-inferencial',
+    color: '#F36F21',
+    icon: '💡',
+    definition: 'Deducción de conclusiones, causas y consecuencias a partir de pistas del texto.',
+    example: 'Ejemplo: ¿Está lloviendo? Sí, porque el cielo está completamente nublado.',
+  },
+  critico: {
+    id: 'critico',
+    label: 'Nivel Crítico',
+    shortLabel: 'Crítico',
+    badgeClass: 'badge-cognitive-critico',
+    color: '#7C3AED',
+    icon: '⚖️',
+    definition: 'Análisis, contextualización y fundamentar la respuesta con argumentos.',
+    example: 'Evaluar posturas éticas, reflexionar sobre la intención del autor y conectar con la realidad.',
+  },
+};
+
+export function getQuestionCognitiveLevel(q?: Question, fallbackIndex = 0): CognitiveLevel {
+  if (q?.cognitiveLevel) return q.cognitiveLevel;
+  const mod = fallbackIndex % 3;
+  if (mod === 0) return 'literal';
+  if (mod === 1) return 'inferencial';
+  return 'critico';
+}
+
 export interface Question {
   id: string;
   prompt: string;
   options: string[];
   correctIndex: number;
   explanation?: string;
+  cognitiveLevel?: CognitiveLevel;
 }
 
 export interface RoadmapStage {

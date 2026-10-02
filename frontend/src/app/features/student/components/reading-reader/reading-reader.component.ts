@@ -1,7 +1,23 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Reading, ReadingAttemptResult, Question } from '../../../../core/models/reading.model';
+import {
+  Reading,
+  ReadingAttemptResult,
+  Question,
+  CognitiveLevel,
+  CognitiveLevelInfo,
+  COGNITIVE_LEVELS_META,
+  getQuestionCognitiveLevel,
+} from '../../../../core/models/reading.model';
 import { KINAL_READINGS } from '../../../../core/data/kinal-readings';
+
+export interface CognitiveLevelStat {
+  level: CognitiveLevel;
+  info: CognitiveLevelInfo;
+  total: number;
+  correct: number;
+  percentage: number;
+}
 import {
   SpeechRecognitionService,
   SpeechTokensEvent,
@@ -39,6 +55,14 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
 
   public speechService = inject(SpeechRecognitionService);
   private cdr = inject(ChangeDetectorRef);
+
+  readonly cognitiveMeta = COGNITIVE_LEVELS_META;
+  cognitiveStats: CognitiveLevelStat[] = [];
+
+  getCognitiveInfo(q?: Question, idx = 0): CognitiveLevelInfo {
+    const lvl = getQuestionCognitiveLevel(q, idx);
+    return this.cognitiveMeta[lvl];
+  }
 
   tokens: ReadingWordToken[] = [];
   words: string[] = [];
@@ -805,7 +829,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     const selected = shuffledPool.slice(0, sampleSize);
 
     // Barajar también las opciones A, B, C, D de cada pregunta y recalcular correctIndex
-    this.activeQuestions = selected.map((q) => {
+    this.activeQuestions = selected.map((q, qIdx) => {
       const originalCorrectText = q.options[q.correctIndex];
       const shuffledOptions = [...q.options];
       for (let i = shuffledOptions.length - 1; i > 0; i--) {
@@ -815,6 +839,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       const newCorrectIndex = shuffledOptions.indexOf(originalCorrectText);
       return {
         ...q,
+        cognitiveLevel: getQuestionCognitiveLevel(q, qIdx),
         options: shuffledOptions,
         correctIndex: newCorrectIndex >= 0 ? newCorrectIndex : 0,
       };
@@ -872,6 +897,34 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       xpEarned: this.reading.xpReward,
       date: new Date().toISOString(),
     };
+
+    // Cálculo del Diagnóstico Pedagógico por Niveles de Comprensión (Literal, Inferencial, Crítico)
+    const breakdownMap: Record<CognitiveLevel, { total: number; correct: number }> = {
+      literal: { total: 0, correct: 0 },
+      inferencial: { total: 0, correct: 0 },
+      critico: { total: 0, correct: 0 },
+    };
+
+    this.activeQuestions.forEach((q, idx) => {
+      const lvl = getQuestionCognitiveLevel(q, idx);
+      breakdownMap[lvl].total++;
+      if (this.selectedAnswers[idx] === q.correctIndex) {
+        breakdownMap[lvl].correct++;
+      }
+    });
+
+    this.cognitiveStats = (['literal', 'inferencial', 'critico'] as CognitiveLevel[])
+      .filter((lvl) => breakdownMap[lvl].total > 0)
+      .map((lvl) => {
+        const item = breakdownMap[lvl];
+        return {
+          level: lvl,
+          info: COGNITIVE_LEVELS_META[lvl],
+          total: item.total,
+          correct: item.correct,
+          percentage: item.total > 0 ? Math.round((item.correct / item.total) * 100) : 0,
+        };
+      });
 
     this.showVictory = true;
 

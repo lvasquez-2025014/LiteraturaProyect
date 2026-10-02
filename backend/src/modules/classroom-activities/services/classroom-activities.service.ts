@@ -208,6 +208,7 @@ export class ClassroomActivitiesService implements OnModuleInit {
           ],
           correctIndex: 1,
           explanation: 'La sonoridad y aliteración fúnebre crean un clima de angustia y asfixia psicológica bajo la opresión del régimen.',
+          cognitiveLevel: 'inferencial',
         },
         {
           id: 'q2',
@@ -220,6 +221,7 @@ export class ClassroomActivitiesService implements OnModuleInit {
           ],
           correctIndex: 1,
           explanation: 'El texto señala textualmente: "El miedo no era una emoción pasajera; era el aire que se respiraba en las esquinas".',
+          cognitiveLevel: 'literal',
         },
         {
           id: 'q3',
@@ -232,6 +234,7 @@ export class ClassroomActivitiesService implements OnModuleInit {
           ],
           correctIndex: 2,
           explanation: 'Bajo el Portal del Señor se arrastraban los mendigos de la ciudad como gusanos bajo una lápida.',
+          cognitiveLevel: 'literal',
         },
         {
           id: 'q4',
@@ -244,6 +247,7 @@ export class ClassroomActivitiesService implements OnModuleInit {
           ],
           correctIndex: 2,
           explanation: 'El texto concluye destacando que la literatura es un testimonio inquebrantable de resistencia y memoria histórica.',
+          cognitiveLevel: 'critico',
         },
       ],
       teacherId: 'teacher-lit-01',

@@ -788,18 +788,58 @@
           <!-- Questions section -->
           <div class="questions-section">
             <div class="questions-header">
-              <h4><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Cuestionario de Comprensión Lector ({{ readingFormData.questions.length }})</h4>
+              <h4><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Cuestionario de Comprensión Lectora ({{ readingFormData.questions.length }})</h4>
               <button type="button" class="btn-add-question" (click)="addQuestionToForm()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Agregar Pregunta
               </button>
             </div>
 
+            <!-- Guía Pedagógica de Comprensión Lectora -->
+            <div class="cognitive-pedagogy-guide">
+              <div class="guide-header-label">
+                <span class="guide-icon">💡</span>
+                <strong>Estructura Pedagógica Recomendada (3 Niveles):</strong>
+              </div>
+              <div class="guide-chips-preview">
+                <span class="guide-pill guide-literal">📖 <b>Literal:</b> Pregunta y respuesta directa explícita en el texto.</span>
+                <span class="guide-pill guide-inferencial">💡 <b>Inferencial:</b> Deducir conclusiones de pistas (ej. <i>¿está lloviendo? Sí, porque está nublado</i>).</span>
+                <span class="guide-pill guide-critico">⚖️ <b>Crítico:</b> Análisis, contextualización y argumentos sólidos.</span>
+              </div>
+            </div>
+
             <div *ngFor="let q of readingFormData.questions; let qIdx = index" class="question-builder-card">
               <div class="question-card-header">
-                <span class="q-number">Pregunta #{{ qIdx + 1 }}</span>
+                <div class="q-card-header-left">
+                  <span class="q-number">Pregunta #{{ qIdx + 1 }}</span>
+                  <span *ngIf="q.cognitiveLevel" class="q-level-pill-badge" [ngClass]="'lvl-' + q.cognitiveLevel">
+                    {{ cognitiveLevelsMeta[q.cognitiveLevel].icon }} {{ cognitiveLevelsMeta[q.cognitiveLevel].shortLabel }}
+                  </span>
+                </div>
                 <button type="button" class="btn-remove-q" (click)="removeQuestionFromForm(qIdx)">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar
                 </button>
+              </div>
+
+              <!-- Selector de Nivel Cognitivo -->
+              <div class="cognitive-level-selector">
+                <span class="selector-title">Nivel de Comprensión Lectora:</span>
+                <div class="selector-chips">
+                  <button 
+                    *ngFor="let lvlKey of cognitiveLevelKeys"
+                    type="button" 
+                    class="cognitive-chip-btn"
+                    [class.is-selected-literal]="q.cognitiveLevel === 'literal' && lvlKey === 'literal'"
+                    [class.is-selected-inferencial]="q.cognitiveLevel === 'inferencial' && lvlKey === 'inferencial'"
+                    [class.is-selected-critico]="q.cognitiveLevel === 'critico' && lvlKey === 'critico'"
+                    (click)="q.cognitiveLevel = lvlKey"
+                  >
+                    <span>{{ cognitiveLevelsMeta[lvlKey].icon }}</span>
+                    <span>{{ cognitiveLevelsMeta[lvlKey].label }}</span>
+                  </button>
+                </div>
+                <p class="selector-explanation" *ngIf="q.cognitiveLevel">
+                  {{ cognitiveLevelsMeta[q.cognitiveLevel].definition }}
+                </p>
               </div>
 
               <div class="form-group">
@@ -1090,9 +1130,27 @@
               </button>
             </div>
 
+            <!-- Guía Pedagógica de Comprensión Lectora -->
+            <div class="cognitive-pedagogy-guide">
+              <div class="guide-header-label">
+                <span class="guide-icon">💡</span>
+                <strong>Estructura Pedagógica de Comprensión:</strong>
+              </div>
+              <div class="guide-chips-preview">
+                <span class="guide-pill guide-literal">📖 <b>Literal:</b> Pregunta y respuesta directa explícita en el texto.</span>
+                <span class="guide-pill guide-inferencial">💡 <b>Inferencial:</b> Conclusiones deducidas de pistas.</span>
+                <span class="guide-pill guide-critico">⚖️ <b>Crítico:</b> Análisis, juicio y argumentos.</span>
+              </div>
+            </div>
+
             <div *ngFor="let q of activityFormData.questions; let qIdx = index" class="question-builder-card">
               <div class="q-card-top">
-                <span class="q-badge">Pregunta #{{ qIdx + 1 }}</span>
+                <div class="q-card-header-left">
+                  <span class="q-badge">Pregunta #{{ qIdx + 1 }}</span>
+                  <span *ngIf="q.cognitiveLevel" class="q-level-pill-badge" [ngClass]="'lvl-' + q.cognitiveLevel">
+                    {{ cognitiveLevelsMeta[q.cognitiveLevel].icon }} {{ cognitiveLevelsMeta[q.cognitiveLevel].shortLabel }}
+                  </span>
+                </div>
                 <button *ngIf="activityFormData.questions.length > 1" type="button" (click)="removeQuestionFromActivity(qIdx)" class="btn-remove-q">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="3 6 5 6 21 6"></polyline>
@@ -1100,6 +1158,28 @@
                   </svg>
                   <span>Eliminar</span>
                 </button>
+              </div>
+
+              <!-- Selector de Nivel Cognitivo -->
+              <div class="cognitive-level-selector">
+                <span class="selector-title">Nivel de Comprensión Lectora:</span>
+                <div class="selector-chips">
+                  <button 
+                    *ngFor="let lvlKey of cognitiveLevelKeys"
+                    type="button" 
+                    class="cognitive-chip-btn"
+                    [class.is-selected-literal]="q.cognitiveLevel === 'literal' && lvlKey === 'literal'"
+                    [class.is-selected-inferencial]="q.cognitiveLevel === 'inferencial' && lvlKey === 'inferencial'"
+                    [class.is-selected-critico]="q.cognitiveLevel === 'critico' && lvlKey === 'critico'"
+                    (click)="q.cognitiveLevel = lvlKey"
+                  >
+                    <span>{{ cognitiveLevelsMeta[lvlKey].icon }}</span>
+                    <span>{{ cognitiveLevelsMeta[lvlKey].label }}</span>
+                  </button>
+                </div>
+                <p class="selector-explanation" *ngIf="q.cognitiveLevel">
+                  {{ cognitiveLevelsMeta[q.cognitiveLevel].definition }}
+                </p>
               </div>
 
               <div class="form-group">

@@ -6,6 +6,7 @@ export interface ClassroomActivityQuestion {
   options: string[];
   correctIndex: number;
   explanation?: string;
+  cognitiveLevel?: 'literal' | 'inferencial' | 'critico';
 }
 
 export interface ClassroomActivitySubmission {

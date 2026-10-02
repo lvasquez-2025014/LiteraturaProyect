@@ -17,6 +17,11 @@ import {
   ClassroomActivityQuestion,
   ClassroomActivitySubmission,
 } from '../../../../core/models/classroom-activity.model';
+import {
+  CognitiveLevel,
+  CognitiveLevelInfo,
+  COGNITIVE_LEVELS_META,
+} from '../../../../core/models/reading.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { SpeechRecognitionService } from '../../../../core/services/speech-recognition.service';
 import confetti from 'canvas-confetti';
@@ -53,9 +58,15 @@ export class ClassActivityViewComponent implements OnInit, OnDestroy {
   totalTimeSpentSeconds = 0;
 
   // Preguntas y respuestas
+  readonly cognitiveMeta = COGNITIVE_LEVELS_META;
   currentQuestionIndex = signal<number>(0);
   selectedAnswers: { [questionId: string]: number } = {};
   quizSubmitted = signal<boolean>(false);
+
+  getCognitiveInfo(q?: ClassroomActivityQuestion, fallbackIndex = 0): CognitiveLevelInfo {
+    const level: CognitiveLevel = q?.cognitiveLevel || (fallbackIndex % 3 === 0 ? 'literal' : fallbackIndex % 3 === 1 ? 'inferencial' : 'critico');
+    return COGNITIVE_LEVELS_META[level];
+  }
 
   // Métricas del alumno
   finalScore = signal<number>(0);

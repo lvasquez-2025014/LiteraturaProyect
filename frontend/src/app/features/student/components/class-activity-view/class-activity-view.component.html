@@ -392,7 +392,14 @@
       </div>
 
       <div class="quiz-question-card" *ngIf="act.questions[currentQuestionIndex()] as currentQ">
-        <div class="question-number-badge">Pregunta #{{ currentQuestionIndex() + 1 }}</div>
+        <div class="question-card-top-row">
+          <div class="question-number-badge">Pregunta #{{ currentQuestionIndex() + 1 }}</div>
+          <div class="quiz-cognitive-pill" [ngClass]="getCognitiveInfo(currentQ, currentQuestionIndex()).badgeClass" [title]="getCognitiveInfo(currentQ, currentQuestionIndex()).definition">
+            <span class="pill-icon">{{ getCognitiveInfo(currentQ, currentQuestionIndex()).icon }}</span>
+            <span class="pill-title">{{ getCognitiveInfo(currentQ, currentQuestionIndex()).label }}</span>
+          </div>
+        </div>
+        <p class="cognitive-pedagogical-hint">{{ getCognitiveInfo(currentQ, currentQuestionIndex()).definition }}</p>
         <h3 class="question-prompt">{{ currentQ.prompt }}</h3>
 
         <div class="options-container">

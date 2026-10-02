@@ -330,6 +330,16 @@
         <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="12" r="10"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Reto de Comprensión Lectora</span>
         <span>Pregunta {{ currentQuestionIndex + 1 }} de {{ activeQuestions.length }}</span>
       </div>
+
+      <!-- Badge de Nivel Cognitivo Sugerido por el Docente -->
+      <div class="quiz-cognitive-pill" [ngClass]="getCognitiveInfo(activeQuestions[currentQuestionIndex], currentQuestionIndex).badgeClass">
+        <span class="cognitive-pill-icon">{{ getCognitiveInfo(activeQuestions[currentQuestionIndex], currentQuestionIndex).icon }}</span>
+        <div class="cognitive-pill-text">
+          <strong class="cognitive-pill-title">{{ getCognitiveInfo(activeQuestions[currentQuestionIndex], currentQuestionIndex).label }}</strong>
+          <span class="cognitive-pill-desc">{{ getCognitiveInfo(activeQuestions[currentQuestionIndex], currentQuestionIndex).definition }}</span>
+        </div>
+      </div>
+
       <h2 class="quiz-prompt">{{ activeQuestions[currentQuestionIndex].prompt }}</h2>
     </div>
 
@@ -350,7 +360,13 @@
 
     <!-- Pedagogical Explanation -->
     <div *ngIf="showExplanation" class="explanation-box">
-      <strong><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> Retroalimentación Pedagógica:</strong>
+      <div class="explanation-top">
+        <span class="explanation-tag" [ngClass]="getCognitiveInfo(activeQuestions[currentQuestionIndex], currentQuestionIndex).badgeClass">
+          {{ getCognitiveInfo(activeQuestions[currentQuestionIndex], currentQuestionIndex).icon }}
+          {{ getCognitiveInfo(activeQuestions[currentQuestionIndex], currentQuestionIndex).shortLabel }}
+        </span>
+        <strong><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> Retroalimentación Pedagógica:</strong>
+      </div>
       <p>{{ activeQuestions[currentQuestionIndex].explanation }}</p>
     </div>
 
@@ -405,6 +421,39 @@
           <span class="vstat-unit">XP</span>
         </div>
         <small class="vstat-sub">¡Nivel desbloqueado!</small>
+      </div>
+    </div>
+
+    <!-- Diagnóstico Pedagógico por Niveles de Comprensión -->
+    <div class="cognitive-diagnosis-card" *ngIf="cognitiveStats.length > 0">
+      <div class="diagnosis-header">
+        <span class="diagnosis-icon">📊</span>
+        <div>
+          <h4 class="diagnosis-title">Diagnóstico por Niveles de Comprensión</h4>
+          <p class="diagnosis-sub">Evaluación metodológica de 3 dimensiones lectoras</p>
+        </div>
+      </div>
+
+      <div class="cognitive-breakdown-grid">
+        <div 
+          *ngFor="let stat of cognitiveStats" 
+          class="cognitive-stat-card"
+          [ngClass]="stat.info.badgeClass">
+          <div class="cstat-top">
+            <div class="cstat-name-wrap">
+              <span class="cstat-icon">{{ stat.info.icon }}</span>
+              <strong class="cstat-name">{{ stat.info.label }}</strong>
+            </div>
+            <span class="cstat-score" [class.cstat-perfect]="stat.percentage === 100">{{ stat.percentage }}%</span>
+          </div>
+          <div class="cstat-bar-track">
+            <div class="cstat-bar-fill" [style.width.%]="stat.percentage" [style.background]="stat.info.color"></div>
+          </div>
+          <div class="cstat-meta">
+            <span class="cstat-ratio">{{ stat.correct }}/{{ stat.total }} aciertos</span>
+            <small class="cstat-def">{{ stat.info.definition }}</small>
+          </div>
+        </div>
       </div>
     </div>
 

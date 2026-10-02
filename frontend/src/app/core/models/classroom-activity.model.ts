@@ -1,9 +1,12 @@
+import { CognitiveLevel } from './reading.model';
+
 export interface ClassroomActivityQuestion {
   id: string;
   prompt: string;
   options: string[];
   correctIndex: number;
   explanation?: string;
+  cognitiveLevel?: CognitiveLevel;
 }
 
 export interface ClassroomActivitySubmission {

@@ -6,7 +6,15 @@ import { ActivatedRoute } from '@angular/router';
 import { NavbarComponent } from '../../../../shared/components/navbar/navbar.component';
 import { AuthService } from '../../../../core/services/auth.service';
 import { User, KINAL_GRADE_LEVELS, KINAL_CAREERS, KINAL_SECTIONS, isPeritoGrade } from '../../../../core/models/user.model';
-import { StudentPerformance, Reading, Question, RoadmapStage } from '../../../../core/models/reading.model';
+import {
+  StudentPerformance,
+  Reading,
+  Question,
+  RoadmapStage,
+  CognitiveLevel,
+  COGNITIVE_LEVELS_META,
+  getQuestionCognitiveLevel,
+} from '../../../../core/models/reading.model';
 import { StudentDetailModalComponent } from '../../components/student-detail-modal/student-detail-modal.component';
 import { ReadingsService } from '../../../../core/services/readings.service';
 import { StagesService } from '../../../../core/services/stages.service';
@@ -25,6 +33,8 @@ export class TeacherDashboardComponent implements OnInit {
   readonly gradeLevels = KINAL_GRADE_LEVELS;
   readonly careers = KINAL_CAREERS;
   readonly sections = KINAL_SECTIONS;
+  readonly cognitiveLevelsMeta = COGNITIVE_LEVELS_META;
+  readonly cognitiveLevelKeys: CognitiveLevel[] = ['literal', 'inferencial', 'critico'];
 
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
@@ -60,12 +70,14 @@ export class TeacherDashboardComponent implements OnInit {
         prompt: '',
         options: ['', '', '', ''],
         correctIndex: 0,
+        cognitiveLevel: 'literal' as CognitiveLevel,
       },
       {
         id: 'q2',
         prompt: '',
         options: ['', '', '', ''],
         correctIndex: 0,
+        cognitiveLevel: 'inferencial' as CognitiveLevel,
       },
     ],
   };
@@ -126,6 +138,7 @@ export class TeacherDashboardComponent implements OnInit {
         options: ['', '', '', ''],
         correctIndex: 0,
         explanation: '',
+        cognitiveLevel: 'literal' as CognitiveLevel,
       },
     ] as Question[],
   };
@@ -416,6 +429,7 @@ export class TeacherDashboardComponent implements OnInit {
           options: ['', '', '', ''],
           correctIndex: 0,
           explanation: '',
+          cognitiveLevel: 'literal',
         },
       ],
     };
@@ -437,7 +451,11 @@ export class TeacherDashboardComponent implements OnInit {
       pedagogicalSource: reading.pedagogicalSource || 'Plan Lector / Literatura',
       content: reading.content,
       questions: reading.questions && reading.questions.length > 0
-        ? JSON.parse(JSON.stringify(reading.questions))
+        ? reading.questions.map((q, idx) => ({
+            ...q,
+            options: [...q.options],
+            cognitiveLevel: q.cognitiveLevel || getQuestionCognitiveLevel(q, idx),
+          }))
         : [
             {
               id: 'q1',
@@ -445,6 +463,7 @@ export class TeacherDashboardComponent implements OnInit {
               options: ['', '', '', ''],
               correctIndex: 0,
               explanation: '',
+              cognitiveLevel: 'literal',
             },
           ],
     };
@@ -461,12 +480,14 @@ export class TeacherDashboardComponent implements OnInit {
 
   addQuestionToForm() {
     const qNum = this.readingFormData.questions.length + 1;
+    const fallbackLevel: CognitiveLevel = (qNum % 3 === 1) ? 'literal' : (qNum % 3 === 2) ? 'inferencial' : 'critico';
     this.readingFormData.questions.push({
       id: `q${Date.now()}_${qNum}`,
       prompt: '',
       options: ['', '', '', ''],
       correctIndex: 0,
       explanation: '',
+      cognitiveLevel: fallbackLevel,
     });
     this.cdr.markForCheck();
   }
@@ -498,6 +519,7 @@ export class TeacherDashboardComponent implements OnInit {
       id: q.id || `q_${Date.now()}_${idx}`,
       prompt: q.prompt.trim() || `Pregunta ${idx + 1}`,
       options: q.options.map((opt, i) => opt.trim() || `Opción ${i + 1}`),
+      cognitiveLevel: q.cognitiveLevel || getQuestionCognitiveLevel(q, idx),
     }));
 
     const payload: Partial<Reading> = {
@@ -783,12 +805,14 @@ export class TeacherDashboardComponent implements OnInit {
           prompt: '',
           options: ['', '', '', ''],
           correctIndex: 0,
+          cognitiveLevel: 'literal',
         },
         {
           id: 'q2',
           prompt: '',
           options: ['', '', '', ''],
           correctIndex: 0,
+          cognitiveLevel: 'inferencial',
         },
       ],
     };
@@ -817,6 +841,7 @@ export class TeacherDashboardComponent implements OnInit {
           prompt: q.prompt,
           options: [...q.options],
           correctIndex: q.correctIndex,
+          cognitiveLevel: q.cognitiveLevel || getQuestionCognitiveLevel(q, idx),
         }));
       }
       this.cdr.markForCheck();
@@ -825,11 +850,13 @@ export class TeacherDashboardComponent implements OnInit {
 
   addQuestionToActivity() {
     const nextIdx = this.activityFormData.questions.length + 1;
+    const fallbackLevel: CognitiveLevel = (nextIdx % 3 === 1) ? 'literal' : (nextIdx % 3 === 2) ? 'inferencial' : 'critico';
     this.activityFormData.questions.push({
       id: `q${nextIdx}`,
       prompt: '',
       options: ['', '', '', ''],
       correctIndex: 0,
+      cognitiveLevel: fallbackLevel,
     });
     this.cdr.markForCheck();
   }
@@ -864,7 +891,10 @@ export class TeacherDashboardComponent implements OnInit {
       gradeLevel: this.activityFormData.gradeLevel,
       career: this.isPerito(this.activityFormData.gradeLevel) ? this.activityFormData.career : 'all',
       section: this.activityFormData.section,
-      questions: this.activityFormData.questions,
+      questions: this.activityFormData.questions.map((q, idx) => ({
+        ...q,
+        cognitiveLevel: q.cognitiveLevel || getQuestionCognitiveLevel(q as any, idx),
+      })),
       status: 'ACTIVE',
     };
 
