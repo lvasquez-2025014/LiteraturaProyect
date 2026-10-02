@@ -147,7 +147,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
               label: 'Actividades en Clase',
               icon: ClassActivityIcon,
               route: '/profesor?tab=class-activities',
-              badge: 'Live',
             },
           ],
         },
@@ -170,7 +169,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
               label: 'Actividades en Clase',
               icon: ClassActivityIcon,
               route: '/profesor?tab=class-activities',
-              badge: 'Activo',
             },
             {
               value: 'readings',
@@ -210,7 +208,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
             label: 'Actividad en Clase',
             icon: ClassActivityIcon,
             route: '/estudiante?tab=class-activity',
-            badge: 'En vivo',
           },
           {
             value: 'roadmap',

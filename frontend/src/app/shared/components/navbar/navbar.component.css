@@ -180,13 +180,6 @@
   line-height: 1;
 }
 
-.brand-status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #10b981;
-  flex-shrink: 0;
-}
 
 .brand-role-chip {
   display: inline-block;
