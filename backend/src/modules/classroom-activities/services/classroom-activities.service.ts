@@ -246,7 +246,7 @@ export class ClassroomActivitiesService implements OnModuleInit {
           explanation: 'El texto concluye destacando que la literatura es un testimonio inquebrantable de resistencia y memoria histórica.',
         },
       ],
-      teacherId: 'teacher-kinal-lit-01',
+      teacherId: 'teacher-lit-01',
       teacherName: 'Prof. Carlos Mendoza',
       gradeLevel: 'all',
       section: 'all',
@@ -255,7 +255,7 @@ export class ClassroomActivitiesService implements OnModuleInit {
         {
           studentId: 'demo-student-01',
           studentName: 'Mateo Alejandro Ruiz',
-          studentEmail: 'mruiz@kinal.edu.gt',
+          studentEmail: 'mruiz@colegio.edu.gt',
           grade: '4to Perito',
           section: 'A',
           carnet: '2023001',
@@ -271,7 +271,7 @@ export class ClassroomActivitiesService implements OnModuleInit {
         {
           studentId: 'demo-student-02',
           studentName: 'Sofía Isabel Morales',
-          studentEmail: 'smorales@kinal.edu.gt',
+          studentEmail: 'smorales@colegio.edu.gt',
           grade: '4to Perito',
           section: 'B',
           carnet: '2023045',
@@ -287,7 +287,7 @@ export class ClassroomActivitiesService implements OnModuleInit {
         {
           studentId: 'demo-student-03',
           studentName: 'Diego Fernando Castillo',
-          studentEmail: 'dcastillo@kinal.edu.gt',
+          studentEmail: 'dcastillo@colegio.edu.gt',
           grade: '5to Perito',
           section: 'A',
           carnet: '2022019',

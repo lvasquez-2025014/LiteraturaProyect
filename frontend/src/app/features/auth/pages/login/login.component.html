@@ -10,27 +10,6 @@
   <app-crowd-canvas src="/openpeeps-crowd.png" [rows]="15" [cols]="7" [inverted]="false" class="auth-crowd-layer">
   </app-crowd-canvas>
 
-  <!-- Notificación Flotante de Cierre de Sesión -->
-  <aside class="auth-floating-notice" *ngIf="sessionExpiredMessage" role="alert" aria-live="assertive">
-    <div class="notice-icon">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-      </svg>
-    </div>
-    <div class="notice-body">
-      <h4 class="notice-title">{{ sessionExpiredTitle || 'Aviso de Sesión' }}</h4>
-      <p class="notice-desc">{{ sessionExpiredMessage }}</p>
-    </div>
-    <button type="button" class="notice-close-btn" (click)="dismissNotice()" aria-label="Cerrar notificación">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-      </svg>
-    </button>
-  </aside>
-
   <div class="auth-layout-container">
 
     <!-- Hero Showcase Panel (Clean, Prestigious & Editorial) -->
@@ -57,16 +36,25 @@
         </header>
 
         <!-- Mensaje de Sesión Expirada / Inactiva -->
-        <div class="auth-alert auth-alert-warning" *ngIf="sessionExpiredMessage">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <polyline points="12 6 12 12 16 14"></polyline>
-          </svg>
+        <div class="auth-alert auth-alert-warning" *ngIf="sessionExpiredMessage" role="alert">
+          <div class="auth-alert-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
           <div class="auth-alert-content">
             <strong>{{ sessionExpiredTitle || 'Sesión Finalizada' }}</strong>
             <span>{{ sessionExpiredMessage }}</span>
           </div>
+          <button type="button" class="auth-alert-close-btn" (click)="dismissNotice()" aria-label="Cerrar aviso">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
         </div>
 
         <!-- Mensaje de Error -->

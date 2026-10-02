@@ -29,7 +29,7 @@
       <div class="cycle-card">
         <span class="cycle-label">Ciclo Escolar</span>
         <span class="cycle-year">2025 - 2026</span>
-        <span class="cycle-brand">Proyecto Literatura</span>
+        <span class="cycle-brand">Literatura</span>
       </div>
     </div>
 
@@ -87,7 +87,7 @@
     </div>
 
     <!-- TAB 1: MONITOREO DE ALUMNOS -->
-    <ng-container *ngIf="activeTab === 'students'">
+    <div class="tab-pane-content" *ngIf="activeTab === 'students'">
       <!-- 4 Group KPI Cards -->
       <div class="metrics-grid">
         <!-- Metric 1: Group Average WPM -->
@@ -383,10 +383,10 @@
           </ng-template>
         </div>
       </div>
-    </ng-container>
+    </div>
 
     <!-- TAB ACTIVIDADES EN CLASE -->
-    <ng-container *ngIf="activeTab === 'class-activities'">
+    <div class="tab-pane-content" *ngIf="activeTab === 'class-activities'">
       <div class="activity-manager-card">
         <div class="activity-manager-header">
           <div>
@@ -498,7 +498,7 @@
                         </div>
                       </div>
                     </td>
-                    <td>{{ s.grade || 'Kinal' }} {{ s.section ? '"' + s.section + '"' : '' }}</td>
+                    <td>{{ s.grade || '—' }} {{ s.section ? '"' + s.section + '"' : '' }}</td>
                     <td class="text-center">
                       <span class="score-pill" [class.score-perfect]="s.score === 100">{{ s.score }}/100</span>
                     </td>
@@ -562,10 +562,10 @@
         </div>
 
       </div>
-    </ng-container>
+    </div>
 
     <!-- TAB 2: GESTOR DE LECTURAS -->
-    <ng-container *ngIf="activeTab === 'readings'">
+    <div class="tab-pane-content" *ngIf="activeTab === 'readings'">
       <div class="readings-manager-card">
         <div class="readings-manager-header">
           <div>
@@ -631,10 +631,10 @@
           </div>
         </div>
       </div>
-    </ng-container>
+    </div>
 
     <!-- TAB 3: GESTOR DE ETAPAS LITERARIAS -->
-    <ng-container *ngIf="activeTab === 'stages'">
+    <div class="tab-pane-content" *ngIf="activeTab === 'stages'">
       <div class="stages-manager-card">
         <div class="stages-manager-header">
           <div>
@@ -711,7 +711,7 @@
           </div>
         </div>
       </div>
-    </ng-container>
+    </div>
 
   </div>
 

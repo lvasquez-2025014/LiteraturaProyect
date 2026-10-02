@@ -33,7 +33,7 @@
   left: 0;
   width: 2px;
   border-radius: 1px;
-  background: linear-gradient(to bottom, var(--bm-line) 0%, var(--bm-line) 60%, transparent 100%);
+  background: var(--bm-line);
 }
 
 .branched-menu__marker {

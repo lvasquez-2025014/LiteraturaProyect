@@ -5,20 +5,21 @@
 .admin-dashboard {
   min-height: 100vh;
   padding: 28px 24px 72px;
-  background: radial-gradient(circle at 100% 0%, rgba(224, 142, 62, 0.10) 0%, rgba(224, 142, 62, 0) 45%), var(--bg-page);
+  background: var(--bg-page);
   color: #0f172a;
 }
 
 @media (min-width: 992px) {
   .admin-dashboard {
-    margin-left: 260px;
+    margin-left: 300px;
     padding: 36px 40px 80px;
   }
 }
 
 @media (max-width: 991px) {
   .admin-dashboard {
-    padding-top: 88px;
+    margin-left: 0;
+    padding-top: calc(56px + 24px);
   }
 }
 
@@ -190,9 +191,25 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--accent) 0%, var(--secondary) 100%);
+  background: var(--primary, #004aad);
   border-radius: 18px 18px 0 0;
   z-index: 1;
+}
+
+.kpi-all::before {
+  background: var(--primary, #004aad);
+}
+
+.kpi-students::before {
+  background: #0284c7;
+}
+
+.kpi-teachers::before {
+  background: var(--accent, #f36f21);
+}
+
+.kpi-admins::before {
+  background: #1c2d5a;
 }
 
 .kpi-card:hover {
@@ -312,15 +329,15 @@
   transition: all 0.25s ease;
 }
 
-.kpi-all .kpi-accent-bar { background: var(--primary, #1F2A44); opacity: 0.5; }
-.kpi-students .kpi-accent-bar { background: var(--info, #3C6E8F); opacity: 0.5; }
-.kpi-teachers .kpi-accent-bar { background: var(--accent, #E08E3E); opacity: 0.5; }
-.kpi-admins .kpi-accent-bar { background: var(--secondary, #6B4226); opacity: 0.5; }
+.kpi-all .kpi-accent-bar { background: var(--primary, #004aad); opacity: 0.7; }
+.kpi-students .kpi-accent-bar { background: #0284c7; opacity: 0.7; }
+.kpi-teachers .kpi-accent-bar { background: var(--accent, #f36f21); opacity: 0.7; }
+.kpi-admins .kpi-accent-bar { background: #1c2d5a; opacity: 0.7; }
 
 /* Active KPI Card Highlight */
 .kpi-card.active-kpi {
-  border-color: var(--primary, #1F2A44);
-  box-shadow: 0 8px 24px rgba(31, 42, 68, 0.12);
+  border-color: var(--primary, #004aad);
+  box-shadow: 0 8px 24px rgba(0, 74, 173, 0.12);
   background: #ffffff;
 }
 
@@ -330,13 +347,13 @@
 }
 
 .kpi-card.active-kpi.kpi-teachers {
-  border-color: #ea580c;
-  box-shadow: 0 8px 24px rgba(234, 88, 12, 0.12);
+  border-color: #f36f21;
+  box-shadow: 0 8px 24px rgba(243, 111, 33, 0.15);
 }
 
 .kpi-card.active-kpi.kpi-admins {
-  border-color: var(--secondary, #6B4226);
-  box-shadow: 0 8px 24px rgba(107, 66, 38, 0.15);
+  border-color: #1c2d5a;
+  box-shadow: 0 8px 24px rgba(28, 45, 90, 0.15);
 }
 
 .kpi-card.active-kpi .kpi-accent-bar {
@@ -367,7 +384,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--accent) 0%, var(--secondary) 100%);
+  background: var(--primary, #004aad);
   border-radius: 20px 20px 0 0;
   z-index: 1;
 }
@@ -1634,7 +1651,7 @@
  * ========================================================== */
 @media (max-width: 768px) {
   .admin-dashboard {
-    padding: 18px 14px 56px;
+    padding: calc(56px + 20px) 14px 56px;
   }
 
   .hero-title {

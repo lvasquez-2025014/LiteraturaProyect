@@ -86,13 +86,21 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit() {
     const reason = this.route.snapshot.queryParams['reason'];
     if (reason === 'inactive') {
-      this.sessionExpiredTitle = 'Sesión cerrada por inactividad';
+      this.sessionExpiredTitle = 'Pausa por inactividad';
       this.sessionExpiredMessage =
-        'Tu sesión se ha cerrado automáticamente tras 1 hora sin actividad. Por favor, ingresa tus credenciales nuevamente para continuar.';
+        'Para proteger tu cuenta y el avance de tus lecturas, pausamos tu sesión tras un período sin interacción. Ingresa tus credenciales para continuar donde te quedaste.';
     } else if (reason === 'expired') {
-      this.sessionExpiredTitle = 'Sesión Expirada';
+      this.sessionExpiredTitle = 'Tu sesión ha caducado';
       this.sessionExpiredMessage =
-        'Tu sesión ha expirado por motivos de seguridad. Por favor, ingresa tus credenciales nuevamente.';
+        'Tu clave de acceso temporal ha vencido por políticas de seguridad institucional. Confirma tus credenciales para reanudar tus actividades en la plataforma.';
+    } else if (reason === 'unauthorized') {
+      this.sessionExpiredTitle = 'Identificación requerida';
+      this.sessionExpiredMessage =
+        'Se requiere una sesión activa para ingresar a esta sección. Por favor, identifícate con tu cuenta institucional.';
+    } else if (reason) {
+      this.sessionExpiredTitle = 'Sesión finalizada';
+      this.sessionExpiredMessage =
+        'Tu sesión ha concluido de forma segura. Ingresa con tus credenciales para continuar.';
     }
 
     const isReset = this.route.snapshot.queryParams['reset'] !== undefined || this.route.snapshot.queryParams['logout'] !== undefined;
@@ -279,8 +287,8 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
       this.pendingGoogleUser = user;
       const userEmail = user.institutionalEmail || user.email || '';
       const isInstitutional =
-        userEmail.toLowerCase().endsWith('@kinal.edu.gt') ||
-        userEmail.toLowerCase().endsWith('@kinal.org.gt');
+        userEmail.toLowerCase().endsWith('.edu.gt') ||
+        userEmail.toLowerCase().endsWith('.org.gt');
 
       this.inputInstitutionalEmail =
         user.institutionalEmail || (isInstitutional ? userEmail : '');
@@ -385,5 +393,11 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   dismissNotice(): void {
     this.sessionExpiredMessage = '';
     this.sessionExpiredTitle = '';
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { reason: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 }

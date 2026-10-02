@@ -7,7 +7,7 @@
     aria-label="Abrir menú de navegación"
     [attr.aria-expanded]="isMobileMenuOpen"
   >
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <line x1="3" y1="12" x2="21" y2="12"></line>
       <line x1="3" y1="6" x2="21" y2="6"></line>
       <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -15,13 +15,13 @@
   </button>
 
   <a routerLink="/" class="mobile-brand" (click)="closeMobileMenu()">
-    <img src="/logo.png" alt="Proyecto Literatura" class="mobile-brand-logo" />
-    <span class="mobile-brand-title">Proyecto <span class="accent">Literatura</span></span>
+    <img src="/logo.png" alt="Literatura" class="mobile-brand-logo" />
+    <span class="mobile-brand-title">Literatura</span>
   </a>
 
   <div class="mobile-user-actions" *ngIf="user as u">
     <button (click)="logout()" class="mobile-logout-btn" title="Cerrar sesión" aria-label="Cerrar sesión">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
         <polyline points="16 17 21 12 16 7"></polyline>
         <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -38,109 +38,217 @@
   aria-hidden="true"
 ></div>
 
-<!-- Barra de Navegación Lateral Izquierda (Sidebar) -->
-<aside class="app-sidebar" [class.is-open]="isMobileMenuOpen" aria-label="Navegación principal">
+<!-- Barra de Navegación Lateral: Isla Flotante Artesanal -->
+<aside class="app-sidebar floating-island" [class.is-open]="isMobileMenuOpen" aria-label="Navegación principal">
   
-  <!-- Botón de Cerrar para Móvil (Oculto en desktop) -->
-  <div class="sidebar-mobile-close-bar">
+  <!-- Encabezado de la Isla -->
+  <div class="island-brand">
+    <div class="brand-crest">
+      <img src="/logo.png" alt="Logo" class="brand-logo-img" />
+    </div>
+    <div class="brand-titles">
+      <span class="brand-name">Literatura</span>
+      <span class="brand-status-dot" title="Sistema Activo"></span>
+    </div>
+    <div class="brand-role-chip" [ngClass]="getRoleClass(user?.role)">
+      {{ getRoleLabel(user?.role) }}
+    </div>
+
+    <!-- Botón de Cerrar para Móvil -->
     <button
       type="button"
-      class="sidebar-close-btn"
+      class="island-mobile-close-btn"
       (click)="closeMobileMenu()"
       aria-label="Cerrar menú"
     >
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="18" y1="6" x2="6" y2="18"></line>
         <line x1="6" y1="6" x2="18" y2="18"></line>
       </svg>
     </button>
   </div>
 
-  <!-- Menú Ramificado Interactivo (BranchedMenu de React Bits) -->
-  <div class="sidebar-nav-scroll">
-    <app-branched-menu
-      [items]="branchedMenuItems"
-      [defaultOpen]="[0, 1]"
-      [defaultActive]="currentActiveItem"
-      [color]="'#F8FAFC'"
-      [accentColor]="'#38BDF8'"
-      [lineColor]="'rgba(56, 189, 248, 0.35)'"
-      [width]="236"
-      [rowHeight]="38"
-      [indent]="36"
-      [trunk]="14"
-      [radius]="10"
-      [lineWidth]="1.5"
-      [fontSize]="13.5"
-      [drawDuration]="400"
-      [foldDuration]="300"
-      (selectItem)="onMenuSelect($event)"
-    ></app-branched-menu>
+  <!-- Buscador Rápido de Módulos (Estilo Linear / macOS) -->
+  <div class="island-search-container">
+    <div class="island-search-box">
+      <svg class="search-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input
+        #searchInput
+        type="text"
+        class="search-input"
+        placeholder="Buscar sección..."
+        [value]="searchQuery"
+        (input)="onSearchInput($event)"
+        aria-label="Filtrar secciones de navegación"
+      />
+      <span *ngIf="!searchQuery" class="search-kbd">⌘K</span>
+      <button
+        *ngIf="searchQuery"
+        type="button"
+        class="search-clear-btn"
+        (click)="clearSearch()"
+        aria-label="Limpiar filtro de búsqueda"
+      >
+        &times;
+      </button>
+    </div>
   </div>
 
-  <!-- Métricas Rápidas de Gamificación -->
-  <div class="sidebar-gamification" *ngIf="user as u">
-    <div class="gamification-grid">
+  <!-- Navegación con Scroll Natural -->
+  <nav class="island-nav-scroll">
+    <div *ngFor="let section of filteredMenuSections" class="island-section-group">
+      <div class="island-section-title">{{ section.label }}</div>
+      <div class="island-nav-list">
+        <a
+          *ngFor="let item of section.children"
+          (click)="onItemClick(item)"
+          class="island-nav-item"
+          [class.active]="currentActiveItem === item.value"
+          [attr.aria-current]="currentActiveItem === item.value ? 'page' : null"
+          [attr.title]="item.label"
+        >
+          <!-- Indicador lateral activo sólido -->
+          <span *ngIf="currentActiveItem === item.value" class="active-accent-bar" aria-hidden="true"></span>
+
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              @for (shape of item.icon; track shape[1]['key'] || $index) {
+                @if (shape[0] === 'path') {
+                  <path [attr.d]="shape[1]['d']" [attr.stroke]="shape[1]['stroke'] || 'currentColor'" [attr.stroke-width]="shape[1]['strokeWidth'] || shape[1]['stroke-width'] || '1.8'" [attr.stroke-linecap]="shape[1]['strokeLinecap'] || shape[1]['stroke-linecap'] || 'round'" [attr.stroke-linejoin]="shape[1]['strokeLinejoin'] || shape[1]['stroke-linejoin'] || 'round'" [attr.fill]="shape[1]['fill'] || 'none'"></path>
+                } @else if (shape[0] === 'circle') {
+                  <circle [attr.cx]="shape[1]['cx']" [attr.cy]="shape[1]['cy']" [attr.r]="shape[1]['r']" [attr.stroke]="shape[1]['stroke'] || 'currentColor'" [attr.fill]="shape[1]['fill'] || 'none'"></circle>
+                }
+              }
+            </svg>
+          </span>
+
+          <span class="nav-label">{{ item.label }}</span>
+
+          <span *ngIf="item.badge" class="nav-badge" [class.badge-live]="item.badge === 'Live' || item.badge === 'En vivo'">
+            <span *ngIf="item.badge === 'Live' || item.badge === 'En vivo'" class="badge-pulse-dot"></span>
+            {{ item.badge }}
+          </span>
+
+          <!-- Flecha sutil en hover estilo macOS -->
+          <svg class="nav-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Estado vacío si la búsqueda no arroja resultados -->
+    <div *ngIf="filteredMenuSections.length === 0" class="search-empty-state">
+      <span>Sin resultados para "{{ searchQuery }}"</span>
+      <button (click)="clearSearch()" class="reset-search-link">Ver todas las secciones</button>
+    </div>
+  </nav>
+
+  <!-- Tarjeta de Estado Lector y Gamificación -->
+  <div class="island-gamification" *ngIf="user as u">
+    <!-- Nivel y Liga Header -->
+    <div class="gam-header">
+      <div class="gam-rank-badge">
+        <svg class="gam-crown-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="7"></circle>
+          <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+        </svg>
+        <span class="gam-rank-text">Nivel {{ currentLevel }}</span>
+      </div>
+      <span class="gam-league-badge">{{ leagueName }}</span>
+    </div>
+
+    <!-- Barra de progreso hacia siguiente nivel -->
+    <div class="gam-track-wrap" title="Progreso de experiencia">
+      <div class="gam-track-bar" [style.width.%]="levelProgressPercent"></div>
+    </div>
+
+    <!-- Cuadrícula 2x2 de Estadísticas -->
+    <div class="gam-stats-grid">
       <!-- Racha -->
-      <div class="metric-item metric-streak" title="Racha de lectura">
-        <div class="metric-meta">
-          <span class="metric-val">{{ streakDays }}</span>
-          <span class="metric-lbl">Días racha</span>
+      <div class="gam-stat-card" title="Racha activa de lectura diaria">
+        <div class="stat-badge-icon streak">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
+          </svg>
         </div>
-        <div class="metric-bottom-bar"></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ streakDays }}d</span>
+          <span class="stat-label">Racha</span>
+        </div>
       </div>
 
       <!-- XP -->
-      <div class="metric-item metric-xp" title="Puntos de Experiencia">
-        <div class="metric-meta">
-          <span class="metric-val">{{ formatStat(totalXp) }}</span>
-          <span class="metric-lbl">Puntos XP</span>
+      <div class="gam-stat-card" title="Puntos XP acumulados">
+        <div class="stat-badge-icon xp">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
         </div>
-        <div class="metric-bottom-bar"></div>
-      </div>
-
-      <!-- Nivel -->
-      <div class="metric-item metric-level" title="Nivel del lector">
-        <div class="metric-meta">
-          <span class="metric-val">Nvl {{ currentLevel }}</span>
-          <span class="metric-lbl">Rango</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ formatStat(totalXp) }}</span>
+          <span class="stat-label">Puntos XP</span>
         </div>
-        <div class="metric-bottom-bar"></div>
       </div>
 
       <!-- Monedas -->
-      <div class="metric-item metric-coins" title="Monedas de sabiduría">
-        <div class="metric-meta">
-          <span class="metric-val">{{ formatStat(coins) }}</span>
-          <span class="metric-lbl">Monedas</span>
+      <div class="gam-stat-card" title="Monedas de sabiduría disponibles">
+        <div class="stat-badge-icon coins">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="8" cy="8" r="6"></circle>
+            <path d="M18.09 10.37A6 6 0 1 1 10.34 18"></path>
+            <path d="M7 6h1v4"></path>
+            <path d="m16.7 10.3.5.7"></path>
+          </svg>
         </div>
-        <div class="metric-bottom-bar"></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ formatStat(coins) }}</span>
+          <span class="stat-label">Monedas</span>
+        </div>
+      </div>
+
+      <!-- Rango / Etapa -->
+      <div class="gam-stat-card" title="Etapa pedagógica actual">
+        <div class="stat-badge-icon level">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">{{ stageName }}</span>
+          <span class="stat-label">Etapa</span>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Pie de Sidebar: Perfil de Usuario y Logout -->
-  <div class="sidebar-footer" *ngIf="user as u">
-    <div class="user-profile-row">
-      <div class="avatar-circle" [ngClass]="equippedFrame">
-        <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" [alt]="u.name" class="avatar-img" />
-        <span *ngIf="!u.avatarUrl" class="avatar-initial">{{ u.name ? u.name.charAt(0).toUpperCase() : 'U' }}</span>
+  <!-- Pie de la Isla: Perfil macOS Style -->
+  <div class="island-footer" *ngIf="user as u">
+    <div class="island-user-info">
+      <div class="avatar-container">
+        <div class="island-avatar" [ngClass]="equippedFrame">
+          <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" [alt]="u.name" class="avatar-img" />
+          <span *ngIf="!u.avatarUrl" class="avatar-initial">{{ u.name ? u.name.charAt(0).toUpperCase() : 'U' }}</span>
+        </div>
+        <span class="user-status-online" title="En línea"></span>
       </div>
 
-      <div class="user-info">
+      <div class="island-user-meta">
         <span class="user-name" [title]="u.name">{{ u.name }}</span>
-        <span class="user-sub">{{ u.grade ? u.grade + ' "' + (u.section || 'A') + '"' : u.email }}</span>
+        <span class="user-sub">{{ equippedTitle }}</span>
       </div>
     </div>
 
-    <!-- Botón de Cerrar Sesión -->
-    <button (click)="logout()" class="sidebar-logout-btn" title="Cerrar sesión actual">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Botón de Cerrar Sesión Tipo Ghost -->
+    <button (click)="logout()" class="island-logout-btn" title="Cerrar sesión" aria-label="Cerrar sesión">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
         <polyline points="16 17 21 12 16 7"></polyline>
         <line x1="21" y1="12" x2="9" y2="12"></line>
       </svg>
-      <span>Cerrar Sesión</span>
     </button>
   </div>
 

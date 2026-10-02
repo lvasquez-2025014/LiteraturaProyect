@@ -52,12 +52,12 @@
   --accent-red: #ef4444;
   --accent-red-light: #fee2e2;
 
-  /* Degradados Específicos del Login */
-  --gradient-sidebar: linear-gradient(160deg, #001d4a 0%, #002b66 50%, #003680 100%);
-  --gradient-bg-radial: radial-gradient(circle at 100% 0%, rgba(56, 189, 248, 0.08) 0%, rgba(0, 74, 173, 0.03) 45%, transparent 70%), #f8fafc;
-  --gradient-card-top: linear-gradient(90deg, #004aad 0%, #38bdf8 100%);
-  --gradient-celebration: linear-gradient(120deg, #004aad 0%, #0284c7 45%, #38bdf8 100%);
-  --gradient-login-hero: linear-gradient(135deg, #004aad 0%, #003680 100%);
+  /* Paleta Oficial y Superficies */
+  --gradient-sidebar: #001d4a;
+  --gradient-bg-radial: #f8fafc;
+  --gradient-card-top: #004aad;
+  --gradient-celebration: #004aad;
+  --gradient-login-hero: #004aad;
 
   /* Tipografía */
   --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -92,7 +92,7 @@ html {
 body {
   font-family: var(--font-body);
   color: var(--text-primary);
-  background: var(--gradient-bg-radial);
+  background: var(--bg-page);
   background-color: var(--bg-page);
   min-height: 100vh;
   line-height: 1.5;
@@ -231,25 +231,25 @@ button, input, select, textarea {
 }
 
 .btn-kinal-primary {
-  background: linear-gradient(135deg, #004aad 0%, #003680 100%);
+  background: #004aad;
   color: #ffffff;
   box-shadow: 0 4px 14px rgba(0, 74, 173, 0.28);
 }
 
 .btn-kinal-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #0052cc 0%, #003b8a 100%);
+  background: #003b8a;
   box-shadow: 0 6px 18px rgba(0, 74, 173, 0.38);
   transform: translateY(-1px);
 }
 
 .btn-kinal-orange {
-  background: linear-gradient(135deg, #f36f21 0%, #d8570c 100%);
+  background: #f36f21;
   color: #ffffff;
   box-shadow: 0 4px 14px rgba(243, 111, 33, 0.28);
 }
 
 .btn-kinal-orange:hover:not(:disabled) {
-  background: linear-gradient(135deg, #ff7b00 0%, #e05e07 100%);
+  background: #d8570c;
   box-shadow: 0 6px 18px rgba(243, 111, 33, 0.38);
   transform: translateY(-1px);
 }
@@ -326,6 +326,38 @@ button, a, .btn {
   .btn {
     padding: 9px 16px;
     font-size: 0.9rem;
+  }
+}
+
+/* ==========================================================
+   SISTEMA DE TRANSICIONES SUAVES Y SIN PARPADEO (DURACIÓN: 1s)
+   ========================================================== */
+
+/* Clases utilitarias de animación de paneles y pestañas */
+.tab-pane-content,
+.tab-pane-animated,
+.tab-pane {
+  animation: tabSmoothFade 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+}
+
+@keyframes tabSmoothFade {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-pane-content,
+  .tab-pane-animated,
+  .tab-pane {
+    animation: none !important;
+    transition: none !important;
   }
 }
 

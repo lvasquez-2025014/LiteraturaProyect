@@ -33,13 +33,13 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--accent) 0%, var(--secondary) 100%);
+  background: var(--primary, #004aad);
   z-index: 10;
 }
 
 /* Header */
 .modal-header {
-  background: linear-gradient(160deg, var(--primary) 0%, var(--primary) 48%, var(--secondary) 100%);
+  background: #002b66;
   color: #ffffff;
   padding: 1.5rem 1.75rem;
   display: flex;

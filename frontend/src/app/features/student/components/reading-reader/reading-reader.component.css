@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Interactive Voice Reading Reader Module (Fundación Kinal)
+   Interactive Voice Reading Reader Module (Plataforma Lectora)
    ========================================================================== */
 
 .reader-container {
@@ -128,7 +128,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--accent) 0%, var(--secondary) 100%);
+  background: var(--primary, #004aad);
   border-radius: 18px 18px 0 0;
   z-index: 1;
 }
@@ -233,7 +233,7 @@
   flex-direction: column;
   gap: 8px;
   padding: 10px 16px;
-  background: linear-gradient(135deg, rgba(238, 242, 255, 0.95), rgba(240, 253, 250, 0.95));
+  background: #eef2ff;
   border: 1px solid rgba(31, 42, 68, 0.15);
   border-radius: 14px;
   box-shadow: 0 4px 12px rgba(31, 42, 68, 0.05);
@@ -395,7 +395,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--accent) 0%, var(--secondary) 100%);
+  background: var(--primary, #004aad);
   border-radius: 24px 24px 0 0;
   z-index: 1;
 }
@@ -664,7 +664,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--accent) 0%, var(--secondary) 100%);
+  background: var(--primary, #004aad);
   border-radius: 24px 24px 0 0;
   z-index: 1;
 }

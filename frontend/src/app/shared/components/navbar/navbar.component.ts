@@ -1,27 +1,47 @@
-import { Component, inject, HostListener, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  inject,
+  HostListener,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, NavigationEnd } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import {
-  BranchedMenuComponent,
-  BranchedMenuItem,
-  BranchedMenuChild,
-} from '../branched-menu/branched-menu.component';
-import {
   DashboardSquare01Icon,
-  Book02Icon,
+  TeacherPortalIcon,
+  StudentAdventureIcon,
+  ClassActivityIcon,
   UserGroupIcon,
-  Rocket01Icon,
+  Book02Icon,
+  StagesRoadmapIcon,
   StarIcon,
   CrownIcon,
   Award01Icon,
+  IconSvgObject,
 } from './navbar-icons';
+
+export interface NavItem {
+  value: string;
+  label: string;
+  icon: IconSvgObject;
+  route: string;
+  badge?: string;
+}
+
+export interface NavSection {
+  label: string;
+  children: NavItem[];
+}
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink, BranchedMenuComponent],
+  imports: [CommonModule, RouterLink],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css',
 })
@@ -30,8 +50,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private navSub?: Subscription;
 
+  @ViewChild('searchInput') searchInputRef?: ElementRef<HTMLInputElement>;
+
   isMobileMenuOpen = false;
   currentActiveItem: string = '';
+  searchQuery: string = '';
 
   ngOnInit() {
     this.updateActiveItemFromUrl(this.router.url);
@@ -57,14 +80,38 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
+    if (this.searchQuery) {
+      this.clearSearch();
+      return;
+    }
     this.closeMobileMenu();
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardShortcuts(event: KeyboardEvent): void {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      this.searchInputRef?.nativeElement.focus();
+    }
+  }
+
+  onSearchInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.searchQuery = input.value;
+  }
+
+  clearSearch(): void {
+    this.searchQuery = '';
+    if (this.searchInputRef?.nativeElement) {
+      this.searchInputRef.nativeElement.value = '';
+    }
   }
 
   get user() {
     return this.auth.currentUserSignal();
   }
 
-  get branchedMenuItems(): BranchedMenuItem[] {
+  get menuSections(): NavSection[] {
     const role = this.user?.role;
 
     if (role === 'ADMIN_ROLE') {
@@ -81,13 +128,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
             {
               value: 'teacher',
               label: 'Portal Docente',
-              icon: Book02Icon,
+              icon: TeacherPortalIcon,
               route: '/profesor',
             },
             {
               value: 'student',
               label: 'Aventura Estudiante',
-              icon: Rocket01Icon,
+              icon: StudentAdventureIcon,
               route: '/estudiante',
             },
           ],
@@ -98,14 +145,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
             {
               value: 'class-activities',
               label: 'Actividades en Clase',
-              icon: Rocket01Icon,
+              icon: ClassActivityIcon,
               route: '/profesor?tab=class-activities',
-            },
-            {
-              value: 'readings',
-              label: 'Catálogo de Lecturas',
-              icon: Book02Icon,
-              route: '/profesor?tab=readings',
+              badge: 'Live',
             },
           ],
         },
@@ -126,8 +168,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
             {
               value: 'class-activities',
               label: 'Actividades en Clase',
-              icon: Rocket01Icon,
+              icon: ClassActivityIcon,
               route: '/profesor?tab=class-activities',
+              badge: 'Activo',
             },
             {
               value: 'readings',
@@ -138,7 +181,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
             {
               value: 'stages',
               label: 'Rutas & Etapas',
-              icon: Award01Icon,
+              icon: StagesRoadmapIcon,
               route: '/profesor?tab=stages',
             },
           ],
@@ -149,7 +192,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
             {
               value: 'adventure',
               label: 'Ver Modo Aventura',
-              icon: Rocket01Icon,
+              icon: StudentAdventureIcon,
               route: '/estudiante',
             },
           ],
@@ -165,13 +208,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
           {
             value: 'class-activity',
             label: 'Actividad en Clase',
-            icon: Rocket01Icon,
+            icon: ClassActivityIcon,
             route: '/estudiante?tab=class-activity',
+            badge: 'En vivo',
           },
           {
             value: 'roadmap',
             label: 'Mapa de Rutas',
-            icon: Rocket01Icon,
+            icon: StagesRoadmapIcon,
             route: '/estudiante?tab=roadmap',
           },
           {
@@ -195,6 +239,23 @@ export class NavbarComponent implements OnInit, OnDestroy {
         ],
       },
     ];
+  }
+
+  get filteredMenuSections(): NavSection[] {
+    const query = this.searchQuery.trim().toLowerCase();
+    if (!query) {
+      return this.menuSections;
+    }
+    return this.menuSections
+      .map((sec) => ({
+        label: sec.label,
+        children: sec.children.filter(
+          (item) =>
+            item.label.toLowerCase().includes(query) ||
+            item.value.toLowerCase().includes(query)
+        ),
+      }))
+      .filter((sec) => sec.children.length > 0);
   }
 
   private updateActiveItemFromUrl(url: string) {
@@ -225,11 +286,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
   }
 
-  onMenuSelect(event: { value: string; item: BranchedMenuItem | BranchedMenuChild }) {
-    this.currentActiveItem = event.value;
-    const targetRoute = event.item.route;
-    if (targetRoute) {
-      this.router.navigateByUrl(targetRoute);
+  onItemClick(item: NavItem): void {
+    this.currentActiveItem = item.value;
+    if (item.route) {
+      this.router.navigateByUrl(item.route);
     }
     this.closeMobileMenu();
   }
@@ -262,6 +322,33 @@ export class NavbarComponent implements OnInit, OnDestroy {
     return this.user?.stats?.currentLevel || 1;
   }
 
+  get levelProgressPercent(): number {
+    if (this.auth.isAdmin()) {
+      return 88;
+    }
+    const xp = this.totalXp;
+    const inLevel = xp % 500;
+    return Math.max(15, Math.min(100, Math.round((inLevel / 500) * 100)));
+  }
+
+  get leagueName(): string {
+    const xp = this.totalXp;
+    if (xp >= 50000) return 'Diamante';
+    if (xp >= 25000) return 'Zafiro';
+    if (xp >= 10000) return 'Oro';
+    if (xp >= 3000) return 'Plata';
+    return 'Bronce';
+  }
+
+  get stageName(): string {
+    const lvl = this.currentLevel;
+    if (lvl >= 31) return 'Cúspide';
+    if (lvl >= 21) return 'Cumbres';
+    if (lvl >= 11) return 'Crónicas';
+    if (lvl >= 6) return 'Expedición';
+    return 'Semillero';
+  }
+
   get equippedTitle(): string {
     if (this.auth.isAdmin()) {
       return this.user?.equippedTitle || 'Lector Destacado';
@@ -271,7 +358,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   get equippedFrame(): string {
     if (this.auth.isAdmin()) {
-      return this.user?.equippedFrame || 'frame-kinal';
+      return this.user?.equippedFrame || 'frame-gold';
     }
     return this.user?.equippedFrame || 'frame-default';
   }
@@ -285,7 +372,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       case 'STUDENT_ROLE':
         return 'Estudiante';
       default:
-        return '';
+        return 'Comunidad Educativa';
     }
   }
 
@@ -298,7 +385,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       case 'STUDENT_ROLE':
         return 'badge-student';
       default:
-        return '';
+        return 'badge-default';
     }
   }
 

@@ -96,7 +96,7 @@
 }
 
 .dock-outer.theme-dark .dock-item.active {
-  background: linear-gradient(135deg, #004aad, #003680);
+  background: #004aad;
   border-color: #38bdf8;
   color: #ffffff;
 }
@@ -154,18 +154,18 @@
 
 /* Active State (Route currently selected) */
 .dock-item.active {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  background: #004aad;
   color: #ffffff !important;
   border-color: var(--accent);
   box-shadow:
-    0 4px 12px rgba(31, 42, 68, 0.35),
+    0 4px 12px rgba(0, 74, 173, 0.35),
     0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .dock-item.active:hover {
-  background: linear-gradient(135deg, var(--primary-hover) 0%, var(--secondary) 100%);
+  background: #003b8a;
   box-shadow:
-    0 6px 16px rgba(31, 42, 68, 0.45),
+    0 6px 16px rgba(0, 74, 173, 0.45),
     0 2px 4px rgba(0, 0, 0, 0.1);
 }
 

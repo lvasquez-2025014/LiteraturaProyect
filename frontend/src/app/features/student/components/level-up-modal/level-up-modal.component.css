@@ -20,7 +20,7 @@
   position: relative;
   width: 100%;
   max-width: 440px;
-  background: linear-gradient(120deg, var(--secondary) 0%, var(--secondary) 45%, var(--accent) 100%);
+  background: #002b66;
   border-radius: 28px;
   padding: 36px 28px;
   text-align: center;

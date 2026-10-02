@@ -42,7 +42,7 @@
 
 .chest-card {
   position: relative;
-  background: linear-gradient(120deg, var(--secondary) 0%, var(--secondary) 45%, var(--accent) 100%);
+  background: #002b66;
   border-radius: 20px;
   padding: 28px;
   color: #FFF6EA;
@@ -50,7 +50,7 @@
   align-items: center;
   gap: 24px;
   overflow: hidden;
-  box-shadow: 0 12px 30px rgba(107, 66, 38, 0.25);
+  box-shadow: 0 12px 30px rgba(0, 43, 102, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -200,7 +200,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--accent) 0%, var(--secondary) 100%);
+  background: var(--primary, #004aad);
   border-radius: 20px 20px 0 0;
   z-index: 1;
 }
@@ -377,9 +377,9 @@
 }
 
 .mission-completed {
-  border-color: var(--accent);
-  background: linear-gradient(120deg, var(--secondary) 0%, var(--secondary) 45%, var(--accent) 100%);
-  color: #FFF6EA;
+  border-color: #10b981;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.08);
 }
 
 .mission-icon-box {
@@ -511,7 +511,7 @@
 }
 
 /* ==========================================================
- * BOUTIQUE KINAL
+ * BOUTIQUE LITERARIA
  * ========================================================== */
 .boutique-tabs {
   display: flex;
@@ -720,13 +720,13 @@
 
 .chest-celebration-card {
   position: relative;
-  background: linear-gradient(120deg, var(--secondary) 0%, var(--secondary) 45%, var(--accent) 100%);
+  background: #002b66;
   width: 100%;
   max-width: 420px;
   border-radius: 24px;
   padding: 32px 24px;
   text-align: center;
-  box-shadow: 0 20px 40px rgba(107, 66, 38, 0.35);
+  box-shadow: 0 20px 40px rgba(0, 43, 102, 0.35);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: #FFF6EA;
   animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);

@@ -77,7 +77,7 @@ export class ClassActivityViewComponent implements OnInit, OnDestroy {
   // Marca de agua dinámica para el estudiante
   watermarkText = computed(() => {
     const u = this.auth.currentUserSignal();
-    const name = u?.name || 'Estudiante Kinal';
+    const name = u?.name || 'Estudiante';
     const carnet = u?.carnet || u?.email?.split('@')[0] || '2025';
     return `${name} · ${carnet} · ACTIVIDAD EN CLASE`;
   });

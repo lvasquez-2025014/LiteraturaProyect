@@ -780,12 +780,12 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       pool = [...this.reading.questions];
     }
 
-    // Si la lectura en memoria o DB tiene menos preguntas, completar con el banco de KINAL_READINGS
-    const kinalFallback = KINAL_READINGS.find(
+    // Si la lectura en memoria o DB tiene menos preguntas, completar con el banco de lecturas base
+    const localFallback = KINAL_READINGS.find(
       (k) => k.id === this.reading?.id || k.level === this.reading?.level || k.title === this.reading?.title
     );
-    if (kinalFallback && kinalFallback.questions && kinalFallback.questions.length > pool.length) {
-      pool = [...kinalFallback.questions];
+    if (localFallback && localFallback.questions && localFallback.questions.length > pool.length) {
+      pool = [...localFallback.questions];
     }
 
     if (pool.length === 0) {

@@ -1,19 +1,20 @@
 .student-dashboard {
-  background: radial-gradient(circle at 100% 0%, rgba(224,142,62,0.10) 0%, rgba(224,142,62,0) 45%), var(--bg-page);
+  background: var(--bg-page);
   min-height: 100vh;
   padding: 32px 24px 64px;
 }
 
 @media (min-width: 992px) {
   .student-dashboard {
-    margin-left: 260px;
+    margin-left: 300px;
     padding: 36px 36px 64px;
   }
 }
 
 @media (max-width: 991px) {
   .student-dashboard {
-    padding-top: 84px;
+    margin-left: 0;
+    padding-top: calc(56px + 24px);
   }
 }
 
@@ -47,7 +48,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--accent) 0%, var(--secondary) 100%);
+  background: var(--primary, #004aad);
 }
 
 .welcome-badge {
@@ -204,7 +205,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--accent) 0%, var(--secondary) 100%);
+  background: var(--primary, #004aad);
 }
 
 .card-locked {
@@ -285,7 +286,7 @@
 
 @media (max-width: 900px) {
   .student-dashboard {
-    padding: 24px 16px 56px;
+    padding: calc(56px + 20px) 16px 56px;
   }
 
   .dashboard-container {
@@ -301,7 +302,7 @@
 
 @media (max-width: 640px) {
   .student-dashboard {
-    padding: 14px 8px 48px;
+    padding: calc(56px + 16px) 10px 48px;
     overflow-x: hidden;
     width: 100%;
     box-sizing: border-box;
@@ -479,13 +480,24 @@
   50% { transform: scale(1.4); }
 }
 
-.tab-pane {
-  animation: fadeInPane 0.25s ease-out;
+.dash-tab-btn:active {
+  transform: scale(0.97);
 }
 
-@keyframes fadeInPane {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+.tab-pane {
+  animation: tabPaneFadeSlide 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+}
+
+@keyframes tabPaneFadeSlide {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ==========================================================
@@ -768,7 +780,7 @@
 
 .btn-onboarding-submit {
   width: 100%;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  background: var(--primary, #004aad);
   color: #FFFFFF;
   border: none;
   padding: 14px 20px;
@@ -781,14 +793,14 @@
   align-items: center;
   justify-content: center;
   gap: 0.65rem;
-  box-shadow: 0 8px 20px rgba(31, 42, 68, 0.35);
+  box-shadow: 0 8px 20px rgba(0, 74, 173, 0.35);
   transition: all 0.25s ease;
 }
 
 .btn-onboarding-submit:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--primary-hover) 0%, var(--secondary) 100%);
+  background: var(--primary-hover, #003b8a);
   transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(31, 42, 68, 0.45);
+  box-shadow: 0 12px 24px rgba(0, 74, 173, 0.45);
 }
 
 .btn-onboarding-submit:disabled {

@@ -84,17 +84,17 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
   },
   {
     id: 5,
-    title: 'Etapa 5: Cúspide Kinal & Maestría de la Palabra',
+    title: 'Etapa 5: Cúspide & Maestría de la Palabra',
     subtitle: 'Siguientes 10 Niveles (29 al 38)',
     startLevel: 29,
     endLevel: 38,
     totalLevels: 10,
-    description: 'La máxima expresión del estudiante kinalense: elocuencia, velocidad experta (218 - 250 PPM) y liderazgo transformador.',
+    description: 'La máxima expresión del estudiante lector: elocuencia, velocidad experta (218 - 250 PPM) y liderazgo transformador.',
     themeColor: '#DC2626',
-    badge: 'Ingeniero Humanista',
+    badge: 'Maestría Humanista',
     rewardXp: 2000,
     rewardCoins: 800,
-    milestoneTitle: 'Cúspide Legendaria Kinal',
+    milestoneTitle: 'Cúspide Legendaria',
   },
 ];
 

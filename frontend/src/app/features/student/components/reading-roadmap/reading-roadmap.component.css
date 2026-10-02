@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Reading Roadmap Component (Fundación Kinal - 5 Etapas Gamificadas con Nodos)
+   Reading Roadmap Component (Plataforma Lectora - 5 Etapas Gamificadas con Nodos)
    ========================================================================== */
 
 .roadmap-wrapper {
@@ -20,7 +20,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--accent) 0%, var(--secondary) 100%);
+  background: var(--primary, #004aad);
   z-index: 2;
 }
 
@@ -478,8 +478,8 @@
 
 .medallion-current {
   border-color: var(--accent);
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  box-shadow: 0 4px 18px rgba(31, 42, 68, 0.4);
+  background: var(--primary, #004aad);
+  box-shadow: 0 4px 18px rgba(0, 74, 173, 0.4);
 }
 
 .medallion-current .medallion-num {
@@ -661,7 +661,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--accent) 0%, var(--secondary) 100%);
+  background: var(--primary, #004aad);
 }
 
 /* Card States */

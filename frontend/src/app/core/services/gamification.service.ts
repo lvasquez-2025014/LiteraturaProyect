@@ -51,7 +51,7 @@ export class GamificationService {
 
   readonly equippedFrame = computed(() => {
     if (this.currentUser()?.role === 'ADMIN_ROLE') {
-      return this.currentUser()?.equippedFrame || 'frame-kinal';
+      return this.currentUser()?.equippedFrame || 'frame-gold';
     }
     return this.currentUser()?.equippedFrame || 'frame-default';
   });

@@ -163,7 +163,7 @@
     </div>
 
     <!-- Grid de Marcos -->
-    <div *ngIf="activeShopTab() === 'frames'" class="cosmetics-grid">
+    <div *ngIf="activeShopTab() === 'frames'" class="cosmetics-grid tab-pane-animated">
       <div *ngFor="let item of frameItems" class="cosmetic-card" [class.card-equipped]="isItemEquipped(item)">
         <div class="cosmetic-preview-frame">
           <div class="avatar-preview-box" [ngClass]="item.id">
@@ -196,7 +196,7 @@
     </div>
 
     <!-- Grid de Títulos -->
-    <div *ngIf="activeShopTab() === 'titles'" class="cosmetics-grid">
+    <div *ngIf="activeShopTab() === 'titles'" class="cosmetics-grid tab-pane-animated">
       <div *ngFor="let item of titleItems" class="cosmetic-card" [class.card-equipped]="isItemEquipped(item)">
         <div class="cosmetic-preview-title">
           <span class="title-preview-badge" [ngClass]="item.previewClass">
