@@ -52,6 +52,7 @@ export class TeacherDashboardComponent implements OnInit {
   activeClassActivity: ClassroomActivity | null = null;
   activeActivitySubmissions: ClassroomActivitySubmission[] = [];
   isActivityModalOpen = false;
+  editingActivityId: string | null = null;
   activityModalLoading = false;
 
   activityFormData = {
@@ -789,6 +790,7 @@ export class TeacherDashboardComponent implements OnInit {
   }
 
   openCreateActivityModal() {
+    this.editingActivityId = null;
     this.activityFormData = {
       title: '',
       readingId: '',
@@ -820,8 +822,44 @@ export class TeacherDashboardComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
+  openEditActivityModal(activity: ClassroomActivity) {
+    this.editingActivityId = activity.id || (activity as any)._id;
+    this.activityFormData = {
+      title: activity.title || '',
+      readingId: activity.readingId || '',
+      readingTitle: activity.readingTitle || activity.title || '',
+      content: activity.content || '',
+      timeLimitMinutes: activity.timeLimitMinutes || 5,
+      allowMic: activity.allowMic !== undefined ? activity.allowMic : true,
+      gradeLevel: activity.gradeLevel || 'all',
+      career: activity.career || 'all',
+      section: activity.section || 'all',
+      questions:
+        activity.questions && activity.questions.length > 0
+          ? activity.questions.map((q, idx) => ({
+              id: q.id || `q${idx + 1}`,
+              prompt: q.prompt || '',
+              options: q.options ? [...q.options] : ['', '', '', ''],
+              correctIndex: q.correctIndex !== undefined ? q.correctIndex : 0,
+              cognitiveLevel: q.cognitiveLevel || getQuestionCognitiveLevel(q, idx),
+            }))
+          : [
+              {
+                id: 'q1',
+                prompt: '',
+                options: ['', '', '', ''],
+                correctIndex: 0,
+                cognitiveLevel: 'literal' as CognitiveLevel,
+              },
+            ],
+    };
+    this.isActivityModalOpen = true;
+    this.cdr.markForCheck();
+  }
+
   closeActivityModal() {
     this.isActivityModalOpen = false;
+    this.editingActivityId = null;
     this.activityModalLoading = false;
     this.cdr.markForCheck();
   }
@@ -895,22 +933,38 @@ export class TeacherDashboardComponent implements OnInit {
         ...q,
         cognitiveLevel: q.cognitiveLevel || getQuestionCognitiveLevel(q as any, idx),
       })),
-      status: 'ACTIVE',
     };
 
-    this.classActivitiesService.create(payload).subscribe({
-      next: (created) => {
-        this.activityModalLoading = false;
-        this.closeActivityModal();
-        this.showToast('¡Actividad en clase lanzada en vivo exitosamente!', 'success');
-        this.loadClassActivities();
-      },
-      error: (err) => {
-        console.error('Error lanzando actividad en clase:', err);
-        this.activityModalLoading = false;
-        this.showToast('Error al lanzar la actividad en el servidor', 'error');
-      },
-    });
+    if (this.editingActivityId) {
+      this.classActivitiesService.update(this.editingActivityId, payload).subscribe({
+        next: (updated) => {
+          this.activityModalLoading = false;
+          this.closeActivityModal();
+          this.showToast('¡Actividad en clase actualizada exitosamente!', 'success');
+          this.loadClassActivities();
+        },
+        error: (err) => {
+          console.error('Error actualizando actividad:', err);
+          this.activityModalLoading = false;
+          this.showToast('Error al actualizar la actividad', 'error');
+        },
+      });
+    } else {
+      payload.status = 'ACTIVE';
+      this.classActivitiesService.create(payload).subscribe({
+        next: (created) => {
+          this.activityModalLoading = false;
+          this.closeActivityModal();
+          this.showToast('¡Actividad en clase lanzada en vivo exitosamente!', 'success');
+          this.loadClassActivities();
+        },
+        error: (err) => {
+          console.error('Error lanzando actividad en clase:', err);
+          this.activityModalLoading = false;
+          this.showToast('Error al lanzar la actividad en el servidor', 'error');
+        },
+      });
+    }
   }
 
   toggleActivityStatus(activity: ClassroomActivity, newStatus: 'ACTIVE' | 'FINISHED') {
@@ -928,6 +982,40 @@ export class TeacherDashboardComponent implements OnInit {
       error: (err) => {
         console.error('Error actualizando estado de actividad:', err);
         this.showToast('Error al actualizar el estado de la actividad', 'error');
+      },
+    });
+  }
+
+  deleteActivity(activity: ClassroomActivity) {
+    const id = activity.id || (activity as any)._id;
+    if (!confirm(`¿Estás seguro de que deseas eliminar la actividad "${activity.title}"?`)) {
+      return;
+    }
+    this.classActivitiesService.delete(id).subscribe({
+      next: () => {
+        this.showToast('Actividad eliminada correctamente', 'success');
+        this.loadClassActivities();
+      },
+      error: (err) => {
+        console.error('Error eliminando actividad:', err);
+        this.showToast('Error al eliminar la actividad', 'error');
+      },
+    });
+  }
+
+  clearActivitySubmissions(activity: ClassroomActivity) {
+    const id = activity.id || (activity as any)._id;
+    if (!confirm(`¿Deseas reiniciar y vaciar las entregas de la actividad "${activity.title}"?`)) {
+      return;
+    }
+    this.classActivitiesService.clearSubmissions(id).subscribe({
+      next: () => {
+        this.showToast('Entregas de la actividad reiniciadas correctamente', 'success');
+        this.loadClassActivities();
+      },
+      error: (err) => {
+        console.error('Error vaciando entregas:', err);
+        this.showToast('Error al vaciar las entregas', 'error');
       },
     });
   }

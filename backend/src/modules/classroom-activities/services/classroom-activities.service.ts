@@ -12,11 +12,36 @@ export class ClassroomActivitiesService implements OnModuleInit {
 
   constructor(@Inject(DatabaseService) private readonly dbService: DatabaseService) {}
 
-  onModuleInit() {
+  async onModuleInit() {
     this.collection = this.dbService.getCollection<ClassroomActivityDocument>('classroom_activities');
+    await this.cleanDemoSubmissions();
     this.seedDefaultActivityIfEmpty().catch((err) => {
       console.error('[ClassroomActivitiesService] Error inicializando actividad por defecto:', err);
     });
+  }
+
+  private async cleanDemoSubmissions(): Promise<void> {
+    try {
+      const res = await this.collection.updateMany(
+        {},
+        {
+          $pull: {
+            submissions: {
+              $or: [
+                { studentId: { $regex: /^demo-student/ } },
+                { studentName: { $in: ['Mateo Alejandro Ruiz', 'Sofía Isabel Morales', 'Diego Fernando Castillo'] } },
+                { studentEmail: { $in: ['mruiz@colegio.edu.gt', 'smorales@colegio.edu.gt', 'dcastillo@colegio.edu.gt', 'mruiz@kinal.edu.gt', 'smorales@kinal.edu.gt', 'dcastillo@kinal.edu.gt'] } },
+              ],
+            } as any,
+          },
+        }
+      );
+      if (res.modifiedCount > 0) {
+        console.log(`[ClassroomActivitiesService] Purgadas entregas demo de ${res.modifiedCount} actividades`);
+      }
+    } catch (e) {
+      console.warn('[ClassroomActivitiesService] Error purgando entregas demo:', e);
+    }
   }
 
   async findActive(grade?: string, section?: string, career?: string): Promise<ClassroomActivityDocument | null> {
@@ -119,6 +144,33 @@ export class ClassroomActivitiesService implements OnModuleInit {
     const filter: any = ObjectId.isValid(id) ? { _id: new ObjectId(id) } : { id };
     const res = await this.collection.updateOne(filter, {
       $set: { status, updatedAt: new Date() },
+    });
+    return res.matchedCount > 0;
+  }
+
+  async update(id: string, data: Partial<ClassroomActivityDocument>): Promise<ClassroomActivityDocument | null> {
+    const filter: any = ObjectId.isValid(id) ? { _id: new ObjectId(id) } : { id };
+    const updateData: any = { ...data, updatedAt: new Date() };
+    if (data.content !== undefined) {
+      updateData.wordCount = data.content.trim().split(/\s+/).length;
+    }
+    delete updateData._id;
+    delete updateData.id;
+
+    await this.collection.updateOne(filter, { $set: updateData });
+    return this.findById(id);
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const filter: any = ObjectId.isValid(id) ? { _id: new ObjectId(id) } : { id };
+    const res = await this.collection.deleteOne(filter);
+    return res.deletedCount > 0;
+  }
+
+  async clearSubmissions(id: string): Promise<boolean> {
+    const filter: any = ObjectId.isValid(id) ? { _id: new ObjectId(id) } : { id };
+    const res = await this.collection.updateOne(filter, {
+      $set: { submissions: [], updatedAt: new Date() },
     });
     return res.matchedCount > 0;
   }
@@ -255,56 +307,7 @@ export class ClassroomActivitiesService implements OnModuleInit {
       gradeLevel: 'all',
       section: 'all',
       status: 'ACTIVE',
-      submissions: [
-        {
-          studentId: 'demo-student-01',
-          studentName: 'Mateo Alejandro Ruiz',
-          studentEmail: 'mruiz@colegio.edu.gt',
-          grade: '4to Perito',
-          section: 'A',
-          carnet: '2023001',
-          avatarUrl: '',
-          score: 100,
-          wpm: 185,
-          timeSpentSeconds: 142,
-          correctAnswersCount: 4,
-          totalQuestions: 4,
-          submittedAt: new Date(Date.now() - 3600000 * 2),
-          micUsed: true,
-        },
-        {
-          studentId: 'demo-student-02',
-          studentName: 'Sofía Isabel Morales',
-          studentEmail: 'smorales@colegio.edu.gt',
-          grade: '4to Perito',
-          section: 'B',
-          carnet: '2023045',
-          avatarUrl: '',
-          score: 100,
-          wpm: 168,
-          timeSpentSeconds: 165,
-          correctAnswersCount: 4,
-          totalQuestions: 4,
-          submittedAt: new Date(Date.now() - 3600000 * 1.5),
-          micUsed: true,
-        },
-        {
-          studentId: 'demo-student-03',
-          studentName: 'Diego Fernando Castillo',
-          studentEmail: 'dcastillo@colegio.edu.gt',
-          grade: '5to Perito',
-          section: 'A',
-          carnet: '2022019',
-          avatarUrl: '',
-          score: 75,
-          wpm: 154,
-          timeSpentSeconds: 180,
-          correctAnswersCount: 3,
-          totalQuestions: 4,
-          submittedAt: new Date(Date.now() - 3600000),
-          micUsed: false,
-        },
-      ],
+      submissions: [],
       createdAt: new Date(),
       updatedAt: new Date(),
     };

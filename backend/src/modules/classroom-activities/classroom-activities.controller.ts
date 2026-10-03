@@ -3,6 +3,8 @@ import {
   Get,
   Post,
   Patch,
+  Put,
+  Delete,
   Body,
   Param,
   UseGuards,
@@ -82,6 +84,33 @@ export class ClassroomActivitiesController {
     if (!status) throw new BadRequestException('El estado es requerido');
     const success = await this.service.updateStatus(id, status);
     return { success };
+  }
+
+  @Put(':id')
+  @Roles('TEACHER_ROLE', 'ADMIN_ROLE')
+  async update(@Param('id') id: string, @Body() body: any) {
+    const updated = await this.service.update(id, body);
+    if (!updated) throw new NotFoundException('Actividad no encontrada');
+    return {
+      ...updated,
+      id: updated._id ? updated._id.toString() : updated.id,
+    };
+  }
+
+  @Delete(':id')
+  @Roles('TEACHER_ROLE', 'ADMIN_ROLE')
+  async delete(@Param('id') id: string) {
+    const ok = await this.service.delete(id);
+    if (!ok) throw new NotFoundException('Actividad no encontrada');
+    return { success: true };
+  }
+
+  @Delete(':id/submissions')
+  @Roles('TEACHER_ROLE', 'ADMIN_ROLE')
+  async clearSubmissions(@Param('id') id: string) {
+    const ok = await this.service.clearSubmissions(id);
+    if (!ok) throw new NotFoundException('Actividad no encontrada');
+    return { success: true };
   }
 
   @Post(':id/submit')

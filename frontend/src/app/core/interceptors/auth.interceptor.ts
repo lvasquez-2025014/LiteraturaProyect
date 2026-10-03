@@ -17,11 +17,16 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   }
 
   let finalReq = req;
-  if (token && isApiRequest) {
+  if (isApiRequest) {
     finalReq = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
+      withCredentials: true,
+      ...(token
+        ? {
+            setHeaders: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        : {}),
     });
   }
 

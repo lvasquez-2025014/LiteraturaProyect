@@ -36,6 +36,18 @@ export class ClassroomActivitiesService {
     return this.http.post<ClassroomActivity>(this.apiUrl, data);
   }
 
+  update(id: string, data: Partial<ClassroomActivity>): Observable<ClassroomActivity> {
+    return this.http.put<ClassroomActivity>(`${this.apiUrl}/${id}`, data);
+  }
+
+  delete(id: string): Observable<{ success: boolean }> {
+    return this.http.delete<{ success: boolean }>(`${this.apiUrl}/${id}`);
+  }
+
+  clearSubmissions(id: string): Observable<{ success: boolean }> {
+    return this.http.delete<{ success: boolean }>(`${this.apiUrl}/${id}/submissions`);
+  }
+
   updateStatus(id: string, status: 'ACTIVE' | 'FINISHED' | 'DRAFT'): Observable<{ success: boolean }> {
     return this.http.patch<{ success: boolean }>(`${this.apiUrl}/${id}/status`, { status });
   }

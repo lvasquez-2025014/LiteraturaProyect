@@ -411,11 +411,25 @@
               <span>ACTIVIDAD EN CURSO</span>
             </div>
             <div class="active-panel-actions">
+              <button type="button" (click)="openEditActivityModal(activeAct)" class="btn-secondary-action">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                <span>Editar Actividad</span>
+              </button>
               <button (click)="loadActivityRanking(activeAct.id)" class="btn-secondary-action">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
                 </svg>
                 <span>Actualizar Resultados</span>
+              </button>
+              <button *ngIf="activeActivitySubmissions.length > 0" type="button" (click)="clearActivitySubmissions(activeAct)" class="btn-secondary-action btn-danger-ghost" title="Vaciar y reiniciar las entregas de esta actividad">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                <span>Limpiar Entregas</span>
               </button>
               <button (click)="toggleActivityStatus(activeAct, 'FINISHED')" class="btn-finish-live">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align: -2px; margin-right: 4px;">
@@ -550,11 +564,25 @@
                 <span>{{ a.submissions.length }} entregas</span>
               </div>
               <div class="hist-card-actions">
+                <button type="button" (click)="openEditActivityModal(a)" class="btn-edit-small" title="Editar actividad">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                  <span>Editar</span>
+                </button>
                 <button *ngIf="a.status !== 'ACTIVE'" (click)="toggleActivityStatus(a, 'ACTIVE')" class="btn-reactivate">
                   Reactivar
                 </button>
                 <button *ngIf="a.status === 'ACTIVE'" (click)="toggleActivityStatus(a, 'FINISHED')" class="btn-finish-small">
                   Finalizar
+                </button>
+                <button type="button" (click)="deleteActivity(a)" class="btn-delete-small" title="Eliminar actividad">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                  <span>Eliminar</span>
                 </button>
               </div>
             </div>
@@ -980,14 +1008,18 @@
     <div class="modal-dialog-large glass-card" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div class="modal-header-info">
-          <div class="modal-header-badge">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <div class="modal-header-badge" [class.badge-editing]="editingActivityId">
+            <svg *ngIf="!editingActivityId" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            <svg *ngIf="editingActivityId" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
             </svg>
           </div>
           <div>
-            <h3>Lanzar Nueva Actividad en Clase</h3>
-            <p class="modal-subtitle">Asigna una lectura, tiempo límite, modalidad de voz y preguntas de evaluación para la sesión.</p>
+            <h3>{{ editingActivityId ? 'Editar Actividad en Clase' : 'Lanzar Nueva Actividad en Clase' }}</h3>
+            <p class="modal-subtitle">{{ editingActivityId ? 'Modifica los parámetros pedagógicos, texto de lectura o preguntas de la actividad.' : 'Asigna una lectura, tiempo límite, modalidad de voz y preguntas de evaluación para la sesión.' }}</p>
           </div>
         </div>
         <button type="button" class="btn-modal-close" (click)="closeActivityModal()" title="Cerrar ventana">
@@ -1201,10 +1233,15 @@
           <div class="modal-actions-sticky">
             <button type="button" class="btn-cancel" (click)="closeActivityModal()">Cancelar</button>
             <button type="submit" class="btn-launch-activity" [disabled]="activityModalLoading">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <svg *ngIf="!editingActivityId" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="5 3 19 12 5 21 5 3"></polygon>
               </svg>
-              <span>{{ activityModalLoading ? 'Lanzando Actividad...' : 'Lanzar Actividad para Alumnos' }}</span>
+              <svg *ngIf="editingActivityId" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+              <span>{{ activityModalLoading ? (editingActivityId ? 'Guardando Cambios...' : 'Lanzando Actividad...') : (editingActivityId ? 'Guardar Cambios' : 'Lanzar Actividad para Alumnos') }}</span>
             </button>
           </div>
 

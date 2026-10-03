@@ -139,17 +139,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
             },
           ],
         },
-        {
-          label: 'Gestión Institucional',
-          children: [
-            {
-              value: 'class-activities',
-              label: 'Actividades en Clase',
-              icon: ClassActivityIcon,
-              route: '/profesor?tab=class-activities',
-            },
-          ],
-        },
       ];
     }
 

@@ -27,10 +27,23 @@ export class AuthService {
   private ngZone = inject(NgZone);
 
   private readonly API_URL = `${environment.apiUrl}/auth`;
-  private readonly TOKEN_KEY = 'lectura_viva_token';
-  private readonly USER_KEY = 'lectura_viva_user';
-  private readonly LAST_ACTIVITY_KEY = 'lectura_viva_last_activity';
-  private readonly LAST_RENEW_KEY = 'lectura_viva_last_renew';
+
+  // Claves de almacenamiento seguras configuradas en las variables de entorno de la aplicación
+  private readonly TOKEN_KEY = environment.storageKeys?.token || '__sec_lv_a9f12b7c6e';
+  private readonly USER_KEY = environment.storageKeys?.user || '__sec_lv_d48f001c9d';
+  private readonly LAST_ACTIVITY_KEY = environment.storageKeys?.lastActivity || '__sec_lv_8fceea145f';
+  private readonly LAST_RENEW_KEY = environment.storageKeys?.lastRenew || '__sec_lv_b2532a014e';
+
+  // Claves anteriores para migración y saneamiento transparente en el navegador
+  private readonly LEGACY_KEYS = {
+    token: 'lectura_viva_token',
+    user: 'lectura_viva_user',
+    lastActivity: 'lectura_viva_last_activity',
+    lastRenew: 'lectura_viva_last_renew',
+  };
+
+  // Semilla de derivación y ofuscación criptográfica (proveniente del entorno)
+  private readonly STORAGE_SALT = environment.storageKeys?.salt || 'LvSec!2026#k9$XmQ7vL8zP3wR1';
 
   // Configuración de inactividad (1 hora) y renovación
   readonly INACTIVITY_TIMEOUT_MS = 60 * 60 * 1000; // 1 hora exacta de inactividad
@@ -49,7 +62,8 @@ export class AuthService {
 
   isAuthenticated = computed(() => {
     const token = this.tokenSignal();
-    return !!token && !this.isTokenExpired(token);
+    const user = this.currentUserSignal();
+    return (!!token && !this.isTokenExpired(token)) || !!user;
   });
 
   isStudent = computed(() => this.currentUserSignal()?.role === 'STUDENT_ROLE');
@@ -66,9 +80,28 @@ export class AuthService {
         this.handleAutoLogout('inactive');
       } else {
         this.initSessionTracking(token);
-        this.fetchProfile().subscribe({ error: () => {} });
+        this.fetchProfile().subscribe({ error: () => { } });
       }
+    } else {
+      // Intentar restaurar sesión activa desde la cookie HttpOnly segura
+      this.restoreSessionFromCookie();
     }
+    this.cleanLegacyStorage();
+  }
+
+  /**
+   * Restaura la sesión del usuario si existe una cookie HttpOnly válida en el navegador
+   */
+  private restoreSessionFromCookie(): void {
+    if (typeof window === 'undefined') return;
+    this.fetchProfile().subscribe({
+      next: (user) => {
+        if (user) {
+          this.currentUserSignal.set(user);
+        }
+      },
+      error: () => {},
+    });
   }
 
   /**
@@ -85,12 +118,12 @@ export class AuthService {
    */
   getLastActivityTime(): number {
     try {
-      const stored = localStorage.getItem(this.LAST_ACTIVITY_KEY);
+      const stored = this.secureGetItem(this.LAST_ACTIVITY_KEY, this.LEGACY_KEYS.lastActivity);
       if (stored) {
         const val = Number(stored);
         if (!isNaN(val) && val > 0) return val;
       }
-    } catch {}
+    } catch { }
     return Date.now();
   }
 
@@ -124,8 +157,8 @@ export class AuthService {
 
     // Actualizar última actividad
     try {
-      localStorage.setItem(this.LAST_ACTIVITY_KEY, now.toString());
-    } catch {}
+      this.secureSetItem(this.LAST_ACTIVITY_KEY, now.toString());
+    } catch { }
 
     // Restauración / Renovación automática del token por actividad continua:
     // Si han pasado más de 15 minutos desde la última renovación o faltan menos de 60 minutos para que expire
@@ -146,12 +179,12 @@ export class AuthService {
    */
   private getLastRenewTime(): number {
     try {
-      const stored = localStorage.getItem(this.LAST_RENEW_KEY);
+      const stored = this.secureGetItem(this.LAST_RENEW_KEY, this.LEGACY_KEYS.lastRenew);
       if (stored) {
         const val = Number(stored);
         if (!isNaN(val) && val > 0) return val;
       }
-    } catch {}
+    } catch { }
     return 0;
   }
 
@@ -175,8 +208,8 @@ export class AuthService {
       if (res && res.token) {
         const now = Date.now();
         try {
-          localStorage.setItem(this.LAST_RENEW_KEY, now.toString());
-        } catch {}
+          this.secureSetItem(this.LAST_RENEW_KEY, now.toString());
+        } catch { }
         this.saveSession(res);
         console.log('[AuthService] Token de sesión renovado y restaurado exitosamente por actividad activa en la plataforma.');
       }
@@ -351,13 +384,190 @@ export class AuthService {
     }
   }
 
+  /**
+   * Genera un flujo de claves pseudoaleatorio a partir de la semilla y el salt
+   */
+  private deriveKeyStream(key: string, salt: string, length: number): Uint8Array {
+    const combined = `${this.STORAGE_SALT}:${key}:${salt}`;
+    const stream = new Uint8Array(length);
+    let h1 = 0x811c9dc5;
+    let h2 = 0x9e3779b9;
+
+    for (let i = 0; i < combined.length; i++) {
+      h1 = Math.imul(h1 ^ combined.charCodeAt(i), 0x01000193);
+      h2 = Math.imul(h2 ^ combined.charCodeAt(i), 0x5bd1e995);
+    }
+
+    for (let i = 0; i < length; i++) {
+      h1 = Math.imul(h1 ^ (h2 >>> 3), 0x01000193) ^ (i & 0xff);
+      h2 = Math.imul(h2 ^ (h1 >>> 5), 0x5bd1e995) ^ ((i >>> 8) & 0xff);
+      stream[i] = (h1 ^ (h2 >>> 16)) & 0xff;
+    }
+    return stream;
+  }
+
+  /**
+   * Calcula un checksum de integridad para detectar alteraciones o manipulación de datos
+   */
+  private computeChecksum(data: Uint8Array): string {
+    let hash = 0x811c9dc5;
+    for (let i = 0; i < data.length; i++) {
+      hash ^= data[i];
+      hash = Math.imul(hash, 0x01000193);
+    }
+    return (hash >>> 0).toString(16).padStart(8, '0');
+  }
+
+  private bytesToBase64(bytes: Uint8Array): string {
+    let binary = '';
+    const len = bytes.byteLength;
+    const chunkSize = 8192;
+    for (let i = 0; i < len; i += chunkSize) {
+      const chunk = bytes.subarray(i, Math.min(i + chunkSize, len));
+      binary += String.fromCharCode.apply(null, Array.from(chunk));
+    }
+    return btoa(binary);
+  }
+
+  private base64ToBytes(b64: string): Uint8Array {
+    const binary = atob(b64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+  }
+
+  /**
+   * Cifra y ofusca una cadena de texto para su almacenamiento seguro
+   */
+  private encryptValue(storageKey: string, plainText: string): string {
+    try {
+      const encoder = new TextEncoder();
+      const plainBytes = encoder.encode(plainText);
+      const checksum = this.computeChecksum(plainBytes);
+
+      const saltBytes = new Uint8Array(8);
+      if (typeof window !== 'undefined' && window.crypto?.getRandomValues) {
+        window.crypto.getRandomValues(saltBytes);
+      } else {
+        for (let i = 0; i < 8; i++) saltBytes[i] = Math.floor(Math.random() * 256);
+      }
+      const salt = Array.from(saltBytes).map((b) => b.toString(16).padStart(2, '0')).join('');
+
+      const keyStream = this.deriveKeyStream(storageKey, salt, plainBytes.length);
+      const cipherBytes = new Uint8Array(plainBytes.length);
+      for (let i = 0; i < plainBytes.length; i++) {
+        cipherBytes[i] = plainBytes[i] ^ keyStream[i];
+      }
+
+      const base64Cipher = this.bytesToBase64(cipherBytes);
+      return `__sec_v1__:${salt}:${checksum}:${base64Cipher}`;
+    } catch (e) {
+      console.warn('[AuthService] Falló el cifrado seguro de almacenamiento:', e);
+      return plainText;
+    }
+  }
+
+  /**
+   * Descifra y valida la integridad de una cadena almacenada
+   */
+  private decryptValue(storageKey: string, storedValue: string): string | null {
+    if (!storedValue) return null;
+
+    if (!storedValue.startsWith('__sec_v1__:')) {
+      return storedValue;
+    }
+
+    try {
+      const parts = storedValue.split(':');
+      if (parts.length !== 4) return null;
+
+      const [, salt, expectedChecksum, base64Cipher] = parts;
+      const cipherBytes = this.base64ToBytes(base64Cipher);
+      const keyStream = this.deriveKeyStream(storageKey, salt, cipherBytes.length);
+
+      const plainBytes = new Uint8Array(cipherBytes.length);
+      for (let i = 0; i < cipherBytes.length; i++) {
+        plainBytes[i] = cipherBytes[i] ^ keyStream[i];
+      }
+
+      const actualChecksum = this.computeChecksum(plainBytes);
+      if (actualChecksum !== expectedChecksum) {
+        console.warn('[AuthService] Verificación de integridad fallida en almacenamiento seguro.');
+        return null;
+      }
+
+      const decoder = new TextDecoder();
+      return decoder.decode(plainBytes);
+    } catch (e) {
+      console.warn('[AuthService] Error al descifrar valor de almacenamiento seguro:', e);
+      return null;
+    }
+  }
+
+  private secureSetItem(key: string, value: string): void {
+    try {
+      if (typeof window === 'undefined' || !window.localStorage) return;
+      const encrypted = this.encryptValue(key, value);
+      localStorage.setItem(key, encrypted);
+    } catch (e) {
+      console.warn('[AuthService] Error guardando en almacenamiento seguro:', e);
+    }
+  }
+
+  private secureGetItem(key: string, legacyKey?: string): string | null {
+    try {
+      if (typeof window === 'undefined' || !window.localStorage) return null;
+
+      const stored = localStorage.getItem(key);
+      if (stored) {
+        const decrypted = this.decryptValue(key, stored);
+        if (decrypted !== null) return decrypted;
+      }
+
+      if (legacyKey) {
+        const legacyVal = localStorage.getItem(legacyKey);
+        if (legacyVal) {
+          this.secureSetItem(key, legacyVal);
+          localStorage.removeItem(legacyKey);
+          return legacyVal;
+        }
+      }
+      return null;
+    } catch (e) {
+      console.warn('[AuthService] Error leyendo de almacenamiento seguro:', e);
+      return null;
+    }
+  }
+
+  private secureRemoveItem(key: string, legacyKey?: string): void {
+    try {
+      if (typeof window === 'undefined' || !window.localStorage) return;
+      localStorage.removeItem(key);
+      if (legacyKey) {
+        localStorage.removeItem(legacyKey);
+      }
+    } catch { }
+  }
+
+  private cleanLegacyStorage(): void {
+    try {
+      if (typeof window === 'undefined' || !window.localStorage) return;
+      localStorage.removeItem(this.LEGACY_KEYS.token);
+      localStorage.removeItem(this.LEGACY_KEYS.user);
+      localStorage.removeItem(this.LEGACY_KEYS.lastActivity);
+      localStorage.removeItem(this.LEGACY_KEYS.lastRenew);
+    } catch { }
+  }
+
   private getStoredToken(): string | null {
     try {
-      const token = localStorage.getItem(this.TOKEN_KEY);
+      const token = this.secureGetItem(this.TOKEN_KEY, this.LEGACY_KEYS.token);
       if (!token) return null;
       if (this.isTokenExpired(token)) {
-        localStorage.removeItem(this.TOKEN_KEY);
-        localStorage.removeItem(this.USER_KEY);
+        this.secureRemoveItem(this.TOKEN_KEY, this.LEGACY_KEYS.token);
+        this.secureRemoveItem(this.USER_KEY, this.LEGACY_KEYS.user);
         return null;
       }
       return token;
@@ -368,7 +578,7 @@ export class AuthService {
 
   private getStoredUser(): User | null {
     try {
-      const raw = localStorage.getItem(this.USER_KEY);
+      const raw = this.secureGetItem(this.USER_KEY, this.LEGACY_KEYS.user);
       return raw ? JSON.parse(raw) : null;
     } catch {
       return null;
@@ -378,10 +588,11 @@ export class AuthService {
   saveSession(res: AuthResponse): void {
     const now = Date.now();
     try {
-      localStorage.setItem(this.TOKEN_KEY, res.token);
-      localStorage.setItem(this.USER_KEY, JSON.stringify(res.user));
-      localStorage.setItem(this.LAST_ACTIVITY_KEY, now.toString());
-      localStorage.setItem(this.LAST_RENEW_KEY, now.toString());
+      this.secureSetItem(this.TOKEN_KEY, res.token);
+      this.secureSetItem(this.USER_KEY, JSON.stringify(res.user));
+      this.secureSetItem(this.LAST_ACTIVITY_KEY, now.toString());
+      this.secureSetItem(this.LAST_RENEW_KEY, now.toString());
+      this.cleanLegacyStorage();
     } catch (e) {
       console.warn('[AuthService] No se pudo guardar la sesión en el almacenamiento local:', e);
     }
@@ -449,6 +660,8 @@ export class AuthService {
         const token = this.tokenSignal();
         if (token) {
           this.saveSession({ token, user: merged });
+        } else {
+          this.currentUserSignal.set(merged);
         }
       }),
     );
@@ -469,6 +682,10 @@ export class AuthService {
     this.clearSessionTimer();
     this.stopInactivityMonitor();
     this.clearSessionData();
+    this.http.post(`${this.API_URL}/logout`, {}).subscribe({
+      next: () => {},
+      error: () => {},
+    });
     this.router.navigate(['/login']);
   }
 
@@ -479,6 +696,10 @@ export class AuthService {
     this.clearSessionTimer();
     this.stopInactivityMonitor();
     this.clearSessionData();
+    this.http.post(`${this.API_URL}/logout`, {}).subscribe({
+      next: () => {},
+      error: () => {},
+    });
     this.router.navigate(['/login'], {
       queryParams: { reason },
     });
@@ -486,10 +707,10 @@ export class AuthService {
 
   private clearSessionData(): void {
     try {
-      localStorage.removeItem(this.TOKEN_KEY);
-      localStorage.removeItem(this.USER_KEY);
-      localStorage.removeItem(this.LAST_ACTIVITY_KEY);
-      localStorage.removeItem(this.LAST_RENEW_KEY);
+      this.secureRemoveItem(this.TOKEN_KEY, this.LEGACY_KEYS.token);
+      this.secureRemoveItem(this.USER_KEY, this.LEGACY_KEYS.user);
+      this.secureRemoveItem(this.LAST_ACTIVITY_KEY, this.LEGACY_KEYS.lastActivity);
+      this.secureRemoveItem(this.LAST_RENEW_KEY, this.LEGACY_KEYS.lastRenew);
     } catch (e) {
       console.warn('[AuthService] Error al limpiar almacenamiento local:', e);
     }
