@@ -1,5 +1,31 @@
 <div class="class-activity-container">
 
+  <!-- Cortina de bloqueo total negra para capturas de pantalla -->
+  <div *ngIf="isBlackoutActive()" class="screenshot-blackout-curtain" (click)="resumeFromBlackout()">
+    <div class="blackout-box" (click)="$event.stopPropagation()">
+      <div class="blackout-shield-icon">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#f36f21" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <circle cx="12" cy="17" r="1"/>
+        </svg>
+      </div>
+      <h2 class="blackout-heading">Pantalla Protegida Anti-Captura</h2>
+      <p class="blackout-message">
+        Se detectó un intento de captura de pantalla o cambio de ventana. Por seguridad institucional, la pantalla se bloqueó en negro y la captura se guardó negra.
+      </p>
+      <div class="blackout-badge-infraction">
+        Infracciones detectadas: {{ infractionsCount() }}
+      </div>
+      <button type="button" (click)="resumeFromBlackout()" class="btn-blackout-resume">
+        <span>Reanudar Actividad en Clase</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+    </div>
+  </div>
+
   <!-- Alerta flotante de seguridad anti-trampas -->
   <div *ngIf="securityNotice()" class="security-floating-alert animate-shake">
     <span class="sec-alert-icon">
@@ -387,6 +413,19 @@
     <!-- ========================================== -->
     <div *ngIf="phase() === 'READING'" class="activity-reading-view">
       
+      <!-- Aviso de Examen Blindado y Retención Activa -->
+      <div class="exam-locked-banner">
+        <span class="exam-locked-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </span>
+        <span class="exam-locked-text">
+          <strong>Modo Examen Blindado:</strong> No puedes salir ni tomar capturas de pantalla hasta entregar la actividad.
+        </span>
+      </div>
+
       <!-- Barra Superior de Control de la Lectura -->
       <div class="reading-control-bar">
         <div class="timer-badge" [class.timer-urgent]="timeRemainingSeconds() <= 60">
@@ -435,6 +474,7 @@
       <!-- Contenedor Blindado de Lectura -->
       <div 
         class="secure-text-card unselectable"
+        [class.content-hidden-by-blackout]="isBlackoutActive()"
         (copy)="$event.preventDefault()"
         (cut)="$event.preventDefault()"
         (contextmenu)="$event.preventDefault()"
@@ -503,8 +543,21 @@
     <!-- ========================================== -->
     <!-- FASE 3: PREGUNTAS DE COMPRENSIÓN (QUIZ) -->
     <!-- ========================================== -->
-    <div *ngIf="phase() === 'QUIZ'" class="activity-quiz-view">
+    <div *ngIf="phase() === 'QUIZ'" class="activity-quiz-view" [class.content-hidden-by-blackout]="isBlackoutActive()">
       
+      <!-- Aviso de Examen Blindado y Retención Activa -->
+      <div class="exam-locked-banner">
+        <span class="exam-locked-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </span>
+        <span class="exam-locked-text">
+          <strong>Modo Examen Blindado:</strong> No puedes salir ni tomar capturas de pantalla hasta entregar la actividad.
+        </span>
+      </div>
+
       <div class="quiz-header-bar">
         <div class="quiz-progress-meta">
           <span class="quiz-step-title">Evaluación de Comprensión</span>

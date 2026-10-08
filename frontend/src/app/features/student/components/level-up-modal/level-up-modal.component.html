@@ -1,4 +1,4 @@
-<div class="level-up-backdrop" (click)="close.emit()">
+<div class="level-up-backdrop" (click)="$event.stopPropagation()">
   <div class="level-up-card" (click)="$event.stopPropagation()">
     
     <!-- Light Rays / Ambient -->
@@ -34,7 +34,7 @@
     </div>
 
     <!-- Action Button -->
-    <button (click)="close.emit()" class="btn-levelup-continue">
+    <button (click)="onClose()" class="btn-levelup-continue">
       <span>Continuar en la Ruta</span>
       <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
     </button>

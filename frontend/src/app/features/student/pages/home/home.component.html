@@ -1,10 +1,10 @@
-<app-navbar *ngIf="!activeReading"></app-navbar>
+<app-navbar *ngIf="!activeReading && !isClassActivityOngoing()" [class.app-disabled-by-modal]="levelUpModalData() !== null"></app-navbar>
 
-<main class="student-dashboard" *ngIf="!activeReading">
-  <div class="dashboard-container">
+<main class="student-dashboard" *ngIf="!activeReading" [class.app-disabled-by-modal]="levelUpModalData() !== null" [class.exam-fullscreen-mode]="isClassActivityOngoing()">
+  <div class="dashboard-container" [class.container-exam-mode]="isClassActivityOngoing()">
     
-    <!-- Hero / Welcome Book Cover -->
-    <section class="hero-cover hero-cover-student">
+    <!-- Hero / Welcome Book Cover (Oculto mientras hay Actividad en Clase en curso) -->
+    <section *ngIf="!isClassActivityOngoing()" class="hero-cover hero-cover-student">
       <!-- Cinta marcapáginas -->
       <div class="hero-bookmark" aria-hidden="true"></div>
 
@@ -105,8 +105,8 @@
       </div>
     </section>
 
-    <!-- Gamified Navigation Tabs -->
-    <nav class="dashboard-tabs">
+    <!-- Gamified Navigation Tabs (Oculto mientras hay Actividad en Clase en curso) -->
+    <nav *ngIf="!isClassActivityOngoing()" class="dashboard-tabs">
       <!-- Tab 0: Actividad en Clase (Principal) -->
       <button 
         (click)="setTab('class-activity')" 
@@ -160,6 +160,7 @@
         [currentUserGrade]="user?.grade"
         [currentUserSection]="user?.section"
         [currentUserCareer]="user?.career"
+        (activityInProgress)="onClassActivityProgress($event)"
       ></app-class-activity-view>
     </section>
 

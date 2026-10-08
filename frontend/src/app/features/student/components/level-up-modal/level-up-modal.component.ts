@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import confetti from 'canvas-confetti';
 
@@ -9,7 +9,7 @@ import confetti from 'canvas-confetti';
   templateUrl: './level-up-modal.component.html',
   styleUrl: './level-up-modal.component.css',
 })
-export class LevelUpModalComponent implements OnInit {
+export class LevelUpModalComponent implements OnInit, OnDestroy {
   @Input({ required: true }) newLevel!: number;
   @Input() xpGained: number = 0;
   @Input() coinsGained: number = 0;
@@ -17,7 +17,17 @@ export class LevelUpModalComponent implements OnInit {
   @Output() close = new EventEmitter<void>();
 
   ngOnInit(): void {
+    document.body.style.overflow = 'hidden';
     this.launchConfetti();
+  }
+
+  ngOnDestroy(): void {
+    document.body.style.overflow = '';
+  }
+
+  onClose(): void {
+    document.body.style.overflow = '';
+    this.close.emit();
   }
 
   launchConfetti(): void {

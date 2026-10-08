@@ -55,6 +55,7 @@ export class StudentHomeComponent implements OnInit {
   readings: Reading[] = [...KINAL_READINGS];
   activeReading: Reading | null = null;
   activeTab = signal<'class-activity' | 'roadmap' | 'rewards' | 'achievements' | 'leaderboard'>('class-activity');
+  isClassActivityOngoing = signal<boolean>(false);
   levelUpModalData = signal<{ level: number; xp: number; coins: number } | null>(null);
 
   // Academic Onboarding check para estudiantes sin perfil académico completo (carnet, correo institucional, grado o sección)
@@ -240,7 +241,18 @@ export class StudentHomeComponent implements OnInit {
     this.activeReading = reading;
   }
 
+  onClassActivityProgress(inProgress: boolean): void {
+    this.isClassActivityOngoing.set(inProgress);
+    if (inProgress) {
+      this.activeTab.set('class-activity');
+    }
+    this.cdr.markForCheck();
+  }
+
   setTab(tab: 'class-activity' | 'roadmap' | 'rewards' | 'achievements' | 'leaderboard'): void {
+    if (this.isClassActivityOngoing()) {
+      return; // Bloqueado: no se puede salir de la actividad en clase en curso
+    }
     this.activeTab.set(tab);
   }
 

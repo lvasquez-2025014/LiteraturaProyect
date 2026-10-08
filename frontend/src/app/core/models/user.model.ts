@@ -31,6 +31,7 @@ export interface User {
   role: UserRole;
   avatarUrl?: string;
   grade?: string;
+  academicCode?: string;
   career?: string;
   section?: string;
   stats?: UserStats;
@@ -177,3 +178,28 @@ export function parseGradeLevelAndCareer(fullGrade?: string): { level: string; c
   }
   return { level: fullGrade, career: '' };
 }
+
+export const ACADEMIC_CODES = ['PE4DM', 'PE5DM', 'PE6DM'] as const;
+export type AcademicCode = typeof ACADEMIC_CODES[number];
+
+export const ACADEMIC_CODE_LABELS: Record<AcademicCode, string> = {
+  PE4DM: 'PE4DM (Cuarto Perito)',
+  PE5DM: 'PE5DM (Quinto Perito)',
+  PE6DM: 'PE6DM (Sexto Perito)',
+};
+
+/**
+ * Normaliza cualquier formato de grado previo o código al estándar oficial (PE4DM, PE5DM, PE6DM)
+ */
+export function normalizeToAcademicCode(gradeOrCode?: string): AcademicCode | string {
+  if (!gradeOrCode) return '';
+  const clean = gradeOrCode.toUpperCase().replace(/\s+/g, '');
+  if (clean.includes('PE4DM') || clean.includes('CUARTO') || clean.includes('4TO') || clean.includes('4TO PERITO')) return 'PE4DM';
+  if (clean.includes('PE5DM') || clean.includes('QUINTO') || clean.includes('5TO') || clean.includes('5TO PERITO')) return 'PE5DM';
+  if (clean.includes('PE6DM') || clean.includes('SEXTO') || clean.includes('6TO') || clean.includes('6TO PERITO')) return 'PE6DM';
+  if (clean.startsWith('PE4')) return 'PE4DM';
+  if (clean.startsWith('PE5')) return 'PE5DM';
+  if (clean.startsWith('PE6')) return 'PE6DM';
+  return gradeOrCode;
+}
+

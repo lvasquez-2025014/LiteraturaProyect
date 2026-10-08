@@ -18,12 +18,32 @@
   }
 }
 
+/* Modo Examen Blindado (Actividad en Clase en curso) */
+.student-dashboard.exam-fullscreen-mode {
+  margin-left: 0 !important;
+  padding: 16px 16px 40px !important;
+  background: #00122e !important;
+  min-height: 100vh !important;
+}
+
+@media (max-width: 991px) {
+  .student-dashboard.exam-fullscreen-mode {
+    padding-top: 16px !important;
+  }
+}
+
 .dashboard-container {
   max-width: 1200px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 36px;
+}
+
+.dashboard-container.container-exam-mode {
+  max-width: 1040px !important;
+  margin: 0 auto !important;
+  gap: 0 !important;
 }
 
 /* Hero Portada de Libro - Tarjetas de Métricas Ficha */
@@ -265,7 +285,7 @@
 
 @media (max-width: 900px) {
   .student-dashboard {
-    padding: calc(56px + 20px) 16px 56px;
+    padding: calc(52px + 20px) 16px calc(76px + env(safe-area-inset-bottom, 12px));
   }
 
   .dashboard-container {
@@ -275,7 +295,7 @@
 
 @media (max-width: 640px) {
   .student-dashboard {
-    padding: calc(56px + 16px) 10px 48px;
+    padding: calc(52px + 16px) 12px calc(80px + env(safe-area-inset-bottom, 12px));
     overflow-x: hidden;
     width: 100%;
     box-sizing: border-box;
@@ -782,6 +802,15 @@
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* Modal active: block background clicks and interactions completely */
+.app-disabled-by-modal {
+  pointer-events: none !important;
+  user-select: none !important;
+  filter: blur(1.5px);
+  opacity: 0.65;
+  transition: filter 0.25s ease, opacity 0.25s ease;
 }
 
 

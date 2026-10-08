@@ -224,24 +224,14 @@
             />
           </div>
 
-          <!-- Grade, Career & Section Filters -->
+          <!-- Academic Code, Section Filters & Action Buttons -->
           <div class="filters-group">
             <div class="filter-item">
-              <label for="grade-select" class="filter-label">Grado:</label>
-              <select id="grade-select" [(ngModel)]="selectedGrade" (ngModelChange)="onGradeFilterChange()" class="filter-select">
-                <option value="all">Todos los Grados</option>
-                <option *ngFor="let g of gradeLevels" [value]="g">
-                  {{ g }}
-                </option>
-              </select>
-            </div>
-
-            <div class="filter-item">
-              <label for="career-select" class="filter-label">Carrera:</label>
-              <select id="career-select" [(ngModel)]="selectedCareer" class="filter-select" [disabled]="isBasicoSelected">
-                <option value="all">{{ isBasicoSelected ? 'No aplica (Básico)' : 'Todas las Carreras' }}</option>
-                <option *ngFor="let c of careers" [value]="c">
-                  {{ c }}
+              <label for="academic-code-select" class="filter-label">Código Académico:</label>
+              <select id="academic-code-select" [(ngModel)]="selectedAcademicCode" class="filter-select">
+                <option value="all">Todos los Códigos</option>
+                <option *ngFor="let code of academicCodes" [value]="code">
+                  {{ academicCodeLabels[code] || code }}
                 </option>
               </select>
             </div>
@@ -255,6 +245,17 @@
                 </option>
               </select>
             </div>
+
+            <button type="button" (click)="openExportModal()" class="btn-export-excel" title="Exportar Calificaciones a Excel">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="8" y1="13" x2="16" y2="13"></line>
+                <line x1="8" y1="17" x2="16" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              <span>Exportar a Excel</span>
+            </button>
 
             <button (click)="loadStudents()" class="btn-refresh" [disabled]="loading" title="Actualizar Datos">
               <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.2" fill="none">
@@ -291,7 +292,7 @@
             <thead>
               <tr>
                 <th>Estudiante</th>
-                <th>Grado y Sección</th>
+                <th>Código y Sección</th>
                 <th class="text-center">Velocidad (PPM)</th>
                 <th>Comprensión</th>
                 <th class="text-center">Racha</th>
@@ -335,8 +336,8 @@
                 <!-- Grade & Section -->
                 <td>
                   <div class="grade-cell">
-                    <span class="grade-main">{{ item.student.grade || 'Nivel Diversificado' }}</span>
-                    <span class="grade-sub">Sección {{ item.student.section || 'A' }}</span>
+                    <span class="grade-main">{{ getStudentAcademicCode(item.student) }}</span>
+                    <span class="grade-sub">Sección {{ item.student.section || 'D' }}</span>
                   </div>
                 </td>
 
@@ -1110,19 +1111,11 @@
           </div>
 
           <div class="form-row">
-            <div class="form-group flex-1">
-              <label>Grado Objetivo</label>
-              <select [(ngModel)]="activityFormData.gradeLevel" name="actGrade" class="form-input form-select-custom" (change)="onGradeChangeForActivity()">
-                <option value="all">Todos los Grados</option>
-                <option *ngFor="let g of gradeLevels" [value]="g">{{ g }}</option>
-              </select>
-            </div>
-
-            <div class="form-group flex-1" *ngIf="isPerito(activityFormData.gradeLevel)">
-              <label>Carrera Técnica (Perito) *</label>
-              <select [(ngModel)]="activityFormData.career" name="actCareer" class="form-input form-select-custom">
-                <option value="all">Todas las Carreras</option>
-                <option *ngFor="let c of careers" [value]="c">{{ c }}</option>
+            <div class="form-group flex-2">
+              <label>Código Académico / Grado Asignado</label>
+              <select [(ngModel)]="activityFormData.gradeLevel" name="actGrade" class="form-input form-select-custom">
+                <option value="all">Todos los Códigos (PE4DM, PE5DM, PE6DM)</option>
+                <option *ngFor="let code of academicCodes" [value]="code">{{ academicCodeLabels[code] || code }}</option>
               </select>
             </div>
 
@@ -1244,6 +1237,203 @@
     </div>
   </div>
 
+  <!-- Modal: Exportación Oficial a Excel (.xlsx) -->
+  <div class="modal-backdrop" *ngIf="isExportModalOpen" (click)="closeExportModal()">
+    <div class="modal-dialog-medium glass-card export-modal-dialog" (click)="$event.stopPropagation()">
+      <div class="modal-header export-modal-header">
+        <div class="modal-header-info">
+          <div class="export-icon-badge">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#059669" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="8" y1="13" x2="16" y2="13"></line>
+              <line x1="8" y1="17" x2="16" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+          </div>
+          <div>
+            <h3 class="export-modal-title">Exportar Cuadro de Notas a Excel</h3>
+            <p class="modal-subtitle">Genera tu reporte con datos reales de la plataforma, listo para pasar calificaciones al registro oficial.</p>
+          </div>
+        </div>
+        <button type="button" class="btn-modal-close" (click)="closeExportModal()" title="Cerrar ventana">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body export-modal-body">
+        <form (ngSubmit)="executeExportToExcel()" class="export-form-flow">
+          
+          <!-- Paso 1: Selección de Reporte -->
+          <div class="export-section-group">
+            <label class="export-section-label">
+              <span class="step-num">1</span>
+              <span>¿Qué información deseas exportar?</span>
+            </label>
+            <div class="scope-options-grid">
+              <label class="scope-option-card" [class.scope-active]="exportFormData.scope === 'all'">
+                <input type="radio" [(ngModel)]="exportFormData.scope" name="exportScope" value="all" class="scope-radio-hidden" />
+                <div class="scope-card-content">
+                  <div class="scope-title-row">
+                    <strong>📊 Cuadro Oficial Completo (Recomendado)</strong>
+                    <span class="scope-tag tag-primary">Oficial</span>
+                  </div>
+                  <p>Consolida las notas ponderadas de Modo Historia y Actividades en Clase sobre 100 puntos. Es el formato oficial para asentar calificaciones en el registro.</p>
+                </div>
+              </label>
+
+              <label class="scope-option-card" [class.scope-active]="exportFormData.scope === 'history'">
+                <input type="radio" [(ngModel)]="exportFormData.scope" name="exportScope" value="history" class="scope-radio-hidden" />
+                <div class="scope-card-content">
+                  <div class="scope-title-row">
+                    <strong>📖 Modo Historia (Plan Lector Individual)</strong>
+                    <span class="scope-tag tag-blue">Lecturas</span>
+                  </div>
+                  <p>Detalle individual de cada lectura realizada: comprensión lectora (/100), velocidad en palabras por minuto (PPM) y fecha de entrega.</p>
+                </div>
+              </label>
+
+              <label class="scope-option-card" [class.scope-active]="exportFormData.scope === 'activities'">
+                <input type="radio" [(ngModel)]="exportFormData.scope" name="exportScope" value="activities" class="scope-radio-hidden" />
+                <div class="scope-card-content">
+                  <div class="scope-title-row">
+                    <strong>👥 Actividades en Clase (Evaluaciones en Vivo)</strong>
+                    <span class="scope-tag tag-orange">En Vivo</span>
+                  </div>
+                  <p>Calificaciones de las actividades evaluadas en tiempo real en el salón, con aciertos, tiempo de lectura y uso de micrófono.</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Paso 2: Selección de Salón con contador en vivo -->
+          <div class="export-section-group">
+            <label class="export-section-label">
+              <span class="step-num">2</span>
+              <span>¿A qué grupo de estudiantes deseas evaluar?</span>
+            </label>
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label for="export-academic-code">Código Académico (Grado):</label>
+                <select id="export-academic-code" [(ngModel)]="exportFormData.academicCode" name="exportCode" class="form-input form-select-custom">
+                  <option value="all">Todos los grados (PE4DM, PE5DM, PE6DM)</option>
+                  <option *ngFor="let code of academicCodes" [value]="code">
+                    {{ academicCodeLabels[code] || code }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="form-group flex-1">
+                <label for="export-section">Sección:</label>
+                <select id="export-section" [(ngModel)]="exportFormData.section" name="exportSec" class="form-input form-select-custom">
+                  <option value="all">Todas las secciones</option>
+                  <option *ngFor="let sec of sections" [value]="sec">
+                    Sección {{ sec }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Contador en vivo para el profesor -->
+            <div class="export-count-pill" [class.count-empty]="getExportFilteredStudentsCount() === 0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              <span *ngIf="getExportFilteredStudentsCount() > 0">
+                Se incluirán <strong>{{ getExportFilteredStudentsCount() }} estudiante(s)</strong> en este reporte de calificaciones.
+              </span>
+              <span *ngIf="getExportFilteredStudentsCount() === 0">
+                No se encontraron estudiantes para este filtro. Selecciona otro código o sección.
+              </span>
+            </div>
+          </div>
+
+          <!-- Paso 3: Filtro Opcional de Actividad si aplica -->
+          <div class="export-section-group" *ngIf="exportFormData.scope === 'activities' || exportFormData.scope === 'all'">
+            <label for="export-activity-select" class="export-section-label">
+              <span class="step-num">3</span>
+              <span>Filtrar una actividad específica (Opcional):</span>
+            </label>
+            <select id="export-activity-select" [(ngModel)]="exportFormData.activityId" name="exportActId" class="form-input form-select-custom">
+              <option value="all">Todas las actividades registradas</option>
+              <option *ngFor="let act of classActivities" [value]="act.id || (act._id ? act._id.toString() : '')">
+                {{ act.title }} ({{ act.submissions?.length || 0 }} entregas)
+              </option>
+            </select>
+          </div>
+
+          <!-- Paso 4: Ordenamiento y Opciones -->
+          <div class="export-section-group">
+            <label class="export-section-label">
+              <span class="step-num">{{ exportFormData.scope === 'history' ? '3' : '4' }}</span>
+              <span>Presentación y orden de los alumnos:</span>
+            </label>
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label for="export-sort-by">Criterio de orden:</label>
+                <select id="export-sort-by" [(ngModel)]="exportFormData.sortBy" name="exportSortBy" class="form-input form-select-custom">
+                  <option value="name">Alfabético por nombre (A a la Z) — Lista oficial de asistencia</option>
+                  <option value="score">Por nota más alta primero — Cuadro de honor o mérito</option>
+                  <option value="code">Por código académico y sección</option>
+                </select>
+              </div>
+
+              <div class="form-group flex-1">
+                <label for="export-sort-order">Dirección:</label>
+                <select id="export-sort-order" [(ngModel)]="exportFormData.sortOrder" name="exportSortOrder" class="form-input form-select-custom">
+                  <option value="asc">Ascendente (A-Z / Menor a Mayor)</option>
+                  <option value="desc">Descendente (Z-A / Mayor a Menor)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Resumen Estadístico Checkbox -->
+            <label class="export-checkbox-row">
+              <input type="checkbox" [(ngModel)]="exportFormData.includeSummary" name="exportIncludeSummary" class="form-checkbox" />
+              <span>Incluir <strong>Resumen Estadístico</strong> al pie de página (tarjeta institucional en azul claro con promedio del salón, porcentaje de aprobados y velocidad lectora).</span>
+            </label>
+          </div>
+
+          <!-- Tarjeta de Ayuda con Azul Claro Institucional -->
+          <div class="export-preview-box">
+            <div class="preview-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#004AAD" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="m9 12 2 2 4-4"></path>
+              </svg>
+            </div>
+            <div class="preview-text">
+              <div class="preview-filename">
+                Archivo: <strong>{{ getExportPreviewFilename() }}</strong>
+              </div>
+              <div>Formato en <strong>Azul Claro Institucional</strong>: Las columnas vienen auto-expandidas y holgadas. Al abrir el archivo en Excel todo el contenido es visible inmediatamente, sin texto cortado ni necesidad de ajustar columnas manualmente.</div>
+            </div>
+          </div>
+
+          <!-- Botones de Acción -->
+          <div class="modal-actions export-modal-actions">
+            <button type="button" class="btn-cancel" (click)="closeExportModal()">Cancelar</button>
+            <button type="submit" class="btn-generate-excel" [disabled]="getExportFilteredStudentsCount() === 0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Descargar Cuadro de Notas en Excel</span>
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- Student Detail Modal -->
   <app-student-detail-modal
     *ngIf="selectedStudentForModal"
@@ -1251,4 +1441,5 @@
     (close)="closeStudentModal()"
   ></app-student-detail-modal>
 </main>
+
 

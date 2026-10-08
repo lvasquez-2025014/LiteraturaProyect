@@ -1,6 +1,8 @@
 import {
   Component,
   Input,
+  Output,
+  EventEmitter,
   OnInit,
   OnDestroy,
   inject,
@@ -44,11 +46,16 @@ export class ClassActivityViewComponent implements OnInit, OnDestroy {
   @Input() currentUserGrade?: string;
   @Input() currentUserSection?: string;
   @Input() currentUserCareer?: string;
+  @Output() activityInProgress = new EventEmitter<boolean>();
 
   loading = signal<boolean>(true);
   activity = signal<ClassroomActivity | null>(null);
   phase = signal<ActivityPhase>('LOBBY');
   ranking = signal<ClassroomActivitySubmission[]>([]);
+
+  // Anti-Screenshot Blackout
+  isBlackoutActive = signal<boolean>(false);
+  private blackoutTimeout?: any;
 
   // Temporizador
   timeRemainingSeconds = signal<number>(0);
@@ -102,12 +109,18 @@ export class ClassActivityViewComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.clearBlackout();
+    this.activityInProgress.emit(false);
     this.stopTimer();
     this.stopSpeechRecognition();
     this.stopAutoPoll();
     if (this.securityNoticeTimeout) {
       clearTimeout(this.securityNoticeTimeout);
       this.securityNoticeTimeout = null;
+    }
+    if (this.blackoutTimeout) {
+      clearTimeout(this.blackoutTimeout);
+      this.blackoutTimeout = null;
     }
   }
 
@@ -162,6 +175,8 @@ export class ClassActivityViewComponent implements OnInit, OnDestroy {
               this.finalWpm.set(myPrevSubmission.wpm);
               this.totalTimeSpentSeconds = myPrevSubmission.timeSpentSeconds;
               this.phase.set('RESULTS');
+              this.clearBlackout();
+              this.activityInProgress.emit(false);
             }
           }
         }
@@ -170,6 +185,8 @@ export class ClassActivityViewComponent implements OnInit, OnDestroy {
       error: () => {
         this.loading.set(false);
         this.isCheckingLive.set(false);
+        this.clearBlackout();
+        this.activityInProgress.emit(false);
         this.cdr.markForCheck();
       },
     });
@@ -196,6 +213,10 @@ export class ClassActivityViewComponent implements OnInit, OnDestroy {
     if (!act) return;
 
     this.phase.set('READING');
+    try {
+      history.pushState(null, '', window.location.href);
+    } catch (e) {}
+    this.activityInProgress.emit(true);
     this.readingStartTime = Date.now();
     this.totalTimeSeconds.set(act.timeLimitMinutes * 60);
     this.timeRemainingSeconds.set(act.timeLimitMinutes * 60);
@@ -270,6 +291,7 @@ export class ClassActivityViewComponent implements OnInit, OnDestroy {
     this.finalWpm.set(Math.round(wordCount / Math.max(0.2, minutes)));
 
     this.phase.set('QUIZ');
+    this.activityInProgress.emit(true);
     this.currentQuestionIndex.set(0);
     this.cdr.markForCheck();
   }
@@ -326,6 +348,8 @@ export class ClassActivityViewComponent implements OnInit, OnDestroy {
           this.studentRank.set(res.rank);
           this.totalClassStudents.set(res.totalStudents);
           this.phase.set('RESULTS');
+          this.clearBlackout();
+          this.activityInProgress.emit(false);
           this.loadRanking(act.id);
 
           if (score >= 80) {
@@ -340,6 +364,8 @@ export class ClassActivityViewComponent implements OnInit, OnDestroy {
         error: (err) => {
           console.error('Error enviando actividad:', err);
           this.phase.set('RESULTS');
+          this.clearBlackout();
+          this.activityInProgress.emit(false);
           this.loadRanking(act.id);
           this.cdr.markForCheck();
         },
@@ -347,21 +373,74 @@ export class ClassActivityViewComponent implements OnInit, OnDestroy {
   }
 
   // ==========================================
-  // ANTI-CHEAT & SEGURIDAD ANTI-IA
+  // ANTI-CHEAT & SEGURIDAD ANTI-IA & ANTI-CAPTURA (PC Y TELÉFONO)
   // ==========================================
+
+  overwriteClipboardWithBlack() {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1920;
+      canvas.height = 1080;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, 1920, 1080);
+        canvas.toBlob((blob) => {
+          if (blob && typeof ClipboardItem !== 'undefined' && navigator.clipboard && navigator.clipboard.write) {
+            const item = new ClipboardItem({ 'image/png': blob });
+            navigator.clipboard.write([item]).catch(() => {});
+          }
+        }, 'image/png');
+      }
+    } catch (e) {}
+
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText('').catch(() => {});
+      }
+    } catch (e) {}
+  }
+
+  triggerBlackout() {
+    if (this.phase() !== 'READING' && this.phase() !== 'QUIZ') return;
+    this.isBlackoutActive.set(true);
+    if (typeof document !== 'undefined' && document.body) {
+      document.body.classList.add('screenshot-blackout-active');
+    }
+    this.overwriteClipboardWithBlack();
+    this.cdr.markForCheck();
+  }
+
+  clearBlackout() {
+    this.isBlackoutActive.set(false);
+    if (typeof document !== 'undefined' && document.body) {
+      document.body.classList.remove('screenshot-blackout-active');
+    }
+    this.cdr.markForCheck();
+  }
+
+  resumeFromBlackout() {
+    this.clearBlackout();
+    this.isTabBlurred.set(false);
+    this.overwriteClipboardWithBlack();
+    this.triggerSecurityAlert('Actividad reanudada. Recuerda que no se permiten capturas de pantalla.');
+  }
 
   @HostListener('window:blur')
   onWindowBlur() {
     if (this.phase() === 'READING' || this.phase() === 'QUIZ') {
-      this.isTabBlurred.set(true);
       this.infractionsCount.update((c) => c + 1);
-      this.triggerSecurityAlert('Cambio de ventana o pestaña detectado. La lectura se oculta por seguridad.');
+      this.triggerBlackout();
+      this.isTabBlurred.set(true);
     }
   }
 
   @HostListener('window:focus')
   onWindowFocus() {
-    this.isTabBlurred.set(false);
+    if (this.phase() === 'READING' || this.phase() === 'QUIZ') {
+      // Al recuperar el foco, asegurarse de que el portapapeles siga sobreescrito en negro
+      this.overwriteClipboardWithBlack();
+    }
   }
 
   @HostListener('document:visibilitychange')
@@ -369,16 +448,43 @@ export class ClassActivityViewComponent implements OnInit, OnDestroy {
     if (document.hidden) {
       this.stopAutoPoll();
       if (this.phase() === 'READING' || this.phase() === 'QUIZ') {
-        this.isTabBlurred.set(true);
         this.infractionsCount.update((c) => c + 1);
-        this.triggerSecurityAlert('Cambio de pestaña detectado. Modo seguro activo.');
+        this.triggerBlackout();
+        this.isTabBlurred.set(true);
       }
     } else {
-      this.isTabBlurred.set(false);
       this.startAutoPoll();
-      if (!this.activity() || this.phase() === 'LOBBY') {
-        this.checkActivitySilently();
+      if (this.phase() === 'READING' || this.phase() === 'QUIZ') {
+        this.overwriteClipboardWithBlack();
+      } else {
+        this.clearBlackout();
+        this.isTabBlurred.set(false);
+        if (!this.activity() || this.phase() === 'LOBBY') {
+          this.checkActivitySilently();
+        }
       }
+    }
+  }
+
+  // Intercepción para teléfonos: gestos de captura de 3 dedos (Xiaomi, Samsung, Realme, Oppo)
+  @HostListener('window:touchstart', ['$event'])
+  onTouchStart(event: TouchEvent) {
+    if (this.phase() !== 'READING' && this.phase() !== 'QUIZ') return;
+    if (event.touches && event.touches.length >= 3) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.infractionsCount.update((c) => c + 1);
+      this.triggerBlackout();
+    }
+  }
+
+  @HostListener('window:touchmove', ['$event'])
+  onTouchMove(event: TouchEvent) {
+    if (this.phase() !== 'READING' && this.phase() !== 'QUIZ') return;
+    if (event.touches && event.touches.length >= 3) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.triggerBlackout();
     }
   }
 
@@ -386,19 +492,83 @@ export class ClassActivityViewComponent implements OnInit, OnDestroy {
   onKeyDown(event: KeyboardEvent) {
     if (this.phase() !== 'READING' && this.phase() !== 'QUIZ') return;
 
-    // Bloquear Ctrl+C, Ctrl+V, Ctrl+A, Ctrl+P, Ctrl+U, Ctrl+Shift+I, F12
     const isCtrl = event.ctrlKey || event.metaKey;
-    const key = event.key.toLowerCase();
+    const key = event.key ? event.key.toLowerCase() : '';
+    const code = event.code || '';
 
+    // Si la pantalla negra está activa, permitir reanudar con Enter, Escape o Barra espaciadora
+    if (this.isBlackoutActive()) {
+      if (['enter', 'escape', ' ', 'space'].includes(key)) {
+        event.preventDefault();
+        this.resumeFromBlackout();
+        return;
+      }
+    }
+
+    // Detección directa de cualquier tecla de captura o sistema:
+    // - PrintScreen
+    // - Tecla Windows / Meta (para interceptar Win+Shift+S antes de que termine)
+    // - Atajos de recorte (Shift+S, Shift+3, Shift+4)
+    // - Bloquear copiar, pegar, imprimir, guardar, inspeccionar
     if (
-      (isCtrl && ['c', 'v', 'a', 'p', 'u', 'x', 's'].includes(key)) ||
       event.key === 'PrintScreen' ||
+      code === 'PrintScreen' ||
+      event.key === 'Meta' ||
+      code === 'MetaLeft' ||
+      code === 'MetaRight' ||
+      (event.shiftKey && (key === 's' || key === '3' || key === '4')) ||
+      (isCtrl && (key === 'p' || key === 's' || key === 'u' || key === 'c' || key === 'v' || key === 'x')) ||
+      (isCtrl && event.shiftKey && (key === 'i' || key === 'j' || key === 'c')) ||
       event.key === 'F12'
     ) {
       event.preventDefault();
       event.stopPropagation();
-      this.triggerSecurityAlert('Acción bloqueada: No se permite copiar texto ni capturar durante la actividad.');
+      this.triggerBlackout();
+      return;
     }
+  }
+
+  @HostListener('window:keyup', ['$event'])
+  onKeyUp(event: KeyboardEvent) {
+    if (this.phase() !== 'READING' && this.phase() !== 'QUIZ') return;
+    const code = event.code || '';
+    if (
+      event.key === 'PrintScreen' ||
+      code === 'PrintScreen' ||
+      event.key === 'Meta' ||
+      code === 'MetaLeft' ||
+      code === 'MetaRight'
+    ) {
+      this.triggerBlackout();
+    }
+  }
+
+  @HostListener('window:contextmenu', ['$event'])
+  onContextMenu(event: MouseEvent) {
+    if (this.phase() === 'READING' || this.phase() === 'QUIZ') {
+      event.preventDefault();
+      this.triggerSecurityAlert('El menú contextual está deshabilitado durante la actividad en clase.');
+    }
+  }
+
+  @HostListener('window:popstate', ['$event'])
+  onPopState(event: PopStateEvent) {
+    if (this.phase() === 'READING' || this.phase() === 'QUIZ') {
+      try {
+        history.pushState(null, '', window.location.href);
+      } catch (e) {}
+      this.triggerSecurityAlert('⚠️ Evaluación en curso: No puedes salir de la actividad hasta completarla y entregarla.');
+    }
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  onBeforeUnload(event: BeforeUnloadEvent) {
+    if (this.phase() === 'READING' || this.phase() === 'QUIZ') {
+      event.preventDefault();
+      event.returnValue = 'Tienes una actividad en clase en curso. Si sales ahora se perderá tu intento.';
+      return event.returnValue;
+    }
+    return undefined;
   }
 
   triggerSecurityAlert(message: string) {

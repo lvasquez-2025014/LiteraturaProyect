@@ -723,3 +723,55 @@ button, a, .btn {
   }
 }
 
+/* ==========================================================
+   SISTEMA DE SEGURIDAD: BLACKOUT ANTI-CAPTURA DE PANTALLA
+   ========================================================== */
+body.screenshot-blackout-active {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  overflow: hidden !important;
+}
+
+body.screenshot-blackout-active .secure-text-card,
+body.screenshot-blackout-active .reading-content-body,
+body.screenshot-blackout-active .reading-header-inner,
+body.screenshot-blackout-active .activity-quiz-view,
+body.screenshot-blackout-active .quiz-question-card,
+body.screenshot-blackout-active app-navbar,
+body.screenshot-blackout-active .hero-cover,
+body.screenshot-blackout-active .dashboard-tabs {
+  visibility: hidden !important;
+  display: none !important;
+}
+
+body.screenshot-blackout-active .screenshot-blackout-curtain {
+  visibility: visible !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #000000 !important;
+  background-color: #000000 !important;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 2147483647 !important;
+  cursor: pointer !important;
+}
+
+body.screenshot-blackout-active .screenshot-blackout-curtain * {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+@media print {
+  body.screenshot-blackout-active,
+  body.screenshot-blackout-active * {
+    background: #000000 !important;
+    background-color: #000000 !important;
+    color: #000000 !important;
+    display: none !important;
+    visibility: hidden !important;
+  }
+}
+

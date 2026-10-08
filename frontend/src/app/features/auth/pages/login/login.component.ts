@@ -5,12 +5,9 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import {
   User,
-  KINAL_GRADE_LEVELS,
-  KINAL_CAREERS,
-  KINAL_SECTIONS,
-  isPeritoGrade,
-  formatFullGrade,
-  parseGradeLevelAndCareer,
+  ACADEMIC_CODES,
+  ACADEMIC_CODE_LABELS,
+  normalizeToAcademicCode,
 } from '../../../../core/models/user.model';
 import { CrowdCanvasComponent } from '../../../../shared/components/crowd-canvas/crowd-canvas.component';
 import { GradientWavesComponent } from '../../../../shared/components/gradient-waves/gradient-waves.component';
@@ -57,26 +54,13 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   showAcademicOnboardingModal = false;
   onboardingLoading = false;
   pendingGoogleUser: User | null = null;
+  inputName = '';
   inputInstitutionalEmail = '';
-  inputCarnet = '';
-  selectedGradeLevel = '';
-  selectedCareer = '';
-  selectedSection = '';
+  selectedAcademicCode = 'PE4DM';
   onboardingError = '';
 
-  readonly gradeLevels = KINAL_GRADE_LEVELS;
-  readonly careers = KINAL_CAREERS;
-  readonly sections = KINAL_SECTIONS;
-
-  get isPeritoSelected(): boolean {
-    return isPeritoGrade(this.selectedGradeLevel);
-  }
-
-  onGradeLevelChange(): void {
-    if (!this.isPeritoSelected) {
-      this.selectedCareer = '';
-    }
-  }
+  readonly academicCodes = ACADEMIC_CODES;
+  readonly academicCodeLabels = ACADEMIC_CODE_LABELS;
 
   private clientId = '';
   private configSub?: Subscription;
@@ -279,12 +263,12 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
     const isStudent = user.role === 'STUDENT_ROLE';
     const isProfileIncomplete =
       !user.institutionalEmail ||
-      !user.carnet ||
       !user.grade ||
-      !user.section;
+      !user.name;
 
     if (isStudent && isProfileIncomplete) {
       this.pendingGoogleUser = user;
+      this.inputName = user.name || '';
       const userEmail = user.institutionalEmail || user.email || '';
       const isInstitutional =
         userEmail.toLowerCase().endsWith('.edu.gt') ||
@@ -292,12 +276,9 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 
       this.inputInstitutionalEmail =
         user.institutionalEmail || (isInstitutional ? userEmail : '');
-      this.inputCarnet = user.carnet || '';
 
-      const parsed = parseGradeLevelAndCareer(user.grade);
-      this.selectedGradeLevel = parsed.level || '';
-      this.selectedCareer = parsed.career || '';
-      this.selectedSection = user.section || '';
+      const normCode = normalizeToAcademicCode(user.grade);
+      this.selectedAcademicCode = (normCode === 'PE4DM' || normCode === 'PE5DM' || normCode === 'PE6DM') ? normCode : 'PE4DM';
       this.onboardingError = '';
       this.showAcademicOnboardingModal = true;
       this.cdr.detectChanges();
@@ -308,48 +289,42 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   submitAcademicOnboarding() {
+    const cleanName = this.inputName ? this.inputName.trim() : '';
     const cleanEmail = this.inputInstitutionalEmail ? this.inputInstitutionalEmail.trim().toLowerCase() : '';
-    const cleanCarnet = this.inputCarnet ? this.inputCarnet.trim() : '';
 
+    if (!cleanName) {
+      this.onboardingError = 'Por favor, ingresa tu nombre y apellido.';
+      return;
+    }
     if (!cleanEmail) {
       this.onboardingError = 'Por favor, ingresa tu correo institucional.';
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(cleanEmail)) {
-      this.onboardingError = 'Por favor, ingresa un correo institucional válido (ej. 2025014@institucion.edu).';
+      this.onboardingError = 'Por favor, ingresa un correo institucional válido (ej. 2025014@kinal.edu.gt).';
       return;
     }
-    if (!cleanCarnet) {
-      this.onboardingError = 'Por favor, ingresa tu número de carnet de estudiante.';
-      return;
-    }
-    if (!this.selectedGradeLevel) {
-      this.onboardingError = 'Por favor, selecciona tu grado educativo.';
-      return;
-    }
-    if (this.isPeritoSelected && !this.selectedCareer) {
-      this.onboardingError = 'Por favor, selecciona tu carrera técnica.';
-      return;
-    }
-    if (!this.selectedSection) {
-      this.onboardingError = 'Por favor, selecciona tu sección correspondiente.';
+    if (!this.selectedAcademicCode) {
+      this.onboardingError = 'Por favor, selecciona tu código académico.';
       return;
     }
     if (!this.pendingGoogleUser) return;
 
-    const finalGrade = formatFullGrade(this.selectedGradeLevel, this.selectedCareer);
-
     this.onboardingLoading = true;
     this.onboardingError = '';
+
+    const carnet = this.pendingGoogleUser.carnet || cleanEmail.split('@')[0] || '';
+    const section = 'D'; // Corresponde al código académico (ej. PE4DM = Perito 4to D Matutina)
 
     this.auth
       .updateAcademicProfile(
         this.pendingGoogleUser.id,
-        finalGrade,
-        this.selectedSection,
+        this.selectedAcademicCode,
+        section,
         cleanEmail,
-        cleanCarnet,
+        carnet,
+        cleanName,
       )
       .subscribe({
         next: (updatedUser) => {

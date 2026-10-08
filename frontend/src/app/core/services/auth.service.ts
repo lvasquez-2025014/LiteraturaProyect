@@ -408,6 +408,7 @@ export class AuthService {
     section: string,
     institutionalEmail?: string,
     carnet?: string,
+    name?: string,
   ): Observable<User> {
     return this.http
       .patch<User>(`${environment.apiUrl}/users/${userId}/academic-profile`, {
@@ -415,6 +416,7 @@ export class AuthService {
         section,
         institutionalEmail,
         carnet,
+        name,
       })
       .pipe(
         tap((updatedUser) => {
@@ -423,6 +425,7 @@ export class AuthService {
             const merged: User = {
               ...currentUser,
               ...updatedUser,
+              name: updatedUser.name || name || currentUser.name,
               grade: updatedUser.grade || grade,
               section: updatedUser.section || section,
               institutionalEmail: updatedUser.institutionalEmail || institutionalEmail || currentUser.institutionalEmail,

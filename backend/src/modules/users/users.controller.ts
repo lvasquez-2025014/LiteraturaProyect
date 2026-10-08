@@ -280,7 +280,7 @@ export class UsersController {
   @Roles('STUDENT_ROLE', 'TEACHER_ROLE', 'ADMIN_ROLE')
   async updateAcademicProfile(
     @Param('id') id: string,
-    @Body() body: { grade?: string; section?: string; institutionalEmail?: string; carnet?: string },
+    @Body() body: { grade?: string; section?: string; institutionalEmail?: string; carnet?: string; name?: string },
     @CurrentUser() requester: any,
   ) {
     const user = await this.usersService.findById(id);
@@ -295,7 +295,7 @@ export class UsersController {
     }
 
     const finalGrade = (body.grade || user.grade || '').trim();
-    const finalSection = (body.section || user.section || '').trim().toUpperCase();
+    const finalSection = (body.section || user.section || 'D').trim().toUpperCase();
 
     if (!finalGrade || !finalSection) {
       throw new BadRequestException('El grado y la sección son obligatorios');
@@ -306,6 +306,9 @@ export class UsersController {
       section: finalSection,
     };
 
+    if (body.name !== undefined && body.name.trim()) {
+      updates.name = body.name.trim();
+    }
     if (body.institutionalEmail !== undefined) {
       updates.institutionalEmail = body.institutionalEmail ? body.institutionalEmail.trim().toLowerCase() : '';
     }

@@ -5,7 +5,14 @@ import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { NavbarComponent } from '../../../../shared/components/navbar/navbar.component';
 import { AuthService } from '../../../../core/services/auth.service';
-import { User, KINAL_GRADE_LEVELS, KINAL_CAREERS, KINAL_SECTIONS, isPeritoGrade } from '../../../../core/models/user.model';
+import {
+  User,
+  ACADEMIC_CODES,
+  ACADEMIC_CODE_LABELS,
+  AcademicCode,
+  normalizeToAcademicCode,
+  KINAL_SECTIONS,
+} from '../../../../core/models/user.model';
 import {
   StudentPerformance,
   Reading,
@@ -20,6 +27,7 @@ import { ReadingsService } from '../../../../core/services/readings.service';
 import { StagesService } from '../../../../core/services/stages.service';
 import { ClassroomActivitiesService } from '../../../../core/services/classroom-activities.service';
 import { ClassroomActivity, ClassroomActivitySubmission } from '../../../../core/models/classroom-activity.model';
+import { ExcelExportService, ExportFilterOptions } from '../../../../core/services/excel-export.service';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -30,8 +38,8 @@ import { environment } from '../../../../../environments/environment';
   styleUrl: './teacher-dashboard.component.css',
 })
 export class TeacherDashboardComponent implements OnInit {
-  readonly gradeLevels = KINAL_GRADE_LEVELS;
-  readonly careers = KINAL_CAREERS;
+  readonly academicCodes = ACADEMIC_CODES;
+  readonly academicCodeLabels = ACADEMIC_CODE_LABELS;
   readonly sections = KINAL_SECTIONS;
   readonly cognitiveLevelsMeta = COGNITIVE_LEVELS_META;
   readonly cognitiveLevelKeys: CognitiveLevel[] = ['literal', 'inferencial', 'critico'];
@@ -44,8 +52,21 @@ export class TeacherDashboardComponent implements OnInit {
   readingsService = inject(ReadingsService);
   stagesService = inject(StagesService);
   classActivitiesService = inject(ClassroomActivitiesService);
+  excelExportService = inject(ExcelExportService);
 
   activeTab: 'students' | 'class-activities' | 'readings' | 'stages' = 'students';
+
+  // Excel Export State
+  isExportModalOpen = false;
+  exportFormData: ExportFilterOptions = {
+    scope: 'all',
+    academicCode: 'all',
+    section: 'all',
+    activityId: 'all',
+    sortBy: 'name',
+    sortOrder: 'asc',
+    includeSummary: true,
+  };
 
   // Actividades en Clase State
   classActivities: ClassroomActivity[] = [];
@@ -62,7 +83,6 @@ export class TeacherDashboardComponent implements OnInit {
     timeLimitMinutes: 5,
     allowMic: true,
     gradeLevel: 'all',
-    career: 'all',
     section: 'all',
     questions: [
       {
@@ -85,30 +105,12 @@ export class TeacherDashboardComponent implements OnInit {
   students: User[] = [];
   loading = false;
   searchQuery = '';
-  selectedGrade = 'all';
-  selectedCareer = 'all';
+  selectedAcademicCode = 'all';
   selectedSection = 'all';
   selectedStudentForModal: StudentPerformance | null = null;
 
-  get isBasicoSelected(): boolean {
-    return this.selectedGrade !== 'all' && !isPeritoGrade(this.selectedGrade);
-  }
-
-  isPerito(grade?: string): boolean {
-    return isPeritoGrade(grade);
-  }
-
-  onGradeChangeForActivity() {
-    if (!this.isPerito(this.activityFormData.gradeLevel)) {
-      this.activityFormData.career = 'all';
-    }
-    this.cdr.markForCheck();
-  }
-
-  onGradeFilterChange() {
-    if (this.isBasicoSelected) {
-      this.selectedCareer = 'all';
-    }
+  getStudentAcademicCode(student: User): string {
+    return normalizeToAcademicCode(student.grade) || student.grade || 'PE4DM';
   }
 
   // Toast notification
@@ -243,7 +245,7 @@ export class TeacherDashboardComponent implements OnInit {
   private _lastFilterKey = '';
 
   private getFilterKey(): string {
-    return `${this.selectedGrade}|${this.selectedCareer}|${this.selectedSection}|${this.searchQuery.trim().toLowerCase()}|${this.students.length}`;
+    return `${this.selectedAcademicCode}|${this.selectedSection}|${this.searchQuery.trim().toLowerCase()}|${this.students.length}`;
   }
 
   private invalidateCache(): void {
@@ -265,15 +267,13 @@ export class TeacherDashboardComponent implements OnInit {
     this._lastStudentsRef = this.students;
 
     this._cachedFilteredStudents = this.students.filter((student) => {
-      const studentGrade = (student.grade || '').toLowerCase();
+      const studentGradeRaw = (student.grade || '').toUpperCase();
+      const normCode = normalizeToAcademicCode(studentGradeRaw);
 
-      const matchesGrade =
-        this.selectedGrade === 'all' ||
-        studentGrade.includes(this.selectedGrade.toLowerCase());
-
-      const matchesCareer =
-        this.selectedCareer === 'all' ||
-        studentGrade.includes(this.selectedCareer.toLowerCase());
+      const matchesAcademicCode =
+        this.selectedAcademicCode === 'all' ||
+        normCode === this.selectedAcademicCode ||
+        studentGradeRaw.includes(this.selectedAcademicCode);
 
       const matchesSection =
         this.selectedSection === 'all' ||
@@ -283,9 +283,11 @@ export class TeacherDashboardComponent implements OnInit {
       const matchesSearch =
         !query ||
         student.name.toLowerCase().includes(query) ||
-        student.email.toLowerCase().includes(query);
+        student.email.toLowerCase().includes(query) ||
+        (student.institutionalEmail && student.institutionalEmail.toLowerCase().includes(query)) ||
+        (student.carnet && student.carnet.toLowerCase().includes(query));
 
-      return matchesGrade && matchesCareer && matchesSection && matchesSearch;
+      return matchesAcademicCode && matchesSection && matchesSearch;
     });
 
     return this._cachedFilteredStudents;
@@ -859,7 +861,6 @@ export class TeacherDashboardComponent implements OnInit {
       timeLimitMinutes: 5,
       allowMic: true,
       gradeLevel: 'all',
-      career: 'all',
       section: 'all',
       questions: [
         {
@@ -951,7 +952,7 @@ export class TeacherDashboardComponent implements OnInit {
       timeLimitMinutes: Number(this.activityFormData.timeLimitMinutes) || 5,
       allowMic: Boolean(this.activityFormData.allowMic),
       gradeLevel: this.activityFormData.gradeLevel,
-      career: this.isPerito(this.activityFormData.gradeLevel) ? this.activityFormData.career : 'all',
+      career: 'all',
       section: this.activityFormData.section,
       questions: this.activityFormData.questions.map((q, idx) => ({
         ...q,
@@ -992,5 +993,68 @@ export class TeacherDashboardComponent implements OnInit {
         this.showToast('Error al actualizar el estado de la actividad', 'error');
       },
     });
+  }
+
+  // ==========================================
+  // EXPORTACIÓN PROFESIONAL A EXCEL (.XLSX)
+  // ==========================================
+  openExportModal() {
+    this.exportFormData.academicCode = this.selectedAcademicCode;
+    this.exportFormData.section = this.selectedSection;
+    this.isExportModalOpen = true;
+    this.cdr.markForCheck();
+  }
+
+  closeExportModal() {
+    this.isExportModalOpen = false;
+    this.cdr.markForCheck();
+  }
+
+  getExportFilteredStudentsCount(): number {
+    return this.students.filter((student) => {
+      const rawGrade = student.grade || '';
+      const code = normalizeToAcademicCode(rawGrade) || 'PE4DM';
+      const section = (student.section || 'D').toUpperCase();
+
+      if (this.exportFormData.academicCode !== 'all') {
+        const matchesCode =
+          code === this.exportFormData.academicCode ||
+          rawGrade.toUpperCase().includes(this.exportFormData.academicCode);
+        if (!matchesCode) return false;
+      }
+
+      if (this.exportFormData.section !== 'all') {
+        if (section !== this.exportFormData.section.toUpperCase()) return false;
+      }
+
+      return true;
+    }).length;
+  }
+
+  getExportPreviewFilename(): string {
+    const codeTag = this.exportFormData.academicCode !== 'all' ? `_${this.exportFormData.academicCode}` : '_TODOS';
+    const scopeTag =
+      this.exportFormData.scope === 'all'
+        ? 'Notas_Oficiales'
+        : this.exportFormData.scope === 'history'
+        ? 'Modo_Historia'
+        : 'Actividades_Clase';
+    const dateTag = new Date().toISOString().slice(0, 10);
+    return `Kinal_Literatura_${scopeTag}${codeTag}_${dateTag}.xlsx`;
+  }
+
+  executeExportToExcel() {
+    try {
+      this.excelExportService.exportToExcel(
+        this.exportFormData,
+        this.students,
+        this.classActivities,
+      );
+      this.showToast('¡Reporte oficial de Excel descargado con éxito!', 'success');
+      this.closeExportModal();
+    } catch (err) {
+      console.error('Error al exportar a Excel:', err);
+      this.showToast('Error al generar la exportación de Excel', 'error');
+    }
   }
 }

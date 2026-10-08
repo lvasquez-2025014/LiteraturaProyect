@@ -209,6 +209,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    document.body.style.overflow = '';
     this.stopTimer();
     if (this.reanchorToastTimeout) {
       clearTimeout(this.reanchorToastTimeout);
@@ -686,6 +687,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     // Abrir el cuestionario si hay preguntas activas, o calcular victoria directamente
     if (this.activeQuestions.length > 0) {
       this.showQuiz = true;
+      document.body.style.overflow = 'hidden';
       this.currentQuestionIndex = 0;
     } else {
       this.calculateFinalResults();
@@ -934,6 +936,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       });
 
     this.showVictory = true;
+    document.body.style.overflow = 'hidden';
 
     if (this.soundEffects) {
       this.speechService.playVictoryFanfare();
@@ -954,6 +957,7 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
 
   onVictoryContinue(): void {
     this.showVictory = false;
+    document.body.style.overflow = '';
     if (this.finalResult) {
       this.completeAttempt.emit(this.finalResult);
     }
