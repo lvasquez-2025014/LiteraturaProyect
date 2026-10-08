@@ -59,7 +59,7 @@
 
     <div class="stages-tabs-grid">
       <button 
-        *ngFor="let stage of stages" 
+        *ngFor="let stage of stages; trackBy: trackByStage" 
         (click)="setStage(stage.id)" 
         class="stage-tab-card"
         [class.tab-active]="selectedStageId() === stage.id && viewMode() === 'stage'"
@@ -217,7 +217,7 @@
 
     <!-- Continuous Adventure Timeline & Journey Path -->
     <div class="roadmap-timeline">
-      <div *ngFor="let reading of displayedReadings; let i = index" 
+      <div *ngFor="let reading of displayedReadings; let i = index; trackBy: trackByReading" 
         class="timeline-checkpoint"
         [class.checkpoint-current]="isCurrent(reading)"
         [class.checkpoint-completed]="isCompleted(reading)"

@@ -105,6 +105,10 @@ export class ClassActivityViewComponent implements OnInit, OnDestroy {
     this.stopTimer();
     this.stopSpeechRecognition();
     this.stopAutoPoll();
+    if (this.securityNoticeTimeout) {
+      clearTimeout(this.securityNoticeTimeout);
+      this.securityNoticeTimeout = null;
+    }
   }
 
   startAutoPoll() {
@@ -362,12 +366,19 @@ export class ClassActivityViewComponent implements OnInit, OnDestroy {
 
   @HostListener('document:visibilitychange')
   onVisibilityChange() {
-    if (document.hidden && (this.phase() === 'READING' || this.phase() === 'QUIZ')) {
-      this.isTabBlurred.set(true);
-      this.infractionsCount.update((c) => c + 1);
-      this.triggerSecurityAlert('Cambio de pestaña detectado. Modo seguro activo.');
+    if (document.hidden) {
+      this.stopAutoPoll();
+      if (this.phase() === 'READING' || this.phase() === 'QUIZ') {
+        this.isTabBlurred.set(true);
+        this.infractionsCount.update((c) => c + 1);
+        this.triggerSecurityAlert('Cambio de pestaña detectado. Modo seguro activo.');
+      }
     } else {
       this.isTabBlurred.set(false);
+      this.startAutoPoll();
+      if (!this.activity() || this.phase() === 'LOBBY') {
+        this.checkActivitySilently();
+      }
     }
   }
 

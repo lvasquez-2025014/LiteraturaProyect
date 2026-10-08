@@ -26,59 +26,38 @@
   gap: 36px;
 }
 
-/* Welcome Card */
-.welcome-card {
-  position: relative;
-  padding: 36px;
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 32px;
-  align-items: center;
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-card);
-  overflow: hidden;
+/* Hero Portada de Libro - Tarjetas de Métricas Ficha */
+.hero-cover-student .metric-card {
+  background: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 3px 0 0 #00122e, 0 6px 14px rgba(0, 0, 0, 0.14);
+  border-radius: 14px;
 }
 
-.welcome-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: var(--primary, #004aad);
+.hero-cover-student .metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 0 0 #00122e, 0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
-.welcome-badge {
-  display: inline-block;
-  background: rgba(224, 142, 62, 0.12);
-  color: var(--secondary);
-  border: 1px solid rgba(224, 142, 62, 0.28);
-  padding: 4px 12px;
-  border-radius: var(--radius-full);
-  font-size: 0.82rem;
-  font-weight: 700;
-  margin-bottom: 12px;
+.hero-cover-student .metric-value {
+  color: #001d4a;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
 }
 
-.welcome-content h1 {
-  font-size: 2.2rem;
-  margin-bottom: 12px;
-  color: var(--text-primary);
-}
-
-.welcome-content p {
-  color: var(--text-secondary);
-  font-size: 1rem;
-  line-height: 1.6;
-  margin-bottom: 24px;
+.hero-cover-student .metric-label {
+  color: #475569;
+  font-weight: 600;
 }
 
 .btn-cta {
-  padding: 14px 28px;
-  font-size: 1rem;
+  padding: 13px 26px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* Metrics Grid */
@@ -292,12 +271,6 @@
   .dashboard-container {
     gap: 24px;
   }
-
-  .welcome-card {
-    grid-template-columns: 1fr;
-    padding: 28px;
-    gap: 24px;
-  }
 }
 
 @media (max-width: 640px) {
@@ -317,21 +290,6 @@
   .tab-pane {
     width: 100%;
     min-width: 0;
-  }
-
-  .welcome-card {
-    padding: 20px 16px;
-    border-radius: 20px;
-  }
-
-  .welcome-content h1 {
-    font-size: 1.5rem;
-    margin-bottom: 8px;
-  }
-
-  .welcome-content p {
-    font-size: 0.88rem;
-    margin-bottom: 16px;
   }
 
   .btn-cta {
@@ -378,10 +336,6 @@
 @media (max-width: 380px) {
   .metrics-grid {
     grid-template-columns: 1fr;
-  }
-
-  .welcome-content h1 {
-    font-size: 1.35rem;
   }
 }
 

@@ -10,6 +10,10 @@
               [src]="performance.student.avatarUrl"
               [alt]="performance.student.name"
               class="avatar-photo"
+              width="48"
+              height="48"
+              loading="lazy"
+              decoding="async"
               referrerpolicy="no-referrer"
             />
             <span *ngIf="!performance.student.avatarUrl">

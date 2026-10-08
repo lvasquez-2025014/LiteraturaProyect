@@ -167,7 +167,7 @@
       
       <p class="reading-paragraph">
         <span
-          *ngFor="let word of words; let i = index"
+          *ngFor="let word of words; let i = index; trackBy: trackByIndex"
           class="word-token"
           [class.word-read]="i < currentWordIndex"
           [class.word-current]="i === currentWordIndex && (isRecording || isNarrating)"

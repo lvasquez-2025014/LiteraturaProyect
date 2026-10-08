@@ -147,6 +147,14 @@ export class TeacherDashboardComponent implements OnInit {
     return index;
   }
 
+  trackByStudent(index: number, item: StudentPerformance): string {
+    return item.student.id || item.student.email || String(index);
+  }
+
+  trackByReading(index: number, item: Reading): string {
+    return item.id || String(index);
+  }
+
   get user() {
     return this.auth.currentUserSignal();
   }
@@ -225,8 +233,38 @@ export class TeacherDashboardComponent implements OnInit {
     });
   }
 
+  // Cache para evitar recalcular filtros y estadísticas pesadas en cada ciclo de detección de cambios
+  private _cachedFilteredStudents: User[] | null = null;
+  private _cachedFilteredPerformance: StudentPerformance[] | null = null;
+  private _cachedAverageWpm: number | null = null;
+  private _cachedAverageComprehension: number | null = null;
+  private _cachedActiveStreaksCount: number | null = null;
+  private _lastStudentsRef: User[] | null = null;
+  private _lastFilterKey = '';
+
+  private getFilterKey(): string {
+    return `${this.selectedGrade}|${this.selectedCareer}|${this.selectedSection}|${this.searchQuery.trim().toLowerCase()}|${this.students.length}`;
+  }
+
+  private invalidateCache(): void {
+    this._cachedFilteredStudents = null;
+    this._cachedFilteredPerformance = null;
+    this._cachedAverageWpm = null;
+    this._cachedAverageComprehension = null;
+    this._cachedActiveStreaksCount = null;
+  }
+
   get filteredStudents(): User[] {
-    return this.students.filter((student) => {
+    const key = this.getFilterKey();
+    if (this._cachedFilteredStudents && this._lastFilterKey === key && this._lastStudentsRef === this.students) {
+      return this._cachedFilteredStudents;
+    }
+
+    this.invalidateCache();
+    this._lastFilterKey = key;
+    this._lastStudentsRef = this.students;
+
+    this._cachedFilteredStudents = this.students.filter((student) => {
       const studentGrade = (student.grade || '').toLowerCase();
 
       const matchesGrade =
@@ -249,28 +287,52 @@ export class TeacherDashboardComponent implements OnInit {
 
       return matchesGrade && matchesCareer && matchesSection && matchesSearch;
     });
+
+    return this._cachedFilteredStudents;
   }
 
   get filteredPerformance(): StudentPerformance[] {
-    return this.filteredStudents.map((s) => this.toStudentPerformance(s));
+    if (this._cachedFilteredPerformance && this._lastFilterKey === this.getFilterKey() && this._lastStudentsRef === this.students) {
+      return this._cachedFilteredPerformance;
+    }
+    this._cachedFilteredPerformance = this.filteredStudents.map((s) => this.toStudentPerformance(s));
+    return this._cachedFilteredPerformance;
   }
 
   get averageWpm(): number {
+    if (this._cachedAverageWpm !== null && this._lastFilterKey === this.getFilterKey() && this._lastStudentsRef === this.students) {
+      return this._cachedAverageWpm;
+    }
     const list = this.filteredStudents;
-    if (list.length === 0) return 0;
-    const total = list.reduce((acc, s) => acc + (s.stats?.averageWpm || 0), 0);
-    return Math.round(total / list.length);
+    if (list.length === 0) {
+      this._cachedAverageWpm = 0;
+    } else {
+      const total = list.reduce((acc, s) => acc + (s.stats?.averageWpm || 0), 0);
+      this._cachedAverageWpm = Math.round(total / list.length);
+    }
+    return this._cachedAverageWpm;
   }
 
   get averageComprehension(): number {
+    if (this._cachedAverageComprehension !== null && this._lastFilterKey === this.getFilterKey() && this._lastStudentsRef === this.students) {
+      return this._cachedAverageComprehension;
+    }
     const list = this.filteredStudents;
-    if (list.length === 0) return 0;
-    const total = list.reduce((acc, s) => acc + (s.stats?.comprehensionRate || 0), 0);
-    return Math.round(total / list.length);
+    if (list.length === 0) {
+      this._cachedAverageComprehension = 0;
+    } else {
+      const total = list.reduce((acc, s) => acc + (s.stats?.comprehensionRate || 0), 0);
+      this._cachedAverageComprehension = Math.round(total / list.length);
+    }
+    return this._cachedAverageComprehension;
   }
 
   get activeStreaksCount(): number {
-    return this.filteredPerformance.filter((p) => p.streakDays >= 3).length;
+    if (this._cachedActiveStreaksCount !== null && this._lastFilterKey === this.getFilterKey() && this._lastStudentsRef === this.students) {
+      return this._cachedActiveStreaksCount;
+    }
+    this._cachedActiveStreaksCount = this.filteredPerformance.filter((p) => p.streakDays >= 3).length;
+    return this._cachedActiveStreaksCount;
   }
 
   getStudentStatus(wpm: number, comp: number): 'Destacado' | 'En Progreso' | 'Atención Requerida' {

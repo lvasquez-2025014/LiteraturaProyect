@@ -15,7 +15,7 @@
   </button>
 
   <a routerLink="/" class="mobile-brand" (click)="closeMobileMenu()">
-    <img src="/logo.png" alt="Literatura" class="mobile-brand-logo" />
+    <img src="/logo.png" alt="Literatura" class="mobile-brand-logo" width="28" height="28" decoding="async" />
     <span class="mobile-brand-title">Literatura</span>
   </a>
 
@@ -44,7 +44,7 @@
   <!-- Encabezado de la Isla -->
   <div class="island-brand">
     <div class="brand-crest">
-      <img src="/logo.png" alt="Logo" class="brand-logo-img" />
+      <img src="/logo.png" alt="Logo" class="brand-logo-img" width="32" height="32" decoding="async" />
     </div>
     <div class="brand-titles">
       <span class="brand-name">Literatura</span>
@@ -98,11 +98,11 @@
 
   <!-- Navegación con Scroll Natural -->
   <nav class="island-nav-scroll">
-    <div *ngFor="let section of filteredMenuSections" class="island-section-group">
+    <div *ngFor="let section of filteredMenuSections; trackBy: trackBySectionLabel" class="island-section-group">
       <div class="island-section-title">{{ section.label }}</div>
       <div class="island-nav-list">
         <a
-          *ngFor="let item of section.children"
+          *ngFor="let item of section.children; trackBy: trackByItemValue"
           (click)="onItemClick(item)"
           class="island-nav-item"
           [class.active]="currentActiveItem === item.value"
@@ -146,8 +146,8 @@
     </div>
   </nav>
 
-  <!-- Tarjeta de Estado Lector y Gamificación -->
-  <div class="island-gamification" *ngIf="user as u">
+  <!-- Tarjeta de Estado Lector y Gamificación (Escritorio >= 992px) -->
+  <div class="island-gamification desktop-only-gamification" *ngIf="user as u">
     <!-- Nivel y Liga Header -->
     <div class="gam-header">
       <div class="gam-rank-badge">
@@ -224,12 +224,12 @@
     </div>
   </div>
 
-  <!-- Pie de la Isla: Perfil macOS Style -->
-  <div class="island-footer" *ngIf="user as u">
+  <!-- Pie de la Isla: Perfil macOS Style (Escritorio >= 992px) -->
+  <div class="island-footer desktop-only-footer" *ngIf="user as u">
     <div class="island-user-info">
       <div class="avatar-container">
         <div class="island-avatar" [ngClass]="equippedFrame">
-          <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" [alt]="u.name" class="avatar-img" />
+          <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" [alt]="u.name" class="avatar-img" width="38" height="38" loading="lazy" decoding="async" />
           <span *ngIf="!u.avatarUrl" class="avatar-initial">{{ u.name ? u.name.charAt(0).toUpperCase() : 'U' }}</span>
         </div>
         <span class="user-status-online" title="En línea"></span>
@@ -248,7 +248,344 @@
         <polyline points="16 17 21 12 16 7"></polyline>
         <line x1="21" y1="12" x2="9" y2="12"></line>
       </svg>
+      <span class="logout-text">Cerrar sesión</span>
+    </button>
+  </div>
+
+  <!-- Panel Carnet de Lector Completo: Pasaporte del Lector (Móvil y Tablet < 992px) -->
+  <div class="mobile-carnet-body" *ngIf="user as u">
+    <!-- Definición reutilizable de símbolos SVG para sellos del pasaporte -->
+    <svg style="display: none;" aria-hidden="true" focusable="false">
+      <!-- 1. Semillero: Brote -->
+      <symbol id="stamp-sprout" viewBox="0 0 24 24">
+        <path d="M12 21V10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M12 10C12 5 7 4 7 4C7 9 10 10 12 10Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 13C12 9 17 8 17 8C17 12 14 13 12 13Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8 21h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </symbol>
+      <!-- 2. Expedición: Brújula -->
+      <symbol id="stamp-compass" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
+        <polygon points="12 6 14.5 12 12 18 9.5 12" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+      </symbol>
+      <!-- 3. Crónicas: Pergamino -->
+      <symbol id="stamp-scroll" viewBox="0 0 24 24">
+        <path d="M8 4H18C19.1 4 20 4.9 20 6V18C20 19.1 19.1 20 18 20H6C4.9 20 4 19.1 4 18V7C4 5.34 5.34 4 7 4H8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        <path d="M4 7C4 5.5 5.5 5.5 7 5.5H8" stroke="currentColor" stroke-width="1.8"/>
+        <path d="M8 9H16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M8 13H14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </symbol>
+      <!-- 4. Cumbres: Montañas -->
+      <symbol id="stamp-mountain" viewBox="0 0 24 24">
+        <path d="M3 20L10 8L15 16L18 11L22 20H3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        <path d="M7.5 12.3L10 13L12.5 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M16.5 13.5L18 14L19.5 13.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </symbol>
+      <!-- 5. Cúspide: Bandera en la cumbre -->
+      <symbol id="stamp-summit" viewBox="0 0 24 24">
+        <path d="M4 21L12 9L20 21H4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        <line x1="12" y1="9" x2="12" y2="3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M12 3L18 5.5L12 8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" fill="currentColor"/>
+      </symbol>
+      <!-- Palomita para sellos superados -->
+      <symbol id="stamp-check" viewBox="0 0 16 16">
+        <path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </symbol>
+    </svg>
+
+    <!-- Texto accesible para lectores de pantalla -->
+    <div class="sr-only">Etapa actual: {{ stageName }}. Liga actual: {{ leagueName }}. Nivel {{ currentLevel }}.</div>
+
+    <!-- Contenedor con scroll interno para pantallas de cualquier altura -->
+    <div class="carnet-scroll-content">
+      <!-- 1) Portada del carnet: Azul institucional sólido -->
+      <div class="carnet-cover-card">
+        <!-- Folio gigante de nivel en Outfit recortado en esquina derecha -->
+        <span class="cover-folio-number" aria-hidden="true">{{ currentLevel }}</span>
+
+        <!-- Fila de Perfil: Avatar ~72px con frame y punto de estado, nombre y subtítulo -->
+        <div class="carnet-profile-row">
+          <div class="carnet-avatar-wrap">
+            <div class="carnet-avatar" [ngClass]="equippedFrame">
+              <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" [alt]="u.name" class="carnet-avatar-img" width="72" height="72" loading="lazy" decoding="async" />
+              <span *ngIf="!u.avatarUrl" class="carnet-avatar-initial">{{ u.name ? u.name.charAt(0).toUpperCase() : 'U' }}</span>
+            </div>
+            <span class="carnet-status-dot" title="En línea"></span>
+          </div>
+
+          <div class="carnet-identity">
+            <span class="carnet-name" [title]="u.name">{{ u.name }}</span>
+            <span class="carnet-title">{{ equippedTitle }}</span>
+          </div>
+        </div>
+
+        <!-- Fila de Insignias: Cinta naranja en V y Liga con sello -->
+        <div class="carnet-badges-row">
+          <div class="carnet-level-ribbon">
+            <svg class="ribbon-crown-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <circle cx="12" cy="8" r="7"></circle>
+              <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+            </svg>
+            <span class="ribbon-text">Nivel {{ currentLevel }}</span>
+          </div>
+          <div class="carnet-league-seal">
+            <span>{{ leagueName }}</span>
+          </div>
+        </div>
+
+        <!-- Progreso como PÁGINAS: 10 segmentos de cantos de hoja -->
+        <div class="carnet-pages-progress" role="progressbar" [attr.aria-valuenow]="levelProgressPercent" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="'Progreso de nivel: ' + levelProgressPercent + '%'">
+          <div class="pages-track" aria-hidden="true">
+            @for (seg of progressSegments; track seg) {
+              <div
+                class="page-segment"
+                [class.is-filled]="seg < filledSegmentsCount - 1"
+                [class.is-tip]="seg === filledSegmentsCount - 1"
+                [class.is-empty]="seg >= filledSegmentsCount"
+              ></div>
+            }
+          </div>
+          <span class="pages-pct-val">{{ levelProgressPercent }}%</span>
+        </div>
+      </div>
+
+      <!-- 2) Pasaporte de etapas: Fila de 5 sellos circulares -->
+      <div class="carnet-passport-block">
+        <div class="passport-block-header">
+          <div class="passport-heading">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
+            </svg>
+            <span class="passport-title">Pasaporte de Etapas</span>
+          </div>
+          <span class="passport-current-badge">Niv. {{ currentStageLevels }}</span>
+        </div>
+
+        <div class="passport-stamps-row">
+          @for (stage of passportStages; track stage.id) {
+            <div class="stamp-item" [attr.aria-label]="stage.name + ' (Niveles ' + stage.levelsLabel + '): ' + getStageState(stage)">
+              <div
+                class="stamp-circle"
+                [class.is-completed]="getStageState(stage) === 'completed'"
+                [class.is-current]="getStageState(stage) === 'current'"
+                [class.is-upcoming]="getStageState(stage) === 'upcoming'"
+                [style.transform]="getStageState(stage) === 'current' ? 'rotate(-6deg)' : 'rotate(' + stage.rotationDeg + 'deg)'"
+              >
+                <svg class="stamp-icon" width="20" height="20" aria-hidden="true" focusable="false">
+                  <use [attr.href]="'#' + stage.symbolId"></use>
+                </svg>
+                <span *ngIf="getStageState(stage) === 'completed'" class="stamp-check-badge" aria-hidden="true">
+                  <svg width="10" height="10" aria-hidden="true" focusable="false"><use href="#stamp-check"></use></svg>
+                </span>
+              </div>
+              <span class="stamp-name" [class.is-active]="getStageState(stage) === 'current'">{{ stage.name }}</span>
+              <span class="stamp-levels">Niv. {{ stage.levelsLabel }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- 3) Ligas: Fila de 5 escudos con chevrons y mensaje de avance -->
+      <div class="carnet-leagues-block">
+        <div class="leagues-row">
+          @for (league of leagueBadges; track league.name) {
+            <div
+              class="league-badge-item"
+              [class.is-active]="league.name === leagueName"
+              [attr.aria-label]="league.name + (league.name === leagueName ? ' (Liga actual)' : '')"
+            >
+              <div class="league-shield-wrap">
+                <svg class="league-shield-svg" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                  <path d="M12 2L21 5.5V13C21 19.5 12 25 12 25C12 25 3 19.5 3 13V5.5L12 2Z"></path>
+                </svg>
+                <div class="shield-chevrons" aria-hidden="true">
+                  @for (ch of league.chevrons; track ch) {
+                    <svg class="chevron-svg" viewBox="0 0 10 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="1.5 1 5 3.8 8.5 1"></polyline>
+                    </svg>
+                  }
+                </div>
+              </div>
+              <span class="league-label">{{ league.name }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="league-next-callout">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+          <span>{{ nextLeagueMessage }}</span>
+        </div>
+      </div>
+
+      <!-- 4) Cifras como "lomos de libro" 2x2 -->
+      <div class="carnet-spines-grid">
+        <!-- Racha -->
+        <div class="spine-card spine-streak" title="Racha activa de lectura diaria">
+          <div class="spine-edge" aria-hidden="true"></div>
+          <div class="spine-card-body">
+            <div class="spine-header">
+              <svg class="spine-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
+              </svg>
+              <span class="spine-label">Racha diaria</span>
+            </div>
+            <span class="spine-value">{{ streakDays }}d</span>
+          </div>
+        </div>
+
+        <!-- XP -->
+        <div class="spine-card spine-xp" title="Puntos XP acumulados">
+          <div class="spine-edge" aria-hidden="true"></div>
+          <div class="spine-card-body">
+            <div class="spine-header">
+              <svg class="spine-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+              <span class="spine-label">Puntos XP</span>
+            </div>
+            <span class="spine-value">{{ formatStat(totalXp) }}</span>
+          </div>
+        </div>
+
+        <!-- Monedas -->
+        <div class="spine-card spine-coins" title="Monedas de sabiduría disponibles">
+          <div class="spine-edge" aria-hidden="true"></div>
+          <div class="spine-card-body">
+            <div class="spine-header">
+              <svg class="spine-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <circle cx="8" cy="8" r="6"></circle>
+                <path d="M18.09 10.37A6 6 0 1 1 10.34 18"></path>
+                <path d="M7 6h1v4"></path>
+                <path d="m16.7 10.3.5.7"></path>
+              </svg>
+              <span class="spine-label">Monedas</span>
+            </div>
+            <span class="spine-value">{{ formatStat(coins) }}</span>
+          </div>
+        </div>
+
+        <!-- Etapa -->
+        <div class="spine-card spine-stage" title="Etapa pedagógica actual">
+          <div class="spine-edge" aria-hidden="true"></div>
+          <div class="spine-card-body">
+            <div class="spine-header">
+              <svg class="spine-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+              <span class="spine-label">Etapa pedagógica</span>
+            </div>
+            <span class="spine-value">{{ stageName }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5) Botón de Cerrar Sesión ANCLADO ABAJO (48px, ancho completo, outline limpio) -->
+    <button (click)="logout()" class="carnet-logout-btn" title="Cerrar sesión" aria-label="Cerrar sesión">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+        <polyline points="16 17 21 12 16 7"></polyline>
+        <line x1="21" y1="12" x2="9" y2="12"></line>
+      </svg>
+      <span>Cerrar sesión</span>
     </button>
   </div>
 
 </aside>
+
+<!-- ==========================================================
+     BARRA DE NAVEGACIÓN INFERIOR FLOTANTE (Solo Viewports < 992px)
+     Combinación Artesanal: 03 Floating + 05 Pill Highlight + 11 Dock Style
+     Muesca central con botón protagonista elevado
+     ========================================================== -->
+<nav class="mobile-bottom-nav" aria-label="Navegación principal móvil">
+  <div class="mobile-dock-wrapper">
+    <div class="mobile-nav-dock">
+      <!-- Grupo izquierdo -->
+      <div class="mobile-dock-group mobile-dock-group-left">
+        <a
+          *ngFor="let item of bottomNavLeftItems; trackBy: trackByItemValue"
+          (click)="onItemClick(item)"
+          class="mobile-nav-item"
+          [class.active]="currentActiveItem === item.value"
+          [attr.aria-current]="currentActiveItem === item.value ? 'page' : null"
+          [attr.aria-label]="item.label"
+          [attr.title]="item.label"
+        >
+          <span class="mobile-nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              @for (shape of item.icon; track shape[1]['key'] || $index) {
+                @if (shape[0] === 'path') {
+                  <path [attr.d]="shape[1]['d']" [attr.stroke]="shape[1]['stroke'] || 'currentColor'" [attr.stroke-width]="shape[1]['strokeWidth'] || shape[1]['stroke-width'] || '2.2'" [attr.stroke-linecap]="shape[1]['strokeLinecap'] || shape[1]['stroke-linecap'] || 'round'" [attr.stroke-linejoin]="shape[1]['strokeLinejoin'] || shape[1]['stroke-linejoin'] || 'round'" [attr.fill]="shape[1]['fill'] || 'none'"></path>
+                } @else if (shape[0] === 'circle') {
+                  <circle [attr.cx]="shape[1]['cx']" [attr.cy]="shape[1]['cy']" [attr.r]="shape[1]['r']" [attr.stroke]="shape[1]['stroke'] || 'currentColor'" [attr.fill]="shape[1]['fill'] || 'none'"></circle>
+                } @else if (shape[0] === 'polygon') {
+                  <polygon [attr.points]="shape[1]['points']" [attr.stroke]="shape[1]['stroke'] || 'currentColor'" [attr.fill]="shape[1]['fill'] || 'none'"></polygon>
+                }
+              }
+            </svg>
+          </span>
+          <span class="mobile-nav-label">{{ item.label }}</span>
+        </a>
+      </div>
+
+      <!-- Muesca central / separador para el botón protagonista -->
+      <div class="mobile-dock-notch-spacer" aria-hidden="true"></div>
+
+      <!-- Grupo derecho -->
+      <div class="mobile-dock-group mobile-dock-group-right">
+        <a
+          *ngFor="let item of bottomNavRightItems; trackBy: trackByItemValue"
+          (click)="onItemClick(item)"
+          class="mobile-nav-item"
+          [class.active]="currentActiveItem === item.value"
+          [attr.aria-current]="currentActiveItem === item.value ? 'page' : null"
+          [attr.aria-label]="item.label"
+          [attr.title]="item.label"
+        >
+          <span class="mobile-nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              @for (shape of item.icon; track shape[1]['key'] || $index) {
+                @if (shape[0] === 'path') {
+                  <path [attr.d]="shape[1]['d']" [attr.stroke]="shape[1]['stroke'] || 'currentColor'" [attr.stroke-width]="shape[1]['strokeWidth'] || shape[1]['stroke-width'] || '2.2'" [attr.stroke-linecap]="shape[1]['strokeLinecap'] || shape[1]['stroke-linecap'] || 'round'" [attr.stroke-linejoin]="shape[1]['strokeLinejoin'] || shape[1]['stroke-linejoin'] || 'round'" [attr.fill]="shape[1]['fill'] || 'none'"></path>
+                } @else if (shape[0] === 'circle') {
+                  <circle [attr.cx]="shape[1]['cx']" [attr.cy]="shape[1]['cy']" [attr.r]="shape[1]['r']" [attr.stroke]="shape[1]['stroke'] || 'currentColor'" [attr.fill]="shape[1]['fill'] || 'none'"></circle>
+                } @else if (shape[0] === 'polygon') {
+                  <polygon [attr.points]="shape[1]['points']" [attr.stroke]="shape[1]['stroke'] || 'currentColor'" [attr.fill]="shape[1]['fill'] || 'none'"></polygon>
+                }
+              }
+            </svg>
+          </span>
+          <span class="mobile-nav-label">{{ item.label }}</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Botón Central Protagonista FAB (Hermano del dock, position: fixed) -->
+<button
+  type="button"
+  class="mobile-menu-fab"
+  [class.is-menu-open]="isMobileMenuOpen"
+  (click)="toggleMobileMenu()"
+  aria-label="Abrir menú de navegación"
+  [attr.aria-expanded]="isMobileMenuOpen"
+>
+  <div class="fab-morph-icon" [class.is-open]="isMobileMenuOpen" aria-hidden="true">
+    <svg class="book-morph-svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Hojas del Libro Abierto -->
+      <path class="book-page-left" d="M12 6.5C10 5 6.5 5 2.5 5.5v12c4-.5 7.5-.2 9.5 1.5"></path>
+      <path class="book-page-right" d="M12 6.5C14 5 17.5 5 21.5 5.5v12c-4-.5-7.5-.2-9.5 1.5"></path>
+      <!-- Lomo central vertical -->
+      <line class="book-spine-line" x1="12" y1="6.5" x2="12" y2="19"></line>
+      <!-- Diagonales que forman la X al rotar y abrir el drawer -->
+      <line class="x-diag-1" x1="6" y1="6" x2="18" y2="18"></line>
+      <line class="x-diag-2" x1="18" y1="6" x2="6" y2="18"></line>
+    </svg>
+  </div>
+</button>
+

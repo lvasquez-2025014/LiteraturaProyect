@@ -39,3 +39,7 @@ pnpm-debug.log*
 # Operating system
 .DS_Store
 Thumbs.db
+
+# Asset backups
+.originals/
+**/.originals/

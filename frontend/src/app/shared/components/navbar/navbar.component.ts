@@ -38,6 +38,38 @@ export interface NavSection {
   children: NavItem[];
 }
 
+export interface PassportStage {
+  id: string;
+  name: string;
+  levelsLabel: string;
+  minLevel: number;
+  maxLevel: number;
+  symbolId: string;
+  rotationDeg: number;
+}
+
+export const PASSPORT_STAGES: readonly PassportStage[] = [
+  { id: 'semillero', name: 'Semillero', levelsLabel: '1–5', minLevel: 1, maxLevel: 5, symbolId: 'stamp-sprout', rotationDeg: 3 },
+  { id: 'expedicion', name: 'Expedición', levelsLabel: '6–10', minLevel: 6, maxLevel: 10, symbolId: 'stamp-compass', rotationDeg: -4 },
+  { id: 'cronicas', name: 'Crónicas', levelsLabel: '11–20', minLevel: 11, maxLevel: 20, symbolId: 'stamp-scroll', rotationDeg: 4 },
+  { id: 'cumbres', name: 'Cumbres', levelsLabel: '21–30', minLevel: 21, maxLevel: 30, symbolId: 'stamp-mountain', rotationDeg: -3 },
+  { id: 'cuspide', name: 'Cúspide', levelsLabel: '31–38', minLevel: 31, maxLevel: 38, symbolId: 'stamp-summit', rotationDeg: 5 },
+] as const;
+
+export interface LeagueBadge {
+  name: string;
+  chevrons: readonly number[];
+  minXp: number;
+}
+
+export const LEAGUE_BADGES: readonly LeagueBadge[] = [
+  { name: 'Bronce', chevrons: [1], minXp: 0 },
+  { name: 'Plata', chevrons: [1, 2], minXp: 3000 },
+  { name: 'Oro', chevrons: [1, 2, 3], minXp: 10000 },
+  { name: 'Zafiro', chevrons: [1, 2, 3, 4], minXp: 25000 },
+  { name: 'Diamante', chevrons: [1, 2, 3, 4, 5], minXp: 50000 },
+] as const;
+
 @Component({
   selector: 'app-navbar',
   standalone: true,
@@ -111,9 +143,45 @@ export class NavbarComponent implements OnInit, OnDestroy {
     return this.auth.currentUserSignal();
   }
 
+  private _cachedRole?: string;
+  private _cachedMenuSections: NavSection[] | null = null;
+  private _cachedBottomNavItems: NavItem[] | null = null;
+  private _cachedBottomLeftItems: NavItem[] | null = null;
+  private _cachedBottomRightItems: NavItem[] | null = null;
+  private _lastSearchQuery: string = '';
+  private _cachedFilteredSections: NavSection[] | null = null;
+
+  private readonly shortNavLabels: Record<string, string> = {
+    admin: 'Admin',
+    teacher: 'Docente',
+    student: 'Aventura',
+    'class-activities': 'Clases',
+    students: 'Alumnos',
+    readings: 'Lecturas',
+    stages: 'Etapas',
+    adventure: 'Aventura',
+    'class-activity': 'Clases',
+    roadmap: 'Rutas',
+    rewards: 'Premios',
+    leaderboard: 'Ranking',
+    achievements: 'Logros',
+  };
+
   get menuSections(): NavSection[] {
     const role = this.user?.role;
+    if (this._cachedMenuSections && this._cachedRole === role) {
+      return this._cachedMenuSections;
+    }
+    this._cachedRole = role;
+    this._cachedMenuSections = this.buildMenuSections(role);
+    this._cachedBottomNavItems = null;
+    this._cachedBottomLeftItems = null;
+    this._cachedBottomRightItems = null;
+    this._cachedFilteredSections = null;
+    return this._cachedMenuSections;
+  }
 
+  private buildMenuSections(role?: string): NavSection[] {
     if (role === 'ADMIN_ROLE') {
       return [
         {
@@ -238,12 +306,73 @@ export class NavbarComponent implements OnInit, OnDestroy {
     ];
   }
 
+  /**
+   * Destinos aplanados de navegación móvil inferior derivados directamente de menuSections
+   */
+  get bottomNavItems(): NavItem[] {
+    if (this._cachedBottomNavItems && this._cachedRole === this.user?.role) {
+      return this._cachedBottomNavItems;
+    }
+    const flattened: NavItem[] = [];
+    for (const section of this.menuSections) {
+      for (const item of section.children) {
+        flattened.push({
+          ...item,
+          label: this.shortNavLabels[item.value] || item.label,
+        });
+      }
+    }
+    this._cachedBottomNavItems = flattened;
+    const splitIndex = Math.ceil(flattened.length / 2);
+    this._cachedBottomLeftItems = flattened.slice(0, splitIndex);
+    this._cachedBottomRightItems = flattened.slice(splitIndex);
+    return flattened;
+  }
+
+  /**
+   * Grupo izquierdo del dock inferior (recibe el elemento extra cuando el total es impar)
+   */
+  get bottomNavLeftItems(): NavItem[] {
+    if (!this._cachedBottomLeftItems || this._cachedRole !== this.user?.role) {
+      this.bottomNavItems;
+    }
+    return this._cachedBottomLeftItems || [];
+  }
+
+  /**
+   * Grupo derecho del dock inferior
+   */
+  get bottomNavRightItems(): NavItem[] {
+    if (!this._cachedBottomRightItems || this._cachedRole !== this.user?.role) {
+      this.bottomNavItems;
+    }
+    return this._cachedBottomRightItems || [];
+  }
+
+  trackByItemValue(_index: number, item: NavItem): string {
+    return item.value;
+  }
+
+  trackBySectionLabel(_index: number, section: NavSection): string {
+    return section.label;
+  }
+
   get filteredMenuSections(): NavSection[] {
     const query = this.searchQuery.trim().toLowerCase();
-    if (!query) {
-      return this.menuSections;
+    const role = this.user?.role;
+    if (
+      this._cachedFilteredSections &&
+      this._lastSearchQuery === query &&
+      this._cachedRole === role
+    ) {
+      return this._cachedFilteredSections;
     }
-    return this.menuSections
+    this._lastSearchQuery = query;
+    if (!query) {
+      this._cachedFilteredSections = this.menuSections;
+      return this._cachedFilteredSections;
+    }
+    this._cachedFilteredSections = this.menuSections
       .map((sec) => ({
         label: sec.label,
         children: sec.children.filter(
@@ -253,6 +382,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
         ),
       }))
       .filter((sec) => sec.children.length > 0);
+    return this._cachedFilteredSections;
   }
 
   private updateActiveItemFromUrl(url: string) {
@@ -391,6 +521,51 @@ export class NavbarComponent implements OnInit, OnDestroy {
       return `${Math.round(val / 1000)}k`;
     }
     return val.toString();
+  }
+
+  readonly passportStages = PASSPORT_STAGES;
+  readonly leagueBadges = LEAGUE_BADGES;
+  readonly progressSegments = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
+
+  get filledSegmentsCount(): number {
+    return Math.round(this.levelProgressPercent / 10);
+  }
+
+  getStageState(stage: PassportStage): 'completed' | 'current' | 'upcoming' {
+    const lvl = this.currentLevel;
+    if (lvl > stage.maxLevel) return 'completed';
+    if (lvl >= stage.minLevel) return 'current';
+    return 'upcoming';
+  }
+
+  get currentStageLevels(): string {
+    const lvl = this.currentLevel;
+    if (lvl >= 31) return '31–38';
+    if (lvl >= 21) return '21–30';
+    if (lvl >= 11) return '11–20';
+    if (lvl >= 6) return '6–10';
+    return '1–5';
+  }
+
+  get nextLeagueMessage(): string {
+    const xp = this.totalXp;
+    if (xp >= 50000) {
+      return 'Liga máxima alcanzada';
+    }
+    if (xp >= 25000) {
+      const diff = 50000 - xp;
+      return `Te faltan ${this.formatStat(diff)} XP para Diamante`;
+    }
+    if (xp >= 10000) {
+      const diff = 25000 - xp;
+      return `Te faltan ${this.formatStat(diff)} XP para Zafiro`;
+    }
+    if (xp >= 3000) {
+      const diff = 10000 - xp;
+      return `Te faltan ${this.formatStat(diff)} XP para Oro`;
+    }
+    const diff = 3000 - xp;
+    return `Te faltan ${this.formatStat(diff)} XP para Plata`;
   }
 
   logout(): void {

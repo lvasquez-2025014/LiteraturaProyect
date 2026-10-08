@@ -3,21 +3,65 @@
 <main class="student-dashboard" *ngIf="!activeReading">
   <div class="dashboard-container">
     
-    <!-- Hero / Welcome Banner -->
-    <section class="welcome-card glass-panel">
-      <div class="welcome-content">
-        <div class="welcome-badge-row" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
-          <span class="welcome-badge">¡Bienvenido de nuevo, {{ user?.name }}!</span>
-          <span *ngIf="auth.isAdmin()" class="admin-badge-pill" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 999px; font-size: 0.8rem; font-weight: 700; color: #10b981;">
+    <!-- Hero / Welcome Book Cover -->
+    <section class="hero-cover hero-cover-student">
+      <!-- Cinta marcapáginas -->
+      <div class="hero-bookmark" aria-hidden="true"></div>
+
+      <!-- Ilustración Camino del Lector -->
+      <div class="hero-illustration-wrap" aria-hidden="true">
+        <svg class="hero-art hero-art-student" viewBox="0 0 240 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g opacity="0.25">
+            <circle cx="36" cy="40" r="1.5" fill="#ffffff"/>
+            <circle cx="85" cy="24" r="2" fill="#ffffff"/>
+            <circle cx="155" cy="30" r="1.5" fill="#ffffff"/>
+            <circle cx="210" cy="115" r="2" fill="#ffffff"/>
+          </g>
+          <path d="M 24,142 C 60,142 68,90 108,90 C 148,90 152,136 186,112 C 204,98 206,62 218,48" stroke="rgba(255, 255, 255, 0.28)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="5 6"/>
+          <circle cx="24" cy="142" r="8" fill="#001d4a" stroke="rgba(255, 255, 255, 0.4)" stroke-width="2"/>
+          <path d="M 21,142 L 23,144 L 27,139" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="68" cy="112" r="8" fill="#001d4a" stroke="rgba(255, 255, 255, 0.4)" stroke-width="2"/>
+          <path d="M 65,112 L 67,114 L 71,109" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <g transform="translate(108, 90)">
+            <circle cx="0" cy="0" r="12" fill="rgba(243, 111, 33, 0.18)" stroke="#f36f21" stroke-width="2.2"/>
+            <circle cx="0" cy="0" r="5" fill="#ffffff"/>
+            <line x1="0" y1="-12" x2="0" y2="-32" stroke="#f36f21" stroke-width="2" stroke-linecap="round"/>
+            <path d="M 0,-32 L 20,-24 L 0,-16 Z" fill="#f36f21" stroke="#f36f21" stroke-width="1" stroke-linejoin="round"/>
+            <path d="M 20,-24 L 14,-20 L 20,-16" fill="#001d4a" opacity="0.3"/>
+          </g>
+          <circle cx="164" cy="122" r="7" fill="#001d4a" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1.8" stroke-dasharray="3 2"/>
+          <circle cx="164" cy="122" r="2.5" fill="rgba(255, 255, 255, 0.35)"/>
+          <g transform="translate(218, 48)">
+            <circle cx="0" cy="0" r="9" fill="#001d4a" stroke="#f36f21" stroke-width="1.8"/>
+            <path d="M -5,3 C -3,2 -1,2 0,3 C 1,2 3,2 5,3 L 5,-3 C 3,-4 1,-4 0,-3 C -1,-4 -3,-4 -5,-3 Z" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-linejoin="round"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="hero-content">
+        <div class="hero-kicker-row">
+          <span class="hero-kicker">¡Bienvenido de nuevo, {{ user?.name }}!</span>
+          <span *ngIf="auth.isAdmin()" class="hero-admin-notice">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
             Modo Administrador · Todas las lecturas desbloqueadas (100%)
           </span>
         </div>
-        <h1>Tu Viaje de Lectura y Comprensión</h1>
-        <p>
+
+        <h1 class="hero-title">
+          Tu Viaje de
+          <span class="hero-highlight">
+            Lectura y Comprensión
+            <svg class="hero-hand-drawn-line" viewBox="0 0 200 12" fill="none" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M 3,8 C 50,2 150,11 197,5" stroke="#f36f21" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </h1>
+
+        <p class="hero-subtitle">
           Entrena tu velocidad de lectura con el micrófono y pon a prueba tu capacidad de retención. ¡Cada palabra cuenta para tu progreso lector!
         </p>
-        <div class="welcome-actions">
+
+        <div class="hero-actions">
           <button (click)="onStartNextReading()" class="btn btn-primary btn-cta">
             <span *ngIf="!auth.isAdmin()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg> Iniciar Próxima Lectura (Nivel {{ stats.currentLevel }})</span>
             <span *ngIf="auth.isAdmin()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg> Explorar Retos Literarios (38 Niveles al 100%)</span>

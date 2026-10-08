@@ -26,106 +26,7 @@
   gap: 24px;
 }
 
-/* Welcome Banner */
-.welcome-banner {
-  background: #002b66;
-  color: #ffffff;
-  border-radius: 1.5rem;
-  padding: 2rem 2.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  box-shadow: 0 20px 45px -10px rgba(31, 42, 68, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  position: relative;
-  overflow: hidden;
-  position: relative;
-  overflow: hidden;
-}
 
-.welcome-banner::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: var(--primary, #004aad);
-  z-index: 1;
-}
-
-.banner-content {
-  max-width: 720px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.banner-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 0.3rem 0.8rem;
-  border-radius: 9999px;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  color: #ffffff;
-  width: fit-content;
-}
-
-.banner-title {
-  font-family: 'Outfit', sans-serif;
-  font-size: 2rem;
-  font-weight: 800;
-  color: #ffffff;
-  margin: 0;
-  letter-spacing: -0.02em;
-}
-
-.banner-sub {
-  font-size: 0.875rem;
-  color: #E2E8F0;
-  line-height: 1.5;
-  margin: 0;
-}
-
-.cycle-card {
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 1.25rem;
-  padding: 1rem 1.5rem;
-  text-align: center;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.cycle-label {
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: #CBD5E1;
-  letter-spacing: 0.05em;
-}
-
-.cycle-year {
-  font-family: 'Outfit', sans-serif;
-  font-size: 1.35rem;
-  font-weight: 800;
-  color: #ffffff;
-  margin-top: 0.15rem;
-}
-
-.cycle-brand {
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: var(--accent, #E08E3E);
-  margin-top: 0.15rem;
-}
 
 /* 4 Group KPI Cards */
 .metrics-grid {
@@ -659,29 +560,7 @@
   .metric-num {
     font-size: 1.85rem;
   }
-  .welcome-banner {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 1.25rem;
-    border-radius: 1.25rem;
-  }
-  .banner-badge {
-    font-size: 0.76rem;
-    padding: 5px 12px;
-    margin-bottom: 0.5rem;
-  }
-  .banner-title {
-    font-size: 1.35rem;
-    line-height: 1.25;
-    word-break: break-word;
-  }
-  .banner-sub {
-    font-size: 0.82rem;
-  }
-  .cycle-card {
-    width: 100%;
-    margin-top: 10px;
-  }
+
   .toolbar-card {
     padding: 1rem;
     border-radius: 1rem;
@@ -2531,4 +2410,4 @@
 
 
 
-
+

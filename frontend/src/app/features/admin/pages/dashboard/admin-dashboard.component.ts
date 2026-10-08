@@ -68,7 +68,33 @@ export class AdminDashboardComponent implements OnInit {
     return !!(this.studentGradeFilter || this.studentCareerFilter || this.studentSectionFilter);
   }
 
+  // Cache para filtros y conteos de usuarios
+  private _cachedFilteredUsers: User[] | null = null;
+  private _cachedStudentCount: number | null = null;
+  private _cachedTeacherCount: number | null = null;
+  private _cachedAdminCount: number | null = null;
+  private _lastUsersRef: User[] | null = null;
+  private _lastFilterKey = '';
+
+  private getFilterKey(): string {
+    return `${this.selectedRoleFilter}|${this.studentGradeFilter}|${this.studentCareerFilter}|${this.studentSectionFilter}|${this.searchQuery.trim().toLowerCase()}|${this.isPeritoFilterActive}|${this.users.length}`;
+  }
+
   get filteredUsers(): User[] {
+    const key = this.getFilterKey();
+    if (this._cachedFilteredUsers && this._lastFilterKey === key && this._lastUsersRef === this.users) {
+      return this._cachedFilteredUsers;
+    }
+
+    if (this._lastUsersRef !== this.users) {
+      this._cachedStudentCount = null;
+      this._cachedTeacherCount = null;
+      this._cachedAdminCount = null;
+    }
+
+    this._lastFilterKey = key;
+    this._lastUsersRef = this.users;
+
     let result = this.users;
 
     if (this.selectedRoleFilter !== 'ALL') {
@@ -112,6 +138,7 @@ export class AdminDashboardComponent implements OnInit {
       );
     }
 
+    this._cachedFilteredUsers = result;
     return result;
   }
 
@@ -125,19 +152,32 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   get studentCount(): number {
-    return this.countByRole('STUDENT_ROLE');
+    if (this._cachedStudentCount === null || this._lastUsersRef !== this.users) {
+      this._cachedStudentCount = this.countByRole('STUDENT_ROLE');
+    }
+    return this._cachedStudentCount;
   }
 
   get teacherCount(): number {
-    return this.countByRole('TEACHER_ROLE');
+    if (this._cachedTeacherCount === null || this._lastUsersRef !== this.users) {
+      this._cachedTeacherCount = this.countByRole('TEACHER_ROLE');
+    }
+    return this._cachedTeacherCount;
   }
 
   get adminCount(): number {
-    return this.countByRole('ADMIN_ROLE');
+    if (this._cachedAdminCount === null || this._lastUsersRef !== this.users) {
+      this._cachedAdminCount = this.countByRole('ADMIN_ROLE');
+    }
+    return this._cachedAdminCount;
   }
 
   get totalUsersCount(): number {
     return this.users.length;
+  }
+
+  trackByUser(index: number, user: User): string {
+    return user.id || user._id || user.email || String(index);
   }
 
   copiedEmail: string | null = null;

@@ -553,98 +553,553 @@
   background: var(--accent-hover, #c97a1a);
 }
 
-/* Vista previa de Ranking en Lobby */
-.lobby-ranking-preview {
+/* ==========================================================================
+   CUADRO DE HONOR DE LA CLASE — CONCEPTO: ÍNDICE DE HONOR (EDITORIAL)
+   ========================================================================== */
+
+/* Tarjeta contenedora general (superficie blanca/clara con una sola sombra suave) */
+.honor-index-board {
   margin-top: 36px;
-  background: rgba(30, 41, 59, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  padding: 24px 28px;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-subtle, #e2e8f0);
+  border-radius: var(--radius-xl, 20px);
+  padding: 28px 32px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+  position: relative;
 }
 
-.ranking-header-bar {
-  display: flex;
+/* 1) Encabezado */
+.honor-board-header {
+  margin-bottom: 24px;
+}
+
+.honor-eyebrow {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18px;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--primary, #004aad);
+  margin-bottom: 6px;
 }
 
-.ranking-header-bar h3 {
-  font-size: 1.15rem;
+.honor-eyebrow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary, #004aad);
+  flex-shrink: 0;
+}
+
+.honor-header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.honor-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
+
+/* Marcapáginas naranja con muesca en V */
+.honor-bookmark-notch {
+  width: 14px;
+  height: 24px;
+  background: var(--accent, #E08E3E);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 6px), 0 100%);
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.honor-title-text {
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  font-size: 1.45rem;
   font-weight: 800;
+  color: var(--primary-active, #001d4a);
+  letter-spacing: -0.025em;
+  position: relative;
+  display: inline-block;
+}
+
+/* Subrayado naranja dibujado a mano */
+.honor-sketch-underline {
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 100%;
+  max-width: 240px;
+  height: 8px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.honor-sketch-underline path {
+  stroke-dasharray: 240;
+  stroke-dashoffset: 240;
+  animation: honorDrawLine 600ms ease-out 120ms forwards;
+}
+
+@keyframes honorDrawLine {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .honor-sketch-underline path {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+}
+
+.honor-submissions-text {
+  font-size: 0.88rem;
+  color: var(--text-muted, #64748b);
+  font-weight: 500;
+}
+
+/* Distribución de Contenido (Responsive) */
+.honor-board-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 992px) {
+  .honor-board-content {
+    display: grid;
+    grid-template-columns: minmax(320px, 360px) 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+}
+
+/* 2) Líder de la sesión = "Portada" */
+.honor-leader-cover {
+  background: #1F2A44;
+  border-radius: var(--radius-lg, 16px);
+  padding: 24px 26px;
+  position: relative;
+  overflow: hidden;
   color: #ffffff;
 }
 
-.participants-tag {
-  font-size: 0.75rem;
-  color: #94a3b8;
-  font-weight: 600;
-  background: rgba(255, 255, 255, 0.06);
-  padding: 4px 10px;
-  border-radius: 8px;
+/* Folio gigante recortado en la esquina (14% opacidad) */
+.honor-leader-watermark {
+  position: absolute;
+  right: -6px;
+  bottom: -22px;
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  font-size: 11rem;
+  font-weight: 900;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.14);
+  user-select: none;
+  pointer-events: none;
+  z-index: 1;
 }
 
-.ranking-preview-list {
+/* Cinta marcapáginas naranja arriba */
+.honor-leader-ribbon {
+  display: inline-flex;
+  flex-direction: column;
+  background: var(--accent, #E08E3E);
+  color: #ffffff;
+  padding: 6px 14px 10px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 5px), 0 100%);
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 2;
+}
+
+.honor-ribbon-heading {
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #ffffff;
+}
+
+.honor-ribbon-sub {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.2;
+}
+
+.honor-leader-details {
+  position: relative;
+  z-index: 2;
+}
+
+.honor-leader-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.honor-leader-name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+
+.honor-leader-you {
+  background: var(--accent, #E08E3E);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.honor-leader-meta {
+  margin-top: 5px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.honor-interpunct {
+  opacity: 0.6;
+}
+
+/* Cifras como tipografía */
+.honor-leader-metrics {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  position: relative;
+  z-index: 2;
+}
+
+.honor-metric-col {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 2px;
 }
 
-.ranking-preview-item {
+.honor-metric-val {
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.honor-score-highlight {
+  color: var(--accent, #E08E3E);
+}
+
+.honor-score-base {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 600;
+}
+
+.honor-metric-label {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.72);
+  font-weight: 500;
+}
+
+.honor-metric-divider {
+  width: 1px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
+  align-self: center;
+}
+
+/* 3) Resto de puestos = Entradas del índice */
+.honor-index-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.honor-index-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.honor-index-subtitle {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  white-space: nowrap;
+}
+
+.honor-index-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle, #e2e8f0);
+}
+
+.honor-index-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.honor-index-row {
   display: flex;
   align-items: center;
   gap: 14px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 10px 16px;
-  border-radius: 12px;
-  transition: background 0.15s ease;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-subtle, #f1f5f9);
+  position: relative;
+  content-visibility: auto;
+  contain-intrinsic-size: 54px;
 }
 
-.ranking-preview-item.is-current-user {
-  background: rgba(224, 142, 62, 0.12);
-  border-color: rgba(224, 142, 62, 0.35);
+.honor-index-row:last-child {
+  border-bottom: none;
 }
 
-.item-rank-badge {
+/* Resaltado del usuario actual */
+.honor-index-row.is-current-user {
+  background: #f0f7ff;
+  border-radius: var(--radius-sm, 8px);
+}
+
+.honor-user-tab {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent, #E08E3E);
+  border-radius: 3px 0 0 3px;
+}
+
+.honor-user-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary, #004aad);
+  margin-left: 4px;
+}
+
+/* Jerarquía por forma de los números de puesto */
+.honor-rank-box {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.honor-rank-num {
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  font-size: 0.95rem;
   font-weight: 800;
-  font-size: 1.1rem;
-  min-width: 32px;
-  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: var(--primary-active, #001d4a);
 }
 
-.item-student-meta {
+/* Puesto 2: Anillo fino azul */
+.honor-index-row.rank-ring-solid .honor-rank-num {
+  border: 1.5px solid var(--primary, #004aad);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary, #004aad);
+}
+
+/* Puesto 3: Anillo punteado/más delgado azul */
+.honor-index-row.rank-ring-dashed .honor-rank-num {
+  border: 1px dashed var(--primary, #004aad);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary, #004aad);
+}
+
+/* Puesto 4+: Solo número */
+.honor-index-row.rank-ring-none .honor-rank-num {
+  border: none;
+  color: var(--text-muted, #64748b);
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Cuerpo de la entrada del índice */
+.honor-entry-body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 3px;
+  min-width: 0;
 }
 
-.item-student-name {
-  font-weight: 700;
-  color: #f1f5f9;
-  font-size: 0.92rem;
+/* Línea 1: Nombre .... [Línea de puntos] .... Calificación */
+.honor-line-primary {
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
 }
 
-.item-student-grade {
-  font-size: 0.72rem;
-  color: #94a3b8;
+.honor-student-name {
+  font-size: 0.96rem;
+  font-weight: 600;
+  color: var(--primary-active, #001d4a);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60%;
 }
 
-.item-score-box {
+/* Línea de puntos conectora */
+.honor-dotted-leader {
+  flex: 1;
+  border-bottom: 2px dotted #cbd5e1;
+  margin: 0 10px 4px;
+  height: 1px;
+  min-width: 24px;
+  align-self: baseline;
+}
+
+.honor-entry-score {
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--primary-active, #001d4a);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Línea 2: Grado · Sección · PPM ................. Tiempo */
+.honor-line-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.78rem;
+  color: var(--text-muted, #64748b);
+  min-width: 0;
+}
+
+.honor-entry-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.honor-entry-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted, #64748b);
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Estado de espera (cuando solo hay 1 alumno) */
+.honor-awaiting-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 22px;
+  background: var(--bg-page, #f8fafc);
+  border: 1px dashed var(--border-subtle, #e2e8f0);
+  border-radius: var(--radius-md, 12px);
+  align-self: stretch;
+}
+
+.honor-awaiting-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(0, 74, 173, 0.08);
+  color: var(--primary, #004aad);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.honor-awaiting-info {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  gap: 2px;
 }
 
-.item-score-val {
-  font-weight: 800;
-  color: #10b981;
-  font-size: 0.95rem;
+.honor-awaiting-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--primary-active, #001d4a);
+  margin: 0;
 }
 
-.item-score-time {
-  font-size: 0.72rem;
-  color: #94a3b8;
+.honor-awaiting-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted, #64748b);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Responsividad Móvil */
+@media (max-width: 640px) {
+  .honor-index-board {
+    padding: 20px 16px;
+  }
+
+  .honor-title-text {
+    font-size: 1.25rem;
+  }
+
+  .honor-leader-cover {
+    padding: 20px 18px;
+  }
+
+  .honor-leader-metrics {
+    gap: 12px;
+  }
+
+  .honor-metric-val {
+    font-size: 1.25rem;
+  }
+
+  .honor-student-name {
+    max-width: 50%;
+  }
+
+  .honor-index-row {
+    padding: 10px 8px;
+    gap: 8px;
+  }
 }
 
 /* ==========================================================================
@@ -1267,10 +1722,23 @@
 
 /* Sección de Ranking */
 .class-ranking-section {
-  background: rgba(30, 41, 59, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 24px;
   padding: 32px 36px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.class-ranking-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #f59e0b 0%, #e08e3e 100%);
 }
 
 .ranking-section-header {
@@ -1288,8 +1756,9 @@
 }
 
 .ranking-titles p {
-  color: #94a3b8;
-  font-size: 0.85rem;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .refresh-ranking-btn {
@@ -1412,13 +1881,14 @@
 
 .podium-score {
   font-weight: 900;
-  color: #10b981;
-  font-size: 0.88rem;
+  color: #34d399;
+  font-size: 0.95rem;
 }
 
 .podium-time {
-  font-size: 0.72rem;
-  color: #94a3b8;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #cbd5e1;
   margin-bottom: 12px;
 }
 
@@ -1461,23 +1931,24 @@
 }
 
 .ranking-table th {
-  padding: 12px 16px;
-  font-size: 0.72rem;
+  padding: 14px 18px;
+  font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.06em;
-  color: #94a3b8;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.12);
+  text-transform: uppercase;
 }
 
 .ranking-table td {
-  padding: 14px 16px;
-  font-size: 0.88rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  color: #cbd5e1;
+  padding: 14px 18px;
+  font-size: 0.94rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f1f5f9;
 }
 
 .row-current-user td {
-  background: rgba(224, 142, 62, 0.1);
+  background: rgba(224, 142, 62, 0.15);
   color: #ffffff;
 }
 
@@ -1486,8 +1957,43 @@
 }
 
 .table-rank-badge {
-  display: inline-block;
-  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 10px;
+  font-weight: 900;
+  font-size: 0.95rem;
+  letter-spacing: -0.02em;
+}
+
+.table-rank-badge.rank-gold {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.35) 0%, rgba(217, 119, 6, 0.5) 100%);
+  border: 1.5px solid #f59e0b;
+  color: #fffbeb;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+}
+
+.table-rank-badge.rank-silver {
+  background: linear-gradient(135deg, rgba(226, 232, 240, 0.25) 0%, rgba(148, 163, 184, 0.4) 100%);
+  border: 1.5px solid #cbd5e1;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(203, 213, 225, 0.3);
+}
+
+.table-rank-badge.rank-bronze {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.3) 0%, rgba(180, 83, 9, 0.45) 100%);
+  border: 1.5px solid #d97706;
+  color: #ffedd5;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.35);
+}
+
+.table-rank-badge.rank-standard {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #f1f5f9;
 }
 
 .student-name-box {
@@ -1497,8 +2003,26 @@
 }
 
 .name-text {
+  font-weight: 800;
+  color: #ffffff;
+  font-size: 0.98rem;
+}
+
+.col-grade {
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+.col-time {
+  color: #e2e8f0;
   font-weight: 700;
-  color: #f8fafc;
+  font-variant-numeric: tabular-nums;
+}
+
+.col-wpm {
+  color: #38bdf8;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
 }
 
 .badge-you {

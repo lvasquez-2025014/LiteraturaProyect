@@ -170,4 +170,8 @@ export class LeaderboardViewComponent implements OnInit {
     list.sort((a, b) => b.totalXp - a.totalXp);
     return list.map((item, idx) => ({ ...item, rank: idx + 1 }));
   }
+
+  trackByEntry(index: number, entry: LeaderboardEntry): string {
+    return entry.id || `${entry.name}-${index}`;
+  }
 }

@@ -72,6 +72,14 @@ export class ReadingRoadmapComponent implements OnInit, OnChanges {
     return this.sortedReadings.filter((r) => r.level >= stage.startLevel && r.level <= stage.endLevel);
   }
 
+  trackByStage(index: number, stage: RoadmapStage): number {
+    return stage.id;
+  }
+
+  trackByReading(index: number, reading: Reading): string {
+    return reading.id || String(index);
+  }
+
   setStage(stageId: number): void {
     this.selectedStageId.set(stageId);
   }

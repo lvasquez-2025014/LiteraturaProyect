@@ -3,29 +3,66 @@
 <main class="admin-dashboard">
   <div class="dashboard-container">
 
-    <!-- Hero Header -->
-    <header class="dashboard-hero">
-      <div class="hero-left">
-        <div class="hero-tag-row">
-          <span class="kinal-pill">
-            Panel de Control Institucional
+    <!-- Hero Header (Book Cover) -->
+    <header class="hero-cover hero-cover-admin">
+      <div class="hero-bookmark" aria-hidden="true"></div>
+
+      <div class="hero-content">
+        <h1 class="hero-title">
+          Control Global de
+          <span class="hero-highlight">
+            Cuentas y Roles
+            <svg class="hero-hand-drawn-line" viewBox="0 0 200 12" fill="none" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M 3,8 C 50,2 150,11 197,5" stroke="#f36f21" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
           </span>
-          <span class="hero-date-chip">Gestión Escolar</span>
-        </div>
-        <h1 class="hero-title">Control Global de Cuentas y Roles</h1>
+        </h1>
         <p class="hero-subtitle">
           Supervisión de la comunidad educativa: estudiantes, docentes y permisos de administración del sistema.
         </p>
+        <div class="hero-actions">
+          <button (click)="openCreateModal()" class="btn-hero-action btn-create-account" id="btn-create-user-modal">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            <span>Nuevo Estudiante / Docente</span>
+          </button>
+        </div>
       </div>
 
-      <div class="hero-actions">
-        <button (click)="openCreateModal()" class="btn-create-account" id="btn-create-user-modal">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"/>
-            <line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          <span>Nuevo Estudiante / Docente</span>
-        </button>
+      <div class="hero-illustration-wrap" aria-hidden="true">
+        <svg class="hero-art hero-art-admin" viewBox="0 0 240 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g opacity="0.45">
+            <rect x="42" y="32" width="76" height="96" rx="6" transform="rotate(-8 80 80)" fill="rgba(255, 255, 255, 0.04)" stroke="rgba(255, 255, 255, 0.2)" stroke-width="1.5"/>
+            <path d="M 46,45 L 82,45" transform="rotate(-8 80 80)" stroke="rgba(255, 255, 255, 0.2)" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M 46,55 L 102,55" transform="rotate(-8 80 80)" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M 46,65 L 94,65" transform="rotate(-8 80 80)" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1.5" stroke-linecap="round"/>
+          </g>
+          <g opacity="0.45">
+            <rect x="130" y="38" width="76" height="96" rx="6" transform="rotate(7 168 86)" fill="rgba(255, 255, 255, 0.04)" stroke="rgba(255, 255, 255, 0.2)" stroke-width="1.5"/>
+            <path d="M 136,51 L 174,51" transform="rotate(7 168 86)" stroke="rgba(255, 255, 255, 0.2)" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M 136,61 L 194,61" transform="rotate(7 168 86)" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M 136,71 L 186,71" transform="rotate(7 168 86)" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1.5" stroke-linecap="round"/>
+          </g>
+          <g transform="translate(122, 92) rotate(-10)">
+            <circle cx="0" cy="0" r="66" stroke="rgba(255, 255, 255, 0.25)" stroke-width="2" stroke-dasharray="6 4" fill="rgba(0, 29, 74, 0.8)"/>
+            <circle cx="0" cy="0" r="54" stroke="#f36f21" stroke-width="2.2" fill="none"/>
+            <circle cx="0" cy="0" r="46" stroke="rgba(255, 255, 255, 0.2)" stroke-width="1.2" stroke-dasharray="3 3" fill="none"/>
+            <path id="adminSealArc" d="M -38,0 A 38,38 0 1,1 38,0 A 38,38 0 1,1 -38,0" fill="none"/>
+            <text font-size="7" font-family="'Outfit', sans-serif" font-weight="800" letter-spacing="1.8" fill="#ffffff" fill-opacity="0.85">
+              <textPath href="#adminSealArc" startOffset="6%">GESTIÓN INSTITUCIONAL • KINAL •</textPath>
+            </text>
+            <g transform="translate(0, 2)">
+              <path d="M -16,10 C -9,6 -3,8 0,11 C 3,8 9,6 16,10 L 16,-6 C 9,-10 3,-8 0,-5 C -3,-8 -9,-10 -16,-6 Z" fill="rgba(255, 255, 255, 0.08)" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
+              <line x1="0" y1="-5" x2="0" y2="11" stroke="#f36f21" stroke-width="2" stroke-linecap="round"/>
+              <path d="M -12,-1 C -8,-3 -4,-2 -2,0" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1.2" stroke-linecap="round"/>
+              <path d="M -12,3 C -8,1 -4,2 -2,4" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1.2" stroke-linecap="round"/>
+              <path d="M 2,0 C 4,-2 8,-3 12,-1" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1.2" stroke-linecap="round"/>
+              <path d="M 2,4 C 4,2 8,1 12,3" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1.2" stroke-linecap="round"/>
+            </g>
+          </g>
+        </svg>
       </div>
     </header>
 
@@ -389,7 +426,7 @@
           </thead>
 
           <tbody>
-            <tr *ngFor="let u of filteredUsers" class="table-row">
+            <tr *ngFor="let u of filteredUsers; trackBy: trackByUser" class="table-row">
               <!-- Column 1: User Identity -->
               <td class="td-user">
                 <div class="user-profile-flex">
@@ -398,7 +435,7 @@
                     'avatar-teacher': u.role === 'TEACHER_ROLE',
                     'avatar-admin': u.role === 'ADMIN_ROLE'
                   }">
-                    <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" [alt]="u.name" class="avatar-img" />
+                    <img *ngIf="u.avatarUrl" [src]="u.avatarUrl" [alt]="u.name" class="avatar-img" width="32" height="32" loading="lazy" decoding="async" />
                     <span *ngIf="!u.avatarUrl" class="avatar-initials">{{ u.name.charAt(0) }}</span>
                     <span class="user-status-dot" title="Cuenta escolar activa"></span>
                   </div>

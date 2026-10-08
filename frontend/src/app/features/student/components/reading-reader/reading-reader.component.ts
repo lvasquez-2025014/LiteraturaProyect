@@ -213,6 +213,9 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
     if (this.reanchorToastTimeout) {
       clearTimeout(this.reanchorToastTimeout);
     }
+    this.speechService.onStateChange = () => {};
+    this.speechService.onSpeechTokens = () => {};
+    this.speechService.onWordsUpdated = () => {};
     this.speechService.stop();
     this.speechService.stopNarrator();
   }
@@ -245,6 +248,10 @@ export class ReadingReaderComponent implements OnInit, OnDestroy {
       this.speechService.playWordChime();
     }
     this.cdr.detectChanges();
+  }
+
+  public trackByIndex(index: number): number {
+    return index;
   }
 
   /**

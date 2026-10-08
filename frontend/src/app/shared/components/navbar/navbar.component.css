@@ -93,21 +93,40 @@
 }
 
 /* --------------------------------------------------------------------------
-   Mobile Backdrop
+   Mobile Backdrop con Desenfoque Suave (Blur 6px constante)
    -------------------------------------------------------------------------- */
 .sidebar-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 15, 40, 0.65);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background: rgba(0, 22, 56, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   z-index: 998;
-  animation: fadeInBackdrop 0.18s ease forwards;
+  animation: fadeInBackdrop 0.22s ease forwards;
 }
 
 @keyframes fadeInBackdrop {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .sidebar-backdrop {
+    background: rgba(0, 22, 56, 0.82);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .sidebar-backdrop {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(0, 22, 56, 0.85);
+  }
+}
+
+/* Ocultar elementos móviles en escritorio por defecto */
+.mobile-carnet-body {
+  display: none !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -442,7 +461,7 @@
   color: #64748b;
   opacity: 0;
   transform: translateX(-3px);
-  transition: all 0.15s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease;
   flex-shrink: 0;
 }
 
@@ -706,7 +725,7 @@
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 .island-logout-btn:hover {
@@ -715,32 +734,1144 @@
   border-color: #ef4444;
 }
 
+.island-logout-btn .logout-text {
+  display: none;
+}
+
 /* --------------------------------------------------------------------------
    RESPONSIVE DESIGN (Viewports < 992px)
    -------------------------------------------------------------------------- */
 @media (max-width: 991.98px) {
   .mobile-top-bar {
     display: flex;
+    height: 48px;
+    padding: 0 16px;
   }
 
+  /* Ocultar el botón hamburguesa superior para no competir con el FAB central */
+  .mobile-menu-btn {
+    display: none !important;
+  }
+
+  /* Ocultar elementos exclusivos de escritorio en móvil */
+  .island-search-container,
+  .island-nav-scroll,
+  .desktop-only-gamification,
+  .desktop-only-footer {
+    display: none !important;
+  }
+
+  /* --------------------------------------------------------------------------
+     CAMBIO 1 & 3: Hoja Blanca "Carnet de Lector" Anclada a la Izquierda
+     -------------------------------------------------------------------------- */
   .app-sidebar.floating-island {
-    top: 10px;
-    bottom: 10px;
-    left: 10px;
-    width: min(280px, calc(100vw - 20px));
-    height: calc(100dvh - 20px);
-    max-height: calc(100dvh - 20px);
-    border-radius: 16px;
-    transform: translateX(calc(-100% - 20px));
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 10px);
+    left: 0;
+    bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+    height: auto;
+    max-height: calc(100dvh - 106px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    width: min(88vw, 400px);
+    border-radius: 0 28px 28px 0;
+    padding: 16px 18px 16px 18px;
+    transform: translateX(-105%);
+    visibility: hidden;
     z-index: 999;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+    box-shadow: 6px 0 24px rgba(0, 22, 56, 0.12);
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-left: none;
+    overflow: hidden;
+    contain: layout paint style;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s 0.28s;
   }
 
   .app-sidebar.floating-island.is-open {
     transform: translateX(0);
+    visibility: visible;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s 0s;
   }
 
+  /* Tablet: ancho máximo optimizado 400-420px */
+  @media (min-width: 600px) and (max-width: 991px) {
+    .app-sidebar.floating-island {
+      width: min(80vw, 420px);
+    }
+  }
+
+  /* --------------------------------------------------------------------------
+     Encabezado sobre Blanco: Logo, Literatura azul, Chip de Rol, Botón X 44px
+     -------------------------------------------------------------------------- */
+  .island-brand {
+    padding: 0 0 12px 0;
+    margin-bottom: 0;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .island-brand .brand-crest {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: #004aad;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .island-brand .brand-titles {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .island-brand .brand-name {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #004aad;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .island-brand .brand-role-chip {
+    border: 1.5px solid #004aad;
+    color: #004aad;
+    background: rgba(0, 74, 173, 0.08);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+  }
+
+  /* Botón X circular accesible de 44px en gris azulado claro */
   .island-mobile-close-btn {
     display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    border: none;
+    color: #475569;
+    cursor: pointer;
+    margin-left: auto;
+    padding: 0;
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.12s ease;
+  }
+
+  .island-mobile-close-btn:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+
+  .island-mobile-close-btn:active {
+    transform: scale(0.94);
+  }
+
+  /* --------------------------------------------------------------------------
+     Cuerpo del Carnet de Lector (Móvil)
+     -------------------------------------------------------------------------- */
+  .mobile-carnet-body {
+    display: flex !important;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .carnet-scroll-content {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(10px, 1.8vh, 15px);
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding-right: 2px;
+    padding-bottom: 4px;
+  }
+
+  /* --------------------------------------------------------------------------
+     1) Portada del Carnet: Azul Institucional Sólido
+     -------------------------------------------------------------------------- */
+  .carnet-cover-card {
+    position: relative;
+    background: #004aad;
+    color: #ffffff;
+    border-radius: 20px;
+    padding: 16px 16px 14px 16px;
+    box-shadow: 0 4px 14px rgba(0, 74, 173, 0.22);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+  }
+
+  /* Folio gigante de nivel recortado en la esquina derecha */
+  .cover-folio-number {
+    position: absolute;
+    right: 10px;
+    top: -6px;
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(3.8rem, 14vw, 5rem);
+    font-weight: 900;
+    line-height: 0.9;
+    color: rgba(255, 255, 255, 0.14);
+    pointer-events: none;
+    user-select: none;
+    z-index: 1;
+    letter-spacing: -0.04em;
+  }
+
+  /* Fila de Perfil: Avatar ~72px + Nombres */
+  .carnet-profile-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .carnet-avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .carnet-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: #002d6b;
+    border: 2.5px solid #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+  }
+
+  .carnet-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .carnet-avatar-initial {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+  }
+
+  .carnet-status-dot {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #10b981;
+    border: 2.5px solid #004aad;
+  }
+
+  .carnet-identity {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .carnet-name {
+    font-size: 1.08rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .carnet-title {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #bae6fd;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  /* Fila de Insignias: Nivel y Liga */
+  .carnet-badges-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .carnet-level-ribbon {
+    background: #f36f21;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px 4px 9px;
+    border-radius: 4px 0 0 4px;
+    clip-path: polygon(0% 0%, calc(100% - 9px) 0%, 100% 50%, calc(100% - 9px) 100%, 0% 100%);
+    box-shadow: 0 2px 6px rgba(243, 111, 33, 0.35);
+  }
+
+  .ribbon-crown-icon {
+    stroke: #ffffff;
+  }
+
+  .ribbon-text {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 0.01em;
+  }
+
+  .carnet-league-seal {
+    border: 1.5px solid #ffffff;
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Progreso como PÁGINAS (10 segmentos) */
+  .carnet-pages-progress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .pages-track {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex: 1;
+    height: 7px;
+  }
+
+  .page-segment {
+    flex: 1;
+    height: 100%;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.25);
+    transition: background-color 0.2s ease;
+  }
+
+  .page-segment.is-filled {
+    background: #ffffff;
+  }
+
+  .page-segment.is-tip {
+    background: #f36f21;
+  }
+
+  .pages-pct-val {
+    font-size: 0.76rem;
+    font-weight: 800;
+    color: #ffffff;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+
+  /* --------------------------------------------------------------------------
+     2) Pasaporte de Etapas: Fila de 5 Sellos Circulares
+     -------------------------------------------------------------------------- */
+  .carnet-passport-block {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 11px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    flex-shrink: 0;
+  }
+
+  .passport-block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .passport-heading {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #004aad;
+  }
+
+  .passport-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #001d4a;
+    letter-spacing: 0.01em;
+  }
+
+  .passport-current-badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #f36f21;
+    background: #fff4ed;
+    border: 1px solid rgba(243, 111, 33, 0.25);
+    padding: 2px 7px;
+    border-radius: 999px;
+  }
+
+  .passport-stamps-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 3px;
+  }
+
+  .stamp-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .stamp-circle {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+  }
+
+  .stamp-circle.is-completed {
+    background: #004aad;
+    border: 2px solid #004aad;
+    color: #ffffff;
+  }
+
+  .stamp-circle.is-current {
+    width: 42px;
+    height: 42px;
+    background: #f36f21;
+    border: 2px solid #f36f21;
+    color: #ffffff;
+    box-shadow: 0 3px 8px rgba(243, 111, 33, 0.32);
+  }
+
+  .stamp-circle.is-upcoming {
+    background: #ffffff;
+    border: 1.8px dashed #cbd5e1;
+    color: #94a3b8;
+  }
+
+  .stamp-check-badge {
+    position: absolute;
+    bottom: -3px;
+    right: -3px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #10b981;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid #ffffff;
+  }
+
+  .stamp-name {
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: #475569;
+    text-align: center;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  .stamp-name.is-active {
+    color: #f36f21;
+    font-weight: 800;
+  }
+
+  .stamp-levels {
+    font-size: 0.56rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-align: center;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  /* --------------------------------------------------------------------------
+     3) Ligas: 5 Insignias Escudo + Callout de Siguiente Liga
+     -------------------------------------------------------------------------- */
+  .carnet-leagues-block {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    flex-shrink: 0;
+  }
+
+  .leagues-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .league-badge-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .league-shield-wrap {
+    position: relative;
+    width: 26px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
+  .league-shield-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .shield-chevrons {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    margin-top: 1px;
+  }
+
+  .chevron-svg {
+    width: 8px;
+    height: 3.5px;
+  }
+
+  .league-badge-item.is-active .league-shield-wrap {
+    color: #ffffff;
+    transform: scale(1.12);
+  }
+
+  .league-badge-item.is-active .league-shield-svg {
+    fill: #004aad;
+    stroke: #004aad;
+  }
+
+  .league-label {
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: #64748b;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .league-badge-item.is-active .league-label {
+    color: #004aad;
+    font-weight: 800;
+  }
+
+  .league-next-callout {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #004aad;
+    background: rgba(0, 74, 173, 0.06);
+    border: 1px solid rgba(0, 74, 173, 0.14);
+    border-radius: 999px;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    text-align: center;
+  }
+
+  /* --------------------------------------------------------------------------
+     4) Cifras como "Lomos de Libro" 2x2
+     -------------------------------------------------------------------------- */
+  .carnet-spines-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .spine-card {
+    position: relative;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px 14px 14px 4px;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .spine-card:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+  }
+
+  .spine-edge {
+    width: 4px;
+    flex-shrink: 0;
+  }
+
+  .spine-streak .spine-edge { background: #f36f21; }
+  .spine-xp .spine-edge { background: #10b981; }
+  .spine-coins .spine-edge { background: #f59e0b; }
+  .spine-stage .spine-edge { background: #004aad; }
+
+  .spine-streak .spine-icon { color: #f36f21; }
+  .spine-xp .spine-icon { color: #10b981; }
+  .spine-coins .spine-icon { color: #f59e0b; }
+  .spine-stage .spine-icon { color: #004aad; }
+
+  .spine-card-body {
+    padding: 7px 9px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .spine-header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .spine-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: #64748b;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .spine-value {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #001d4a;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+  }
+
+  /* --------------------------------------------------------------------------
+     5) Botón de Cerrar Sesión: ANCLADO ABAJO (48px, ancho completo)
+     -------------------------------------------------------------------------- */
+  .carnet-logout-btn {
+    width: 100%;
+    min-height: 48px;
+    height: 48px;
+    margin-top: 6px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    color: #334155;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    cursor: pointer;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.1s ease;
+  }
+
+  .carnet-logout-btn svg {
+    color: #ef4444;
+    flex-shrink: 0;
+  }
+
+  .carnet-logout-btn:hover {
+    background: #fef2f2;
+    border-color: #fca5a5;
+    color: #dc2626;
+  }
+
+  .carnet-logout-btn:active {
+    transform: scale(0.98);
+  }
+
+  /* Animación de apertura suave y escalonada (< 350ms total) */
+  .app-sidebar.floating-island.is-open .carnet-cover-card {
+    animation: carnetFadeIn 0.18s 0.0s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .app-sidebar.floating-island.is-open .carnet-passport-block {
+    animation: carnetFadeIn 0.18s 0.035s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .app-sidebar.floating-island.is-open .carnet-leagues-block {
+    animation: carnetFadeIn 0.18s 0.07s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .app-sidebar.floating-island.is-open .carnet-spines-grid {
+    animation: carnetFadeIn 0.18s 0.105s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .app-sidebar.floating-island.is-open .carnet-logout-btn {
+    animation: carnetFadeIn 0.18s 0.14s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  /* Golpe de sello único para la etapa actual */
+  .app-sidebar.floating-island.is-open .stamp-circle.is-current {
+    animation: stampImpression 0.28s 0.12s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  @keyframes carnetFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes stampImpression {
+    0% {
+      opacity: 0;
+      transform: scale(1.25) rotate(-6deg);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) rotate(-6deg);
+    }
+  }
+
+  /* --------------------------------------------------------------------------
+     BARRA INFERIOR FLOTANTE + BOTÓN CENTRAL PROTAGONISTA (< 992px)
+     -------------------------------------------------------------------------- */
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    left: 0;
+    right: 0;
+    z-index: 960;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    box-sizing: border-box;
+    padding: 0 10px;
+  }
+
+  /* Contenedor wrapper para el filtro drop-shadow */
+  .mobile-dock-wrapper {
+    pointer-events: auto;
+    width: min(540px, calc(100vw - 20px));
+    filter: drop-shadow(0 12px 28px rgba(0, 10, 30, 0.5)) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.25));
+  }
+
+  /* Dock artesanal con muesca circular superior y hairline blanco */
+  .mobile-nav-dock {
+    width: 100%;
+    height: 60px;
+    background: var(--primary-active, #001d4a);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-top: 1.5px solid rgba(255, 255, 255, 0.3); /* Hairline blanco sutil */
+    border-radius: 28px; /* Jerarquía de radios: 28px para el dock */
+    padding: 4px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    -webkit-mask: radial-gradient(circle 38px at 50% 13px, transparent 37.5px, #000 38.5px);
+    mask: radial-gradient(circle 38px at 50% 13px, transparent 37.5px, #000 38.5px);
+  }
+
+  /* Grupos izquierdo y derecho */
+  .mobile-dock-group {
+    display: flex;
+    flex: 1 1 0;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-around;
+    gap: 2px;
+  }
+
+  /* Espaciador central que reserva el espacio de la muesca */
+  .mobile-dock-notch-spacer {
+    width: 68px;
+    min-width: 68px;
+    height: 100%;
+    flex-shrink: 0;
+    pointer-events: none;
+  }
+
+  /* Ítems del Dock */
+  .mobile-nav-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 6px 10px;
+    border-radius: 14px;
+    color: rgba(255, 255, 255, 0.72); /* Íconos blancos suaves */
+    text-decoration: none;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.18s ease;
+    position: relative;
+    box-sizing: border-box;
+    flex-shrink: 1;
+  }
+
+  .mobile-nav-item:hover {
+    color: #ffffff;
+  }
+
+  .mobile-nav-item:active {
+    transform: scale(0.95);
+  }
+
+  .mobile-nav-item:focus-visible {
+    outline: 2px solid var(--accent, #f36f21);
+    outline-offset: 2px;
+  }
+
+  .mobile-nav-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: currentColor;
+    transition: transform 0.2s ease;
+  }
+
+  .mobile-nav-label {
+    display: none;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: inherit;
+    white-space: nowrap;
+    line-height: 1;
+  }
+
+  /* Estado Activo: "Pill" BLANCA con ícono y etiqueta en Azul Marino */
+  .mobile-nav-item.active {
+    background: #ffffff;
+    color: #001d4a; /* Azul marino */
+    padding: 6px 14px;
+    border-radius: 14px; /* Jerarquía de radios: 14px para la pill */
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+    gap: 6px;
+  }
+
+  .mobile-nav-item.active .mobile-nav-label {
+    display: inline-block;
+    color: #001d4a;
+  }
+
+  .mobile-nav-item.active .mobile-nav-icon {
+    color: #001d4a;
+    animation: iconBounce 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  /* Marcapáginas naranja colgando sobre el ítem activo */
+  .mobile-nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 8px;
+    background: var(--accent, #f36f21);
+    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% 60%, 0% 100%);
+    border-radius: 2px 2px 0 0;
+    z-index: 2;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  }
+
+  /* Botón Central Protagonista FAB (Círculo blanco "papel" con libro azul marino) */
+  .mobile-menu-fab {
+    pointer-events: auto;
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+    z-index: 1000;
+    width: 62px;
+    height: 62px;
+    min-width: 62px;
+    min-height: 62px;
+    border-radius: 50%; /* Jerarquía de radios: 50% círculo */
+    background: #ffffff; /* Círculo blanco papel */
+    border: 2.5px solid var(--accent, #f36f21); /* Anillo naranja */
+    color: #001d4a; /* Ícono de libro azul marino */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow:
+      0 12px 28px rgba(0, 10, 30, 0.55),
+      0 0 0 3px rgba(243, 111, 33, 0.22);
+    animation: fabRingPulse 2.4s ease-out 1;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.22s ease, color 0.22s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
+  }
+
+  /* Al abrir el menú: pasa a azul marino con X blanca */
+  .mobile-menu-fab.is-menu-open {
+    background: var(--primary-active, #001d4a);
+    color: #ffffff;
+  }
+
+  .mobile-menu-fab:active {
+    transform: translateX(-50%) scale(0.94);
+  }
+
+  /* Al tocar: giro sutil en las hojas del libro */
+  .mobile-menu-fab:active .book-page-left {
+    transform: scale(0.92) rotate(-14deg);
+  }
+
+  .mobile-menu-fab:active .book-page-right {
+    transform: scale(0.92) rotate(14deg);
+  }
+
+  .mobile-menu-fab:focus-visible {
+    outline: 2px solid var(--accent, #f36f21);
+    outline-offset: 3px;
+  }
+
+  @keyframes fabRingPulse {
+    0% {
+      box-shadow: 0 12px 28px rgba(0, 10, 30, 0.55), 0 0 0 0 rgba(243, 111, 33, 0.7);
+    }
+    40% {
+      box-shadow: 0 12px 28px rgba(0, 10, 30, 0.55), 0 0 0 8px rgba(243, 111, 33, 0);
+    }
+    100% {
+      box-shadow: 0 12px 28px rgba(0, 10, 30, 0.55), 0 0 0 0 rgba(243, 111, 33, 0);
+    }
+  }
+
+  /* Animación de Transformación: Libro Abierto <-> X */
+  .fab-morph-icon {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .book-morph-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .book-page-left,
+  .book-page-right,
+  .book-spine-line,
+  .x-diag-1,
+  .x-diag-2 {
+    transform-origin: 12px 12px;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+  }
+
+  .book-page-left,
+  .book-page-right,
+  .book-spine-line {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+
+  .x-diag-1,
+  .x-diag-2 {
+    opacity: 0;
+    transform: scale(0.3) rotate(-45deg);
+    stroke: #ffffff; /* X blanca */
+  }
+
+  .fab-morph-icon.is-open .book-page-left {
+    opacity: 0;
+    transform: scale(0.3) rotate(-35deg);
+  }
+
+  .fab-morph-icon.is-open .book-page-right {
+    opacity: 0;
+    transform: scale(0.3) rotate(35deg);
+  }
+
+  .fab-morph-icon.is-open .book-spine-line {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+
+  .fab-morph-icon.is-open .x-diag-1 {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+    stroke: #ffffff;
+  }
+
+  .fab-morph-icon.is-open .x-diag-2 {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+    stroke: #ffffff;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Ajustes para Pantallas Extra Angostas (320px - 359px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 359.98px) {
+  .mobile-bottom-nav {
+    padding: 0 4px;
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .mobile-dock-wrapper {
+    width: calc(100vw - 8px);
+  }
+
+  .mobile-nav-dock {
+    height: 56px;
+    padding: 2px 3px;
+    -webkit-mask: radial-gradient(circle 35px at 50% 14px, transparent 34.5px, #000 35.5px);
+    mask: radial-gradient(circle 35px at 50% 14px, transparent 34.5px, #000 35.5px);
+  }
+
+  .mobile-dock-notch-spacer {
+    width: 54px;
+    min-width: 54px;
+  }
+
+  .mobile-nav-item {
+    min-width: 38px;
+    min-height: 44px;
+    padding: 4px 6px;
+  }
+
+  .mobile-nav-item.active {
+    padding: 4px 8px;
+  }
+
+  /* En <360px el ítem activo muestra solo ícono (sin etiqueta) para evitar desborde */
+  .mobile-nav-item.active .mobile-nav-label {
+    display: none !important;
+  }
+
+  .mobile-menu-fab {
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+    min-height: 56px;
+    bottom: calc(23px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .app-sidebar.floating-island {
+    width: calc(100vw - 16px);
+    left: 8px;
+    padding: 12px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Ocultar barra inferior y FAB en pantallas grandes (Desktop >= 992px)
+   -------------------------------------------------------------------------- */
+@media (min-width: 992px) {
+  .mobile-bottom-nav,
+  .mobile-menu-fab {
+    display: none !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Respeto a Preferencia de Movimiento Reducido (Accesibilidad)
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-nav-item,
+  .mobile-menu-fab,
+  .mobile-nav-item.active .mobile-nav-icon,
+  .book-page-left,
+  .book-page-right,
+  .book-spine-line,
+  .x-diag-1,
+  .x-diag-2,
+  .app-sidebar.floating-island,
+  .app-sidebar.floating-island.is-open .carnet-cover-card,
+  .app-sidebar.floating-island.is-open .carnet-passport-block,
+  .app-sidebar.floating-island.is-open .carnet-leagues-block,
+  .app-sidebar.floating-island.is-open .carnet-spines-grid,
+  .app-sidebar.floating-island.is-open .carnet-logout-btn,
+  .app-sidebar.floating-island.is-open .stamp-circle.is-current {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+

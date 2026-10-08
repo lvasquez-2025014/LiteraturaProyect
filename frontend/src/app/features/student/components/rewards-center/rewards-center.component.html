@@ -167,7 +167,7 @@
       <div *ngFor="let item of frameItems" class="cosmetic-card" [class.card-equipped]="isItemEquipped(item)">
         <div class="cosmetic-preview-frame">
           <div class="avatar-preview-box" [ngClass]="item.id">
-            <img *ngIf="user?.avatarUrl" [src]="user?.avatarUrl" [alt]="user?.name" />
+            <img *ngIf="user?.avatarUrl" [src]="user?.avatarUrl" [alt]="user?.name" width="40" height="40" loading="lazy" decoding="async" />
             <span *ngIf="!user?.avatarUrl">{{ user?.name ? user?.name?.charAt(0) : 'E' }}</span>
           </div>
         </div>

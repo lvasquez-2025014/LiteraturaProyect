@@ -36,7 +36,7 @@
     <!-- 2do Lugar (Izquierda) -->
     <div class="podium-col col-second" *ngIf="topThree.second as p2">
       <div class="student-avatar-wrap" [ngClass]="p2.equippedFrame || 'frame-default'">
-        <img *ngIf="p2.avatarUrl" [src]="p2.avatarUrl" [alt]="p2.name" />
+        <img *ngIf="p2.avatarUrl" [src]="p2.avatarUrl" [alt]="p2.name" width="48" height="48" loading="lazy" decoding="async" />
         <span *ngIf="!p2.avatarUrl">{{ p2.name.charAt(0) }}</span>
         <span class="podium-medal medal-silver">2º</span>
       </div>
@@ -52,7 +52,7 @@
     <div class="podium-col col-first" *ngIf="topThree.first as p1">
       <div class="podium-crown"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#fbbf24" stroke="#d97706" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 12h14l3-12-5 4-5-4-5 4z"/><path d="M5 16h14v4H5z"/></svg></div>
       <div class="student-avatar-wrap avatar-first" [ngClass]="p1.equippedFrame || 'frame-gold'">
-        <img *ngIf="p1.avatarUrl" [src]="p1.avatarUrl" [alt]="p1.name" />
+        <img *ngIf="p1.avatarUrl" [src]="p1.avatarUrl" [alt]="p1.name" width="56" height="56" loading="lazy" decoding="async" />
         <span *ngIf="!p1.avatarUrl">{{ p1.name.charAt(0) }}</span>
         <span class="podium-medal medal-gold">1º</span>
       </div>
@@ -67,7 +67,7 @@
     <!-- 3er Lugar (Derecha) -->
     <div class="podium-col col-third" *ngIf="topThree.third as p3">
       <div class="student-avatar-wrap" [ngClass]="p3.equippedFrame || 'frame-default'">
-        <img *ngIf="p3.avatarUrl" [src]="p3.avatarUrl" [alt]="p3.name" />
+        <img *ngIf="p3.avatarUrl" [src]="p3.avatarUrl" [alt]="p3.name" width="48" height="48" loading="lazy" decoding="async" />
         <span *ngIf="!p3.avatarUrl">{{ p3.name.charAt(0) }}</span>
         <span class="podium-medal medal-bronze">3º</span>
       </div>
@@ -104,7 +104,7 @@
         </thead>
         <tbody>
           <tr 
-            *ngFor="let entry of entries()" 
+            *ngFor="let entry of entries(); trackBy: trackByEntry" 
             [class.row-current-user]="isCurrentUser(entry)">
             
             <!-- Rank -->
@@ -118,7 +118,7 @@
             <td>
               <div class="student-profile-cell">
                 <div class="cell-avatar" [ngClass]="entry.equippedFrame || 'frame-default'">
-                  <img *ngIf="entry.avatarUrl" [src]="entry.avatarUrl" [alt]="entry.name" />
+                  <img *ngIf="entry.avatarUrl" [src]="entry.avatarUrl" [alt]="entry.name" width="36" height="36" loading="lazy" decoding="async" />
                   <span *ngIf="!entry.avatarUrl">{{ entry.name.charAt(0) }}</span>
                 </div>
                 <div class="cell-details">

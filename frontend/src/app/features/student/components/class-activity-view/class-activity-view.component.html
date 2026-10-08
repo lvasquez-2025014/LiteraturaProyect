@@ -220,38 +220,166 @@
         </div>
       </div>
 
-      <!-- Ranking previo / en vivo de la clase -->
-      <div *ngIf="ranking().length > 0" class="lobby-ranking-preview">
-        <div class="ranking-header-bar">
-          <h3>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.2" style="vertical-align: -3px; margin-right: 6px;">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-            </svg>
-            Ranking Actual de la Clase
-          </h3>
-          <span class="participants-tag">{{ ranking().length }} alumnos completados</span>
-        </div>
+      <!-- Cuadro de Honor de la Clase (Índice de Honor) -->
+      <section *ngIf="ranking().length > 0" class="honor-index-board" aria-label="Cuadro de Honor de la Clase">
+        <!-- Encabezado Editorial -->
+        <header class="honor-board-header">
+          <div class="honor-eyebrow">
+            <span class="honor-eyebrow-dot" aria-hidden="true"></span>
+            <span>Cátedra activa · Emulación en tiempo real</span>
+          </div>
 
-        <div class="ranking-preview-list">
-          <div 
-            *ngFor="let item of ranking() | slice:0:5; let i = index" 
-            class="ranking-preview-item"
-            [class.is-current-user]="item.studentId === auth.currentUserSignal()?.id"
-          >
-            <span class="item-rank-badge" [ngClass]="getRankBadge(i).class">
-              {{ getRankBadge(i).emoji }}
-            </span>
-            <div class="item-student-meta">
-              <span class="item-student-name">{{ item.studentName }}</span>
-              <span class="item-student-grade">{{ item.grade || 'General' }} · {{ item.section || 'A' }}</span>
+          <div class="honor-header-row">
+            <h3 class="honor-title">
+              <span class="honor-bookmark-notch" aria-hidden="true"></span>
+              <span class="honor-title-text">
+                Cuadro de Honor de la Clase
+                <!-- Subrayado naranja dibujado a mano (SVG inline) -->
+                <svg class="honor-sketch-underline" viewBox="0 0 240 8" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M2 5.5C65 2.5 175 2.5 238 5.5" stroke="var(--accent, #E08E3E)" stroke-width="2.2" stroke-linecap="round"/>
+                </svg>
+              </span>
+            </h3>
+
+            <div class="honor-submissions-text">
+              {{ ranking().length }} {{ ranking().length === 1 ? 'acta calificada' : 'actas calificadas' }}
             </div>
-            <div class="item-score-box">
-              <span class="item-score-val">{{ item.score }}/100</span>
-              <span class="item-score-time">{{ formatTime(item.timeSpentSeconds) }}</span>
+          </div>
+        </header>
+
+        <!-- Contenido Principal: Portada (Líder) + Índice (Puestos 2-5 o Espera) -->
+        <div class="honor-board-content">
+          <!-- LÍDER DE LA SESIÓN: "PORTADA" -->
+          <article *ngIf="ranking()[0] as leader" class="honor-leader-cover" [class.is-current-user]="leader.studentId === auth.currentUserSignal()?.id">
+            <!-- Folio gigante recortado en la esquina (14% opacidad) -->
+            <span class="honor-leader-watermark" aria-hidden="true">1</span>
+
+            <!-- Cinta / Marcapáginas naranja con muesca en V -->
+            <div class="honor-leader-ribbon">
+              <span class="honor-ribbon-heading">Líder de la sesión</span>
+              <span class="honor-ribbon-sub">Laurel de honor</span>
+            </div>
+
+            <!-- Datos del Estudiante Líder -->
+            <div class="honor-leader-details">
+              <div class="honor-leader-name-row">
+                <span class="sr-only">Puesto 1</span>
+                <h4 class="honor-leader-name">{{ leader.studentName }}</h4>
+                <span *ngIf="leader.studentId === auth.currentUserSignal()?.id" class="honor-leader-you">Tú</span>
+              </div>
+              <p class="honor-leader-meta">
+                <span>{{ leader.grade || 'General' }}</span>
+                <span class="honor-interpunct" aria-hidden="true">·</span>
+                <span>Sección {{ leader.section || 'A' }}</span>
+              </p>
+            </div>
+
+            <!-- Cifras como tipografía -->
+            <div class="honor-leader-metrics">
+              <div class="honor-metric-col">
+                <div class="honor-metric-val">
+                  <span class="honor-score-highlight">{{ leader.score }}</span><span class="honor-score-base">/100</span>
+                </div>
+                <span class="honor-metric-label">Calificación</span>
+              </div>
+
+              <div class="honor-metric-divider" aria-hidden="true"></div>
+
+              <div class="honor-metric-col">
+                <div class="honor-metric-val">
+                  {{ formatTime(leader.timeSpentSeconds) }}
+                </div>
+                <span class="honor-metric-label">Tiempo</span>
+              </div>
+
+              <ng-container *ngIf="leader.wpm">
+                <div class="honor-metric-divider" aria-hidden="true"></div>
+
+                <div class="honor-metric-col">
+                  <div class="honor-metric-val">
+                    {{ leader.wpm }}
+                  </div>
+                  <span class="honor-metric-label">PPM</span>
+                </div>
+              </ng-container>
+            </div>
+          </article>
+
+          <!-- RESTO DE PUESTOS: ENTRADAS DEL ÍNDICE -->
+          <div *ngIf="ranking().length > 1" class="honor-index-section">
+            <div class="honor-index-header">
+              <span class="honor-index-subtitle">Registro oficial de segundos a quintos puestos</span>
+              <span class="honor-index-line" aria-hidden="true"></span>
+            </div>
+
+            <div class="honor-index-list">
+              @for (item of (ranking() | slice:1:5); track item.studentId; let i = $index) {
+                <div 
+                  class="honor-index-row"
+                  [class.is-current-user]="item.studentId === auth.currentUserSignal()?.id"
+                  [class.rank-ring-solid]="i === 0"
+                  [class.rank-ring-dashed]="i === 1"
+                  [class.rank-ring-none]="i >= 2"
+                >
+                  <!-- Pestaña naranja si es el usuario actual -->
+                  <span *ngIf="item.studentId === auth.currentUserSignal()?.id" class="honor-user-tab" aria-hidden="true"></span>
+
+                  <!-- Número de Puesto -->
+                  <div class="honor-rank-box" [attr.aria-label]="'Puesto ' + (i + 2)">
+                    <span class="honor-rank-num">{{ i + 2 }}</span>
+                  </div>
+
+                  <div class="honor-entry-body">
+                    <!-- Línea 1: Nombre .... [Línea de puntos] .... Calificación -->
+                    <div class="honor-line-primary">
+                      <span class="honor-student-name">
+                        {{ item.studentName }}
+                        <span *ngIf="item.studentId === auth.currentUserSignal()?.id" class="honor-user-tag">(Tú)</span>
+                      </span>
+                      <span class="honor-dotted-leader" aria-hidden="true"></span>
+                      <span class="honor-entry-score">{{ item.score }}/100</span>
+                    </div>
+
+                    <!-- Línea 2: Grado · Sección · PPM ................. Tiempo -->
+                    <div class="honor-line-secondary">
+                      <span class="honor-entry-meta">
+                        <span>{{ item.grade || 'General' }}</span>
+                        <span class="honor-interpunct" aria-hidden="true">·</span>
+                        <span>Sección {{ item.section || 'A' }}</span>
+                        <ng-container *ngIf="item.wpm">
+                          <span class="honor-interpunct" aria-hidden="true">·</span>
+                          <span>{{ item.wpm }} PPM</span>
+                        </ng-container>
+                      </span>
+                      <span class="honor-entry-time">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <span>{{ formatTime(item.timeSpentSeconds) }}</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- ESTADO DE ESPERA SI SOLO HAY 1 ALUMNO -->
+          <div *ngIf="ranking().length === 1" class="honor-awaiting-card">
+            <div class="honor-awaiting-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <div class="honor-awaiting-info">
+              <p class="honor-awaiting-title">Esperando entregas del resto de la clase</p>
+              <p class="honor-awaiting-sub">El índice de honor se actualizará automáticamente conforme tus compañeros completen la evaluación.</p>
             </div>
           </div>
         </div>
-      </div>
+      </section>
     </div>
 
     <!-- ========================================== -->

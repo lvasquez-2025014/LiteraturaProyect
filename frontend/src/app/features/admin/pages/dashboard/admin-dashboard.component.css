@@ -32,112 +32,31 @@
 }
 
 /* ==========================================================
- * HERO HEADER SECTION
+ * HERO ACCIONES
  * ========================================================== */
-.dashboard-hero {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 24px;
-  flex-wrap: wrap;
-}
-
-.hero-left {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.hero-tag-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.kinal-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: #eff6ff;
-  color: var(--primary, #1F2A44);
-  border: 1px solid #bfdbfe;
-  padding: 4px 12px;
-  border-radius: 9999px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-
-.pulsing-live-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.35);
-  animation: pulseLive 2s infinite ease-in-out;
-}
-
-@keyframes pulseLive {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.35);
-    opacity: 0.7;
-  }
-}
-
-.hero-date-chip {
-  font-size: 0.78rem;
-  color: #64748b;
-  font-weight: 600;
-}
-
-.hero-title {
-  font-size: 2.1rem;
-  font-weight: 800;
-  color: #0f172a;
-  letter-spacing: -0.025em;
-  line-height: 1.2;
-}
-
-.hero-subtitle {
-  color: #64748b;
-  font-size: 0.96rem;
-  max-width: 680px;
-  line-height: 1.5;
-}
-
-.hero-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
 .btn-create-account {
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  background: var(--primary);
-  color: #ffffff;
-  padding: 12px 22px;
+  background: #ffffff;
+  color: #001d4a;
+  padding: 11px 22px;
   border-radius: 12px;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   font-family: var(--font-heading, inherit);
   font-size: 0.92rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(31, 42, 68, 0.25);
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
 }
 
 .btn-create-account:hover {
+  background: #fff4ed;
+  color: #d8570c;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(31, 42, 68, 0.35);
-  background: var(--primary-hover);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.24);
 }
 
 .btn-create-account:active {

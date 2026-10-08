@@ -1,8 +1,4 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './features/auth/pages/login/login.component';
-import { StudentHomeComponent } from './features/student/pages/home/home.component';
-import { TeacherDashboardComponent } from './features/teacher/pages/dashboard/teacher-dashboard.component';
-import { AdminDashboardComponent } from './features/admin/pages/dashboard/admin-dashboard.component';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
 
@@ -14,24 +10,32 @@ export const routes: Routes = [
   },
   {
     path: 'login',
-    component: LoginComponent,
+    loadComponent: () =>
+      import('./features/auth/pages/login/login.component').then((m) => m.LoginComponent),
   },
   {
     path: 'estudiante',
-    component: StudentHomeComponent,
+    loadComponent: () =>
+      import('./features/student/pages/home/home.component').then((m) => m.StudentHomeComponent),
     canActivate: [authGuard, roleGuard],
     data: { roles: ['STUDENT_ROLE', 'TEACHER_ROLE', 'ADMIN_ROLE'] },
   },
 
   {
     path: 'profesor',
-    component: TeacherDashboardComponent,
+    loadComponent: () =>
+      import('./features/teacher/pages/dashboard/teacher-dashboard.component').then(
+        (m) => m.TeacherDashboardComponent
+      ),
     canActivate: [authGuard, roleGuard],
     data: { roles: ['TEACHER_ROLE', 'ADMIN_ROLE'] },
   },
   {
     path: 'admin',
-    component: AdminDashboardComponent,
+    loadComponent: () =>
+      import('./features/admin/pages/dashboard/admin-dashboard.component').then(
+        (m) => m.AdminDashboardComponent
+      ),
     canActivate: [authGuard, roleGuard],
     data: { roles: ['ADMIN_ROLE'] },
   },
